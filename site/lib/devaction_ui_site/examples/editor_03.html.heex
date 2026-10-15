@@ -1,6 +1,9 @@
 <%!-- title: Comment | text: The compact variant for comments: @ mentions, and Cmd+Enter sends --%>
 <.form for={%{}} id="comment-form" phx-submit="comment_send" class="flex flex-col gap-2">
   <Editor.editor
+    style_label="Text style"
+    words_label="words"
+    link_label="Link address"
     id="demo-comment"
     name="comment"
     label="Comment"

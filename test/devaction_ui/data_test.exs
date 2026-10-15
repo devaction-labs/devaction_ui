@@ -12,6 +12,10 @@ defmodule DevactionUI.DataTest do
   defp table(assigns) do
     ~H"""
     <DataTable.data_table
+      select_all_label="Select all"
+      select_row_label="Select row"
+      selected_label="__COUNT__ selected"
+      clear_label="Clear"
       id="t"
       label="People"
       rows={@rows}
@@ -29,6 +33,30 @@ defmodule DevactionUI.DataTest do
   end
 
   describe "DataTable" do
+    test "a stream makes the body a stream and shows the empty state on its own" do
+      assigns = %{stream: Phoenix.LiveView.LiveStream.new(:rows, 0, @rows, [])}
+
+      html =
+        rendered_to_string(~H"""
+        <DataTable.data_table
+          id="t"
+          label="L"
+          rows={@stream}
+          select_all_label="a"
+          select_row_label="b"
+          selected_label="c"
+          clear_label="d"
+        >
+          <:col :let={row} label="Name" key="name">{row.name}</:col>
+          <:empty>None</:empty>
+        </DataTable.data_table>
+        """)
+
+      assert html =~ ~s(phx-update="stream")
+      assert html =~ ~s(id="t-empty")
+      assert html =~ "only:table-row"
+    end
+
     test "draws the caption, the headers and a row per item" do
       assigns = %{rows: @rows, sort: nil, selectable: false, density: :comfortable}
 
@@ -102,7 +130,13 @@ defmodule DevactionUI.DataTest do
 
       html =
         rendered_to_string(~H"""
-        <Kanban.kanban id="k" label="Tasks">
+        <Kanban.kanban
+          drop_label="Drop here"
+          full_label="Limit reached"
+          moved_label="Moved to __COLUMN__"
+          id="k"
+          label="Tasks"
+        >
           <:column id="todo" title="To do" count={1}>
             <Kanban.card id="a">First</Kanban.card>
           </:column>
@@ -134,6 +168,7 @@ defmodule DevactionUI.DataTest do
       html =
         rendered_to_string(~H"""
         <Kanban.kanban
+          full_label="Limit reached"
           id="k"
           label="Tarefas"
           event="mover"

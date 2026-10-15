@@ -294,7 +294,7 @@ defmodule DevactionUI.InputsTest do
       assert html =~ "data-clear"
       assert html =~ ~s(name="signature[path]")
       assert html =~ ~s(name="signature[method]" value="draw")
-      assert html =~ ~s(aria-checked="true")
+      assert html =~ ~s(aria-pressed="true")
       assert html =~ "Use the mouse"
       refute html =~ ~s(name="signature[typed]")
     end

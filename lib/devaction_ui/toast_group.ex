@@ -38,6 +38,7 @@ defmodule DevactionUI.ToastGroup do
   end
 
   attr :rest, :global
+  slot :close_icon, doc: "replaces the typographic × that dismisses a toast"
 
   def toast_group(assigns) do
     ~H"""
@@ -96,7 +97,7 @@ defmodule DevactionUI.ToastGroup do
           aria-label={@dismiss_label}
           class="shrink-0 rounded-md px-1.5 text-lg leading-none opacity-70 outline-none hover:opacity-100 focus-visible:ring-2 focus-visible:ring-current"
         >
-          <span aria-hidden="true">×</span>
+          <span aria-hidden="true">{render_slot(@close_icon) || "×"}</span>
         </button>
       </div>
       <button

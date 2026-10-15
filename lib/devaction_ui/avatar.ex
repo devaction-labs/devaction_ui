@@ -60,7 +60,7 @@ defmodule DevactionUI.Avatar do
     """
   end
 
-  attr :name, :string, default: "DevAction IA"
+  attr :name, :string, required: true
   attr :size, :atom, values: [:xs, :sm, :md, :lg, :xl], default: :md
   attr :class, :any, default: nil
   attr :rest, :global

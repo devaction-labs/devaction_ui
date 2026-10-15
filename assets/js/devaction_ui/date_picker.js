@@ -35,7 +35,7 @@ export default {
     const target = (selector) => event.target.closest(selector)
     const actions = [
       ["[data-day]", (day) => !day.disabled && this.pick(day.dataset.day)],
-      ["[data-nav]", (nav) => this.shift(Number.parseInt(nav.dataset.nav, 10))],
+      ["[data-nav]", (nav) => this.shift(Number.parseInt(nav.dataset.nav, 10), nav.dataset.nav)],
       ["[data-shortcut]", (shortcut) => this.pick(shortcut.dataset.shortcut, {jump: true})],
     ]
     const [selector, act] = actions.find(([candidate]) => target(candidate)) ?? []
@@ -53,11 +53,12 @@ export default {
     runKey(Object.fromEntries(keys.map((key) => [key, goTo(key)])), event)
   },
 
-  shift(months) {
+  shift(months, nav) {
     this.view = shiftMonth(this.view, months)
     // The keyboard needs a day to land on in the month that is showing: keep the same day number.
     this.focus = sameDayIn(this.focus, this.view)
     this.draw()
+    nav && this.el.querySelector(`[data-nav="${nav}"]`)?.focus()
   },
 
   pick(iso, {jump = false} = {}) {

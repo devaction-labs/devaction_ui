@@ -37,6 +37,10 @@ defmodule DevactionUI.Sidebar do
 
   slot :icon, doc: "the icon of an item; gets `%{label: item label}`"
 
+  attr :target, :any,
+    default: nil,
+    doc: "a `phx-target` (a `@myself`) when used inside a LiveComponent"
+
   attr :rest, :global
 
   def sidebar(assigns) do
@@ -84,6 +88,7 @@ defmodule DevactionUI.Sidebar do
           aria-label={@toggle_label}
           aria-expanded={to_string(!@collapsed)}
           phx-click={@on_toggle}
+          phx-target={@target}
           class="sidebar-link outline-none focus-visible:ring-4 focus-visible:ring-ink/10"
         >
           <span class="size-5 shrink-0">{render_slot(@toggle_icon)}</span>

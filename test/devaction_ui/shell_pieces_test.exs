@@ -8,7 +8,7 @@ defmodule DevactionUI.ShellPiecesTest do
   alias DevactionUI.{CommandPalette, PageHeader, Segmented, Sidebar}
 
   describe "Segmented" do
-    test "is a radiogroup that marks the chosen option and sends the value of a press" do
+    test "is a group of toggle buttons that marks the chosen option and sends the value of a press" do
       assigns = %{}
 
       html =
@@ -19,10 +19,10 @@ defmodule DevactionUI.ShellPiecesTest do
         </Segmented.segmented>
         """)
 
-      assert html =~ ~s(role="radiogroup")
+      assert html =~ ~s(role="group")
       assert html =~ ~s(aria-label="View")
-      assert html =~ ~s(aria-checked="true")
-      assert html =~ ~s(aria-checked="false")
+      assert html =~ ~s(aria-pressed="true")
+      assert html =~ ~s(aria-pressed="false")
       assert html =~ ~s(phx-click="pick")
       assert html =~ ~s(phx-value-value="list")
       assert html =~ ~r/>\s*3\s*</
@@ -196,14 +196,14 @@ defmodule DevactionUI.ShellPiecesTest do
     test "has the scopes and the ask-the-AI row with what was typed, or neither" do
       html = palette()
 
-      assert html =~ ~s(role="radiogroup")
+      assert html =~ ~s(role="group")
       assert html =~ ~s(phx-click="scope")
       assert html =~ ~s(phx-click="ask")
       assert html =~ ~s(phx-value-q="ec")
       assert html =~ "data-ask"
 
       bare = palette(%{scopes: [], ask: nil, groups: []})
-      refute bare =~ "radiogroup"
+      refute bare =~ ~s(phx-click="scope")
       refute bare =~ "data-ask"
       assert bare =~ "Nothing."
     end

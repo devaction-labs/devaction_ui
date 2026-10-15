@@ -39,8 +39,8 @@ defmodule DevactionUI.Editor do
     default: [],
     doc: "`[{label, value}]` with values `paragraph`, `h2`, `h3`; empty hides the select"
 
-  attr :style_label, :string, default: "Text style"
-  attr :words_label, :string, default: "words"
+  attr :style_label, :string, required: true
+  attr :words_label, :string, required: true
   attr :slash, :list, default: [], doc: "`[%{key, label}]` for the `/` menu; empty turns it off"
   attr :mentions, :list, default: [], doc: "`[%{id, label}]` for the `@` menu; empty turns it off"
 
@@ -62,7 +62,7 @@ defmodule DevactionUI.Editor do
 
   attr :compact, :boolean, default: false, doc: "the short comment form"
   attr :send_on_enter, :boolean, default: false, doc: "⌘↵ or Ctrl↵ submits the form"
-  attr :link_label, :string, default: "Link address"
+  attr :link_label, :string, required: true
   attr :class, :any, default: nil
 
   attr :rest, :global,

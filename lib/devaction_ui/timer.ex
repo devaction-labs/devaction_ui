@@ -65,6 +65,10 @@ defmodule DevactionUI.Timer do
   slot :pause_icon, doc: "the icon of the round pause button"
   slot :log_icon, doc: "the icon of the round stop-and-log button"
 
+  attr :target, :any,
+    default: nil,
+    doc: "a `phx-target` (a `@myself`) when used inside a LiveComponent"
+
   attr :rest, :global
 
   def timer(assigns) do
@@ -105,6 +109,7 @@ defmodule DevactionUI.Timer do
           id={"#{@id}-toggle"}
           type="button"
           phx-click={@toggle_event}
+          phx-target={@target}
           aria-pressed={to_string(@running?)}
           aria-label={(@running? && @pause_label) || @start_label}
           class={[
@@ -118,6 +123,7 @@ defmodule DevactionUI.Timer do
           id={"#{@id}-log"}
           type="button"
           phx-click={@log_event}
+          phx-target={@target}
           disabled={@seconds == 0}
           aria-label={@log_label}
           class="grid size-13 place-items-center rounded-full border border-line-strong bg-card text-ink outline-none hover:bg-wrap focus-visible:ring-4 focus-visible:ring-ink/10 disabled:cursor-not-allowed disabled:opacity-40"

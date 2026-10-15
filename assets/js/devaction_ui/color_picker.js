@@ -24,6 +24,11 @@ export default {
     this.render(false)
   },
 
+  updated() {
+    const next = hexToHsv(this.input.value)
+    next && this.input.value !== this.value() && this.set({...next, a: this.alpha ? next.a : 100}, {keepInput: true})
+  },
+
   destroyed() {
     document.removeEventListener("pointerdown", this.outside)
   },
@@ -125,7 +130,7 @@ export default {
     this.alpha && (this.alpha.value = a)
     this.el
       .querySelectorAll("[data-preset]")
-      .forEach((button) => button.setAttribute("aria-checked", String(button.dataset.preset.toUpperCase() === hex)))
+      .forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.preset.toUpperCase() === hex)))
     keepInput || (this.input.value = this.value())
     emit && this.emit()
   },

@@ -40,18 +40,22 @@ defmodule DevactionUI.SignatureField do
   attr :hint, :string, default: nil
   attr :class, :any, default: nil
 
+  attr :target, :any,
+    default: nil,
+    doc: "a `phx-target` (a `@myself`) when used inside a LiveComponent"
+
   attr :rest, :global
 
   def signature_field(assigns) do
     ~H"""
     <div id={@id} class={["flex flex-col gap-2.5", @class]} {@rest}>
-      <div role="radiogroup" aria-label={@label} class="segmented self-start">
+      <div role="group" aria-label={@label} class="segmented self-start">
         <button
           :for={{mode, text} <- [draw: @draw_label, type: @type_label]}
           type="button"
-          role="radio"
-          aria-checked={to_string(@mode == mode)}
+          aria-pressed={to_string(@mode == mode)}
           phx-click={@mode_event}
+          phx-target={@target}
           phx-value-mode={mode}
           class="segment outline-none focus-visible:ring-4 focus-visible:ring-ink/10"
         >

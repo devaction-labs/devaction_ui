@@ -1,5 +1,9 @@
 <%!-- title: Densities | text: Comfortable rows by default, compact when there is a lot to scan. --%>
 <DataTable.data_table
+  select_all_label="Select all"
+  select_row_label="Select row"
+  selected_label="__COUNT__ selected"
+  clear_label="Clear"
   id="data-table-comfortable"
   label="Invoices, comfortable"
   rows={[
@@ -13,6 +17,10 @@
   <:col :let={row} label="Amount" class="font-mono">{row.amount}</:col>
 </DataTable.data_table>
 <DataTable.data_table
+  select_all_label="Select all"
+  select_row_label="Select row"
+  selected_label="__COUNT__ selected"
+  clear_label="Clear"
   id="data-table-compact"
   label="Invoices, compact"
   density={:compact}

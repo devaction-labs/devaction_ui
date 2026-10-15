@@ -91,6 +91,10 @@ defmodule DevactionUI.Calendar do
   slot :next_icon
   slot :actions, doc: "controls beside the arrows, such as a month and week switch"
 
+  attr :target, :any,
+    default: nil,
+    doc: "a `phx-target` (a `@myself`) when used inside a LiveComponent"
+
   attr :rest, :global
 
   def calendar(assigns) do
@@ -114,6 +118,7 @@ defmodule DevactionUI.Calendar do
             type="button"
             aria-label={@prev_label}
             phx-click={@prev_event}
+            phx-target={@target}
             class="grid size-9 place-items-center rounded-[10px] border border-line bg-card text-ink-2 outline-none hover:bg-wrap focus-visible:ring-4 focus-visible:ring-ink/10"
           >
             {render_slot(@prev_icon)}
@@ -123,6 +128,7 @@ defmodule DevactionUI.Calendar do
             type="button"
             aria-label={@next_label}
             phx-click={@next_event}
+            phx-target={@target}
             class="grid size-9 place-items-center rounded-[10px] border border-line bg-card text-ink-2 outline-none hover:bg-wrap focus-visible:ring-4 focus-visible:ring-ink/10"
           >
             {render_slot(@next_icon)}
@@ -159,6 +165,7 @@ defmodule DevactionUI.Calendar do
             aria-current={day == @today && "date"}
             aria-label={cell_label(day, Map.get(@by_day, day, []))}
             phx-click={@select_event}
+            phx-target={@target}
             phx-value-date={Date.to_iso8601(day)}
             class={[
               "calendar-cell cursor-pointer outline-none focus-visible:relative focus-visible:z-10 focus-visible:ring-4 focus-visible:ring-ink/10",

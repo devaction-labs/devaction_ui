@@ -16,6 +16,9 @@ defmodule DevactionUI.EditorTest do
 
     rendered_to_string(~H"""
     <Editor.editor
+      style_label="Text style"
+      words_label="words"
+      link_label="Link address"
       id="e"
       name="note"
       label="Notes"
@@ -66,6 +69,9 @@ defmodule DevactionUI.EditorTest do
     html =
       rendered_to_string(~H"""
       <Editor.editor
+        style_label="Text style"
+        words_label="words"
+        link_label="Link address"
         id="c"
         name="comment"
         label="Comment"
@@ -98,7 +104,14 @@ defmodule DevactionUI.EditorTest do
 
     off =
       rendered_to_string(~H"""
-      <Editor.editor id="e" name="n" label="L">
+      <Editor.editor
+        style_label="Text style"
+        words_label="words"
+        link_label="Link address"
+        id="e"
+        name="n"
+        label="L"
+      >
         <:tool name="image" label="Image">I</:tool>
       </Editor.editor>
       """)
@@ -108,6 +121,9 @@ defmodule DevactionUI.EditorTest do
     on =
       rendered_to_string(~H"""
       <Editor.editor
+        style_label="Text style"
+        words_label="words"
+        link_label="Link address"
         id="e"
         name="n"
         label="L"

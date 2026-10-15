@@ -4,6 +4,9 @@ defmodule DevactionUI.DataTable do
   the table only draws the arrows), optional row selection with a tri-state header checkbox and a bulk
   bar that appears while something is selected, two densities and an empty state.
 
+  `rows` is a list, or a stream (`stream(socket, :rows, rows)`) when the table is long: then the body is a
+  `phx-update="stream"` and the empty state shows on its own when the stream is empty.
+
   The columns are `:col` slots (`label`, `key`, `sortable`, `class`), each given the row with `:let`.
   Selection is the browser's: the checkboxes are plain inputs named `name[]`, a hook keeps the header
   checkbox and the bulk bar in step, and fires `input` on the table so a form around it hears the change.
@@ -15,7 +18,11 @@ defmodule DevactionUI.DataTable do
 
   attr :id, :string, required: true
   attr :label, :string, required: true, doc: "what the table lists, for assistive technology"
-  attr :rows, :list, required: true
+
+  attr :rows, :any,
+    required: true,
+    doc: "a list, or a `Phoenix.LiveView.LiveStream` for a long table"
+
   attr :row_id, :any, default: &DevactionUI.DataTable.default_id/1, doc: "a function: row -> id"
   attr :sort, :any, default: nil, doc: "`{key, :asc | :desc}` or nil"
 
@@ -27,10 +34,10 @@ defmodule DevactionUI.DataTable do
   attr :name, :string, default: "selected", doc: "the field name of the row checkboxes (`name[]`)"
   attr :density, :atom, values: [:comfortable, :compact], default: :comfortable
   attr :max_height, :string, default: "max-h-[420px]"
-  attr :select_all_label, :string, default: "Select all"
-  attr :select_row_label, :string, default: "Select row"
-  attr :selected_label, :string, default: "__COUNT__ selected"
-  attr :clear_label, :string, default: "Clear"
+  attr :select_all_label, :string, required: true
+  attr :select_row_label, :string, required: true
+  attr :selected_label, :string, required: true, doc: "with `__COUNT__`"
+  attr :clear_label, :string, required: true
   attr :class, :any, default: nil
 
   slot :col, required: true do
@@ -43,9 +50,19 @@ defmodule DevactionUI.DataTable do
   slot :bulk, doc: "the actions of the bulk bar"
   slot :empty, doc: "shown when there are no rows"
 
+  attr :target, :any,
+    default: nil,
+    doc: "a `phx-target` (a `@myself`) when used inside a LiveComponent"
+
   attr :rest, :global
 
   def data_table(assigns) do
+    assigns =
+      assign(assigns,
+        entries: entries(assigns.rows, assigns.row_id, assigns.id),
+        streaming: streaming?(assigns.rows)
+      )
+
     ~H"""
     <div
       id={@id}
@@ -95,6 +112,7 @@ defmodule DevactionUI.DataTable do
                   :if={Map.get(col, :sortable, false) && @on_sort}
                   type="button"
                   phx-click={@on_sort}
+                  phx-target={@target}
                   phx-value-key={col.key}
                   class="inline-flex items-center gap-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] outline-none hover:text-ink focus-visible:text-ink"
                 >
@@ -105,10 +123,10 @@ defmodule DevactionUI.DataTable do
               </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id={"#{@id}-body"} phx-update={@streaming && "stream"}>
             <tr
-              :for={row <- @rows}
-              id={"#{@id}-row-#{@row_id.(row)}"}
+              :for={{dom_id, row} <- @entries}
+              id={dom_id}
               class="group/row hover:bg-wrap has-[input:checked]:bg-ink/[.04]"
             >
               <td :if={@selectable} class={[td(@density), "w-10"]}>
@@ -125,7 +143,11 @@ defmodule DevactionUI.DataTable do
                 {render_slot(col, row)}
               </td>
             </tr>
-            <tr :if={@rows == []}>
+            <tr
+              :if={@streaming or @entries == []}
+              id={"#{@id}-empty"}
+              class={@streaming && "hidden only:table-row"}
+            >
               <td
                 colspan={columns(@col, @selectable)}
                 class="px-4 py-8 text-center text-muted"
@@ -157,6 +179,12 @@ defmodule DevactionUI.DataTable do
   defp sort_state(%{key: key}, {key, :desc}), do: "descending"
   defp sort_state(%{sortable: true}, _sort), do: "none"
   defp sort_state(_col, _sort), do: nil
+
+  defp entries(%Phoenix.LiveView.LiveStream{} = stream, _row_id, _id), do: stream
+  defp entries(rows, row_id, id), do: Enum.map(rows, &{"#{id}-row-#{row_id.(&1)}", &1})
+
+  defp streaming?(%Phoenix.LiveView.LiveStream{}), do: true
+  defp streaming?(_rows), do: false
 
   defp arrow(%{key: key}, {key, :asc}), do: "↑"
   defp arrow(%{key: key}, {key, :desc}), do: "↓"

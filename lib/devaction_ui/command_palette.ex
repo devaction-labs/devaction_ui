@@ -45,11 +45,15 @@ defmodule DevactionUI.CommandPalette do
       phx-hook="DevactionUI.Autocomplete"
       class="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[12vh]"
       phx-mounted={JS.focus(to: "##{@id}-input")}
-      phx-window-keydown={JS.push(@close_event)}
+      phx-window-keydown={JS.pop_focus() |> JS.push(@close_event)}
       phx-key="escape"
       {@rest}
     >
-      <div class="modal-backdrop" phx-click={JS.push(@close_event)} aria-hidden="true" />
+      <div
+        class="modal-backdrop"
+        phx-click={JS.pop_focus() |> JS.push(@close_event)}
+        aria-hidden="true"
+      />
       <.focus_wrap
         id={"#{@id}-panel"}
         role="dialog"

@@ -6,6 +6,8 @@ defmodule DevactionUI.Dropzone do
   """
   use Phoenix.Component
 
+  alias Phoenix.LiveView.JS
+
   attr :id, :string, required: true
   attr :upload, Phoenix.LiveView.UploadConfig, required: true
 
@@ -26,6 +28,7 @@ defmodule DevactionUI.Dropzone do
       <label
         for={@upload.ref}
         phx-drop-target={@upload.ref}
+        phx-mounted={JS.ignore_attributes(["data-over"])}
         class="flex cursor-pointer flex-col items-center gap-2 rounded-[14px] border-[1.5px] border-dashed border-line-strong bg-wrap p-[22px] text-center transition-colors has-[:focus-visible]:ring-4 has-[:focus-visible]:ring-ink/10 hover:border-ink data-[over]:border-ink data-[over]:bg-card motion-reduce:transition-none"
       >
         <span :if={@icon != []} class="text-ink-2" aria-hidden="true">{render_slot(@icon)}</span>

@@ -331,7 +331,7 @@
   .cmdk-footer { @apply flex items-center gap-4 border-t border-line-soft bg-wrap/60 px-4 py-2.5 text-xs text-muted; }
   .segmented   { @apply inline-flex rounded-[11px] border border-line bg-wrap p-[3px]; }
   .segment     { @apply inline-flex h-8.5 items-center justify-center gap-1.5 rounded-lg px-3 text-sm font-medium text-ink-2
-                        aria-checked:bg-card aria-checked:text-ink aria-checked:shadow-sm; }
+                        aria-pressed:bg-card aria-pressed:text-ink aria-pressed:shadow-sm; }
   .segmented-full { @apply flex w-full [&>.segment]:flex-1; }
   .app-shell   { @apply flex min-h-dvh flex-wrap gap-4 bg-frame p-4; }
   .sidebar     { @apply flex w-59 shrink-0 flex-col gap-5 px-1 py-3 transition-[width] data-[collapsed=true]:w-16 max-md:hidden; }
@@ -373,7 +373,7 @@
                          background: linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, var(--cp-hue)); }
   .color-picker-handle { @apply pointer-events-none absolute -mt-2 -ml-2 size-4 rounded-full border-2 border-white shadow-[0_0_0_1px_rgb(0_0_0/0.3)]; }
   .color-picker-presets{ @apply grid grid-cols-8 gap-1.5; }
-  .color-picker-preset { @apply aspect-square cursor-pointer rounded-[7px] shadow-[inset_0_0_0_1px_rgb(0_0_0/0.1)] aria-checked:shadow-[0_0_0_2px_var(--card),0_0_0_4px_var(--ink)]; }
+  .color-picker-preset { @apply aspect-square cursor-pointer rounded-[7px] shadow-[inset_0_0_0_1px_rgb(0_0_0/0.1)] aria-pressed:shadow-[0_0_0_2px_var(--card),0_0_0_4px_var(--ink)]; }
   .color-picker-hue, .color-picker-alpha { @apply h-5.5 w-full cursor-pointer appearance-none bg-transparent; }
 
   .filter-menu        { @apply relative inline-block; }

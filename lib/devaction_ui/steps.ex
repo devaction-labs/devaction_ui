@@ -10,6 +10,7 @@ defmodule DevactionUI.Steps do
   attr :class, :any, default: nil
 
   attr :rest, :global
+  slot :done_icon, doc: "replaces the typographic ✓ of a finished step"
 
   def steps(assigns) do
     ~H"""
@@ -25,7 +26,7 @@ defmodule DevactionUI.Steps do
             index == @current && "border-2 border-ai text-ink",
             index > @current && "border border-line-strong"
           ]}>
-            <span :if={index < @current} aria-hidden="true">✓</span>
+            <span :if={index < @current} aria-hidden="true">{render_slot(@done_icon) || "✓"}</span>
             <span :if={index >= @current}>{index}</span>
           </span>
           <span class={index == @current && "font-medium text-ink"}>{label}</span>

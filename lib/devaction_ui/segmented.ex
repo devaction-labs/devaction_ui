@@ -1,7 +1,7 @@
 defmodule DevactionUI.Segmented do
   @moduledoc """
   A control to pick one of a few options that change the view at once (list or board, week or month): a pill with
-  a segment per option. It is a `radiogroup` of buttons with `aria-checked`; the caller keeps the value and
+  a segment per option. It is a `group` of toggle buttons with `aria-pressed`; the caller keeps the value and
   learns of a choice through `event` (`phx-value-value`). A segment can have an icon, a count, or only an icon
   (the label is then read by assistive technology). `full` stretches it to the width of its box.
   """
@@ -28,13 +28,17 @@ defmodule DevactionUI.Segmented do
 
   slot :icon, doc: "the icon of an option; gets `%{value: option value}`"
 
+  attr :target, :any,
+    default: nil,
+    doc: "a `phx-target` (a `@myself`) when used inside a LiveComponent"
+
   attr :rest, :global
 
   def segmented(assigns) do
     ~H"""
     <div
       id={@id}
-      role="radiogroup"
+      role="group"
       aria-label={@label}
       class={["segmented", @full && "segmented-full", @class]}
       {@rest}
@@ -43,10 +47,10 @@ defmodule DevactionUI.Segmented do
         :for={option <- @option}
         id={"#{@id}-#{option.value}"}
         type="button"
-        role="radio"
-        aria-checked={to_string(option.value == @value)}
+        aria-pressed={to_string(option.value == @value)}
         aria-label={Map.get(option, :icon_only) && option.label}
         phx-click={@event}
+        phx-target={@target}
         phx-value-value={option.value}
         class={[
           "segment outline-none focus-visible:ring-4 focus-visible:ring-ink/10",

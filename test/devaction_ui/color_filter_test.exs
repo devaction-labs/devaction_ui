@@ -55,11 +55,11 @@ defmodule DevactionUI.ColorFilterTest do
       assert html =~ ~s(max="360")
     end
 
-    test "there are eight presets by default, each a radio named by its colour" do
+    test "there are eight presets by default, each a toggle button named by its colour" do
       html = picker()
 
       assert length(Regex.scan(~r/data-preset="#/, html)) == 8
-      assert html =~ ~s(role="radiogroup")
+      assert html =~ ~s(role="group")
       assert html =~ ~s(aria-label="Ready colours")
       assert html =~ ~s(data-preset="#2563EB")
     end

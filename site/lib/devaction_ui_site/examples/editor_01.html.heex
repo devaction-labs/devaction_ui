@@ -1,6 +1,8 @@
 <%!-- title: Full Editor | text: Toolbar, text styles, / menu, @ mentions and a word count --%>
 <.form for={%{}} id="editor-form" phx-change="editor_change" class="flex flex-col gap-3">
   <Editor.editor
+    style_label="Text style"
+    link_label="Link address"
     id="demo-editor"
     name="note"
     label="Delivery notes"

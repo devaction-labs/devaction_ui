@@ -9,7 +9,9 @@ defmodule DevactionUISite.Endpoint do
     store: :cookie,
     key: "_devaction_ui_site",
     signing_salt: "devaction-ui-session",
-    same_site: "Lax"
+    same_site: "Lax",
+    secure: Application.compile_env(:devaction_ui_site, :secure_cookies, false),
+    http_only: true
   ]
 
   socket "/live", Phoenix.LiveView.Socket,

@@ -21,6 +21,10 @@ export default {
     this.count()
   },
 
+  updated() {
+    this.count()
+  },
+
   destroyed() {
     document.removeEventListener("pointerdown", this.outside)
   },

@@ -58,14 +58,14 @@ export default {
   },
 
   dismiss(toast) {
-    this.pushEvent(this.el.dataset.onDismiss, {id: toast.id})
+    this.pushEventTo(this.el, this.el.dataset.onDismiss, {id: toast.id})
     toast.remove()
     this.layout()
   },
 
   clear() {
     this.toasts().forEach((toast) => toast.remove())
-    this.pushEvent(this.el.dataset.onClear, {})
+    this.pushEventTo(this.el, this.el.dataset.onClear, {})
     this.layout()
   },
 

@@ -3,7 +3,8 @@ defmodule DevactionUI.Kanban do
   A board of columns with cards that move: drag a card to another column or to another place in its own,
   or focus it and press Alt + arrow keys (←→ between columns, ↑↓ within one). The hook moves the card in the
   page at once and tells the LiveView, which stays the source of truth: it receives the event with
-  `%{"card" => id, "from" => column, "to" => column, "index" => position}` and re-renders.
+  `%{"card" => id, "from" => column, "to" => column, "index" => position}` and re-renders. To refuse a move,
+  answer with `{:reply, %{rejected: true}, socket}` and the hook puts the card back where it was.
 
   A column may have a `wip` limit: when it is full it turns red and takes no more cards from other columns.
   While a card is dragged the target shows a dashed "drop here" slot (`drop_label`). The caller gives the
@@ -18,9 +19,9 @@ defmodule DevactionUI.Kanban do
     default: "move_card",
     doc: "the event sent to the LiveView when a card moves"
 
-  attr :drop_label, :string, default: "Drop here"
-  attr :full_label, :string, default: "Limit reached"
-  attr :moved_label, :string, default: "Moved to __COLUMN__"
+  attr :drop_label, :string, required: true
+  attr :full_label, :string, required: true
+  attr :moved_label, :string, required: true, doc: "with `__COLUMN__`"
   attr :class, :any, default: nil
 
   slot :column, required: true do

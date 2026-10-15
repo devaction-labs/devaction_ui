@@ -107,7 +107,8 @@ export default {
 
     const toColumn = (delta) => () => {
       const target = columns[columns.indexOf(column) + delta]
-      if (!target || this.full(target, card)) return false
+      if (!target) return false
+      if (this.full(target, card)) return this.say(this.el.dataset.fullLabel)
       this.place(card, target.querySelector("[data-cards]"), null)
       card.focus()
     }
@@ -135,6 +136,7 @@ export default {
   place(card, cards, before) {
     const from = card.closest("[data-column]").dataset.column
     const hadFocus = card === document.activeElement
+    const origin = {parent: card.parentElement, next: card.nextElementSibling}
     cards.insertBefore(card, before)
     const column = cards.closest("[data-column]")
     const index = this.cardsOf(column).indexOf(card)
@@ -142,7 +144,19 @@ export default {
     this.meters()
     this.focusId = hadFocus ? card.id : null
     this.el.querySelector("[data-live]").textContent = this.el.dataset.movedLabel.replace("__COLUMN__", column.dataset.title)
-    this.pushEvent(this.el.dataset.event, {card: card.dataset.cardId, from, to: column.dataset.column, index})
+    this.pushEventTo(this.el, this.el.dataset.event, {card: card.dataset.cardId, from, to: column.dataset.column, index}, (reply) =>
+      reply?.rejected && this.restore(card, origin),
+    )
+  },
+
+  restore(card, {parent, next}) {
+    parent.insertBefore(card, next)
+    this.meters()
+  },
+
+  say(text) {
+    this.el.querySelector("[data-live]").textContent = text
+    return false
   },
 
   meters() {

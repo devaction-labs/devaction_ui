@@ -31,6 +31,10 @@ defmodule DevactionUI.Dropdown do
 
   slot :check_icon, required: true, doc: "the check mark of the chosen item, drawn by the caller"
 
+  attr :target, :any,
+    default: nil,
+    doc: "a `phx-target` (a `@myself`) when used inside a LiveComponent"
+
   attr :rest, :global
 
   def dropdown(assigns) do
@@ -68,7 +72,7 @@ defmodule DevactionUI.Dropdown do
             class="mx-1 my-1.5 h-px bg-line-soft"
             role="separator"
           />
-          <.menu_item item={item} check_icon={@check_icon} />
+          <.menu_item item={item} check_icon={@check_icon} target={@target} />
         <% end %>
       </div>
     </div>
@@ -77,6 +81,7 @@ defmodule DevactionUI.Dropdown do
 
   attr :item, :map, required: true
   attr :check_icon, :list, required: true
+  attr :target, :any, default: nil
 
   defp menu_item(assigns) do
     assigns = assign(assigns, :checked, Map.get(assigns.item, :checked))
@@ -101,6 +106,7 @@ defmodule DevactionUI.Dropdown do
       aria-checked={not is_nil(@checked) && to_string(@checked)}
       tabindex="-1"
       phx-click={Map.get(@item, :event)}
+      phx-target={@target}
       phx-value-choice={Map.get(@item, :value)}
       class={[item_class(@item), @checked && "bg-wrap"]}
     >

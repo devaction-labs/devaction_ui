@@ -76,7 +76,8 @@ defmodule DevactionUI.AvatarTest do
   test "the agent is amber, has its own mark and a name for assistive technology" do
     assigns = %{}
 
-    html = rendered_to_string(~H|<Avatar.agent size={:lg}>MARK</Avatar.agent>|)
+    html =
+      rendered_to_string(~H|<Avatar.agent name="DevAction IA" size={:lg}>MARK</Avatar.agent>|)
 
     assert html =~ "border-ai"
     assert html =~ "MARK"

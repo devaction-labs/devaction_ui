@@ -129,16 +129,15 @@ defmodule DevactionUI.ColorPicker do
         >
           {@eyedropper_label}
         </button>
-        <div class="color-picker-presets" role="radiogroup" aria-label={@presets_label}>
+        <div class="color-picker-presets" role="group" aria-label={@presets_label}>
           <button
             :for={preset <- @safe_presets}
             type="button"
-            role="radio"
             class="color-picker-preset"
             style={"background: #{preset}"}
             data-preset={preset}
             aria-label={preset}
-            aria-checked="false"
+            aria-pressed="false"
             phx-mounted={keep_client_attributes()}
           ></button>
         </div>
@@ -155,6 +154,6 @@ defmodule DevactionUI.ColorPicker do
   defp safe(_color, fallback, false), do: fallback
 
   defp keep_client_attributes do
-    JS.ignore_attributes(["hidden", "aria-expanded", "aria-checked", "style", "data-open"])
+    JS.ignore_attributes(["hidden", "aria-expanded", "aria-pressed", "style", "data-open"])
   end
 end

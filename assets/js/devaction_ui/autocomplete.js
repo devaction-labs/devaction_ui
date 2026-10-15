@@ -18,6 +18,10 @@ export default {
     this.activate(0)
   },
 
+  destroyed() {
+    clearTimeout(this.closing)
+  },
+
   list() {
     return this.el.querySelector('[role="listbox"]')
   },
@@ -33,12 +37,14 @@ export default {
   show(visible) {
     const list = this.list()
     list && (list.hidden = !visible)
+    this.el.querySelector('[role="combobox"]')?.setAttribute("aria-expanded", String(Boolean(list) && visible))
   },
 
   onFocusOut(event) {
     if (event.relatedTarget && this.el.contains(event.relatedTarget)) return
     // A click on a row blurs the field first: let the click land before the list goes.
-    setTimeout(() => !this.el.contains(document.activeElement) && this.show(false), 120)
+    clearTimeout(this.closing)
+    this.closing = setTimeout(() => !this.el.contains(document.activeElement) && this.show(false), 120)
   },
 
   onKey(event) {

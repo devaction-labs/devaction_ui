@@ -21,6 +21,8 @@ defmodule DevactionUI.Pagination do
   attr :class, :any, default: nil
 
   attr :rest, :global
+  slot :previous_icon, doc: "replaces the typographic ‹"
+  slot :next_icon, doc: "replaces the typographic ›"
 
   def pagination(%{pages: pages} = assigns) when pages > 1 do
     assigns = assign(assigns, :entries, entries(assigns.page, assigns.pages))
@@ -33,7 +35,7 @@ defmodule DevactionUI.Pagination do
         aria-label={@previous}
         class={[cell(), "border border-line-strong bg-card text-ink"]}
       >
-        <span aria-hidden="true">‹</span>
+        <span aria-hidden="true">{render_slot(@previous_icon) || "‹"}</span>
       </.link>
       <%= for entry <- @entries do %>
         <span :if={entry == :gap} class="px-1 text-muted" aria-hidden="true">…</span>
@@ -55,7 +57,7 @@ defmodule DevactionUI.Pagination do
         aria-label={@next}
         class={[cell(), "border border-line-strong bg-card text-ink"]}
       >
-        <span aria-hidden="true">›</span>
+        <span aria-hidden="true">{render_slot(@next_icon) || "›"}</span>
       </.link>
     </nav>
     """

@@ -1,5 +1,12 @@
 <%!-- title: WIP limit | text: A column at its limit shows the count in the alert colour and refuses more cards. --%>
-<Kanban.kanban id="kanban-wip" label="Review board" event="kanban_wip_move">
+<Kanban.kanban
+  drop_label="Drop here"
+  full_label="Limit reached"
+  moved_label="Moved to __COLUMN__"
+  id="kanban-wip"
+  label="Review board"
+  event="kanban_wip_move"
+>
   <:column id="wip-todo" title="Backlog" count={2}>
     <Kanban.card id="wip-c1">
       <span class="font-medium text-ink">Estimate the M4 scope</span>
