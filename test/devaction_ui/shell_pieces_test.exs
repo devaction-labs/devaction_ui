@@ -1,0 +1,211 @@
+defmodule DevactionUI.ShellPiecesTest do
+  @moduledoc "The segmented control, the head of a page, the side menu and the command palette."
+  use ExUnit.Case, async: true
+
+  import Phoenix.Component
+  import Phoenix.LiveViewTest
+
+  alias DevactionUI.{CommandPalette, PageHeader, Segmented, Sidebar}
+
+  describe "Segmented" do
+    test "is a radiogroup that marks the chosen option and sends the value of a press" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Segmented.segmented id="s" label="View" value="board" event="pick">
+          <:option value="list" label="List" />
+          <:option value="board" label="Board" count="3" />
+        </Segmented.segmented>
+        """)
+
+      assert html =~ ~s(role="radiogroup")
+      assert html =~ ~s(aria-label="View")
+      assert html =~ ~s(aria-checked="true")
+      assert html =~ ~s(aria-checked="false")
+      assert html =~ ~s(phx-click="pick")
+      assert html =~ ~s(phx-value-value="list")
+      assert html =~ ~r/>\s*3\s*</
+      assert html =~ ~s(class="segmented )
+      refute html =~ "segmented-full"
+    end
+
+    test "can be full width, small, or only icons that are still named" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Segmented.segmented id="s" label="L" value="a" event="e" full size={:sm}>
+          <:icon :let={option}>ICON-{option.value}</:icon>
+          <:option value="a" label="Rows" icon_only />
+          <:option value="b" label="Cards" icon_only />
+        </Segmented.segmented>
+        """)
+
+      assert html =~ "segmented-full"
+      assert html =~ "h-7"
+      assert html =~ ~s(aria-label="Rows")
+      assert html =~ "ICON-a"
+      assert html =~ "w-9"
+      refute html =~ "<span>Rows</span>"
+    end
+  end
+
+  describe "PageHeader" do
+    test "places the breadcrumb, the title with its status, the line, the actions and the tabs" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <PageHeader.page_header id="h">
+          <:breadcrumb>CRUMB</:breadcrumb>
+          <:title>Title</:title>
+          <:status>STATUS</:status>
+          <:subtitle>Sub</:subtitle>
+          <:actions>ACTIONS</:actions>
+          <:tabs>TABS</:tabs>
+        </PageHeader.page_header>
+        """)
+
+      for part <- ~w(CRUMB Title STATUS Sub ACTIONS TABS), do: assert(html =~ part)
+      assert html =~ "<h1"
+      assert html =~ "page-title"
+    end
+
+    test "draws only what it is given" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H|<PageHeader.page_header id="h">
+  <:title>Only</:title>
+</PageHeader.page_header>|)
+
+      assert html =~ "Only"
+      refute html =~ "<p"
+    end
+  end
+
+  describe "Sidebar" do
+    defp sidebar(collapsed, toggle \\ "toggle") do
+      assigns = %{collapsed: collapsed, toggle: toggle}
+
+      rendered_to_string(~H"""
+      <Sidebar.sidebar
+        id="nav"
+        label="Main"
+        collapsed={@collapsed}
+        on_toggle={@toggle}
+        toggle_label="Collapse"
+      >
+        <:header>BRAND</:header>
+        <:footer>FOOT</:footer>
+        <:toggle_icon>T</:toggle_icon>
+        <:icon :let={item}>I-{item.label}</:icon>
+        <:item to="/a" label="Today" current />
+        <:item to="/b" label="Review" count="3" />
+      </Sidebar.sidebar>
+      """)
+    end
+
+    test "open: the names are drawn, the current item is announced and the counts show" do
+      html = sidebar(false)
+
+      assert html =~ ~s(aria-label="Main")
+      assert html =~ ~s(data-collapsed="false")
+      assert html =~ ~s(aria-current="page")
+      assert html =~ "Today" and html =~ "Review"
+      assert html =~ ~r/>\s*3\s*</
+      assert html =~ "BRAND" and html =~ "FOOT"
+      assert html =~ ~s(aria-expanded="true")
+      refute html =~ ~s(role="tooltip")
+    end
+
+    test "collapsed: only the icons, the names in tooltips and as accessible names" do
+      html = sidebar(true)
+
+      assert html =~ ~s(data-collapsed="true")
+      assert length(Regex.scan(~r/role="tooltip"/, html)) == 2
+      assert html =~ ~s(aria-label="Today")
+      assert html =~ "group-hover/tip:opacity-100"
+      assert html =~ "group-focus-within/tip:opacity-100"
+      assert html =~ ~s(aria-expanded="false")
+      refute html =~ ~r/>\s*3\s*</
+    end
+
+    test "has no toggle when nobody listens" do
+      refute sidebar(false, nil) =~ "nav-toggle"
+    end
+  end
+
+  describe "CommandPalette" do
+    defp palette(extra \\ %{}) do
+      assigns =
+        Map.merge(
+          %{
+            query: "ec",
+            groups: [
+              %{
+                label: "Lessons",
+                items: [%{id: "l1", label: "Ecto.Multi", to: "/l/1", hint: "30", tone: :warn}]
+              }
+            ],
+            ask: "Ask the AI",
+            scopes: [%{value: "all", label: "All"}, %{value: "prs", label: "PRs"}]
+          },
+          extra
+        )
+
+      rendered_to_string(~H"""
+      <CommandPalette.palette
+        id="p"
+        label="Search"
+        query={@query}
+        search_event="search"
+        close_event="close"
+        groups={@groups}
+        empty="Nothing."
+        ask_label={@ask}
+        ask_event="ask"
+        scopes={@scopes}
+        scope="all"
+        scope_event="scope"
+        keys={[{"↑↓", "move"}, {"↵", "open"}]}
+      >
+        <:search_icon>S</:search_icon>
+      </CommandPalette.palette>
+      """)
+    end
+
+    test "is a dialog with a field, the groups, the hint of each row and the keys" do
+      html = palette()
+
+      assert html =~ ~s(role="dialog")
+      assert html =~ ~s(aria-modal="true")
+      assert html =~ ~s(phx-hook="DevactionUI.Autocomplete")
+      assert length(Regex.scan(~r/phx-hook=/, html)) == 2
+      assert html =~ ~s(role="combobox")
+      assert html =~ ~s(role="listbox")
+      assert html =~ "Lessons"
+      assert html =~ "<strong"
+      assert html =~ ~r/>\s*30\s*</
+      assert html =~ "cmdk-footer"
+      assert html =~ "move"
+      assert html =~ ~s(phx-key="escape")
+    end
+
+    test "has the scopes and the ask-the-AI row with what was typed, or neither" do
+      html = palette()
+
+      assert html =~ ~s(role="radiogroup")
+      assert html =~ ~s(phx-click="scope")
+      assert html =~ ~s(phx-click="ask")
+      assert html =~ ~s(phx-value-q="ec")
+      assert html =~ "data-ask"
+
+      bare = palette(%{scopes: [], ask: nil, groups: []})
+      refute bare =~ "radiogroup"
+      refute bare =~ "data-ask"
+      assert bare =~ "Nothing."
+    end
+  end
+end

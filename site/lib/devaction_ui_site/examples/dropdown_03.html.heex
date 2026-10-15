@@ -1,0 +1,8 @@
+<%!-- title: Shortcuts | text: Each item can show the key of its action | layout: center --%>
+<Dropdown.dropdown id="dropdown-shortcuts" label="Task actions">
+  <:trigger>Task <.icon name="arrow-down-01" class="size-4" /></:trigger>
+  <:item event="overlay_close" shortcut="E">Edit task</:item>
+  <:item event="overlay_close" shortcut="⌘D">Duplicate</:item>
+  <:item event="overlay_close" shortcut="⌘K">Move to milestone</:item>
+  <:check_icon><.icon name="tick-02" class="size-4" /></:check_icon>
+</Dropdown.dropdown>

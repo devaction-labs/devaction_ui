@@ -1,0 +1,44 @@
+<%!-- title: Basic | text: Groups open submenus of ticks; counts follow the ticks and Apply sends the form --%>
+<div class="min-h-[22rem]">
+  <FilterMenu.filter_menu
+    id="task-filters"
+    label="Filter"
+    apply_label="Apply"
+    reset_label="Clear"
+    close_label="Close"
+    groups={[
+      %{
+        key: "status",
+        label: "Status",
+        type: :checkbox,
+        options: [
+          %{value: "todo", label: "To do", count: 12},
+          %{value: "progress", label: "In progress", count: 5, checked: true},
+          %{value: "review", label: "In review", count: 3},
+          %{value: "done", label: "Done", count: 41}
+        ]
+      },
+      %{
+        key: "who",
+        label: "Assignee",
+        type: :checkbox,
+        options: [
+          %{value: "carlos", label: "Carlos André", avatar: "CA", checked: true},
+          %{value: "fernando", label: "Fernando Paiva", avatar: "FP"},
+          %{value: "alex", label: "Alex Nogueira", avatar: "AN"}
+        ]
+      }
+    ]}
+  >
+    <:trigger_icon><.icon name="filter" class="size-4" /></:trigger_icon>
+    <:group_icon :let={group}>
+      <.icon
+        name={%{"who" => "user-group"}[group.key] || "checkmark-circle-02"}
+        class="size-4 text-muted"
+      />
+    </:group_icon>
+    <:chevron_icon><.icon name="arrow-right-01" class="size-3.5 text-muted" /></:chevron_icon>
+    <:check_icon><.icon name="tick-02" class="size-4" /></:check_icon>
+    <:close_icon><.icon name="cancel-01" class="size-3.5" /></:close_icon>
+  </FilterMenu.filter_menu>
+</div>

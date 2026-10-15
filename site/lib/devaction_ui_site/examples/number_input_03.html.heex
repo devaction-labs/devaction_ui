@@ -1,0 +1,31 @@
+<%!-- title: At the limits | text: The buttons stop at min and max. --%>
+<div class="flex flex-wrap items-center gap-6">
+  <NumberInput.number_input
+    id="number-input-min"
+    name="min"
+    value={1}
+    label="Seats at the minimum"
+    min={1}
+    max={5}
+    event="seats_step"
+    decrease_label="Fewer seats"
+    increase_label="More seats"
+  >
+    <:minus_icon>−</:minus_icon>
+    <:plus_icon>+</:plus_icon>
+  </NumberInput.number_input>
+  <NumberInput.number_input
+    id="number-input-max"
+    name="max"
+    value={5}
+    label="Seats at the maximum"
+    min={1}
+    max={5}
+    event="seats_step"
+    decrease_label="Fewer seats"
+    increase_label="More seats"
+  >
+    <:minus_icon>−</:minus_icon>
+    <:plus_icon>+</:plus_icon>
+  </NumberInput.number_input>
+</div>

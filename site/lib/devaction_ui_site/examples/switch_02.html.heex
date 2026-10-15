@@ -1,0 +1,10 @@
+<%!-- title: Sizes | text: Small, medium and large. | layout: center --%>
+<div class="flex flex-wrap items-center gap-6">
+  <Switch.switch
+    :for={size <- [:sm, :md, :lg]}
+    id={"switch-size-#{size}"}
+    label={"Size #{size}"}
+    size={size}
+    checked
+  />
+</div>

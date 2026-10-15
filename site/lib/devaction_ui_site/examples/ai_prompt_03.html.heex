@@ -1,0 +1,19 @@
+<%!-- title: Under a conversation | text: The prompt closes a thread of chat bubbles. --%>
+<div class="flex max-w-lg flex-col gap-4">
+  <div class="flex flex-col gap-2.5">
+    <ChatBubble.chat_bubble from={:me}>Which scope items are still open?</ChatBubble.chat_bubble>
+    <ChatBubble.chat_bubble from={:ai}>
+      <:avatar><.icon name="ai-chat-02" class="size-5 text-ai" /></:avatar>
+      Three items in M3: Pix, refunds and the invoice export.
+    </ChatBubble.chat_bubble>
+  </div>
+  <AiPrompt.ai_prompt
+    id="ai-prompt-thread"
+    event="prompt"
+    label="Ask the AI"
+    send_label="Send"
+    placeholder="Ask a follow-up..."
+  >
+    <:icon><.icon name="arrow-down-01" class="size-4 rotate-180" /></:icon>
+  </AiPrompt.ai_prompt>
+</div>

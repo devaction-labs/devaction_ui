@@ -1,0 +1,8 @@
+<%!-- title: Selected choice | text: Items with checked behave as a group of choices and show a check on the current one | layout: center --%>
+<Dropdown.dropdown id="dropdown-choice" label="Sort by">
+  <:trigger>Sort: {@order} <.icon name="arrow-down-01" class="size-4" /></:trigger>
+  <:item event="order" value="deadline" checked={@order == "deadline"}>By deadline</:item>
+  <:item event="order" value="value" checked={@order == "value"}>By value</:item>
+  <:item event="order" value="risk" checked={@order == "risk"}>By risk</:item>
+  <:check_icon><.icon name="tick-02" class="size-4" /></:check_icon>
+</Dropdown.dropdown>

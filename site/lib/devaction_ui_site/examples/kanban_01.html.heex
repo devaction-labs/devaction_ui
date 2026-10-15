@@ -1,0 +1,27 @@
+<%!-- title: Moving cards | text: Drag cards between columns; the server keeps the board. The Doing column holds at most two. --%>
+<Kanban.kanban
+  id="kanban-live"
+  label="Tasks"
+  drop_label="Drop here"
+  full_label="Limit reached"
+  moved_label="Moved to __COLUMN__"
+>
+  <:column
+    :for={
+      {id, title, wip} <- [
+        {"todo", "To do", nil},
+        {"doing", "Doing", 2},
+        {"done", "Done", nil}
+      ]
+    }
+    id={id}
+    title={title}
+    wip={wip}
+    count={length(@board[id])}
+  >
+    <Kanban.card :for={{card_id, text} <- @board[id]} id={card_id}>
+      <span class="font-medium text-ink">{text}</span>
+      <span class="font-mono text-xs text-muted">{card_id}</span>
+    </Kanban.card>
+  </:column>
+</Kanban.kanban>

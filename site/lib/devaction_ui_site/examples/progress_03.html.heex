@@ -1,0 +1,12 @@
+<%!-- title: Segmented | text: The same value shown as the steps of a job. --%>
+<div class="grid max-w-md gap-5">
+  <.progress
+    value={50}
+    label="Release checklist"
+    variant={:segmented}
+    segments={4}
+    tone={:ok}
+    show_value
+  />
+  <.progress value={60} label="Contract review" variant={:segmented} segments={5} show_value />
+</div>

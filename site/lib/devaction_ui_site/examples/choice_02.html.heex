@@ -1,0 +1,33 @@
+<%!-- title: Radio Group | text: One option at a time, each with a short description --%>
+<fieldset id="choice-radio-group" class="m-0 flex flex-col border-0 p-0">
+  <legend class="mb-1 text-sm font-medium">Contract model</legend>
+  <Choice.radio
+    id="choice-radio-fixed"
+    name="choice_model"
+    value="fixed"
+    label="Fixed scope"
+    description="A price per milestone."
+    checked
+  />
+  <Choice.radio
+    id="choice-radio-retainer"
+    name="choice_model"
+    value="retainer"
+    label="Retainer"
+    description="A monthly amount."
+  />
+  <Choice.radio
+    id="choice-radio-hourly"
+    name="choice_model"
+    value="hourly"
+    label="Hourly"
+    description="Hours worked, billed monthly."
+  />
+  <Choice.radio
+    id="choice-radio-custom"
+    name="choice_model"
+    value="custom"
+    label="Custom"
+    disabled
+  />
+</fieldset>

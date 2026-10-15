@@ -1,0 +1,8 @@
+<%!-- title: Tones | text: Neutral, warn, ok, risk and info say what the number means. --%>
+<div class="grid max-w-md gap-5">
+  <.progress value={69} label="Scope delivered" show_value />
+  <.progress value={84} label="Reviewed by the AI" tone={:warn} show_value />
+  <.progress value={100} label="Billed" tone={:ok} show_value />
+  <.progress value={23} label="Budget burned" tone={:risk} show_value />
+  <.progress value={52} label="Tests migrated" tone={:info} show_value />
+</div>

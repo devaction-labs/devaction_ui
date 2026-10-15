@@ -1,0 +1,32 @@
+<%!-- title: Grouped Results | text: Results grouped by kind, with a tone-coloured hint and the matched text highlighted --%>
+<div class="min-h-72">
+  <Autocomplete.autocomplete
+    id="autocomplete-grouped"
+    label="Search the workspace"
+    value="review"
+    event="search"
+    empty="Nothing found"
+    class="max-w-md"
+    groups={[
+      %{
+        label: "Pull requests",
+        items: [
+          %{
+            id: "pr-482",
+            to: "#",
+            label: "Review queue for contract milestones",
+            hint: "#482",
+            tone: :info
+          },
+          %{id: "pr-479", to: "#", label: "Fix review comment sync", hint: "#479", tone: :ok}
+        ]
+      },
+      %{
+        label: "Lessons",
+        items: [
+          %{id: "les-12", to: "#", label: "How to review a diff quickly", hint: "12", tone: :warn}
+        ]
+      }
+    ]}
+  />
+</div>

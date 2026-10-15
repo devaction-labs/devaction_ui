@@ -1,0 +1,10 @@
+<%!-- title: Select All Group | text: A parent checkbox that is indeterminate while only some children are checked --%>
+<fieldset id="choice-group" class="m-0 flex flex-col border-0 p-0">
+  <legend class="mb-1 text-sm font-medium">Review automatically</legend>
+  <Choice.checkbox id="choice-group-all" label="All repositories (2/3)" partial />
+  <div class="ml-7 flex flex-col">
+    <Choice.checkbox id="choice-group-api" label="sge-api" checked />
+    <Choice.checkbox id="choice-group-web" label="ayram-web" checked />
+    <Choice.checkbox id="choice-group-hub" label="hub-api" />
+  </div>
+</fieldset>

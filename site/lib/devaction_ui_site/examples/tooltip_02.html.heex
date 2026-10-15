@@ -1,0 +1,15 @@
+<%!-- title: Placement | text: Top, bottom, left and right of the trigger --%>
+<div class="flex flex-wrap items-center justify-center gap-6 px-24 py-10">
+  <Tooltip.tooltip id="tooltip-top" text="Above the button" placement={:top}>
+    <Button.button variant={:secondary} size={:sm}>Top</Button.button>
+  </Tooltip.tooltip>
+  <Tooltip.tooltip id="tooltip-bottom" text="Below the button" placement={:bottom}>
+    <Button.button variant={:secondary} size={:sm}>Bottom</Button.button>
+  </Tooltip.tooltip>
+  <Tooltip.tooltip id="tooltip-left" text="Missing the client's acceptance" placement={:left}>
+    <Button.button variant={:secondary} size={:sm}>Left</Button.button>
+  </Tooltip.tooltip>
+  <Tooltip.tooltip id="tooltip-right" text="Opens the contract" placement={:right}>
+    <Button.button variant={:secondary} size={:sm}>Right</Button.button>
+  </Tooltip.tooltip>
+</div>

@@ -1,0 +1,23 @@
+<%!-- title: With captions | text: Live timer with running and paused captions and the logged result. --%>
+<div class="flex max-w-md flex-col gap-3">
+  <Timer.timer
+    id="timer-captions"
+    base={@inputs.timer_base}
+    started_at={@inputs.timer_started}
+    label="Time on DIA-142"
+    toggle_event="timer_toggle"
+    log_event="timer_log"
+    start_label="Start"
+    pause_label="Pause"
+    log_label="Stop and log on the task"
+    running_text="Running"
+    paused_text="Paused"
+  >
+    <:start_icon><.icon name="play" class="size-5" /></:start_icon>
+    <:pause_icon><.icon name="pause" class="size-5" /></:pause_icon>
+    <:log_icon><.icon name="stop" class="size-5" /></:log_icon>
+  </Timer.timer>
+  <p :if={@inputs.logged} id="timer-logged" role="status" class="m-0 text-sm text-tag-ok-text">
+    Logged {Timer.format(@inputs.logged)} on DIA-142.
+  </p>
+</div>

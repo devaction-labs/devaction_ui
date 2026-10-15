@@ -1,0 +1,10 @@
+<%!-- title: Nested | text: A plain accordion inside a panel indents with a rule --%>
+<Accordion.accordion id="accordion-nested" variant={:flush} exclusive={false}>
+  <:item title="Frontend" count="3" open>
+    <Accordion.accordion id="accordion-nested-inner" variant={:plain} class="ml-7">
+      <:item title="Components" count="2">Forms and tables.</:item>
+      <:item title="Screens" count="1">Today.</:item>
+    </Accordion.accordion>
+  </:item>
+  <:item title="Backend" count="5">Contexts, jobs and the API.</:item>
+</Accordion.accordion>

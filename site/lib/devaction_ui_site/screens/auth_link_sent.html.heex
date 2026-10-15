@@ -1,0 +1,111 @@
+<AuthLayout.auth_layout
+  about_label="About DevAction IA"
+  headline="Contracts, code and learning in the same place."
+  copyright="© 2026 DevAction Labs"
+>
+  <:brand>
+    <span class="grid size-[34px] place-items-center rounded-[9px] border border-line-strong bg-[#060C1F]">
+      <svg width="32" height="32" viewBox="50 50 1154 1154" aria-hidden="true">
+        <path
+          d="M395 303 H728 L912 492 Q968 552 968 628 Q968 706 905 770 L828 832 Q834 800 812 776 L392 330 Q380 314 395 303 Z"
+          fill="#FFFFFF"
+        />
+        <path
+          d="M628 662 Q641 650 654 662 L797 808 Q812 826 797 843 L722 935 Q712 945 698 945 H388 Q366 945 380 925 Z"
+          fill="#E3A72F"
+        />
+      </svg>
+    </span>
+    <span class="text-lg font-semibold tracking-[-0.01em]">DevAction IA</span>
+  </:brand>
+
+  <:feature
+    title="PR review with AI"
+    text="The AI reads the diff, points out risks and suggests the fix before the merge."
+  >
+    <.icon name="git-pull-request" class="size-[18px]" />
+  </:feature>
+  <:feature
+    title="Contracts with milestones"
+    text="Scope, amendments and invoicing tied to what the team delivers."
+  >
+    <.icon name="contracts" class="size-[18px]" />
+  </:feature>
+  <:feature
+    title="Learn from what you ship"
+    text="Every review becomes a short lesson on your path."
+  >
+    <.icon name="book-02" class="size-[18px]" />
+  </:feature>
+
+  <:link href="#">Terms</:link>
+  <:link href="#">Privacy</:link>
+  <:link href="#">Status</:link>
+
+  <div class="flex flex-col gap-5">
+    <AuthCard.auth_card
+      title="Check your e-mail"
+      icon_class="border-[#4A3A16] bg-[#241E12] text-ai"
+    >
+      <:icon><.icon name="mail-open-01" class="size-[26px]" /></:icon>
+      <:subtitle>
+        We sent an access link to <strong class="font-semibold text-ink">alex@devaction.com.br</strong>. It lasts 15 minutes and works only once.
+      </:subtitle>
+
+      <div class="grid grid-cols-2 gap-2.5">
+        <Button.button variant={:secondary} href="https://mail.google.com" class="text-sm">
+          Open Gmail
+        </Button.button>
+        <Button.button variant={:secondary} href="https://outlook.live.com" class="text-sm">
+          Open Outlook
+        </Button.button>
+      </div>
+
+      <div class="flex flex-col items-center gap-1.5 text-sm text-muted">
+        <span>Did not arrive? Check spam or the Promotions tab.</span>
+        <Button.button variant={:ghost} size={:sm} disabled>Resend in 0:42</Button.button>
+      </div>
+
+      <a
+        href="#"
+        class="inline-flex items-center gap-1.5 self-center text-sm text-muted no-underline hover:text-ink"
+      >
+        <.icon name="arrow-left-01" class="size-4" /> Use another e-mail
+      </a>
+    </AuthCard.auth_card>
+
+    <section
+      aria-label="E-mail preview"
+      class="flex flex-col gap-2.5 rounded-2xl border border-dashed border-line-strong p-3.5"
+    >
+      <span class="font-mono text-[11px] tracking-[0.08em] text-muted uppercase">E-mail preview</span>
+      <div class="flex flex-col gap-3 rounded-xl bg-white p-[22px] text-sm leading-[1.55] text-[#18181B]">
+        <span class="flex items-center gap-2 font-semibold">
+          <span class="grid size-[26px] place-items-center rounded-[7px] bg-[#060C1F]">
+            <svg width="24" height="24" viewBox="50 50 1154 1154" aria-hidden="true">
+              <path
+                d="M395 303 H728 L912 492 Q968 552 968 628 Q968 706 905 770 L828 832 Q834 800 812 776 L392 330 Q380 314 395 303 Z"
+                fill="#FFFFFF"
+              />
+              <path
+                d="M628 662 Q641 650 654 662 L797 808 Q812 826 797 843 L722 935 Q712 945 698 945 H388 Q366 945 380 925 Z"
+                fill="#E3A72F"
+              />
+            </svg>
+          </span>
+          DevAction IA
+        </span>
+        <span>Hi, Alex. Click to sign in. The link expires in 15 minutes.</span>
+        <a
+          href="#"
+          class="inline-flex h-[42px] items-center self-start rounded-[10px] bg-[#18181B] px-[18px] font-medium text-white no-underline"
+        >
+          Sign in to DevAction IA
+        </a>
+        <span class="text-xs text-[#71717A]">
+          If it was not you, ignore this e-mail. Nobody gets in without clicking the link.
+        </span>
+      </div>
+    </section>
+  </div>
+</AuthLayout.auth_layout>

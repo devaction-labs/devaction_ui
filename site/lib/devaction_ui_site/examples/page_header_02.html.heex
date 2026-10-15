@@ -1,0 +1,11 @@
+<%!-- title: With breadcrumb | text: The trail sits above the title. --%>
+<PageHeader.page_header id="page-header-breadcrumb">
+  <:breadcrumb>
+    <Breadcrumb.breadcrumb
+      label="You are here"
+      items={[%{label: "Contracts", to: "/contracts"}, %{label: "SGE"}]}
+    />
+  </:breadcrumb>
+  <:title>SGE Church Management</:title>
+  <:subtitle>Fixed scope, 4 milestones, Campo Limpo</:subtitle>
+</PageHeader.page_header>

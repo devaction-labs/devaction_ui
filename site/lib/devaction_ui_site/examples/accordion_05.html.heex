@@ -1,0 +1,8 @@
+<%!-- title: With Count | text: A small count beside each title --%>
+<Accordion.accordion id="accordion-count" variant={:flush} exclusive={false}>
+  <:item title="Open pull requests" count="12" open>
+    Waiting for review across four repositories.
+  </:item>
+  <:item title="Failing checks" count="3">Two in sge-api and one in the web client.</:item>
+  <:item title="Drafts" count="5">Not yet ready for review.</:item>
+</Accordion.accordion>

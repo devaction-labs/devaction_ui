@@ -1,0 +1,5 @@
+{
+  "private": true,
+  "type": "module",
+  "description": "Everything under assets/js is an ES module. This also lets Node run the *.test.js files here without guessing."
+}

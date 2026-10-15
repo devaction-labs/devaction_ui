@@ -1,0 +1,10 @@
+<%!-- title: Action taken | text: A highlighted AI message marks something the AI did. --%>
+<div class="flex max-w-lg flex-col gap-2.5">
+  <ChatBubble.chat_bubble from={:me} id="chat-action-me">
+    Create a task for the invoice export.
+  </ChatBubble.chat_bubble>
+  <ChatBubble.chat_bubble from={:ai} id="chat-action-ai" highlight>
+    <:avatar><.icon name="ai-chat-02" class="size-5 text-ai" /></:avatar>
+    Done. I created the task "Export invoices as CSV" in milestone M3.
+  </ChatBubble.chat_bubble>
+</div>

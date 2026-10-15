@@ -1,0 +1,15 @@
+<%!-- title: Vertical | text: The same steps stacked, for sidebars and long checklists. --%>
+<Stepper.stepper
+  id="stepper-vertical"
+  orientation={:vertical}
+  state_labels={%{done: "done", current: "current", error: "failed", todo: "to do"}}
+>
+  <:step state={:done} label="Connect GitHub" help="Installed on devaction-labs" />
+  <:step state={:done} label="Choose repositories" help="3 of 6 watched" />
+  <:step
+    state={:current}
+    label="Link a repository to a project"
+    help="Needed for the scope check"
+  />
+  <:step state={:todo} label="Invite the team" />
+</Stepper.stepper>

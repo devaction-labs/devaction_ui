@@ -1,0 +1,13 @@
+<%!-- title: Running | text: Fills as the job advances, with the current step under the title --%>
+<div class="max-w-[420px]">
+  <ProgressToast.progress_toast
+    id="progress-toast-running"
+    state={:running}
+    progress={42}
+    title="Reviewing PR #142"
+    on_dismiss="dismiss_job"
+    dismiss_label="Close"
+  >
+    Reading the diff
+  </ProgressToast.progress_toast>
+</div>

@@ -1,0 +1,21 @@
+<%!-- title: With footer actions | text: Buttons under the text; the counter sits at the end. --%>
+<div class="flex max-w-lg flex-col gap-1.5">
+  <label for="textarea-footer" class="text-sm font-medium">Milestone scope</label>
+  <Textarea.textarea
+    id="textarea-footer"
+    name="scope"
+    value={@forms.scope}
+    rows={4}
+    maxlength={500}
+    phx-keyup="forms_scope"
+  >
+    <:footer>
+      <Textarea.footer_button label="Attach a file">
+        <.icon name="attachment-01" class="size-[18px]" />
+      </Textarea.footer_button>
+      <Textarea.footer_button id="textarea-improve" label="Improve with the AI">
+        <.icon name="sparkles" class="size-[18px]" />Improve with the AI
+      </Textarea.footer_button>
+    </:footer>
+  </Textarea.textarea>
+</div>

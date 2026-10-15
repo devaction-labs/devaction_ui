@@ -1,0 +1,28 @@
+<%!-- title: Densities | text: Comfortable rows by default, compact when there is a lot to scan. --%>
+<DataTable.data_table
+  id="data-table-comfortable"
+  label="Invoices, comfortable"
+  rows={[
+    %{id: "INV-031", client: "Igreja Campo Limpo", amount: "R$ 4,800.00"},
+    %{id: "INV-032", client: "AYRAM Foods", amount: "R$ 2,150.00"},
+    %{id: "INV-033", client: "Hub Logistics", amount: "R$ 9,320.00"}
+  ]}
+>
+  <:col :let={row} label="Invoice" class="font-mono">{row.id}</:col>
+  <:col :let={row} label="Client">{row.client}</:col>
+  <:col :let={row} label="Amount" class="font-mono">{row.amount}</:col>
+</DataTable.data_table>
+<DataTable.data_table
+  id="data-table-compact"
+  label="Invoices, compact"
+  density={:compact}
+  rows={[
+    %{id: "INV-031", client: "Igreja Campo Limpo", amount: "R$ 4,800.00"},
+    %{id: "INV-032", client: "AYRAM Foods", amount: "R$ 2,150.00"},
+    %{id: "INV-033", client: "Hub Logistics", amount: "R$ 9,320.00"}
+  ]}
+>
+  <:col :let={row} label="Invoice" class="font-mono">{row.id}</:col>
+  <:col :let={row} label="Client">{row.client}</:col>
+  <:col :let={row} label="Amount" class="font-mono">{row.amount}</:col>
+</DataTable.data_table>

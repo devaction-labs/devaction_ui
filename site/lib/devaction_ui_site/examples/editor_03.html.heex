@@ -1,0 +1,19 @@
+<%!-- title: Comment | text: The compact variant for comments: @ mentions, and Cmd+Enter sends --%>
+<.form for={%{}} id="comment-form" phx-submit="comment_send" class="flex flex-col gap-2">
+  <Editor.editor
+    id="demo-comment"
+    name="comment"
+    label="Comment"
+    placeholder="Comment… @ mentions, ⌘↵ sends"
+    compact
+    send_on_enter
+    mentions={@editor.members}
+  />
+  <div class="flex items-center justify-between">
+    <p :if={@editor.sent} id="comment-sent" role="status" class="m-0 text-sm text-ink-2">
+      Sent: {@editor.sent}
+    </p>
+    <span :if={!@editor.sent} />
+    <Button.button id="comment-submit" type="submit" variant={:primary} size={:sm}>Comment</Button.button>
+  </div>
+</.form>

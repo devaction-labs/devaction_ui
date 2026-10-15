@@ -1,0 +1,19 @@
+<%!-- title: Running | text: Started a moment ago; base is the time before this start. --%>
+<div class="max-w-md">
+  <Timer.timer
+    id="timer-running"
+    base={1800}
+    started_at={System.os_time(:second) - 45}
+    label="Time on DIA-142"
+    toggle_event="timer_toggle"
+    log_event="timer_log"
+    start_label="Start"
+    pause_label="Pause"
+    log_label="Stop and log on the task"
+    running_text="Running"
+  >
+    <:start_icon><.icon name="play" class="size-5" /></:start_icon>
+    <:pause_icon><.icon name="pause" class="size-5" /></:pause_icon>
+    <:log_icon><.icon name="stop" class="size-5" /></:log_icon>
+  </Timer.timer>
+</div>

@@ -1,0 +1,17 @@
+<%!-- title: Option Meta | text: Each option can carry a hint, such as the stack of the project --%>
+<Combobox.combobox
+  id="combobox-meta"
+  name="project_meta"
+  label="Project"
+  placeholder="Choose a project"
+  search_placeholder="Search projects"
+  empty="No project found"
+  value="sge"
+  class="max-w-sm"
+  options={[
+    %{value: "sge", label: "SGE · Igreja Central", hint: "elixir"},
+    %{value: "hub", label: "Hub Comércio", hint: "laravel"},
+    %{value: "pao", label: "Padaria Pão Quente", hint: "laravel"},
+    %{value: "ayr", label: "AYRAM Parcerias", hint: "elixir"}
+  ]}
+/>

@@ -1,0 +1,12 @@
+<%!-- title: Line chart | text: Two series with an area under the first and the end values labelled. --%>
+<Chart.line_chart
+  id="chart-line"
+  summary="Revenue, done and forecast, from March to October"
+  first_column="MONTH"
+  labels={~w(Mar Apr May Jun Jul Aug Sep Oct)}
+  series={[
+    %{label: "Done", values: [48, 62, 55, 71, 80, 76, 92, 104]},
+    %{label: "Forecast", values: [50, 58, 60, 68, 78, 82, 95, 110]}
+  ]}
+  format={&"#{&1}k"}
+/>

@@ -1,0 +1,12 @@
+<%!-- title: Formatted | text: format turns the number into text, such as hours. --%>
+<form id="slider-format-form" phx-change="inputs_change" class="m-0 max-w-sm">
+  <Slider.slider
+    id="slider-format"
+    name="hours_format"
+    label="Hours per week"
+    value={@inputs.hours_format}
+    min={0}
+    max={40}
+    format={&"#{&1} h"}
+  />
+</form>

@@ -1,0 +1,10 @@
+<%!-- title: Error state | text: A failed step is marked and the flow stops there. --%>
+<Stepper.stepper
+  id="stepper-error"
+  state_labels={%{done: "done", current: "current", error: "failed", todo: "to do"}}
+>
+  <:step state={:done} label="Upload" help="contract.pdf" />
+  <:step state={:error} label="Validation" help="Signature page missing" />
+  <:step state={:todo} label="Review" />
+  <:step state={:todo} label="Publish" />
+</Stepper.stepper>

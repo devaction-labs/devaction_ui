@@ -1,0 +1,10 @@
+<%!-- title: Basic | text: Drop a file or click to browse; the title and hint say what it takes --%>
+<Dropzone.dropzone
+  id="dropzone-basic"
+  upload={@uploads.transcript}
+  title="Drop the transcript or the audio of the meeting"
+  hint=".mp3, .m4a, .txt · up to 200 MB"
+  class="max-w-lg"
+>
+  <:icon><.icon name="upload-04" class="size-5" /></:icon>
+</Dropzone.dropzone>

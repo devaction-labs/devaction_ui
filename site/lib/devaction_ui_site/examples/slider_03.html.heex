@@ -1,0 +1,14 @@
+<%!-- title: With ticks | text: Names under the track, from the minimum to the maximum. --%>
+<form id="slider-ticks-form" phx-change="inputs_change" class="m-0 max-w-sm">
+  <Slider.slider
+    id="slider-ticks"
+    name="hours_ticks"
+    label="Hours per week"
+    value={@inputs.hours_ticks}
+    min={0}
+    max={40}
+    step={5}
+    format={&"#{&1} h"}
+    ticks={["0", "20", "40 h"]}
+  />
+</form>

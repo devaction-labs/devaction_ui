@@ -1,0 +1,16 @@
+<%!-- title: Selected Value | text: The button shows the chosen option --%>
+<Combobox.combobox
+  id="combobox-selected"
+  name="project_selected"
+  label="Project"
+  placeholder="Choose a project"
+  search_placeholder="Search projects"
+  empty="No project found"
+  value="hub"
+  class="max-w-sm"
+  options={[
+    %{value: "sge", label: "SGE · Igreja Central"},
+    %{value: "hub", label: "Hub Comércio"},
+    %{value: "pao", label: "Padaria Pão Quente"}
+  ]}
+/>

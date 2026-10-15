@@ -1,0 +1,19 @@
+<%!-- title: Kinds | text: Dark, light and risk; the risk toast is announced as an alert --%>
+<div class="grid gap-4 sm:grid-cols-3">
+  <ToastGroup.toast_group
+    :for={
+      {kind, title} <- [dark: "Task created", light: "Draft saved", risk: "Review failed on #142"]
+    }
+    id={"toast-group-kind-#{kind}"}
+    label={"#{kind} notice"}
+    on_dismiss="dismiss_toast"
+    on_clear="clear_toasts"
+    expand_label="Show all"
+    collapse_label="Collapse"
+    clear_label="Clear"
+    dismiss_label="Close"
+    count_label="__COUNT__ notices"
+  >
+    <:toast id={"toast-kind-#{kind}"} kind={kind} title={title} duration={0} />
+  </ToastGroup.toast_group>
+</div>

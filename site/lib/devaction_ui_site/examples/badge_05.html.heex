@@ -1,0 +1,12 @@
+<%!-- title: Beside Text | text: Badges next to a label in a menu or a list | layout: center --%>
+<div class="flex flex-wrap items-center gap-8">
+  <span class="inline-flex items-center gap-2 text-sm text-ink">
+    Pull requests <Badge.count value={12} />
+  </span>
+  <span class="inline-flex items-center gap-2 text-sm text-ink">
+    Failing checks <Badge.count value={3} tone={:risk} />
+  </span>
+  <span class="inline-flex items-center gap-2 text-sm text-ink">
+    <Badge.dot pulse tone={:warn} label="Running" /> Review in progress
+  </span>
+</div>

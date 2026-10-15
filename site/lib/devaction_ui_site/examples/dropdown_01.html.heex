@@ -1,0 +1,8 @@
+<%!-- title: Basic | text: A button that opens a menu of actions | layout: center --%>
+<Dropdown.dropdown id="dropdown-basic" label="Pull request actions">
+  <:trigger>Actions <.icon name="arrow-down-01" class="size-4" /></:trigger>
+  <:item event="overlay_close">Open on GitHub</:item>
+  <:item event="overlay_close">Copy link</:item>
+  <:item event="overlay_close">Assign reviewer</:item>
+  <:check_icon><.icon name="tick-02" class="size-4" /></:check_icon>
+</Dropdown.dropdown>

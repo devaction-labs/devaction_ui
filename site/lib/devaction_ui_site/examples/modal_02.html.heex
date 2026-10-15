@@ -1,0 +1,36 @@
+<%!-- title: Form | text: The large size holds a short form in the body --%>
+<Button.button
+  id="modal-form-open"
+  variant={:secondary}
+  size={:sm}
+  class="self-start"
+  phx-click={Drawer.open(JS.push("overlay_open", value: %{kind: "modal_form"}))}
+>
+  New task
+</Button.button>
+<Modal.modal
+  :if={@overlays.kind == "modal_form"}
+  id="modal-form"
+  size={:lg}
+  on_close="overlay_close"
+  close_label="Close"
+>
+  <:close_icon><.icon name="cancel-01" class="size-4" /></:close_icon>
+  <:title>New task</:title>
+  <:subtitle>In SGE, milestone M3 Finance</:subtitle>
+  <label class="flex flex-col gap-1.5 text-sm font-medium">
+    Title <InputGroup.input_group id="modal-form-title" value="Fix the N+1 in contributions" />
+  </label>
+  <label class="flex flex-col gap-1.5 text-sm font-medium">
+    Description
+    <Textarea.textarea
+      id="modal-form-description"
+      rows={3}
+      value="Preload the member when listing contributions."
+    />
+  </label>
+  <:footer>
+    <Button.button id="modal-form-cancel" phx-click="overlay_close">Cancel</Button.button>
+    <Button.button id="modal-form-create" variant={:primary} phx-click="overlay_close">Create task</Button.button>
+  </:footer>
+</Modal.modal>

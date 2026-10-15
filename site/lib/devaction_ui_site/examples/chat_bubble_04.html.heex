@@ -1,0 +1,17 @@
+<%!-- title: Conversation | text: A short exchange with the AI, ending in an action. --%>
+<div class="flex max-w-lg flex-col gap-2.5">
+  <ChatBubble.chat_bubble from={:me} id="chat-conv-1">
+    Why is the Pix pull request blocked?
+  </ChatBubble.chat_bubble>
+  <ChatBubble.chat_bubble from={:ai} id="chat-conv-2">
+    <:avatar><.icon name="ai-chat-02" class="size-5 text-ai" /></:avatar>
+    CI fails on the webhook tests, and Marina asked for changes on the rounding.
+  </ChatBubble.chat_bubble>
+  <ChatBubble.chat_bubble from={:me} id="chat-conv-3">
+    Ask Marina to take another look.
+  </ChatBubble.chat_bubble>
+  <ChatBubble.chat_bubble from={:ai} id="chat-conv-4" highlight>
+    <:avatar><.icon name="ai-chat-02" class="size-5 text-ai" /></:avatar>
+    I sent a review request to Marina Costa.
+  </ChatBubble.chat_bubble>
+</div>

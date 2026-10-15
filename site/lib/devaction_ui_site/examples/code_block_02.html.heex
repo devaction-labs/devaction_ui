@@ -1,0 +1,7 @@
+<%!-- title: Tones | text: Dark, risk, ok and neutral --%>
+<div class="grid gap-3 sm:grid-cols-2">
+  <.code_block tone={:dark} code="mix test --cover" />
+  <.code_block tone={:neutral} code="config :app, retries: 3" />
+  <.code_block tone={:risk} code="{:ok, invoice} = Repo.insert(changeset)" />
+  <.code_block tone={:ok} code="with {:ok, invoice} <- Repo.insert(changeset), do: invoice" />
+</div>

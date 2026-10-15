@@ -1,0 +1,30 @@
+<%!-- title: Add-ons And Hint | text: Prefix and suffix glued to the field, and a key cap hint inside it --%>
+<div class="grid gap-5 md:grid-cols-2">
+  <label class="flex flex-col gap-1.5 text-sm font-medium">
+    Milestone value
+    <InputGroup.input_group id="input-group-money" inputmode="decimal" placeholder="0,00">
+      <:prefix>R$</:prefix>
+      <:suffix>per milestone</:suffix>
+    </InputGroup.input_group>
+  </label>
+  <label class="flex flex-col gap-1.5 text-sm font-medium">
+    Subdomain
+    <InputGroup.input_group id="input-group-subdomain" value="campolimpo">
+      <:prefix>https://</:prefix>
+      <:suffix>.devaction.app</:suffix>
+    </InputGroup.input_group>
+  </label>
+  <label class="flex flex-col gap-1.5 text-sm font-medium">
+    Search
+    <InputGroup.input_group
+      id="input-group-search"
+      type="search"
+      placeholder="Projects, PRs, contracts"
+    >
+      <:icon><.icon name="search-01" /></:icon>
+      <:hint>
+        <.kbd>⌘K</.kbd>
+      </:hint>
+    </InputGroup.input_group>
+  </label>
+</div>

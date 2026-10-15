@@ -1,0 +1,16 @@
+<%!-- title: Sortable | text: Headers send the sort to the server, which reorders the rows. --%>
+<DataTable.data_table
+  id="data-table-sortable"
+  label="Pull requests"
+  rows={@rows}
+  sort={@sort}
+  on_sort="sort"
+>
+  <:col :let={row} label="PR" key="id" sortable class="font-mono">#{row.id}</:col>
+  <:col :let={row} label="Title" key="title" sortable>{row.title}</:col>
+  <:col :let={row} label="Author" key="author" sortable class="text-ink-2">{row.author}</:col>
+  <:col :let={row} label="Changes" key="changes" sortable class="font-mono">{row.changes}</:col>
+  <:col :let={row} label="Status">
+    <.tag size={:sm} variant={(row.status == "merged" && :ok) || :info}>{row.status}</.tag>
+  </:col>
+</DataTable.data_table>

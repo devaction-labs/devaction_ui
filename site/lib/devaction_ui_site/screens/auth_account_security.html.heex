@@ -1,0 +1,250 @@
+<div class="flex gap-4 bg-wrap p-4 max-md:flex-col">
+  <div class="flex w-59 shrink-0 flex-col gap-2 px-1 py-3 max-md:hidden">
+    <div class="flex items-center gap-2.5 px-2 pb-3">
+      <span class="grid size-[34px] place-items-center rounded-[9px] bg-[#060C1F]">
+        <svg width="32" height="32" viewBox="50 50 1154 1154" aria-hidden="true">
+          <path
+            d="M395 303 H728 L912 492 Q968 552 968 628 Q968 706 905 770 L828 832 Q834 800 812 776 L392 330 Q380 314 395 303 Z"
+            fill="#FFFFFF"
+          />
+          <path
+            d="M628 662 Q641 650 654 662 L797 808 Q812 826 797 843 L722 935 Q712 945 698 945 H388 Q366 945 380 925 Z"
+            fill="#E3A72F"
+          />
+        </svg>
+      </span>
+      <span class="text-lg font-semibold tracking-[-0.01em] text-ink">DevAction IA</span>
+    </div>
+
+    <Sidebar.sidebar id="workspace-menu" label="Workspace" class="!w-full !gap-3 !py-0 !pl-1">
+      <:header>
+        <.eyebrow>Workspace</.eyebrow>
+      </:header>
+      <:icon :let={item}>
+        <.icon
+          name={
+            %{"Today" => "home-01", "Projects" => "folder-01", "Contracts" => "contracts"}[
+              item.label
+            ]
+          }
+          class="size-5"
+        />
+      </:icon>
+      <:item to="#" label="Today" />
+      <:item to="#" label="Projects" />
+      <:item to="#" label="Contracts" />
+    </Sidebar.sidebar>
+
+    <Sidebar.sidebar id="settings-menu" label="Settings" class="!w-full !gap-3 !py-0 !pl-1 pt-6">
+      <:header>
+        <.eyebrow>Settings</.eyebrow>
+      </:header>
+      <:icon :let={item}>
+        <.icon :if={item.label == "Account and security"} name="shield-01" class="size-5" />
+      </:icon>
+      <:item to="#" label="General" />
+      <:item to="#" label="Account and security" current />
+      <:item to="#" label="Members and roles" />
+      <:item to="#" label="Integrations" />
+      <:item to="#" label="AI and review" />
+      <:item to="#" label="Billing" />
+    </Sidebar.sidebar>
+  </div>
+
+  <main class="app-main flex flex-col gap-5">
+    <PageHeader.page_header id="account-header">
+      <:breadcrumb>
+        <Breadcrumb.breadcrumb
+          label="You are here"
+          items={[%{label: "Settings", to: "#"}, %{label: "Account and security"}]}
+        />
+      </:breadcrumb>
+      <:title>Account and security</:title>
+      <:subtitle>E-mail, password, ways to sign in and connected devices.</:subtitle>
+    </PageHeader.page_header>
+
+    <Alert.alert
+      kind={:ok}
+      title="You signed in 4 min ago. Sensitive changes are unlocked for the next 16 min."
+    >
+      <:icon><.icon name="shield-01" class="size-[18px]" /></:icon>
+    </Alert.alert>
+
+    <div class="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <div class="flex flex-col gap-5">
+        <.panel id="email-panel" label="E-mail" inner_class="gap-4 p-6">
+          <h2 class="m-0 flex items-center gap-2.5 text-lg font-semibold text-ink">
+            <.icon name="mail-01" class="size-5" /> E-mail
+          </h2>
+          <p class="m-0 text-sm text-ink-2">
+            Current: <span class="text-ink">alex@devaction.com.br</span> · confirmed
+          </p>
+          <form id="email-form" class="flex flex-col gap-2">
+            <label for="new-email" class="text-sm font-medium text-ink-2">New e-mail</label>
+            <div class="flex items-center gap-3">
+              <InputGroup.input_group
+                id="new-email"
+                name="email"
+                type="email"
+                class="flex-1"
+                placeholder="new@company.com"
+                autocomplete="email"
+              />
+              <Button.button type="submit" variant={:secondary}>Change e-mail</Button.button>
+            </div>
+            <p class="m-0 pt-1 text-[13px] text-muted">
+              We send a confirmation link to the new address. The change only counts after you click it.
+            </p>
+          </form>
+        </.panel>
+
+        <.panel id="password-panel" label="Change password" inner_class="gap-4 p-6">
+          <% strength = PasswordStrength.evaluate("") %>
+          <div class="flex items-center justify-between gap-4">
+            <h2 class="m-0 flex items-center gap-2.5 text-lg font-semibold text-ink">
+              <.icon name="lock-password" class="size-5" /> Change password
+            </h2>
+            <span class="text-[13px] text-muted">last changed 3 months ago</span>
+          </div>
+          <form id="password-form" class="flex flex-col gap-3">
+            <div class="grid gap-4 sm:grid-cols-2">
+              <label class="flex flex-col gap-2 text-sm font-medium text-ink-2">
+                New password
+                <InputGroup.input_group
+                  id="account-new-password"
+                  name="password"
+                  type="password"
+                  placeholder="At least 12 characters"
+                  autocomplete="new-password"
+                />
+              </label>
+              <label class="flex flex-col gap-2 text-sm font-medium text-ink-2">
+                Confirm new password
+                <InputGroup.input_group
+                  id="account-confirm-password"
+                  name="password_confirmation"
+                  type="password"
+                  placeholder="Repeat the password"
+                  autocomplete="new-password"
+                />
+              </label>
+            </div>
+            <PasswordStrength.password_strength
+              score={strength.score}
+              label="Use at least 12 characters"
+              rules={[]}
+            />
+            <div class="flex items-center justify-between gap-4">
+              <a href="#" class="text-sm text-ink underline">Forgot your current password?</a>
+              <Button.button type="submit" variant={:primary} disabled>Save password</Button.button>
+            </div>
+          </form>
+        </.panel>
+
+        <.panel id="devices-panel" label="Connected devices" inner_class="gap-1 p-6">
+          <div class="flex items-center justify-between gap-4 pb-2">
+            <h2 class="m-0 flex items-center gap-2.5 text-lg font-semibold text-ink">
+              <.icon name="computer" class="size-5" /> Connected devices
+            </h2>
+            <Button.button variant={:danger} size={:sm}>Sign out of all the others</Button.button>
+          </div>
+          <ul class="m-0 flex list-none flex-col p-0">
+            <li class="flex items-center gap-4 border-t border-line py-2.5">
+              <span class="grid size-10 shrink-0 place-items-center rounded-[10px] bg-wrap text-ink-2">
+                <.icon name="laptop" class="size-5" />
+              </span>
+              <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span class="flex flex-wrap items-center gap-2 text-[15px] text-ink">
+                  Chrome on macOS
+                  <.tag variant={:ok} size={:sm}>This device</.tag>
+                </span>
+                <span class="text-[13px] text-muted">Feira de Santana · active now</span>
+              </div>
+              <.tag variant={:ok} size={:sm}>Kept</.tag>
+            </li>
+            <li class="flex items-center gap-4 border-t border-line py-2.5">
+              <span class="grid size-10 shrink-0 place-items-center rounded-[10px] bg-wrap text-ink-2">
+                <.icon name="smart-phone-01" class="size-5" />
+              </span>
+              <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span class="text-[15px] text-ink">DevAction IA app · iPhone</span>
+                <span class="text-[13px] text-muted">last seen 2 h ago</span>
+              </div>
+              <.tag variant={:ok} size={:sm}>Kept</.tag>
+              <Button.button variant={:secondary} size={:sm}>End</Button.button>
+            </li>
+            <li class="flex items-center gap-4 border-t border-line py-2.5">
+              <span class="grid size-10 shrink-0 place-items-center rounded-[10px] bg-wrap text-ink-2">
+                <.icon name="smart-phone-01" class="size-5" />
+              </span>
+              <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span class="text-[15px] text-ink">DevAction IA app · iPad</span>
+                <span class="text-[13px] text-muted">last seen yesterday</span>
+              </div>
+              <.tag variant={:ok} size={:sm}>Kept</.tag>
+              <Button.button variant={:secondary} size={:sm}>End</Button.button>
+            </li>
+            <li class="flex items-center gap-4 border-t border-line pt-2.5">
+              <span class="grid size-10 shrink-0 place-items-center rounded-[10px] bg-wrap text-ink-2">
+                <.icon name="computer" class="size-5" />
+              </span>
+              <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span class="text-[15px] text-ink">Edge on Windows</span>
+                <span class="text-[13px] text-muted">last seen 6 days ago</span>
+              </div>
+              <.tag variant={:neutral} size={:sm}>This session only</.tag>
+              <Button.button variant={:secondary} size={:sm}>End</Button.button>
+            </li>
+          </ul>
+        </.panel>
+      </div>
+
+      <div class="flex flex-col gap-5">
+        <.panel id="methods-panel" label="Ways to sign in" inner_class="gap-4 p-5">
+          <h2 class="m-0 text-base font-semibold text-ink">Ways to sign in</h2>
+          <ul class="m-0 flex list-none flex-col p-0">
+            <li class="flex items-center gap-3 pb-3">
+              <.icon name="github" class="size-5 shrink-0" />
+              <div class="flex min-w-0 flex-1 flex-col">
+                <span class="text-[15px] text-ink">GitHub</span>
+                <span class="text-xs text-muted">alexdevaction</span>
+              </div>
+              <Button.button variant={:secondary} size={:sm}>Unlink</Button.button>
+            </li>
+            <li class="flex items-center gap-3 border-t border-line py-2.5">
+              <.icon name="magic-wand-01" class="size-5 shrink-0" />
+              <div class="flex min-w-0 flex-1 flex-col">
+                <span class="text-[15px] text-ink">Magic link</span>
+                <span class="text-xs text-muted">always available by e-mail</span>
+              </div>
+              <.tag variant={:ok} size={:sm}>Active</.tag>
+            </li>
+            <li class="flex items-center gap-3 border-t border-line pt-2.5">
+              <.icon name="key-01" class="size-5 shrink-0" />
+              <div class="flex min-w-0 flex-1 flex-col">
+                <span class="text-[15px] text-ink">Password</span>
+                <span class="text-xs text-muted">optional · set</span>
+              </div>
+              <.tag variant={:ok} size={:sm}>Active</.tag>
+            </li>
+          </ul>
+        </.panel>
+
+        <.callout kind={:info}>
+          <:icon><.icon name="information-circle" class="size-[18px]" /></:icon>
+          <strong class="font-semibold">Stay signed in</strong>
+          applies per device. End here any session you do not recognize.
+        </.callout>
+
+        <.panel id="signout-panel" label="Sign out" inner_class="gap-3 p-5">
+          <h2 class="m-0 text-base font-semibold text-ink">Sign out</h2>
+          <div>
+            <Button.button variant={:secondary}>
+              <.icon name="logout-03" class="size-4" /> Sign out of this device
+            </Button.button>
+          </div>
+        </.panel>
+      </div>
+    </div>
+  </main>
+</div>

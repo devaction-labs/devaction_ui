@@ -1,0 +1,21 @@
+{
+  "name": "devaction-ui-assets",
+  "private": true,
+  "description": "The libraries the editor hook needs, and the tests of the hooks' logic (`npm test`, Node's own runner).",
+  "scripts": {
+    "test": "node --test \"js/**/*.test.js\""
+  },
+  "dependencies": {
+    "@tiptap/core": "3.32.0",
+    "@tiptap/extension-character-count": "3.32.0",
+    "@tiptap/extension-image": "3.32.0",
+    "@tiptap/extension-list": "3.32.0",
+    "@tiptap/extension-mention": "3.32.0",
+    "@tiptap/extension-placeholder": "3.32.0",
+    "@tiptap/extension-text-align": "3.32.0",
+    "@tiptap/markdown": "3.32.0",
+    "@tiptap/pm": "3.32.0",
+    "@tiptap/starter-kit": "3.32.0",
+    "@tiptap/suggestion": "3.32.0"
+  }
+}

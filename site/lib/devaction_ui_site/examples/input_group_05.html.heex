@@ -1,0 +1,32 @@
+<%!-- title: States | text: Error with a message, validating, read only and disabled --%>
+<div class="grid gap-5 md:grid-cols-2">
+  <label class="flex flex-col gap-1.5 text-sm font-medium">
+    Error
+    <InputGroup.input_group id="input-group-invalid" type="email" value="carlos@" invalid>
+      <:icon><.icon name="mail-01" /></:icon>
+    </InputGroup.input_group>
+    <span class="text-[13px] font-normal text-tag-risk-text">The domain after the @ is missing.</span>
+  </label>
+  <label class="flex flex-col gap-1.5 text-sm font-medium">
+    Validating
+    <InputGroup.input_group
+      id="input-group-loading"
+      value="devaction-labs/sge-api"
+      loading
+      loading_label="Checking access on GitHub"
+    >
+      <:icon><.icon name="github" /></:icon>
+    </InputGroup.input_group>
+  </label>
+  <label class="flex flex-col gap-1.5 text-sm font-medium">
+    Read only <InputGroup.input_group id="input-group-readonly" value="devaction-labs" readonly />
+  </label>
+  <label class="flex flex-col gap-1.5 text-sm font-medium">
+    Disabled
+    <InputGroup.input_group
+      id="input-group-disabled"
+      placeholder="Available after connecting GitHub"
+      disabled
+    />
+  </label>
+</div>

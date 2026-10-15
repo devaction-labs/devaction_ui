@@ -1,0 +1,11 @@
+<%!-- title: Small with counts | text: The sm size, with a count on each option. | layout: center --%>
+<Segmented.segmented
+  id="segmented-small"
+  label="Status"
+  value={@shell.status}
+  event="shell_status"
+  size={:sm}
+>
+  <:option value="open" label="Open" count="12" />
+  <:option value="done" label="Done" count="40" />
+</Segmented.segmented>

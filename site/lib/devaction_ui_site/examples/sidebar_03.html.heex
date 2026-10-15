@@ -1,0 +1,19 @@
+<%!-- title: With footer | text: The footer stays at the bottom for the person or a help link. --%>
+<div class="flex gap-4 rounded-2xl bg-frame p-4">
+  <Sidebar.sidebar
+    id="sidebar-footer"
+    label="Workspace"
+    on_toggle="shell_collapse"
+    toggle_label="Collapse the menu"
+  >
+    <:toggle_icon><.icon name="arrow-down-01" class="size-5 rotate-90" /></:toggle_icon>
+    <:header><span class="font-semibold text-ink">Campo Limpo Labs</span></:header>
+    <:icon :let={item}><.icon name={sidebar_icon(item.label)} class="size-5" /></:icon>
+    <:item to="/c/sidebar" label="Projects" current />
+    <:item to="/c/sidebar" label="Contracts" count="2" />
+    <:footer><span class="text-sm text-ink-2">Alex Nogueira</span></:footer>
+  </Sidebar.sidebar>
+  <div class="flex flex-1 items-center justify-center rounded-xl border border-dashed border-line-strong text-sm text-muted">
+    The screen
+  </div>
+</div>

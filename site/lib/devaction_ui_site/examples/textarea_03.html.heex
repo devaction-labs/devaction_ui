@@ -1,0 +1,11 @@
+<%!-- title: Counter near the limit | text: The counter turns red within 10 percent of maxlength. --%>
+<div class="flex max-w-lg flex-col gap-1.5">
+  <label for="textarea-limit" class="text-sm font-medium">Release note</label>
+  <Textarea.textarea
+    id="textarea-limit"
+    name="note"
+    rows={3}
+    maxlength={120}
+    value="Fixes the invoice rounding on partial milestones and adds a retry to the webhook sender."
+  />
+</div>

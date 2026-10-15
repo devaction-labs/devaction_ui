@@ -1,0 +1,13 @@
+<%!-- title: Contract history | text: A realistic activity log with a description per event. --%>
+<Timeline.timeline class="max-w-lg">
+  <:item tone={:ok} title="Invoice paid" time="Oct 14, 10:32">
+    R$ 12.400,00 received for milestone M2.
+  </:item>
+  <:item tone={:info} title="Invoice issued" time="Oct 02, 09:10">
+    Milestone M2, due on Oct 15.
+  </:item>
+  <:item tone={:warn} title="Scope changed" time="Sep 21, 16:45">
+    Two items moved from M2 to M3.
+  </:item>
+  <:item tone={:neutral} title="Contract signed" time="Sep 01, 11:00">Both parties signed.</:item>
+</Timeline.timeline>

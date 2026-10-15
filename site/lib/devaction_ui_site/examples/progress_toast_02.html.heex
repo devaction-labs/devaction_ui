@@ -1,0 +1,13 @@
+<%!-- title: Error | text: Never leaves by itself: the person reads it and closes it --%>
+<div class="max-w-[420px]">
+  <ProgressToast.progress_toast
+    id="progress-toast-error"
+    state={:error}
+    progress={60}
+    title="Review failed"
+    on_dismiss="dismiss_job"
+    dismiss_label="Close"
+  >
+    GitHub did not answer
+  </ProgressToast.progress_toast>
+</div>

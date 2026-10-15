@@ -1,0 +1,27 @@
+<%!-- title: Success | text: Small, centred, with the ok tone: tells that something worked --%>
+<Button.button
+  id="modal-success-open"
+  variant={:secondary}
+  size={:sm}
+  class="self-start"
+  phx-click={Drawer.open(JS.push("overlay_open", value: %{kind: "modal_success"}))}
+>
+  Connect GitHub
+</Button.button>
+<Modal.modal
+  :if={@overlays.kind == "modal_success"}
+  id="modal-success"
+  size={:sm}
+  tone={:ok}
+  centered
+  on_close="overlay_close"
+>
+  <:icon><.icon name="checkmark-circle-02" class="size-6" /></:icon>
+  <:title>GitHub connected</:title>
+  <:subtitle>
+    6 repositories found. The AI starts reviewing the open PRs of the ones you watch.
+  </:subtitle>
+  <:footer>
+    <Button.button id="modal-success-ok" variant={:primary} phx-click="overlay_close">Choose repositories</Button.button>
+  </:footer>
+</Modal.modal>

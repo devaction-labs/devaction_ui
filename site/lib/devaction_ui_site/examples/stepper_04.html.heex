@@ -1,0 +1,25 @@
+<%!-- title: Interactive | text: The server moves the current step and can simulate a failure. --%>
+<Stepper.stepper
+  id="stepper-live"
+  state_labels={%{done: "done", current: "current", error: "failed", todo: "to do"}}
+>
+  <:step
+    :for={
+      {state, {label, help}} <-
+        Enum.zip(Stepper.states(4, @stepper.current, @stepper.error), [
+          {"Account", "Confirm the e-mail"},
+          {"GitHub", "Install the app"},
+          {"Repositories", "Choose which to watch"},
+          {"First project", "With a contract"}
+        ])
+    }
+    state={state}
+    label={label}
+    help={help}
+  />
+</Stepper.stepper>
+<div class="flex gap-2">
+  <Button.button id="stepper-prev" size={:sm} phx-click="stepper_prev">Back</Button.button>
+  <Button.button id="stepper-fail" size={:sm} phx-click="stepper_fail">Simulate an error</Button.button>
+  <Button.button id="stepper-next" size={:sm} variant={:primary} phx-click="stepper_next">Next</Button.button>
+</div>

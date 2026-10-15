@@ -1,0 +1,11 @@
+<%!-- title: Markdown Output | text: Typing in the editor above updates the Markdown it would save --%>
+<.code_block
+  :if={@editor.markdown != ""}
+  id="editor-markdown"
+  tone={:dark}
+  label="markdown"
+  code={@editor.markdown}
+/>
+<p :if={@editor.markdown == ""} class="m-0 text-sm text-muted">
+  Edit the delivery notes in the full editor to see the Markdown here.
+</p>

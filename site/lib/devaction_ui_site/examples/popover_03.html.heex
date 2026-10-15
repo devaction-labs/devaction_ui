@@ -1,0 +1,18 @@
+<%!-- title: Placement | text: Above the trigger, aligned to its end, in a narrower panel --%>
+<div class="flex justify-end pt-36">
+  <Popover.popover
+    id="popover-top"
+    label="Review status"
+    placement={:top}
+    align={:end}
+    panel_class="w-64"
+  >
+    <:trigger>
+      <Button.button variant={:secondary} size={:sm}>Review status</Button.button>
+    </:trigger>
+    <p class="m-0 font-semibold text-ink">2 findings to resolve</p>
+    <p class="m-0 mt-1 text-sm text-ink-2">
+      The review can be published once they are dismissed or fixed.
+    </p>
+  </Popover.popover>
+</div>

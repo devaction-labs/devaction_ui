@@ -1,0 +1,34 @@
+<%!-- title: Wide | text: The 640 px width, for longer forms --%>
+<Button.button
+  id="drawer-04-open"
+  variant={:secondary}
+  size={:sm}
+  class="self-start"
+  phx-click={Drawer.open(JS.push("overlay_open", value: %{kind: "drawer_wide"}))}
+>
+  Open wide drawer
+</Button.button>
+<Drawer.drawer
+  :if={@overlays.kind == "drawer_wide"}
+  id="drawer-04"
+  variant={:floating}
+  side={:right}
+  size={:lg}
+  on_close="overlay_close"
+  close_label="Close"
+>
+  <:close_icon><.icon name="cancel-01" class="size-4" /></:close_icon>
+  <:title>Edit profile</:title>
+  <:subtitle>Change your personal data.</:subtitle>
+  <label class="flex flex-col gap-1.5 text-sm font-medium">
+    Name <InputGroup.input_group id="drawer-04-name" value="Alex Nogueira" />
+  </label>
+  <label class="flex flex-col gap-1.5 text-sm font-medium">
+    About you
+    <Textarea.textarea id="drawer-04-about" rows={3} value="Elixir and Phoenix, code review." />
+  </label>
+  <:footer>
+    <Button.button id="drawer-04-cancel" phx-click="overlay_close">Cancel</Button.button>
+    <Button.button id="drawer-04-save" variant={:primary} phx-click="overlay_close">Save changes</Button.button>
+  </:footer>
+</Drawer.drawer>

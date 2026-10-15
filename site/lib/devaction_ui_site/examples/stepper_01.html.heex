@@ -1,0 +1,10 @@
+<%!-- title: Horizontal | text: Done, current and to-do steps in a row. --%>
+<Stepper.stepper
+  id="stepper-horizontal"
+  state_labels={%{done: "done", current: "current", error: "failed", todo: "to do"}}
+>
+  <:step state={:done} label="Account" help="E-mail confirmed" />
+  <:step state={:current} label="GitHub" help="Install the app" />
+  <:step state={:todo} label="Repositories" help="Choose which to watch" />
+  <:step state={:todo} label="First project" help="With a contract" />
+</Stepper.stepper>

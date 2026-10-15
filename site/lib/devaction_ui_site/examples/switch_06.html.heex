@@ -1,0 +1,21 @@
+<%!-- title: In a table row | text: A switch and a tag at the end of each repository row. --%>
+<div class="flex max-w-lg flex-col rounded-xl border border-line">
+  <div
+    :for={
+      {repo, tag} <- [{"sge-api", "Active"}, {"ayram-web", "Active"}, {"hub-api", "Archived"}]
+    }
+    class="flex items-center gap-3 border-b border-line-soft px-3.5 py-2.5 last:border-b-0"
+  >
+    <.icon name="github" class="size-[18px] text-muted" />
+    <span class="flex-1 text-sm">{repo}</span>
+    <.tag>{tag}</.tag>
+    <Switch.switch
+      id={"switch-repo-#{repo}"}
+      label={"Watch #{repo}"}
+      checked={"repo-#{repo}" in @switches.on}
+      disabled={tag == "Archived"}
+      phx-click="switch_toggle"
+      phx-value-key={"repo-#{repo}"}
+    />
+  </div>
+</div>

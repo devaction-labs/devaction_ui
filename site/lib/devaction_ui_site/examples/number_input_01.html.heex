@@ -1,0 +1,15 @@
+<%!-- title: Basic | text: A stepper that moves by one inside min and max; the server owns the value. | layout: center --%>
+<NumberInput.number_input
+  id="number-input-basic"
+  name="seats"
+  value={@inputs.seats}
+  label="Seats"
+  min={1}
+  max={5}
+  event="seats_step"
+  decrease_label="Fewer seats"
+  increase_label="More seats"
+>
+  <:minus_icon>−</:minus_icon>
+  <:plus_icon>+</:plus_icon>
+</NumberInput.number_input>

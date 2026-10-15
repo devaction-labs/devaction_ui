@@ -1,0 +1,24 @@
+<%!-- title: Confirm | text: A decision that interrupts, with a tone on the icon tile --%>
+<Button.button
+  id="modal-confirm-open"
+  variant={:secondary}
+  size={:sm}
+  class="self-start"
+  phx-click={Drawer.open(JS.push("overlay_open", value: %{kind: "modal_confirm"}))}
+>
+  Publish review
+</Button.button>
+<Modal.modal
+  :if={@overlays.kind == "modal_confirm"}
+  id="modal-confirm"
+  tone={:info}
+  on_close="overlay_close"
+>
+  <:icon><.icon name="git-pull-request" class="size-5" /></:icon>
+  <:title>Publish the review on GitHub?</:title>
+  <:subtitle>2 comments go to PR #142 in the name of DevAction IA.</:subtitle>
+  <:footer>
+    <Button.button id="modal-confirm-cancel" phx-click="overlay_close">Cancel</Button.button>
+    <Button.button id="modal-confirm-ok" variant={:primary} phx-click="overlay_close">Publish</Button.button>
+  </:footer>
+</Modal.modal>

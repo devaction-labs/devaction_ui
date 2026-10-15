@@ -1,0 +1,7 @@
+<%!-- title: Empty | text: With no rows, the empty slot explains what is missing. --%>
+<DataTable.data_table id="data-table-empty" label="Pull requests" rows={[]}>
+  <:col :let={row} label="PR" class="font-mono">#{row.id}</:col>
+  <:col :let={row} label="Title">{row.title}</:col>
+  <:col :let={row} label="Author">{row.author}</:col>
+  <:empty>No pull requests match these filters.</:empty>
+</DataTable.data_table>

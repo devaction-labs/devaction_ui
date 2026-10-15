@@ -1,0 +1,17 @@
+<%!-- title: Checkbox | text: Empty, checked, indeterminate and disabled states --%>
+<div class="flex flex-col">
+  <Choice.checkbox id="choice-cb-empty" label="Notify me about new comments" />
+  <Choice.checkbox id="choice-cb-checked" label="Require two approvals" checked />
+  <Choice.checkbox id="choice-cb-partial" label="Some repositories selected" partial />
+  <Choice.checkbox
+    id="choice-cb-disabled"
+    label="Auto-merge (not available on this plan)"
+    disabled
+  />
+  <Choice.checkbox
+    id="choice-cb-description"
+    label="Weekly digest"
+    description="A summary of reviews and milestones every Monday."
+    checked
+  />
+</div>

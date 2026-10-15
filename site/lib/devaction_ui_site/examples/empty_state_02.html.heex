@@ -1,0 +1,10 @@
+<%!-- title: Dashed | text: The default variant, with an icon and an action --%>
+<EmptyState.empty_state
+  title="No repository connected"
+  text="Connect a repository so the AI can review your pull requests."
+>
+  <:icon><.icon name="git-pull-request" class="size-5" /></:icon>
+  <:action>
+    <Button.button variant={:secondary} size={:sm}>Connect a repository</Button.button>
+  </:action>
+</EmptyState.empty_state>

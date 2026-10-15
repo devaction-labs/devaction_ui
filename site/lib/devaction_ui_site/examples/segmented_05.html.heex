@@ -1,0 +1,12 @@
+<%!-- title: Full width | text: Options share the whole width of the container. --%>
+<Segmented.segmented
+  id="segmented-full"
+  label="Period"
+  value={@shell.view}
+  event="shell_view"
+  full
+>
+  <:option value="list" label="Week" />
+  <:option value="board" label="Month" />
+  <:option value="calendar" label="Quarter" />
+</Segmented.segmented>

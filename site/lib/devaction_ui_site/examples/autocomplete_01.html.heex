@@ -1,0 +1,11 @@
+<%!-- title: Basic | text: Type to search; results arrive from the server through the search event --%>
+<Autocomplete.autocomplete
+  id="autocomplete-basic"
+  label="Search"
+  placeholder="Search lessons and pull requests"
+  value={@q}
+  event="search"
+  groups={@groups}
+  empty="Nothing found"
+  class="max-w-md"
+/>

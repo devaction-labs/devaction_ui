@@ -1,0 +1,18 @@
+<%!-- title: Stack | text: With more than one notice they sit as layers with a count; click to open the list --%>
+<div class="h-40 max-w-[380px]">
+  <ToastGroup.toast_group
+    id="toast-group-stack"
+    label="Notices"
+    on_dismiss="dismiss_toast"
+    on_clear="clear_toasts"
+    expand_label="Show all"
+    collapse_label="Collapse"
+    clear_label="Clear"
+    dismiss_label="Close"
+    count_label="__COUNT__ notices"
+  >
+    <:toast id="toast-stack-3" kind={:dark} title="Review published on PR #142" duration={0} />
+    <:toast id="toast-stack-2" kind={:light} title="Lessons generated for sge-api" duration={0} />
+    <:toast id="toast-stack-1" kind={:dark} title="Repository synced" duration={0} />
+  </ToastGroup.toast_group>
+</div>

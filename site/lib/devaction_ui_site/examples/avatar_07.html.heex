@@ -1,0 +1,28 @@
+<%!-- title: Stack | text: A group of people with a +N chip and an invite button | layout: center --%>
+<div class="flex flex-wrap items-center gap-8">
+  <Avatar.avatar_stack
+    label="Reviewers"
+    people={[
+      %{name: "Fernando Paiva", tone: :info},
+      %{name: "Carlos André"},
+      %{name: "Alex Nogueira", tone: :ok}
+    ]}
+  />
+  <Avatar.avatar_stack
+    label="Members"
+    max={3}
+    people={[
+      %{name: "Fernando Paiva", tone: :info},
+      %{name: "Carlos André"},
+      %{name: "Alex Nogueira", tone: :ok},
+      %{name: "Maria Souza"},
+      %{name: "João Lima"}
+    ]}
+  >
+    <:extra>
+      <Avatar.avatar_invite label="Invite a person">
+        <.icon name="add-01" class="size-4" />
+      </Avatar.avatar_invite>
+    </:extra>
+  </Avatar.avatar_stack>
+</div>

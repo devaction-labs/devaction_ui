@@ -1,0 +1,25 @@
+<%!-- title: Complete | text: Breadcrumb, status, actions and tabs together. --%>
+<PageHeader.page_header id="page-header-full">
+  <:breadcrumb>
+    <Breadcrumb.breadcrumb
+      label="You are here"
+      items={[%{label: "Contracts", to: "/contracts"}, %{label: "SGE"}]}
+    />
+  </:breadcrumb>
+  <:title>SGE Church Management</:title>
+  <:status>
+    <.tag variant={:ok}>ON TRACK</.tag>
+  </:status>
+  <:subtitle>Fixed scope, 4 milestones, Campo Limpo</:subtitle>
+  <:actions>
+    <Button.button>Export</Button.button>
+    <Button.button variant={:primary}>New milestone</Button.button>
+  </:actions>
+  <:tabs>
+    <Tabs.tabs id="page-header-full-tabs" variant={:line} label="Contract sections">
+      <:tab id="overview" label="Overview" selected>Overview</:tab>
+      <:tab id="milestones" label="Milestones" count="4">Milestones</:tab>
+      <:tab id="invoices" label="Invoices" count="2">Invoices</:tab>
+    </Tabs.tabs>
+  </:tabs>
+</PageHeader.page_header>

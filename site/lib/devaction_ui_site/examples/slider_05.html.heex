@@ -1,0 +1,16 @@
+<%!-- title: Range | text: Two thumbs choose a low and a high value. --%>
+<form id="slider-range-form" phx-change="inputs_change" class="m-0 max-w-sm">
+  <Slider.range_slider
+    id="slider-range"
+    label="Budget"
+    name_low="from"
+    name_high="to"
+    label_low="From"
+    label_high="To"
+    low={@inputs.from}
+    high={@inputs.to}
+    min={0}
+    max={100}
+    format={&"R$ #{&1}k"}
+  />
+</form>

@@ -1,0 +1,58 @@
+import test from "node:test"
+import assert from "node:assert/strict"
+import {addDays, addMonths, daysInMonth, leadingDays, monthOf, moveFocus, pick, sameDayIn, shiftMonth, weekdayIndex} from "./dates.js"
+
+test("adding days and months crosses month and year ends", () => {
+  assert.equal(addDays("2026-10-31", 1), "2026-11-01")
+  assert.equal(addDays("2026-01-01", -1), "2025-12-31")
+  assert.equal(addMonths("2026-12-15", 1), "2027-01-15")
+  assert.equal(addMonths("2026-01-31", 1), "2026-03-03")
+})
+
+test("a month's size and the days before its first", () => {
+  assert.equal(daysInMonth({year: 2026, month: 1}), 28)
+  assert.equal(daysInMonth({year: 2028, month: 1}), 29)
+  assert.equal(leadingDays({year: 2026, month: 9}, 0), 4) // 1 Oct 2026 is a Thursday
+  assert.equal(leadingDays({year: 2026, month: 9}, 1), 3) // with Monday first
+})
+
+test("shifting a month wraps the year", () => {
+  assert.deepEqual(shiftMonth({year: 2026, month: 11}, 1), {year: 2027, month: 0})
+  assert.deepEqual(shiftMonth({year: 2026, month: 0}, -1), {year: 2025, month: 11})
+  assert.deepEqual(monthOf("2026-10-14"), {year: 2026, month: 9})
+})
+
+test("the same day in a shorter month is held to its last day", () => {
+  assert.equal(sameDayIn("2026-01-31", {year: 2026, month: 1}), "2026-02-28")
+  assert.equal(sameDayIn("2026-10-14", {year: 2026, month: 10}), "2026-11-14")
+})
+
+test("keys move the focused day, and unknown keys do not", () => {
+  assert.equal(moveFocus("ArrowRight", "2026-10-14", 0), "2026-10-15")
+  assert.equal(moveFocus("ArrowDown", "2026-10-14", 0), "2026-10-21")
+  assert.equal(moveFocus("PageDown", "2026-10-14", 0), "2026-11-14")
+  assert.equal(moveFocus("a", "2026-10-14", 0), undefined)
+})
+
+test("Home and End go to the edges of the week, whatever day it starts on", () => {
+  assert.equal(weekdayIndex("2026-10-14", 0), 3) // Wednesday, Sunday first
+  assert.equal(moveFocus("Home", "2026-10-14", 0), "2026-10-11")
+  assert.equal(moveFocus("End", "2026-10-14", 0), "2026-10-17")
+  assert.equal(moveFocus("Home", "2026-10-14", 1), "2026-10-12")
+  assert.equal(moveFocus("End", "2026-10-14", 1), "2026-10-18")
+})
+
+test("single mode keeps the last pick", () => {
+  assert.deepEqual(pick({from: "2026-10-01", to: null}, "2026-10-05", "single"), {from: "2026-10-05", to: null})
+})
+
+test("a range starts, closes, restarts earlier and starts anew", () => {
+  const start = pick({from: null, to: null}, "2026-10-12", "range")
+  assert.deepEqual(start, {from: "2026-10-12", to: null})
+
+  const closed = pick(start, "2026-10-20", "range")
+  assert.deepEqual(closed, {from: "2026-10-12", to: "2026-10-20"})
+
+  assert.deepEqual(pick(start, "2026-10-11", "range"), {from: "2026-10-11", to: null})
+  assert.deepEqual(pick(closed, "2026-10-25", "range"), {from: "2026-10-25", to: null})
+})

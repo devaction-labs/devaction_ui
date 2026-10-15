@@ -1,0 +1,15 @@
+<%!-- title: Variants | text: Group, flush and plain --%>
+<div class="grid gap-5 md:grid-cols-3">
+  <Accordion.accordion id="accordion-variant-group" variant={:group}>
+    <:item title="Group" open>A bordered block with dividers and a plus.</:item>
+    <:item title="Billing">Invoices are issued on the first of the month.</:item>
+  </Accordion.accordion>
+  <Accordion.accordion id="accordion-variant-flush" variant={:flush}>
+    <:item title="Flush" open>Bare rows with a line under each.</:item>
+    <:item title="Billing">Invoices are issued on the first of the month.</:item>
+  </Accordion.accordion>
+  <Accordion.accordion id="accordion-variant-plain" variant={:plain}>
+    <:item title="Plain" open>Dividers and a chevron that turns.</:item>
+    <:item title="Billing">Invoices are issued on the first of the month.</:item>
+  </Accordion.accordion>
+</div>

@@ -1,0 +1,18 @@
+<%!-- title: Cards | text: Each section is a card with a lead, a sub line, a tag and an action --%>
+<Accordion.accordion id="accordion-cards" variant={:card} exclusive={false}>
+  <:lead :let={item}>
+    <span class="flex size-9 items-center justify-center rounded-[10px] bg-wrap font-mono text-xs text-ink-2">
+      {item.index + 1}
+    </span>
+  </:lead>
+  <:actions><.icon name="sparkles" class="size-4 text-muted" /></:actions>
+  <:item title="M1 · Members" subtitle="Delivered on 02/10" tag="PAID" tone={:ok} open>
+    Registration and search of members.
+  </:item>
+  <:item title="M2 · Events" subtitle="Due on 12/10" tag="IN REVIEW" tone={:info}>
+    Calendar, registrations and reminders.
+  </:item>
+  <:item title="M3 · Finance" subtitle="Due on 23/10" tag="AT RISK" tone={:risk}>
+    Tithes, refunds and the monthly report.
+  </:item>
+</Accordion.accordion>

@@ -1,0 +1,6 @@
+<%!-- title: Tones | text: Amber for the AI, violet for learning, green and red for outcomes. | layout: center --%>
+<div class="flex flex-wrap items-center gap-6">
+  <Aura.aura :for={tone <- [:ai, :learning, :ok, :risk]} tone={tone}>
+    <div class="bg-card px-4 py-3 text-sm text-ink">{tone}</div>
+  </Aura.aura>
+</div>

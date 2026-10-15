@@ -1,0 +1,32 @@
+<%!-- title: Full Editor | text: Toolbar, text styles, / menu, @ mentions and a word count --%>
+<.form for={%{}} id="editor-form" phx-change="editor_change" class="flex flex-col gap-3">
+  <Editor.editor
+    id="demo-editor"
+    name="note"
+    label="Delivery notes"
+    placeholder="Write the delivery notes…"
+    value="<h2>M3 · Finance</h2><p>The refund flow is <strong>done</strong>; the report is next.</p>"
+    styles={[{"Paragraph", "paragraph"}, {"Heading 2", "h2"}, {"Heading 3", "h3"}]}
+    slash={@editor.slash}
+    mentions={@editor.members}
+    words_label="words"
+  >
+    <:tool name="bold" label="Bold" separator><.icon name="text-bold" class="size-4" /></:tool>
+    <:tool name="italic" label="Italic"><.icon name="text-italic" class="size-4" /></:tool>
+    <:tool name="strike" label="Strikethrough">
+      <.icon name="text-strikethrough" class="size-4" />
+    </:tool>
+    <:tool name="code" label="Code"><.icon name="source-code" class="size-4" /></:tool>
+    <:tool name="bulletList" label="Bulleted list" separator>
+      <.icon name="left-to-right-list-bullet" class="size-4" />
+    </:tool>
+    <:tool name="orderedList" label="Numbered list">
+      <.icon name="left-to-right-list-number" class="size-4" />
+    </:tool>
+    <:tool name="taskList" label="Task list"><.icon name="task-done-01" class="size-4" /></:tool>
+    <:tool name="link" label="Link" separator><.icon name="link-01" class="size-4" /></:tool>
+    <:tool name="blockquote" label="Quote"><.icon name="quote-down" class="size-4" /></:tool>
+    <:tool name="undo" label="Undo" separator><.icon name="undo" class="size-4" /></:tool>
+    <:tool name="redo" label="Redo"><.icon name="redo" class="size-4" /></:tool>
+  </Editor.editor>
+</.form>

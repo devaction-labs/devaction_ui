@@ -1,0 +1,13 @@
+<%!-- title: Sparkline | text: A tiny trend line to sit beside a number. --%>
+<div class="flex items-end gap-4 rounded-xl border border-line p-5">
+  <div class="flex flex-1 flex-col gap-1">
+    <span class="font-mono text-[11px] tracking-[0.08em] text-muted">PRS REVIEWED</span>
+    <span class="text-[34px] font-semibold tracking-[-0.03em]">24</span>
+    <span class="text-[13px] text-ink-2">+4 vs. last week</span>
+  </div>
+  <Chart.sparkline
+    id="chart-spark"
+    summary="PRs reviewed in the last 8 weeks"
+    values={[3, 5, 4, 8, 7, 12, 10, 14]}
+  />
+</div>

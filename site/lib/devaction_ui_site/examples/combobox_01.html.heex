@@ -1,0 +1,16 @@
+<%!-- title: Basic | text: A searchable list in a button; nothing chosen yet --%>
+<Combobox.combobox
+  id="combobox-basic"
+  name="project_basic"
+  label="Project"
+  placeholder="Choose a project"
+  search_placeholder="Search projects"
+  empty="No project found"
+  class="max-w-sm"
+  options={[
+    %{value: "sge", label: "SGE · Igreja Central"},
+    %{value: "hub", label: "Hub Comércio"},
+    %{value: "pao", label: "Padaria Pão Quente"},
+    %{value: "ayr", label: "AYRAM Parcerias"}
+  ]}
+/>

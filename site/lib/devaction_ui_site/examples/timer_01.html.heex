@@ -1,0 +1,18 @@
+<%!-- title: Basic | text: Start, pause and log; the clock runs in the browser. --%>
+<div class="max-w-md">
+  <Timer.timer
+    id="timer-basic"
+    base={@inputs.timer_base}
+    started_at={@inputs.timer_started}
+    label="Time on DIA-142"
+    toggle_event="timer_toggle"
+    log_event="timer_log"
+    start_label="Start"
+    pause_label="Pause"
+    log_label="Stop and log on the task"
+  >
+    <:start_icon><.icon name="play" class="size-5" /></:start_icon>
+    <:pause_icon><.icon name="pause" class="size-5" /></:pause_icon>
+    <:log_icon><.icon name="stop" class="size-5" /></:log_icon>
+  </Timer.timer>
+</div>

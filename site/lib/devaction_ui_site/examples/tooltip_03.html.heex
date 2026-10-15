@@ -1,0 +1,13 @@
+<%!-- title: With shortcut | text: An icon-only button names itself and shows the key of its action | layout: center --%>
+<div class="flex items-center gap-4 py-6">
+  <Tooltip.tooltip id="tooltip-search" text="Search" shortcut="⌘K">
+    <Button.button variant={:secondary} size={:sm} aria-label="Search">
+      <.icon name="search-01" class="size-4" />
+    </Button.button>
+  </Tooltip.tooltip>
+  <Tooltip.tooltip id="tooltip-copy" text="Copy link" shortcut="⌘L" placement={:bottom}>
+    <Button.button variant={:secondary} size={:sm} aria-label="Copy link">
+      <.icon name="copy-01" class="size-4" />
+    </Button.button>
+  </Tooltip.tooltip>
+</div>

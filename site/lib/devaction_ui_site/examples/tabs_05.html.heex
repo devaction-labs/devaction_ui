@@ -1,0 +1,15 @@
+<%!-- title: With panels | text: Each panel holds real content, here a list and a progress bar. --%>
+<Tabs.tabs id="tabs-panels" label="Milestone M3" variant={:boxed}>
+  <:tab id="tabs-panels-progress" label="Progress">
+    <div class="max-w-md py-3">
+      <.progress value={69} label="Scope of M3" show_value />
+    </div>
+  </:tab>
+  <:tab id="tabs-panels-people" label="People" count="3">
+    <ul class="flex flex-col gap-1 py-3 text-sm text-ink">
+      <li>Marina Costa, tech lead</li>
+      <li>Rafael Souza, backend</li>
+      <li>Joana Lima, design</li>
+    </ul>
+  </:tab>
+</Tabs.tabs>

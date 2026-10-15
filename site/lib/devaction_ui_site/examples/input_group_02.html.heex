@@ -1,0 +1,24 @@
+<%!-- title: Trailing Action | text: A button inside the field: show the password, clear or copy --%>
+<div class="grid gap-5 md:grid-cols-2">
+  <label class="flex flex-col gap-1.5 text-sm font-medium">
+    Password
+    <InputGroup.input_group id="input-group-password" type="password" value="devaction-2026">
+      <:icon><.icon name="lock-password" /></:icon>
+      <:action>
+        <InputGroup.input_action id="input-group-eye" label="Show the password">
+          <.icon name="view" class="size-[18px]" />
+        </InputGroup.input_action>
+      </:action>
+    </InputGroup.input_group>
+  </label>
+  <label class="flex flex-col gap-1.5 text-sm font-medium">
+    Webhook secret
+    <InputGroup.input_group id="input-group-secret" value="whsec_8f2c…a91d" readonly>
+      <:action>
+        <InputGroup.input_action id="input-group-copy" label="Copy">
+          <.icon name="copy-01" class="size-[18px]" />
+        </InputGroup.input_action>
+      </:action>
+    </InputGroup.input_group>
+  </label>
+</div>

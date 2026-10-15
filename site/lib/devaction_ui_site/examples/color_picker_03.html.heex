@@ -1,0 +1,15 @@
+<%!-- title: Custom presets | text: Your own palette instead of the default eight, and the eyedropper where the browser has one --%>
+<div class="min-h-[22rem]">
+  <ColorPicker.color_picker
+    id="color-presets"
+    name="label[color]"
+    value="#0D9488"
+    label="Label colour"
+    presets={~w(#0D9488 #0891B2 #2563EB #7C3AED #C026D3 #E11D48 #EA580C #CA8A04)}
+    eyedropper_label="Pick from the screen"
+    toggle_label="Open the colour picker"
+    area_label="Saturation and brightness"
+    hue_label="Hue"
+    presets_label="Label colours"
+  />
+</div>

@@ -1,0 +1,13 @@
+<%!-- title: Page | text: A full page with a kicker, a primary action and a quieter second one --%>
+<EmptyState.empty_state
+  variant={:page}
+  kicker="PROJECTS"
+  title="No project yet"
+  text="A project groups the contract, tasks, meetings and repositories of one client."
+>
+  <:icon><.icon name="contracts" class="size-6" /></:icon>
+  <:action>
+    <Button.button variant={:primary}>Create the first project</Button.button>
+  </:action>
+  <:secondary><Button.button variant={:ghost}>See an example</Button.button></:secondary>
+</EmptyState.empty_state>

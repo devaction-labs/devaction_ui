@@ -1,0 +1,21 @@
+<%!-- title: Live job | text: Run a job to watch it fill, finish and leave --%>
+<div class="flex max-w-[420px] flex-col gap-3">
+  <Button.button
+    id="progress-toast-run"
+    variant={:primary}
+    size={:sm}
+    phx-click="run_job"
+    class="self-start"
+  >
+    Generate lessons
+  </Button.button>
+  <ProgressToast.progress_toast
+    :if={@job}
+    id="progress-toast-job"
+    state={@job.state}
+    progress={@job.progress}
+    title="Generating lessons"
+    on_dismiss="dismiss_job"
+    dismiss_label="Close"
+  />
+</div>

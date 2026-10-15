@@ -1,0 +1,18 @@
+<%!-- title: Paused | text: Stopped with time already counted, and a caption. --%>
+<div class="max-w-md">
+  <Timer.timer
+    id="timer-paused"
+    base={5025}
+    label="Time on DIA-97"
+    toggle_event="timer_toggle"
+    log_event="timer_log"
+    start_label="Start"
+    pause_label="Pause"
+    log_label="Stop and log on the task"
+    paused_text="Paused"
+  >
+    <:start_icon><.icon name="play" class="size-5" /></:start_icon>
+    <:pause_icon><.icon name="pause" class="size-5" /></:pause_icon>
+    <:log_icon><.icon name="stop" class="size-5" /></:log_icon>
+  </Timer.timer>
+</div>

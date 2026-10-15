@@ -1,0 +1,22 @@
+<%!-- title: Inline in text | text: Tags sitting in a sentence and in a list of pull requests. --%>
+<div class="flex max-w-xl flex-col gap-4 text-sm text-ink">
+  <p>
+    Milestone M3 is
+    <.tag variant={:warn} size={:sm}>Waiting</.tag>
+    for review, and the invoice is still <.tag variant={:neutral} size={:sm}>Draft</.tag>.
+  </p>
+  <ul class="flex flex-col divide-y divide-line">
+    <li class="flex items-center justify-between gap-3 py-2">
+      <span>Add Pix payment method</span>
+      <.tag variant={:ok} size={:sm}>Merged</.tag>
+    </li>
+    <li class="flex items-center justify-between gap-3 py-2">
+      <span>Fix rounding in invoices</span>
+      <.tag variant={:warn} size={:sm}>In review</.tag>
+    </li>
+    <li class="flex items-center justify-between gap-3 py-2">
+      <span>Migrate webhooks</span>
+      <.tag variant={:risk} size={:sm}>Blocked</.tag>
+    </li>
+  </ul>
+</div>

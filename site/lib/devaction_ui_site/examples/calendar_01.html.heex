@@ -1,0 +1,36 @@
+<%!-- title: Month | text: Coloured events per day; arrows and the switch navigate on the server. --%>
+<Calendar.calendar
+  id="calendar-month"
+  label="Deliveries"
+  title={calendar_title(@calendar.date, @calendar.view)}
+  date={@calendar.date}
+  view={@calendar.view}
+  today={~D[2026-10-15]}
+  selected={@calendar.selected}
+  events={@calendar.events}
+  weekdays={~w(SUN MON TUE WED THU FRI SAT)}
+  more_label="+%{count} more"
+  prev_label="Previous"
+  next_label="Next"
+  select_event="calendar_select"
+  prev_event="calendar_prev"
+  next_event="calendar_next"
+>
+  <:prev_icon><.icon name="arrow-down-01" class="size-4 rotate-90" /></:prev_icon>
+  <:next_icon><.icon name="arrow-down-01" class="size-4 -rotate-90" /></:next_icon>
+  <:actions>
+    <Segmented.segmented
+      id="calendar-view"
+      label="View"
+      value={to_string(@calendar.view)}
+      event="calendar_view"
+      size={:sm}
+    >
+      <:option value="month" label="Month" />
+      <:option value="week" label="Week" />
+    </Segmented.segmented>
+  </:actions>
+</Calendar.calendar>
+<p :if={@calendar.selected} id="calendar-selected" role="status" class="m-0 text-sm text-ink-2">
+  Selected: {Date.to_iso8601(@calendar.selected)}
+</p>

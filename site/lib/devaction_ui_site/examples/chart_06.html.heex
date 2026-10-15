@@ -1,0 +1,24 @@
+<%!-- title: Table alternative | text: The line chart can show its data as a table; the caller owns the toggle. --%>
+<div class="flex items-start justify-between gap-3">
+  <span class="text-sm text-muted">R$ thousand, Mar to Oct 2026</span>
+  <Button.button
+    id="chart-table-toggle"
+    size={:sm}
+    aria-pressed={to_string(@charts_table?)}
+    phx-click="charts_table"
+  >
+    {(@charts_table? && "See the chart") || "See the table"}
+  </Button.button>
+</div>
+<Chart.line_chart
+  id="chart-line-table"
+  summary="Revenue, done and forecast, from March to October"
+  first_column="MONTH"
+  table?={@charts_table?}
+  labels={~w(Mar Apr May Jun Jul Aug Sep Oct)}
+  series={[
+    %{label: "Done", values: [48, 62, 55, 71, 80, 76, 92, 104]},
+    %{label: "Forecast", values: [50, 58, 60, 68, 78, 82, 95, 110]}
+  ]}
+  format={&"#{&1}k"}
+/>

@@ -1,0 +1,13 @@
+<%!-- title: Icon only | text: Compact; the label stays for assistive technology. | layout: center --%>
+<Segmented.segmented
+  id="segmented-icon-only"
+  label="Layout"
+  value={@shell.layout}
+  event="shell_layout"
+>
+  <:icon :let={option}>
+    <.icon name={%{"rows" => "contracts"}[option.value] || "sparkles"} class="size-4" />
+  </:icon>
+  <:option value="rows" label="Rows" icon_only />
+  <:option value="cards" label="Cards" icon_only />
+</Segmented.segmented>

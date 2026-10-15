@@ -1,0 +1,61 @@
+<%!-- title: Basic | text: Press the button to open the palette with scopes, grouped results, an AI action and key hints --%>
+<Button.button id="command-palette-open" size={:sm} class="self-start" phx-click="palette_open">
+  Open the palette
+</Button.button>
+<CommandPalette.palette
+  :if={@shell.palette}
+  id="command-palette-basic"
+  label="Search"
+  query={@shell.query}
+  placeholder="Search lessons, PRs, tasks..."
+  search_event="palette_search"
+  close_event="palette_close"
+  groups={
+    case @shell.query do
+      "" ->
+        [
+          %{
+            label: "Pull requests",
+            items: [
+              %{
+                id: "p142",
+                label: "Wrap tithes in a transaction",
+                to: "/",
+                hint: "#142",
+                tone: :risk
+              },
+              %{
+                id: "p139",
+                label: "Fix the N+1 in contributions",
+                to: "/",
+                hint: "#139",
+                tone: :warn
+              }
+            ]
+          },
+          %{
+            label: "Lessons",
+            items: [
+              %{id: "l1", label: "Always preload the member", to: "/", hint: "Ecto", tone: :info}
+            ]
+          }
+        ]
+
+      _query ->
+        @groups
+    end
+  }
+  empty="Nothing found."
+  ask_label={@shell.query != "" && "Ask the AI about \"#{@shell.query}\""}
+  ask_event="ask"
+  scopes={[
+    %{value: "all", label: "All"},
+    %{value: "prs", label: "PRs"},
+    %{value: "lessons", label: "Lessons"}
+  ]}
+  scope={@shell.scope}
+  scope_event="palette_scope"
+  keys={[{"↑↓", "move"}, {"↵", "open"}, {"⌘↵", "ask the AI"}, {"esc", "close"}]}
+>
+  <:search_icon><.icon name="search-01" class="size-[18px]" /></:search_icon>
+</CommandPalette.palette>

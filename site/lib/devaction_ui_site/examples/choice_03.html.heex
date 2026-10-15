@@ -1,0 +1,49 @@
+<%!-- title: Choice Cards | text: Bigger targets with an icon, as radio cards or checkbox cards --%>
+<div class="grid gap-5 md:grid-cols-2">
+  <fieldset id="choice-cards-radio" class="m-0 flex flex-col gap-2 border-0 p-0">
+    <legend class="mb-1 text-sm font-medium">How to publish the review</legend>
+    <Choice.choice_card
+      id="choice-card-draft"
+      name="choice_publish"
+      value="draft"
+      label="Draft"
+      description="You approve before it goes to GitHub."
+      checked
+    >
+      <:icon><.icon name="pencil-edit-02" class="size-5" /></:icon>
+    </Choice.choice_card>
+    <Choice.choice_card
+      id="choice-card-auto"
+      name="choice_publish"
+      value="auto"
+      label="Automatic"
+      description="It goes as soon as the AI finishes."
+    >
+      <:icon><.icon name="sparkles" class="size-5" /></:icon>
+    </Choice.choice_card>
+  </fieldset>
+  <fieldset id="choice-cards-checkbox" class="m-0 flex flex-col gap-2 border-0 p-0">
+    <legend class="mb-1 text-sm font-medium">Notify</legend>
+    <Choice.choice_card
+      id="choice-card-mail"
+      type="checkbox"
+      name="choice_notify_mail"
+      value="mail"
+      label="E-mail"
+      description="One message per finished review."
+      checked
+    >
+      <:icon><.icon name="mail-01" class="size-5" /></:icon>
+    </Choice.choice_card>
+    <Choice.choice_card
+      id="choice-card-github"
+      type="checkbox"
+      name="choice_notify_github"
+      value="github"
+      label="GitHub comment"
+      description="Posted on the pull request."
+    >
+      <:icon><.icon name="github" class="size-5" /></:icon>
+    </Choice.choice_card>
+  </fieldset>
+</div>

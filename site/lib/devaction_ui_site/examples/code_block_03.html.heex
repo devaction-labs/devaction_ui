@@ -1,0 +1,13 @@
+<%!-- title: With Label | text: A mono caption above the block --%>
+<div class="grid gap-3 sm:grid-cols-2">
+  <.code_block
+    tone={:risk}
+    label="Your code"
+    code="if user do\n  user.name\nelse\n  nil\nend"
+  />
+  <.code_block
+    tone={:ok}
+    label="Idiomatic"
+    code="user && user.name"
+  />
+</div>

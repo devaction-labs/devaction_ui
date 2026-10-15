@@ -1,0 +1,11 @@
+<%!-- title: Bar chart | text: Horizontal bars to compare a few categories. --%>
+<Chart.bar_chart
+  id="chart-bars"
+  summary="Hours by project"
+  format={&"#{&1} h"}
+  items={[
+    %{label: "SGE", value: 120},
+    %{label: "AYRAM", value: 84},
+    %{label: "Hub", value: 40}
+  ]}
+/>

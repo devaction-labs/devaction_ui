@@ -1,0 +1,15 @@
+<%!-- title: Size and alignment | text: The small button, and a menu aligned to the end of the trigger --%>
+<div class="flex items-start justify-between gap-4 pb-48">
+  <Dropdown.dropdown id="dropdown-small" label="Filter" size={:sm}>
+    <:trigger><.icon name="filter" class="size-4" /> Filter</:trigger>
+    <:item event="overlay_close">Open pull requests</:item>
+    <:item event="overlay_close">Needs review</:item>
+    <:check_icon><.icon name="tick-02" class="size-4" /></:check_icon>
+  </Dropdown.dropdown>
+  <Dropdown.dropdown id="dropdown-end" label="More" align={:end} size={:sm}>
+    <:trigger><.icon name="more-horizontal" class="size-4" /> More</:trigger>
+    <:item event="overlay_close">Export CSV</:item>
+    <:item event="overlay_close">Print</:item>
+    <:check_icon><.icon name="tick-02" class="size-4" /></:check_icon>
+  </Dropdown.dropdown>
+</div>

@@ -1,0 +1,13 @@
+<%!-- title: In a form | text: Labelled field with a hint, as used on a pull request. --%>
+<div class="flex max-w-md flex-col gap-1.5">
+  <span class="text-sm font-medium">Reviewers</span>
+  <Pillbox.pillbox
+    id="pillbox-form"
+    name="reviewers"
+    values={["maria", "joao"]}
+    label="Reviewers"
+    placeholder="Add a reviewer and press Enter"
+    remove_label="Remove reviewer"
+  />
+  <span class="text-[13px] text-muted">Each reviewer is notified when the pull request opens.</span>
+</div>

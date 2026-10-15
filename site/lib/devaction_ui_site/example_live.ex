@@ -1,0 +1,492 @@
+defmodule DevactionUISite.ExampleLive do
+  @moduledoc """
+  One example of a component page as a LiveView of its own. Every example on the page is rendered inside the page
+  with `live_render`, so each has its own process, its own demo data and its own events: typing in one
+  autocomplete does not touch the next. The demo data is a made-up workspace (pull requests, a board, a calendar),
+  and the events are the ones the examples send (`search`, `sort`, `move_card`, `calendar_next`...); an event the
+  demo does not know is ignored.
+  """
+  use Phoenix.LiveView
+
+  alias DevactionUISite.TopicHTML
+
+  @forms_repos ~w(sge-api ayram-web hub-api)
+  @overlays ~w(drawer_floating drawer_docked drawer_left drawer_wide modal_confirm modal_form modal_success danger)
+
+  @rows [
+    %{
+      id: "142",
+      title: "Dízimos em transação",
+      author: "carlos-andre",
+      changes: 187,
+      status: "open"
+    },
+    %{
+      id: "145",
+      title: "Estornos e exportação CSV",
+      author: "carlos-andre",
+      changes: 120,
+      status: "open"
+    },
+    %{
+      id: "61",
+      title: "Multi no checkout",
+      author: "fernando-paiva",
+      changes: 64,
+      status: "merged"
+    },
+    %{id: "63", title: "Busca com filtros", author: "alex-nogueira", changes: 33, status: "open"}
+  ]
+
+  @board %{
+    "todo" => [{"c1", "Envolver lançamento em Ecto.Multi"}, {"c2", "Revisar migration do caixa"}],
+    "doing" => [{"c3", "Estorno de dízimo"}],
+    "done" => [{"c4", "Importar planilha"}]
+  }
+
+  @impl true
+  def mount(_params, %{"example" => example}, socket) do
+    {:ok,
+     assign(socket,
+       example_id: example,
+       rows: @rows,
+       sort: nil,
+       board: @board,
+       q: "",
+       groups: [],
+       toasts: [],
+       toast_seq: 0,
+       job: nil,
+       order: "deadline",
+       editor: %{
+         markdown: "",
+         sent: nil,
+         slash: [
+           %{key: "h2", label: "Heading 2"},
+           %{key: "h3", label: "Heading 3"},
+           %{key: "bulletList", label: "Bulleted list"},
+           %{key: "taskList", label: "Task list"},
+           %{key: "blockquote", label: "Quote"},
+           %{key: "codeBlock", label: "Code block"}
+         ],
+         members: [
+           %{id: "u1", label: "Maria Souza"},
+           %{id: "u2", label: "Alex Nogueira"},
+           %{id: "u3", label: "Marcos Lima"}
+         ]
+       },
+       calendar: %{
+         date: ~D[2026-10-15],
+         view: :month,
+         selected: nil,
+         events: [
+           %{id: "e1", date: ~D[2026-10-02], label: "M1 delivered", kind: :ok},
+           %{id: "e2", date: ~D[2026-10-15], label: "M3 · Finance", kind: :warn},
+           %{id: "e3", date: ~D[2026-10-15], label: "Invoice 3", kind: :info},
+           %{id: "e4", date: ~D[2026-10-15], label: "Amendment 01", kind: :neutral},
+           %{id: "e5", date: ~D[2026-10-15], label: "Client review", kind: :risk},
+           %{id: "e6", date: ~D[2026-10-23], label: "M3 new deadline", kind: :risk}
+         ]
+       },
+       inputs: %{
+         seats: 2,
+         hours: 12,
+         hours_format: 24,
+         hours_ticks: 20,
+         from: 20,
+         to: 70,
+         timer_base: 0,
+         timer_started: nil,
+         logged: nil,
+         sign_mode: :draw
+       },
+       shell: %{
+         view: "list",
+         layout: "rows",
+         status: "open",
+         collapsed: false,
+         palette: false,
+         query: "",
+         scope: "all"
+       },
+       charts_table?: false,
+       stepper: %{current: 2, error: nil},
+       forms: %{
+         show_password: false,
+         repo: "devaction-labs/sge-api",
+         scope: "The billing screen: entries, refunds and the monthly report.",
+         checked: ["sge-api"],
+         model: "fixed",
+         publish: "draft"
+       },
+       overlays: %{kind: nil, typed: "", done: false},
+       switches: %{on: ["auto_review", "card_ai", "repo-sge-api"], saving: nil, saved: false},
+       confirming: false,
+       published: false,
+       messages: [{:ai, "I made the task from the review of #142. Open a branch?"}]
+     )
+     |> allow_upload(:transcript,
+       accept: ~w(audio/* .txt),
+       max_entries: 1,
+       max_file_size: 200_000_000
+     )}
+  end
+
+  @impl true
+  def render(assigns), do: TopicHTML.render(assigns.example_id, assigns)
+
+  @impl true
+  def handle_event("sort", %{"key" => key}, socket) do
+    sort =
+      case socket.assigns.sort do
+        {^key, :asc} -> {key, :desc}
+        _other -> {key, :asc}
+      end
+
+    {:noreply, assign(socket, sort: sort, rows: sort_rows(@rows, sort))}
+  end
+
+  def handle_event("search", %{"q" => q}, socket) do
+    {:noreply, assign(socket, q: q, groups: search(q))}
+  end
+
+  def handle_event("ask", %{"q" => q}, socket),
+    do: {:noreply, push_toast(socket, :light, "Asked the AI: #{q}")}
+
+  def handle_event("forms_toggle_password", _params, socket),
+    do:
+      {:noreply,
+       update_forms(socket, &Map.update!(&1, :show_password, fn shown -> not shown end))}
+
+  def handle_event("forms_repo", %{"value" => repo}, socket),
+    do: {:noreply, update_forms(socket, &Map.put(&1, :repo, repo))}
+
+  def handle_event("forms_clear_repo", _params, socket),
+    do: {:noreply, update_forms(socket, &Map.put(&1, :repo, ""))}
+
+  def handle_event("forms_scope", %{"value" => scope}, socket),
+    do: {:noreply, update_forms(socket, &Map.put(&1, :scope, scope))}
+
+  def handle_event("forms_all", _params, socket) do
+    {:noreply, update_forms(socket, &Map.put(&1, :checked, all_or_none(length(&1.checked))))}
+  end
+
+  def handle_event("forms_repo_toggle", %{"id" => repo}, socket) when repo in @forms_repos do
+    {:noreply,
+     update_forms(socket, &Map.update!(&1, :checked, fn checked -> toggle(checked, repo) end))}
+  end
+
+  def handle_event("forms_repo_toggle", _params, socket), do: {:noreply, socket}
+
+  def handle_event("forms_model", %{"choice" => model}, socket),
+    do: {:noreply, update_forms(socket, &Map.put(&1, :model, model))}
+
+  def handle_event("forms_publish", %{"choice" => publish}, socket),
+    do: {:noreply, update_forms(socket, &Map.put(&1, :publish, publish))}
+
+  def handle_event("overlay_open", %{"kind" => kind}, socket) when kind in @overlays,
+    do: {:noreply, assign(socket, :overlays, %{kind: kind, typed: "", done: false})}
+
+  def handle_event("overlay_open", _params, socket), do: {:noreply, socket}
+
+  def handle_event("overlay_close", _params, socket),
+    do: {:noreply, update(socket, :overlays, &%{&1 | kind: nil, typed: ""})}
+
+  def handle_event("overlay_type", %{"value" => typed}, socket),
+    do: {:noreply, update(socket, :overlays, &%{&1 | typed: typed})}
+
+  def handle_event("overlay_confirm", _params, %{assigns: %{overlays: %{typed: typed}}} = socket) do
+    {:noreply, confirm(socket, DevactionUI.DangerDialog.confirmed?(typed, "sge-api"))}
+  end
+
+  def handle_event("overlay_undo", _params, socket),
+    do: {:noreply, update(socket, :overlays, &%{&1 | done: false})}
+
+  def handle_event("charts_table", _params, socket),
+    do: {:noreply, update(socket, :charts_table?, &(not &1))}
+
+  def handle_event("stepper_next", _params, socket),
+    do: {:noreply, update(socket, :stepper, &%{current: min(&1.current + 1, 5), error: nil})}
+
+  def handle_event("stepper_prev", _params, socket),
+    do: {:noreply, update(socket, :stepper, &%{current: max(&1.current - 1, 1), error: nil})}
+
+  def handle_event("stepper_fail", _params, socket),
+    do: {:noreply, update(socket, :stepper, &%{&1 | error: &1.current})}
+
+  def handle_event("stepper_reset", _params, socket),
+    do: {:noreply, assign(socket, :stepper, %{current: 1, error: nil})}
+
+  def handle_event("switch_toggle", %{"key" => key}, socket) do
+    Process.send_after(self(), {:switch_saved, key}, 300)
+    {:noreply, update(socket, :switches, &%{&1 | saving: key, saved: false})}
+  end
+
+  def handle_event("seats_step", %{"step" => step}, socket) do
+    delta = String.to_integer(step)
+
+    {:noreply,
+     update_inputs(
+       socket,
+       &Map.update!(&1, :seats, fn seats -> DevactionUI.NumberInput.step(seats, delta, 1, 5) end)
+     )}
+  end
+
+  def handle_event("inputs_change", params, socket) do
+    {low, high} =
+      DevactionUI.Slider.range(0, 100, {to_int(params["from"], 20), to_int(params["to"], 70)})
+
+    {:noreply,
+     update_inputs(
+       socket,
+       &%{
+         &1
+         | hours: to_int(params["hours"], &1.hours),
+           hours_format: to_int(params["hours_format"], &1.hours_format),
+           hours_ticks: to_int(params["hours_ticks"], &1.hours_ticks),
+           from: low,
+           to: high
+       }
+     )}
+  end
+
+  def handle_event("slider_hours", params, socket),
+    do: handle_event("inputs_change", params, socket)
+
+  def handle_event("timer_toggle", _params, %{assigns: %{inputs: inputs}} = socket) do
+    now = System.os_time(:second)
+
+    inputs =
+      case inputs.timer_started do
+        nil ->
+          %{inputs | timer_started: now, logged: nil}
+
+        started ->
+          %{
+            inputs
+            | timer_base: DevactionUI.Timer.elapsed(inputs.timer_base, started, now),
+              timer_started: nil
+          }
+      end
+
+    {:noreply, assign(socket, :inputs, inputs)}
+  end
+
+  def handle_event("timer_log", _params, %{assigns: %{inputs: inputs}} = socket) do
+    seconds =
+      DevactionUI.Timer.elapsed(inputs.timer_base, inputs.timer_started, System.os_time(:second))
+
+    {:noreply,
+     assign(socket, :inputs, %{inputs | timer_base: 0, timer_started: nil, logged: seconds})}
+  end
+
+  def handle_event("sign_mode", %{"mode" => mode}, socket) when mode in ["draw", "type"],
+    do: {:noreply, update_inputs(socket, &%{&1 | sign_mode: String.to_existing_atom(mode)})}
+
+  def handle_event("sign_mode", _params, socket), do: {:noreply, socket}
+
+  def handle_event("shell_view", %{"value" => value}, socket)
+      when value in ["list", "board", "calendar"],
+      do: {:noreply, update_shell(socket, view: value)}
+
+  def handle_event("shell_layout", %{"value" => value}, socket)
+      when value in ["rows", "cards"],
+      do: {:noreply, update_shell(socket, layout: value)}
+
+  def handle_event("shell_status", %{"value" => value}, socket)
+      when value in ["open", "done"],
+      do: {:noreply, update_shell(socket, status: value)}
+
+  def handle_event("shell_collapse", _params, socket),
+    do: {:noreply, update_shell(socket, collapsed: not socket.assigns.shell.collapsed)}
+
+  def handle_event("palette_open", _params, socket),
+    do: {:noreply, update_shell(socket, palette: true, query: "", scope: "all")}
+
+  def handle_event("palette_close", _params, socket),
+    do: {:noreply, socket |> update_shell(palette: false, query: "") |> assign(:groups, [])}
+
+  def handle_event("palette_search", %{"query" => query}, socket),
+    do: {:noreply, socket |> update_shell(query: query) |> assign(:groups, search(query))}
+
+  def handle_event("palette_scope", %{"value" => scope}, socket)
+      when scope in ["all", "prs", "lessons"],
+      do: {:noreply, update_shell(socket, scope: scope)}
+
+  def handle_event("shell_" <> _unknown, _params, socket), do: {:noreply, socket}
+
+  def handle_event("palette_scope", _params, socket), do: {:noreply, socket}
+
+  def handle_event("editor_change", %{"note" => %{"markdown" => markdown}}, socket),
+    do: {:noreply, update(socket, :editor, &%{&1 | markdown: markdown})}
+
+  def handle_event("comment_send", %{"comment" => %{"markdown" => markdown}}, socket),
+    do: {:noreply, update(socket, :editor, &%{&1 | sent: markdown})}
+
+  def handle_event("comment_send", _params, socket), do: {:noreply, socket}
+
+  def handle_event("editor_change", _params, socket), do: {:noreply, socket}
+
+  def handle_event("calendar_view", %{"value" => view}, socket) when view in ["month", "week"],
+    do: {:noreply, update_calendar(socket, view: String.to_existing_atom(view))}
+
+  def handle_event("calendar_select", %{"date" => date}, socket) do
+    case Date.from_iso8601(date) do
+      {:ok, day} -> {:noreply, update_calendar(socket, selected: day, date: day)}
+      {:error, _reason} -> {:noreply, socket}
+    end
+  end
+
+  def handle_event("calendar_prev", _params, socket), do: {:noreply, move_calendar(socket, -1)}
+  def handle_event("calendar_next", _params, socket), do: {:noreply, move_calendar(socket, 1)}
+  def handle_event("calendar_view", _params, socket), do: {:noreply, socket}
+
+  def handle_event("order", %{"choice" => order}, socket),
+    do: {:noreply, assign(socket, :order, order)}
+
+  def handle_event("confirm_open", _params, socket),
+    do: {:noreply, assign(socket, confirming: true, published: false)}
+
+  def handle_event("confirm_cancel", _params, socket),
+    do: {:noreply, assign(socket, :confirming, false)}
+
+  def handle_event("confirm_publish", _params, socket),
+    do: {:noreply, assign(socket, confirming: false, published: true)}
+
+  def handle_event("prompt", %{"prompt" => text}, socket) do
+    messages = socket.assigns.messages ++ [{:me, text}, {:ai, "Done: #{text}"}]
+    {:noreply, assign(socket, :messages, messages)}
+  end
+
+  def handle_event("add_toast", _params, socket),
+    do: {:noreply, push_toast(socket, :dark, "Review published")}
+
+  def handle_event("run_job", _params, socket) do
+    Process.send_after(self(), :job_tick, 300)
+    {:noreply, assign(socket, :job, %{state: :running, progress: 0})}
+  end
+
+  def handle_event("dismiss_job", _params, socket), do: {:noreply, assign(socket, :job, nil)}
+
+  def handle_event("dismiss_toast", %{"id" => id}, socket),
+    do: {:noreply, assign(socket, :toasts, Enum.reject(socket.assigns.toasts, &(&1.id == id)))}
+
+  def handle_event("clear_toasts", _params, socket), do: {:noreply, assign(socket, :toasts, [])}
+
+  def handle_event("move_card", %{"card" => id, "to" => to, "index" => index}, socket) do
+    {:noreply, assign(socket, :board, move(socket.assigns.board, id, to, index))}
+  end
+
+  def handle_event(_event, _params, socket), do: {:noreply, socket}
+
+  @lessons [
+    {"30", "Ecto.Multi e rollback", :warn},
+    {"62", "Ecto changesets aninhados", :info},
+    {"11", "LiveView streams", :info}
+  ]
+  @prs [
+    {"142", "Dízimos com Ecto.Multi"},
+    {"61", "Multi no checkout"},
+    {"145", "Estornos de dízimo"}
+  ]
+
+  defp search(""), do: []
+
+  defp search(q) do
+    needle = fold(q)
+
+    lessons =
+      for {hint, label, tone} <- @lessons,
+          String.contains?(fold(label), needle),
+          do: %{id: "l#{hint}", label: label, to: "/dev/ui", hint: hint, tone: tone}
+
+    prs =
+      for {number, label} <- @prs,
+          String.contains?(fold(label), needle),
+          do: %{id: "p#{number}", label: label, to: "/dev/ui", hint: "##{number}", tone: :risk}
+
+    Enum.reject(
+      [%{label: "Lessons", items: lessons}, %{label: "Pull requests", items: prs}],
+      &(&1.items == [])
+    )
+  end
+
+  defp fold(text),
+    do: text |> String.normalize(:nfd) |> String.replace(~r/\p{Mn}/u, "") |> String.downcase()
+
+  @impl true
+  def handle_info(:job_tick, %{assigns: %{job: %{state: :running, progress: progress}}} = socket) do
+    next = min(progress + 20, 100)
+    schedule(next)
+    {:noreply, assign(socket, :job, %{state: job_state(next), progress: next})}
+  end
+
+  def handle_info(:job_tick, socket), do: {:noreply, socket}
+
+  def handle_info({:switch_saved, key}, socket) do
+    {:noreply,
+     update(socket, :switches, fn switches ->
+       %{switches | on: toggle(switches.on, key), saving: nil, saved: true}
+     end)}
+  end
+
+  defp all_or_none(3), do: []
+  defp all_or_none(_count), do: @forms_repos
+
+  defp toggle(list, item), do: toggle(list, item, item in list)
+  defp toggle(list, item, true), do: List.delete(list, item)
+  defp toggle(list, item, false), do: [item | list]
+
+  defp confirm(socket, true), do: assign(socket, :overlays, %{kind: nil, typed: "", done: true})
+  defp confirm(socket, false), do: socket
+
+  defp job_state(100), do: :done
+  defp job_state(_progress), do: :running
+
+  defp schedule(100), do: :ok
+  defp schedule(_progress), do: Process.send_after(self(), :job_tick, 300)
+
+  defp update_inputs(socket, fun), do: update(socket, :inputs, fun)
+
+  defp to_int(text, default) do
+    case Integer.parse(to_string(text)) do
+      {number, _rest} -> number
+      :error -> default
+    end
+  end
+
+  defp update_shell(socket, changes),
+    do: update(socket, :shell, &Map.merge(&1, Map.new(changes)))
+
+  defp update_calendar(socket, changes),
+    do: update(socket, :calendar, &Map.merge(&1, Map.new(changes)))
+
+  defp move_calendar(%{assigns: %{calendar: %{view: :month, date: date}}} = socket, delta),
+    do: update_calendar(socket, date: DevactionUI.Calendar.shift_month(date, delta))
+
+  defp move_calendar(%{assigns: %{calendar: %{view: :week, date: date}}} = socket, delta),
+    do: update_calendar(socket, date: Date.add(date, delta * 7))
+
+  defp update_forms(socket, fun), do: update(socket, :forms, fun)
+
+  defp push_toast(socket, kind, title) do
+    seq = socket.assigns.toast_seq + 1
+    toast = %{id: "toast-#{seq}", kind: kind, title: title}
+    assign(socket, toasts: [toast | socket.assigns.toasts], toast_seq: seq)
+  end
+
+  defp sort_rows(rows, {key, direction}) do
+    field = String.to_existing_atom(key)
+    Enum.sort_by(rows, &Map.fetch!(&1, field), direction)
+  end
+
+  defp move(board, id, to, index) do
+    {card, rest} =
+      Enum.reduce(board, {nil, %{}}, fn {column, cards}, {found, acc} ->
+        {hit, others} = Enum.split_with(cards, &(elem(&1, 0) == id))
+        {found || List.first(hit), Map.put(acc, column, others)}
+      end)
+
+    Map.update!(rest, to, &List.insert_at(&1, index, card))
+  end
+end

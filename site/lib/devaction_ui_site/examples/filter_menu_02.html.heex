@@ -1,0 +1,37 @@
+<%!-- title: Radio groups | text: A group of radios picks one option; a default option is not counted as a filter --%>
+<div class="min-h-[18rem]">
+  <FilterMenu.filter_menu
+    id="sort-filters"
+    label="View"
+    apply_label="Apply"
+    reset_label="Reset"
+    close_label="Close"
+    groups={[
+      %{
+        key: "order",
+        label: "Order by",
+        type: :radio,
+        options: [
+          %{value: "deadline", label: "Deadline", checked: true, default: true},
+          %{value: "recent", label: "Most recent"},
+          %{value: "priority", label: "Priority"}
+        ]
+      },
+      %{
+        key: "group",
+        label: "Group by",
+        type: :radio,
+        options: [
+          %{value: "none", label: "No grouping", checked: true, default: true},
+          %{value: "milestone", label: "Milestone"},
+          %{value: "assignee", label: "Assignee"}
+        ]
+      }
+    ]}
+  >
+    <:trigger_icon><.icon name="sorting-01" class="size-4" /></:trigger_icon>
+    <:chevron_icon><.icon name="arrow-right-01" class="size-3.5 text-muted" /></:chevron_icon>
+    <:check_icon><.icon name="tick-02" class="size-4" /></:check_icon>
+    <:close_icon><.icon name="cancel-01" class="size-3.5" /></:close_icon>
+  </FilterMenu.filter_menu>
+</div>

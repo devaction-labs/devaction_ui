@@ -1,0 +1,16 @@
+<%!-- title: Plain surface | text: On a white background, for tags inside a tinted card. | layout: center --%>
+<div class="flex flex-col gap-3">
+  <div class="flex flex-wrap items-center gap-2 rounded-xl bg-tag-warn-bg p-3">
+    <.tag :for={v <- [:risk, :warn, :ok, :info, :neutral]} variant={v} surface={:plain}>{v}</.tag>
+  </div>
+  <div class="flex flex-wrap items-center gap-2 rounded-xl bg-tag-warn-bg p-3">
+    <.tag
+      :for={v <- [:risk, :warn, :ok, :info, :neutral]}
+      variant={v}
+      size={:sm}
+      surface={:plain}
+    >
+      {v}
+    </.tag>
+  </div>
+</div>

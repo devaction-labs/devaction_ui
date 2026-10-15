@@ -1,0 +1,13 @@
+<%!-- title: Ask The AI | text: A final row sends the typed text to the AI when the results are not enough --%>
+<Autocomplete.autocomplete
+  id="autocomplete-ask"
+  label="Search"
+  placeholder="Search lessons and pull requests"
+  value={@q}
+  event="search"
+  groups={@groups}
+  empty="Nothing found"
+  ask_label={"Ask the AI about \"#{@q}\""}
+  ask_event="ask"
+  class="max-w-md"
+/>

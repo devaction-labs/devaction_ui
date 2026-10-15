@@ -1,0 +1,26 @@
+<%!-- title: Week | text: One row of seven days, starting on Monday. --%>
+<Calendar.calendar
+  id="calendar-week"
+  label="Deliveries this week"
+  title="Oct 12 to Oct 18, 2026"
+  date={~D[2026-10-15]}
+  view={:week}
+  week_start={:monday}
+  today={~D[2026-10-15]}
+  events={[
+    %{id: "w1", date: ~D[2026-10-13], label: "Sprint review", kind: :info},
+    %{id: "w2", date: ~D[2026-10-15], label: "M3 Finance", kind: :warn},
+    %{id: "w3", date: ~D[2026-10-15], label: "Client review", kind: :risk},
+    %{id: "w4", date: ~D[2026-10-16], label: "Invoice 3 sent", kind: :ok}
+  ]}
+  weekdays={~w(MON TUE WED THU FRI SAT SUN)}
+  more_label="+%{count} more"
+  prev_label="Previous week"
+  next_label="Next week"
+  select_event="calendar_select"
+  prev_event="calendar_prev"
+  next_event="calendar_next"
+>
+  <:prev_icon><.icon name="arrow-down-01" class="size-4 rotate-90" /></:prev_icon>
+  <:next_icon><.icon name="arrow-down-01" class="size-4 -rotate-90" /></:next_icon>
+</Calendar.calendar>

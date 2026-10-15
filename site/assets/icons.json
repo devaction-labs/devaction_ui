@@ -1,0 +1,585 @@
+[
+ {
+  "name": "home-01",
+  "group": "Navegação",
+  "label": "Hoje"
+ },
+ {
+  "name": "dashboard-square-01",
+  "group": "Navegação",
+  "label": "Painel"
+ },
+ {
+  "name": "folder-01",
+  "group": "Navegação",
+  "label": "Projetos"
+ },
+ {
+  "name": "contracts",
+  "group": "Navegação",
+  "label": "Contratos"
+ },
+ {
+  "name": "task-01",
+  "group": "Navegação",
+  "label": "Tarefas"
+ },
+ {
+  "name": "calendar-03",
+  "group": "Navegação",
+  "label": "Agenda"
+ },
+ {
+  "name": "mortarboard-02",
+  "group": "Navegação",
+  "label": "Aprendizado"
+ },
+ {
+  "name": "notification-03",
+  "group": "Navegação",
+  "label": "Notificações"
+ },
+ {
+  "name": "search-01",
+  "group": "Navegação",
+  "label": "Busca"
+ },
+ {
+  "name": "settings-01",
+  "group": "Navegação",
+  "label": "Configurações"
+ },
+ {
+  "name": "sidebar-left-01",
+  "group": "Navegação",
+  "label": "Recolher"
+ },
+ {
+  "name": "menu-01",
+  "group": "Navegação",
+  "label": "Menu"
+ },
+ {
+  "name": "logout-03",
+  "group": "Navegação",
+  "label": "Sair"
+ },
+ {
+  "name": "arrow-right-01",
+  "group": "Navegação",
+  "label": "Avançar"
+ },
+ {
+  "name": "arrow-left-01",
+  "group": "Navegação",
+  "label": "Voltar"
+ },
+ {
+  "name": "arrow-down-01",
+  "group": "Navegação",
+  "label": "Expandir"
+ },
+ {
+  "name": "github",
+  "group": "GitHub e código",
+  "label": "GitHub"
+ },
+ {
+  "name": "git-pull-request",
+  "group": "GitHub e código",
+  "label": "Pull request"
+ },
+ {
+  "name": "git-branch",
+  "group": "GitHub e código",
+  "label": "Branch"
+ },
+ {
+  "name": "git-commit",
+  "group": "GitHub e código",
+  "label": "Commit"
+ },
+ {
+  "name": "git-merge",
+  "group": "GitHub e código",
+  "label": "Merge"
+ },
+ {
+  "name": "source-code",
+  "group": "GitHub e código",
+  "label": "Código"
+ },
+ {
+  "name": "command-line",
+  "group": "GitHub e código",
+  "label": "Terminal"
+ },
+ {
+  "name": "bug-01",
+  "group": "GitHub e código",
+  "label": "Bug"
+ },
+ {
+  "name": "code",
+  "group": "GitHub e código",
+  "label": "Diff"
+ },
+ {
+  "name": "sparkles",
+  "group": "IA e aprendizado",
+  "label": "IA"
+ },
+ {
+  "name": "ai-brain-01",
+  "group": "IA e aprendizado",
+  "label": "Revisão IA"
+ },
+ {
+  "name": "ai-chat-02",
+  "group": "IA e aprendizado",
+  "label": "Chat IA"
+ },
+ {
+  "name": "brain-02",
+  "group": "IA e aprendizado",
+  "label": "Conceito"
+ },
+ {
+  "name": "bulb",
+  "group": "IA e aprendizado",
+  "label": "Dica"
+ },
+ {
+  "name": "quiz-02",
+  "group": "IA e aprendizado",
+  "label": "Quiz"
+ },
+ {
+  "name": "book-02",
+  "group": "IA e aprendizado",
+  "label": "Lição"
+ },
+ {
+  "name": "target-02",
+  "group": "IA e aprendizado",
+  "label": "Meta"
+ },
+ {
+  "name": "rocket-01",
+  "group": "IA e aprendizado",
+  "label": "Entrega"
+ },
+ {
+  "name": "agreement-02",
+  "group": "Contratos e dinheiro",
+  "label": "Aditivo"
+ },
+ {
+  "name": "invoice-03",
+  "group": "Contratos e dinheiro",
+  "label": "Fatura"
+ },
+ {
+  "name": "money-03",
+  "group": "Contratos e dinheiro",
+  "label": "Valor"
+ },
+ {
+  "name": "coins-01",
+  "group": "Contratos e dinheiro",
+  "label": "Parcelas"
+ },
+ {
+  "name": "wallet-01",
+  "group": "Contratos e dinheiro",
+  "label": "Carteira"
+ },
+ {
+  "name": "briefcase-01",
+  "group": "Contratos e dinheiro",
+  "label": "Cliente"
+ },
+ {
+  "name": "building-03",
+  "group": "Contratos e dinheiro",
+  "label": "Empresa"
+ },
+ {
+  "name": "analytics-01",
+  "group": "Contratos e dinheiro",
+  "label": "Métricas"
+ },
+ {
+  "name": "chart-bar-line",
+  "group": "Contratos e dinheiro",
+  "label": "Relatório"
+ },
+ {
+  "name": "add-01",
+  "group": "Ações",
+  "label": "Adicionar"
+ },
+ {
+  "name": "cancel-01",
+  "group": "Ações",
+  "label": "Fechar"
+ },
+ {
+  "name": "tick-02",
+  "group": "Ações",
+  "label": "Confirmar"
+ },
+ {
+  "name": "edit-02",
+  "group": "Ações",
+  "label": "Editar"
+ },
+ {
+  "name": "delete-02",
+  "group": "Ações",
+  "label": "Excluir"
+ },
+ {
+  "name": "copy-01",
+  "group": "Ações",
+  "label": "Copiar"
+ },
+ {
+  "name": "link-01",
+  "group": "Ações",
+  "label": "Link"
+ },
+ {
+  "name": "upload-04",
+  "group": "Ações",
+  "label": "Enviar"
+ },
+ {
+  "name": "download-04",
+  "group": "Ações",
+  "label": "Baixar"
+ },
+ {
+  "name": "filter",
+  "group": "Ações",
+  "label": "Filtrar"
+ },
+ {
+  "name": "sorting-01",
+  "group": "Ações",
+  "label": "Ordenar"
+ },
+ {
+  "name": "more-horizontal",
+  "group": "Ações",
+  "label": "Mais"
+ },
+ {
+  "name": "refresh",
+  "group": "Ações",
+  "label": "Atualizar"
+ },
+ {
+  "name": "drag-drop-vertical",
+  "group": "Ações",
+  "label": "Arrastar"
+ },
+ {
+  "name": "view",
+  "group": "Ações",
+  "label": "Ver"
+ },
+ {
+  "name": "pin",
+  "group": "Ações",
+  "label": "Fixar"
+ },
+ {
+  "name": "alert-02",
+  "group": "Status e tempo",
+  "label": "Atenção"
+ },
+ {
+  "name": "information-circle",
+  "group": "Status e tempo",
+  "label": "Info"
+ },
+ {
+  "name": "checkmark-circle-02",
+  "group": "Status e tempo",
+  "label": "Concluído"
+ },
+ {
+  "name": "cancel-circle",
+  "group": "Status e tempo",
+  "label": "Erro"
+ },
+ {
+  "name": "clock-01",
+  "group": "Status e tempo",
+  "label": "Prazo"
+ },
+ {
+  "name": "repeat",
+  "group": "Status e tempo",
+  "label": "Recorrente"
+ },
+ {
+  "name": "flag-02",
+  "group": "Status e tempo",
+  "label": "Marco"
+ },
+ {
+  "name": "star",
+  "group": "Status e tempo",
+  "label": "Favorito"
+ },
+ {
+  "name": "square-lock-02",
+  "group": "Status e tempo",
+  "label": "Privado"
+ },
+ {
+  "name": "loading-03",
+  "group": "Status e tempo",
+  "label": "Carregando"
+ },
+ {
+  "name": "user",
+  "group": "Pessoas e comunicação",
+  "label": "Usuário"
+ },
+ {
+  "name": "user-group",
+  "group": "Pessoas e comunicação",
+  "label": "Time"
+ },
+ {
+  "name": "mic-01",
+  "group": "Pessoas e comunicação",
+  "label": "Voz"
+ },
+ {
+  "name": "message-01",
+  "group": "Pessoas e comunicação",
+  "label": "Mensagem"
+ },
+ {
+  "name": "mail-01",
+  "group": "Pessoas e comunicação",
+  "label": "E-mail"
+ },
+ {
+  "name": "kanban",
+  "group": "Pessoas e comunicação",
+  "label": "Kanban"
+ },
+ {
+  "name": "keyboard",
+  "group": "Pessoas e comunicação",
+  "label": "Atalhos"
+ },
+ {
+  "name": "moon-02",
+  "group": "Pessoas e comunicação",
+  "label": "Escuro"
+ },
+ {
+  "name": "sun-03",
+  "group": "Pessoas e comunicação",
+  "label": "Claro"
+ },
+ {
+  "name": "computer",
+  "group": "Navegação",
+  "label": "Sistema"
+ },
+ {
+  "name": "unfold-more",
+  "group": "Ações",
+  "label": "Alternar"
+ },
+ {
+  "name": "link-square-02",
+  "group": "Ações",
+  "label": "Abrir externo"
+ },
+ {
+  "name": "document-validation",
+  "group": "Contratos e dinheiro",
+  "label": "Documento conferido"
+ },
+ {
+  "name": "arrow-up-02",
+  "group": "Ações",
+  "label": "Enviar"
+ },
+ {
+  "name": "arrow-expand",
+  "group": "Ações",
+  "label": "Expandir"
+ },
+ {
+  "name": "add-circle",
+  "group": "Ações",
+  "label": "Nova conversa"
+ },
+ {
+  "name": "attachment-01",
+  "group": "Ações",
+  "label": "Anexar"
+ },
+ {
+  "name": "command",
+  "group": "Ações",
+  "label": "Comandos"
+ },
+ {
+  "name": "arrow-shrink",
+  "group": "Ações",
+  "label": "Minimizar"
+ },
+ {
+  "name": "pencil-edit-02",
+  "group": "Ações",
+  "label": "Editar"
+ },
+ {
+  "name": "idea-01",
+  "group": "IA e aprendizado",
+  "label": "Ideia"
+ },
+ {
+  "name": "download-01",
+  "group": "Ações",
+  "label": "Baixar"
+ },
+ {
+  "name": "magic-wand-01",
+  "group": "Pessoas e comunicação",
+  "label": "Link mágico"
+ },
+ {
+  "name": "lock-password",
+  "group": "Pessoas e comunicação",
+  "label": "Senha"
+ },
+ {
+  "name": "view-off",
+  "group": "Ações",
+  "label": "Ocultar"
+ },
+ {
+  "name": "shield-01",
+  "group": "Pessoas e comunicação",
+  "label": "Segurança"
+ },
+ {
+  "name": "text-bold",
+  "group": "Editor",
+  "label": "Negrito"
+ },
+ {
+  "name": "text-italic",
+  "group": "Editor",
+  "label": "Itálico"
+ },
+ {
+  "name": "text-strikethrough",
+  "group": "Editor",
+  "label": "Tachado"
+ },
+ {
+  "name": "left-to-right-list-bullet",
+  "group": "Editor",
+  "label": "Lista"
+ },
+ {
+  "name": "left-to-right-list-number",
+  "group": "Editor",
+  "label": "Lista numerada"
+ },
+ {
+  "name": "task-done-01",
+  "group": "Editor",
+  "label": "Lista de tarefas"
+ },
+ {
+  "name": "quote-down",
+  "group": "Editor",
+  "label": "Citação"
+ },
+ {
+  "name": "text-indent-more",
+  "group": "Editor",
+  "label": "Recuar"
+ },
+ {
+  "name": "text-indent-less",
+  "group": "Editor",
+  "label": "Reduzir recuo"
+ },
+ {
+  "name": "text-align-left",
+  "group": "Editor",
+  "label": "Alinhar à esquerda"
+ },
+ {
+  "name": "text-align-center",
+  "group": "Editor",
+  "label": "Centralizar"
+ },
+ {
+  "name": "text-align-right",
+  "group": "Editor",
+  "label": "Alinhar à direita"
+ },
+ {
+  "name": "undo",
+  "group": "Editor",
+  "label": "Desfazer"
+ },
+ {
+  "name": "redo",
+  "group": "Editor",
+  "label": "Refazer"
+ },
+ {
+  "name": "play",
+  "group": "Horas",
+  "label": "Iniciar"
+ },
+ {
+  "name": "pause",
+  "group": "Horas",
+  "label": "Pausar"
+ },
+ {
+  "name": "image-01",
+  "group": "Editor",
+  "label": "Imagem"
+ },
+ {
+  "name": "stop"
+ },
+ {
+  "name": "key-01",
+  "group": "Dispositivos",
+  "label": "key-01"
+ },
+ {
+  "name": "laptop",
+  "group": "Dispositivos",
+  "label": "laptop"
+ },
+ {
+  "name": "smart-phone-01",
+  "group": "Dispositivos",
+  "label": "smart-phone-01"
+ },
+ {
+  "name": "mail-open-01",
+  "group": "Dispositivos",
+  "label": "mail-open-01"
+ }
+]

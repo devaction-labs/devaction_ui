@@ -1,0 +1,39 @@
+<%!-- title: Type to confirm | text: The red button stays locked until the name of the repository is typed --%>
+<div class="flex flex-wrap items-center gap-3">
+  <Button.button
+    id="danger-dialog-open"
+    variant={:secondary}
+    size={:sm}
+    phx-click={Drawer.open(JS.push("overlay_open", value: %{kind: "danger"}))}
+  >
+    Stop monitoring
+  </Button.button>
+  <.tag :if={@overlays.done} variant={:ok}>sge-api is no longer monitored</.tag>
+  <Button.button
+    :if={@overlays.done}
+    id="danger-dialog-undo"
+    variant={:ghost}
+    size={:sm}
+    phx-click="overlay_undo"
+  >
+    Undo
+  </Button.button>
+</div>
+<DangerDialog.danger_dialog
+  :if={@overlays.kind == "danger"}
+  id="danger-dialog-basic"
+  name="sge-api"
+  typed={@overlays.typed}
+  on_type="overlay_type"
+  on_confirm="overlay_confirm"
+  on_close="overlay_close"
+  confirm_label="Stop monitoring"
+  cancel_label="Cancel"
+  close_label="Close"
+  type_label="Type sge-api to confirm"
+>
+  <:icon><.icon name="alert-02" class="size-5" /></:icon>
+  <:close_icon><.icon name="cancel-01" class="size-4" /></:close_icon>
+  <:title>Stop monitoring sge-api?</:title>
+  Automatic review stops and the 2 draft reviews are dropped. The history and the lessons stay.
+</DangerDialog.danger_dialog>

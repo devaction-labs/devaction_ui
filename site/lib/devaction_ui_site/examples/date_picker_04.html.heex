@@ -1,0 +1,22 @@
+<%!-- title: Locale | text: English with weeks starting on Sunday, and Brazilian Portuguese starting on Monday --%>
+<div class="flex flex-wrap items-start gap-5">
+  <DatePicker.date_picker
+    id="date-picker-en"
+    name="due_en"
+    today="2026-10-14"
+    value="2026-10-16"
+    locale="en"
+    previous_label="Previous month"
+    next_label="Next month"
+  />
+  <DatePicker.date_picker
+    id="date-picker-pt"
+    name="due_pt"
+    today="2026-10-14"
+    value="2026-10-16"
+    locale="pt-BR"
+    week_start={1}
+    previous_label="Mês anterior"
+    next_label="Próximo mês"
+  />
+</div>

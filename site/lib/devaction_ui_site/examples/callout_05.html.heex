@@ -1,0 +1,14 @@
+<%!-- title: With Actions | text: A row of buttons under the body, and an alert role when urgent --%>
+<.callout kind={:warning} role="alert" title="Approval needed">
+  <:icon><.icon name="alert-02" class="size-4" /></:icon>
+  Milestone M3 is waiting for the client to sign off before work continues.
+  <:actions>
+    <Button.button size={:sm} variant={:primary}>Send reminder</Button.button>
+    <Button.button size={:sm} variant={:ghost}>Dismiss</Button.button>
+  </:actions>
+</.callout>
+<.callout kind={:ai} title="Ready to apply">
+  <:icon><.icon name="sparkles" class="size-4" /></:icon>
+  The AI prepared a fix for 3 findings.
+  <:actions><Button.button size={:sm} variant={:ai}>Apply fixes</Button.button></:actions>
+</.callout>

@@ -1,0 +1,19 @@
+<%!-- title: With label | text: Paired with a visible label and a hint about the limits. --%>
+<div class="flex max-w-xs flex-col gap-1.5">
+  <span class="text-sm font-medium">Reviewers per pull request</span>
+  <NumberInput.number_input
+    id="number-input-label"
+    name="reviewers"
+    value={@inputs.seats}
+    label="Reviewers"
+    min={1}
+    max={5}
+    event="seats_step"
+    decrease_label="Fewer reviewers"
+    increase_label="More reviewers"
+  >
+    <:minus_icon>−</:minus_icon>
+    <:plus_icon>+</:plus_icon>
+  </NumberInput.number_input>
+  <span class="text-[13px] text-muted">Between 1 and 5 reviewers.</span>
+</div>

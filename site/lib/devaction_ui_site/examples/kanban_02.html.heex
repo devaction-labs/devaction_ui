@@ -1,0 +1,22 @@
+<%!-- title: WIP limit | text: A column at its limit shows the count in the alert colour and refuses more cards. --%>
+<Kanban.kanban id="kanban-wip" label="Review board" event="kanban_wip_move">
+  <:column id="wip-todo" title="Backlog" count={2}>
+    <Kanban.card id="wip-c1">
+      <span class="font-medium text-ink">Estimate the M4 scope</span>
+    </Kanban.card>
+    <Kanban.card id="wip-c2">
+      <span class="font-medium text-ink">Draft amendment 02</span>
+    </Kanban.card>
+  </:column>
+  <:column id="wip-review" title="In review" wip={2} count={2}>
+    <Kanban.card id="wip-c3">
+      <span class="font-medium text-ink">PR #142 Tithe in transaction</span>
+      <span class="font-mono text-xs text-muted">carlos-andre</span>
+    </Kanban.card>
+    <Kanban.card id="wip-c4">
+      <span class="font-medium text-ink">PR #145 Refunds and CSV export</span>
+      <span class="font-mono text-xs text-muted">carlos-andre</span>
+    </Kanban.card>
+  </:column>
+  <:column id="wip-done" title="Approved" count={0} />
+</Kanban.kanban>

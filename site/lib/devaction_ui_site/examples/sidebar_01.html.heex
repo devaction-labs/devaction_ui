@@ -1,0 +1,21 @@
+<%!-- title: Expanded | text: Icon, label and count per item; the toggle collapses it. --%>
+<div class="flex gap-4 rounded-2xl bg-frame p-4">
+  <Sidebar.sidebar
+    id="sidebar-expanded"
+    label="Main"
+    collapsed={@shell.collapsed}
+    on_toggle="shell_collapse"
+    toggle_label="Collapse the menu"
+  >
+    <:toggle_icon><.icon name="arrow-down-01" class="size-5 rotate-90" /></:toggle_icon>
+    <:header><span class="font-semibold text-ink">DevAction IA</span></:header>
+    <:icon :let={item}><.icon name={sidebar_icon(item.label)} class="size-5" /></:icon>
+    <:item to="/c/sidebar" label="Today" current />
+    <:item to="/c/sidebar" label="Projects" count="4" />
+    <:item to="/c/sidebar" label="Contracts" />
+    <:item to="/c/sidebar" label="Review" count="3" />
+  </Sidebar.sidebar>
+  <div class="flex flex-1 items-center justify-center rounded-xl border border-dashed border-line-strong text-sm text-muted">
+    The screen
+  </div>
+</div>

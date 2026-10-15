@@ -1,0 +1,586 @@
+@source "../js";
+@source "../../lib";
+
+@theme {
+  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+@keyframes shimmer {
+  from { background-position: -400px 0; }
+  to { background-position: 400px 0; }
+}
+
+/* DevactionUI.Aura and DevactionUI.ProgressToast: the angle the light turns by (a registered property, so
+   it can be animated), the pulse of the glow and the way out of a finished toast. */
+@property --aura-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes aura-spin {
+  to { --aura-angle: 360deg; }
+}
+
+@keyframes aura-glow {
+  0%, 100% { box-shadow: 0 0 0 1px var(--aura-g), 0 0 10px -2px var(--aura-g); }
+  50% { box-shadow: 0 0 0 1px var(--aura-g), 0 0 26px 2px var(--aura-g); }
+}
+
+@keyframes toast-out {
+  to { opacity: 0; transform: translateY(8px); }
+}
+
+:root {
+  color-scheme: light dark;
+}
+
+@theme inline {
+  --animate-shimmer: shimmer 1.4s linear infinite;
+  --animate-aura-spin: aura-spin 2.6s linear infinite;
+  --animate-aura-spin-slow: aura-spin 3.2s linear infinite;
+  --animate-aura-glow: aura-glow 2s ease-in-out infinite;
+  --animate-toast-out: toast-out 0.2s ease-in forwards;
+}
+
+/* Design tokens of the canvas (artboard "Paleta de cores"). Each flips with the theme through
+   `light-dark()`, which follows `color-scheme`: the page sets `light dark`, and `data-theme` on <html>
+   overrides it. Written one per line as `--name: light-dark(#light, #dark);` so a test can read this block and check the contrast of every pair. */
+:root {
+  --frame: light-dark(#EDEDF0, #101016);
+  --panel: light-dark(#FFFFFF, #1A1A22);
+  --wrap: light-dark(#F4F4F5, #15151C);
+  --card: light-dark(#FFFFFF, #20202A);
+  --line: light-dark(#E4E4E7, #2C2C38);
+  --line-soft: light-dark(#EFEFF1, #2C2C38);
+  --line-strong: light-dark(#DCDCE0, #383846);
+  --ink: light-dark(#18181B, #EDEDF2);
+  --ink-2: light-dark(#3F3F46, #C9C9D6);
+  --muted: light-dark(#71717A, #9B9BAE);
+  --muted-2: light-dark(#A1A1AA, #6C6C80);
+  --on-primary: light-dark(#FFFFFF, #15151C);
+  --ai: light-dark(#D29A1E, #E3A72F);
+  --missing: light-dark(#C62828, #FF5A47);
+  --done-cell: light-dark(#D4D4D8, #4A4A58);
+  --learn: light-dark(#2563EB, #6EA8FE);
+  --add-bg: light-dark(#F0FDF4, #15291D);
+  --del-bg: light-dark(#FEF2F2, #2E1A19);
+  --chart-1: light-dark(#2563EB, #6EA8FE);
+  --chart-2: light-dark(#C2850F, #E3A72F);
+  --chart-3: light-dark(#0D9488, #2DD4BF);
+  --chart-4: light-dark(#9333EA, #C084FC);
+
+  --tag-risk-line: light-dark(#FBCFCF, #4A2A26);
+  --tag-risk-bg: light-dark(#FEF2F2, #2A1B1A);
+  --tag-risk-text: light-dark(#B91C1C, #FFB4AA);
+  --tag-warn-line: light-dark(#F5DFA8, #4A3A18);
+  --tag-warn-bg: light-dark(#FEF9EC, #2A2314);
+  --tag-warn-text: light-dark(#854D0E, #F4CF7E);
+  --tag-ok-line: light-dark(#BBF7D0, #1E4A2E);
+  --tag-ok-bg: light-dark(#F0FDF4, #14261B);
+  --tag-ok-text: light-dark(#15803D, #8EF0B4);
+  --tag-info-line: light-dark(#C7D7FE, #2E3A66);
+  --tag-info-bg: light-dark(#EFF4FF, #1A2036);
+  --tag-info-text: light-dark(#1D4ED8, #A9C3FF);
+  --tag-neutral-line: light-dark(#E4E4E7, #383846);
+  --tag-neutral-bg: light-dark(#F4F4F5, #2A2A36);
+  --tag-neutral-text: light-dark(#3F3F46, #C9C9D6);
+}
+
+@theme inline {
+  --color-frame: var(--frame);
+  --color-panel: var(--panel);
+  --color-wrap: var(--wrap);
+  --color-card: var(--card);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-muted-2: var(--muted-2);
+  --color-on-primary: var(--on-primary);
+  --color-ai: var(--ai);
+  --color-missing: var(--missing);
+  --color-done-cell: var(--done-cell);
+  --color-tag-risk-line: var(--tag-risk-line);
+  --color-tag-risk-bg: var(--tag-risk-bg);
+  --color-tag-risk-text: var(--tag-risk-text);
+  --color-tag-warn-line: var(--tag-warn-line);
+  --color-tag-warn-bg: var(--tag-warn-bg);
+  --color-tag-warn-text: var(--tag-warn-text);
+  --color-tag-ok-line: var(--tag-ok-line);
+  --color-tag-ok-bg: var(--tag-ok-bg);
+  --color-tag-ok-text: var(--tag-ok-text);
+  --color-tag-info-line: var(--tag-info-line);
+  --color-tag-info-bg: var(--tag-info-bg);
+  --color-tag-info-text: var(--tag-info-text);
+  --color-tag-neutral-line: var(--tag-neutral-line);
+  --color-tag-neutral-bg: var(--tag-neutral-bg);
+  --color-tag-neutral-text: var(--tag-neutral-text);
+  --color-risk-line: var(--tag-risk-line);
+  --color-risk-bg: var(--tag-risk-bg);
+  --color-risk-fg: var(--tag-risk-text);
+  --color-warn-line: var(--tag-warn-line);
+  --color-warn-bg: var(--tag-warn-bg);
+  --color-warn-fg: var(--tag-warn-text);
+  --color-ok-line: var(--tag-ok-line);
+  --color-ok-bg: var(--tag-ok-bg);
+  --color-ok-fg: var(--tag-ok-text);
+  --color-info-line: var(--tag-info-line);
+  --color-info-bg: var(--tag-info-bg);
+  --color-info-fg: var(--tag-info-text);
+  --color-neutral-line: var(--tag-neutral-line);
+  --color-neutral-bg: var(--tag-neutral-bg);
+  --color-neutral-fg: var(--tag-neutral-text);
+  --color-on-ink: var(--on-primary);
+  --color-done: var(--done-cell);
+  --color-learn: var(--learn);
+  --color-add: var(--add-bg);
+  --color-del: var(--del-bg);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+}
+
+@theme {
+  --radius-card: 1rem;
+  --radius-wrap: 1.25rem;
+  --radius-panel: 1.375rem;
+  --shadow-pop: 0 16px 40px rgb(24 24 27 / 0.12);
+}
+
+@keyframes drawer-in-right { from { opacity: 0; transform: translateX(24px); } }
+@keyframes drawer-in-left { from { opacity: 0; transform: translateX(-24px); } }
+@keyframes drawer-in-up { from { opacity: 0; transform: translateY(24px); } }
+
+:root[data-theme="light"],
+:root.light {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"],
+:root.dark {
+  color-scheme: dark;
+}
+
+@media print {
+  :root,
+  :root[data-theme="dark"],
+  :root.dark {
+    color-scheme: light;
+  }
+}
+
+@custom-variant phx-click-loading (.phx-click-loading&, .phx-click-loading &);
+@custom-variant phx-submit-loading (.phx-submit-loading&, .phx-submit-loading &);
+@custom-variant phx-change-loading (.phx-change-loading&, .phx-change-loading &);
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *, .dark, .dark *));
+
+[data-phx-session], [data-phx-teleported-src] { display: contents }
+
+/* Component classes of the canvas (artboards 10 to 18): forms, editor, avatar, chart, accordion, drawer,
+   modal, tooltip, empty state, stepper, command palette, segmented control, shell, number, calendar,
+   timer and signature. The recipes are the canvas's own (`@apply` of the tokens in devaction_ui.css), so a
+   DevactionUI component or a screen wears one class and both themes follow the tokens. */
+@layer components {
+  /* Switch */
+  .switch    { @apply relative inline-flex h-6 w-10 shrink-0 cursor-pointer items-center rounded-full bg-done p-[3px] transition-colors
+                     aria-checked:bg-ink aria-disabled:cursor-not-allowed aria-disabled:opacity-40 focus-visible:ring-4 focus-visible:ring-ink/10
+                     after:size-4.5 after:rounded-full after:bg-white after:shadow-sm after:transition-transform aria-checked:after:translate-x-4; }
+  .switch-sm { @apply h-5 w-8 p-0.5 after:size-4 aria-checked:after:translate-x-3; }
+  .switch-lg { @apply h-7 w-12 after:size-5.5 aria-checked:after:translate-x-5; }
+  .switch-ai { @apply aria-checked:bg-chart-2; }
+  .switch-ok { @apply aria-checked:bg-ok-fg; }
+  .switch-row  { @apply flex items-start gap-3.5 border-t border-line-soft py-3 first:border-t-0; }
+  .switch-card { @apply flex items-center gap-3 rounded-[14px] border-[1.5px] border-line bg-card p-3.5 has-[[aria-checked=true]]:border-ink has-[[aria-checked=true]]:bg-wrap/70; }
+
+  /* ---------- Formulários completos (prancha 10) ---------- */
+  .input-group  { @apply flex h-11.5 w-full items-center gap-2.5 rounded-xl border border-line-strong bg-card px-3.5 text-[15px] text-ink
+                         focus-within:border-ink focus-within:ring-4 focus-within:ring-ink/10
+                         has-[[aria-invalid=true]]:border-missing has-[[aria-invalid=true]]:ring-missing/10
+                         has-disabled:border-dashed has-disabled:bg-wrap has-disabled:text-muted; }
+  .input-group > input { @apply h-full min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted; }
+  .input-icon   { @apply size-[18px] shrink-0 text-muted; }
+  .input-action { @apply -mr-2.5 grid size-9 shrink-0 place-items-center rounded-[9px] text-ink-2 hover:bg-wrap; }
+  .input-addon  { @apply -my-px flex h-[calc(100%+2px)] items-center gap-2 border-line-strong bg-wrap px-3 text-sm text-ink-2
+                         first:-ml-3.5 first:rounded-l-xl first:border-r last:-mr-3.5 last:rounded-r-xl last:border-l; }
+  .input-sm { @apply h-9 rounded-[10px] px-3 text-[13px]; }
+  .input-lg { @apply h-13 rounded-[14px] px-4 text-base; }
+
+  .textarea        { @apply overflow-hidden rounded-[14px] border border-line-strong bg-card focus-within:border-ink focus-within:ring-4 focus-within:ring-ink/10; }
+  .textarea > textarea { @apply block w-full resize-y bg-transparent px-3.5 py-3 leading-relaxed outline-none [field-sizing:content] min-h-24 max-h-80; }
+  .textarea-footer { @apply flex items-center gap-1 border-t border-line-soft bg-wrap/60 px-2 py-1.5; }
+  .textarea-count  { @apply ml-auto font-mono text-xs text-muted data-[over=true]:text-risk-fg; }
+
+  .checkbox { @apply grid size-5 shrink-0 appearance-none place-content-center rounded-md border-[1.5px] border-muted/70 bg-card
+                     checked:border-ink checked:bg-ink indeterminate:border-ink indeterminate:bg-ink
+                     disabled:border-line disabled:bg-wrap focus-visible:ring-4 focus-visible:ring-ink/10; }
+  .radio    { @apply size-5 shrink-0 appearance-none rounded-full border-[1.5px] border-muted/70 bg-card
+                     checked:border-[6px] checked:border-ink disabled:border-line disabled:bg-wrap focus-visible:ring-4 focus-visible:ring-ink/10; }
+  .choice-label { @apply flex min-h-11 cursor-pointer items-start gap-3 py-2 text-[15px]; }
+  .choice-desc  { @apply text-[13px] text-muted; }
+  .choice-card  { @apply flex cursor-pointer flex-col gap-2 rounded-[14px] border-[1.5px] border-line bg-card p-3.5 transition
+                         hover:border-line-strong has-checked:border-ink has-checked:bg-wrap/70 has-focus-visible:ring-4 has-focus-visible:ring-ink/10; }
+
+  /* ---------- Editor (prancha 11) ---------- */
+  .editor          { @apply rounded-xl border border-line bg-card focus-within:border-ink-2; }
+  .editor-toolbar  { @apply flex flex-wrap items-center gap-0.5 rounded-t-xl border-b border-line bg-wrap/60 px-2 py-1.5; }
+  .editor-sep      { @apply mx-1 h-4.5 w-px bg-line; }
+  .editor-btn      { @apply grid size-8.5 place-items-center rounded-lg text-ink-2 hover:bg-wrap aria-pressed:bg-line aria-pressed:text-ink; }
+  .editor-content  { @apply min-h-40 px-5 py-4 leading-relaxed text-ink-2 outline-none
+                            [&_h2]:mb-2 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:text-ink [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-ink
+                            [&_ul]:mb-3 [&_ul]:list-disc [&_ul]:pl-5.5 [&_ol]:mb-3 [&_ol]:list-decimal [&_ol]:pl-5.5 [&_p]:mb-3
+                            [&_a]:text-learn [&_code]:rounded-[5px] [&_code]:bg-wrap [&_code]:px-1.5 [&_code]:font-mono [&_code]:text-[13px]
+                            [&_blockquote]:border-l-2 [&_blockquote]:border-line-strong [&_blockquote]:pl-4 [&_blockquote]:text-muted; }
+  .editor-content p.is-editor-empty:first-child::before { @apply pointer-events-none float-left h-0 text-muted content-[attr(data-placeholder)]; }
+  .editor-content ul[data-type="taskList"] { @apply list-none pl-0; }
+  .editor-content ul[data-type="taskList"] li { @apply flex items-start gap-2; }
+  .editor-content ul[data-type="taskList"] li > label { @apply mt-1 select-none; }
+  .editor-content li[data-checked="true"] > div { @apply text-muted line-through; }
+  .editor-content img { @apply my-2 h-auto max-w-full rounded-lg border border-line; }
+  .editor-content img.ProseMirror-selectednode { @apply outline-2 outline-offset-2 outline-ai; }
+  .editor-compact .editor-content { @apply min-h-16 px-4 py-3 text-sm; }
+  .editor-meta     { @apply mt-1.5 flex justify-between gap-3 text-xs text-muted; }
+
+  /* ---------- Avatar (prancha 11) ---------- */
+  .avatar     { @apply relative inline-grid size-10 shrink-0 place-items-center rounded-full bg-info-bg font-mono text-xs text-info-fg; }
+  .avatar-xs  { @apply size-6 text-[9px]; }
+  .avatar-sm  { @apply size-8 text-[11px]; }
+  .avatar-lg  { @apply size-14 text-base; }
+  .avatar-xl  { @apply size-18 text-xl; }
+  .avatar-square { @apply rounded-[11px] font-sans font-semibold; }
+  .avatar-ai  { @apply border-[1.5px] border-ai bg-warn-bg text-warn-fg; }
+  .avatar-status { @apply absolute -right-px -bottom-px size-3 rounded-full border-2 border-card bg-done
+                          data-[status=online]:bg-[#16A34A] data-[status=away]:bg-ai data-[status=busy]:bg-[#DC2626]; }
+  .avatar-group  { @apply flex -space-x-2 [&>.avatar]:border-2 [&>.avatar]:border-card; }
+
+  /* ---------- Gráficos (prancha 12) ---------- */
+  .chart-grid    { @apply stroke-line-soft [stroke-width:1]; }
+  .chart-axis    { @apply fill-muted font-mono text-xs; }
+  .chart-line    { @apply fill-none [stroke-width:2] [stroke-linecap:round] [stroke-linejoin:round]; }
+  .chart-area    { @apply [fill-opacity:0.08]; }
+  .chart-dot     { @apply stroke-card [stroke-width:2]; }
+  .chart-legend  { @apply flex flex-wrap items-center gap-4 text-[13px] text-ink-2; }
+  .chart-key     { @apply h-0.5 w-3.5 rounded-full; }
+  .chart-tooltip { @apply pointer-events-none flex min-w-42 flex-col gap-1.5 rounded-[10px] border border-line bg-card px-3 py-2.5 text-[13px] shadow-pop; }
+
+  /* ---------- Accordion (prancha 14) ---------- */
+  .accordion            { @apply flex flex-col divide-y divide-line-soft; }
+  .accordion-trigger    { @apply flex min-h-14 w-full cursor-pointer list-none items-center gap-3 text-left font-medium text-ink
+                                 [&::-webkit-details-marker]:hidden aria-disabled:cursor-not-allowed aria-disabled:text-muted; }
+  .accordion-chevron    { @apply size-4.5 text-muted transition-transform duration-200 [details[open]>summary_&]:rotate-180; }
+  .accordion-panel      { @apply pr-8 pb-4.5 text-sm leading-relaxed text-ink-2; }
+  .accordion-card       { @apply overflow-hidden rounded-[14px] border border-line bg-card open:border-line-strong [&[open]>summary]:bg-wrap/60; }
+  .accordion-card > summary { @apply px-3.5; }
+  .accordion-card > .accordion-panel { @apply border-t border-line-soft px-3.5 pt-1 pl-14; }
+  .accordion-flush .accordion-panel { @apply ml-3 border-l border-line pl-3; }
+  @media (prefers-reduced-motion: reduce) { .accordion-chevron, .switch, .switch::after { transition: none; } }
+
+  /* ---------- Drawer flutuante (prancha 13) ---------- */
+  .drawer-backdrop { @apply fixed inset-0 z-40 bg-zinc-950/40 backdrop-blur-[2px]; }
+  .drawer          { @apply fixed z-50 flex flex-col bg-card shadow-[0_30px_80px_rgb(9_9_11/0.28)]
+                            inset-y-3 right-3 w-[min(30rem,calc(100vw-1.5rem))] rounded-card border border-line
+                            [animation:drawer-in-right_.22s_ease-out]
+                            max-sm:inset-x-0 max-sm:top-auto max-sm:bottom-0 max-sm:max-h-[85dvh] max-sm:w-full max-sm:rounded-b-none max-sm:[animation:drawer-in-up_.22s_ease-out]; }
+  .drawer-docked   { @apply inset-y-0 right-0 rounded-none border-y-0 border-r-0; }
+  .drawer-left     { @apply right-auto left-3 [animation:drawer-in-left_.22s_ease-out]; }
+  .drawer-sm { @apply w-[min(24rem,calc(100vw-1.5rem))]; }
+  .drawer-lg { @apply w-[min(40rem,calc(100vw-1.5rem))]; }
+  .drawer-header { @apply flex items-start gap-3 px-7 pt-7 pb-2; }
+  .drawer-body   { @apply flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-7 pt-4 pb-6; }
+  .drawer-footer { @apply flex items-center justify-end gap-2 border-t border-line-soft px-7 pt-4 pb-6; }
+  @media (prefers-reduced-motion: reduce) { .drawer { animation: none; } }
+
+  /* ---------- Modal e tooltip (prancha 15) ---------- */
+  .modal          { @apply overflow-hidden rounded-[18px] bg-card shadow-pop; }
+  .modal-backdrop { @apply fixed inset-0 z-40 bg-zinc-950/40 backdrop-blur-[2px]; }
+  .modal-sm { @apply w-[min(25rem,calc(100vw-2rem))]; }
+  .modal-md { @apply w-[min(32.5rem,calc(100vw-2rem))]; }
+  .modal-lg { @apply w-[min(45rem,calc(100vw-2rem))]; }
+  .modal-header { @apply flex gap-4 px-6.5 pt-6.5 pb-5; }
+  .modal-footer { @apply flex justify-end gap-2 border-t border-line-soft bg-wrap/60 px-5 py-3.5; }
+  .modal-icon   { @apply grid size-11 shrink-0 place-items-center rounded-xl border; }
+  .btn-danger-solid { @apply bg-risk-fg text-white hover:bg-risk-fg/90 aria-disabled:cursor-not-allowed aria-disabled:opacity-40; }
+  .tooltip { @apply pointer-events-none z-50 inline-flex items-center gap-2 rounded-lg bg-ink px-2.5 py-1.5 text-xs whitespace-nowrap text-on-ink shadow-md; }
+  .tooltip kbd { @apply rounded bg-ink-2 px-1.5 font-mono text-[10px] text-on-ink; }
+  .tooltip-rich { @apply max-w-72 flex-col items-start gap-1 rounded-xl px-3.5 py-3 whitespace-normal; }
+
+  /* ---------- Vazios, stepper e progresso (prancha 16) ---------- */
+  .empty        { @apply relative flex flex-col items-center gap-3 overflow-hidden rounded-card border border-line bg-card px-7 pt-10 pb-8 text-center; }
+  .empty-grid   { @apply pointer-events-none absolute inset-x-0 top-0 h-45 bg-[linear-gradient(var(--line-soft)_1px,transparent_1px),linear-gradient(90deg,var(--line-soft)_1px,transparent_1px)] bg-size-[24px_24px] [mask-image:radial-gradient(ellipse_50%_90%_at_50%_0%,#000_20%,transparent_75%)]; }
+  .empty-icon   { @apply relative grid size-14 place-items-center rounded-2xl border border-line bg-card text-ink shadow-[0_10px_24px_rgb(24_24_27/0.08)]; }
+  .empty-inline { @apply flex flex-col items-center gap-1.5 rounded-xl border border-dashed border-line-strong p-5.5 text-center; }
+  .stepper { @apply grid list-none grid-cols-[repeat(auto-fit,minmax(0,1fr))] gap-2 p-0; }
+  .step    { @apply flex flex-col gap-2.5 before:h-1 before:rounded-full before:bg-line
+                    data-[state=done]:before:bg-ink data-[state=current]:before:bg-ai data-[state=error]:before:bg-missing; }
+  .step-dot { @apply grid size-7 shrink-0 place-items-center rounded-full border-[1.5px] border-line-strong font-mono text-xs text-muted
+                     [[data-state=done]_&]:border-ink [[data-state=done]_&]:bg-ink [[data-state=done]_&]:text-on-ink
+                     [[data-state=current]_&]:border-2 [[data-state=current]_&]:border-ink [[data-state=current]_&]:text-ink
+                     [[data-state=error]_&]:border-2 [[data-state=error]_&]:border-missing [[data-state=error]_&]:text-missing; }
+  .progress     { @apply flex h-2 gap-0.5 overflow-hidden rounded-full bg-wrap; }
+  .progress-bar { @apply rounded-full bg-ink transition-[width]; }
+
+  /* ---------- Paleta, segmentado e shell (prancha 17) ---------- */
+  .cmdk        { @apply w-[min(40rem,calc(100vw-2rem))] overflow-hidden rounded-card border border-line bg-card shadow-pop; }
+  .cmdk-input  { @apply flex h-14 items-center gap-3 border-b border-line-soft px-4 text-base; }
+  .cmdk-group  { @apply px-2.5 pt-2.5 pb-1 font-mono text-[10px] tracking-[0.08em] text-muted; }
+  .cmdk-item   { @apply flex min-h-11 items-center gap-3 rounded-[10px] px-2.5 text-sm aria-selected:bg-wrap; }
+  .cmdk-footer { @apply flex items-center gap-4 border-t border-line-soft bg-wrap/60 px-4 py-2.5 text-xs text-muted; }
+  .segmented   { @apply inline-flex rounded-[11px] border border-line bg-wrap p-[3px]; }
+  .segment     { @apply inline-flex h-8.5 items-center justify-center gap-1.5 rounded-lg px-3 text-sm font-medium text-ink-2
+                        aria-checked:bg-card aria-checked:text-ink aria-checked:shadow-sm; }
+  .segmented-full { @apply flex w-full [&>.segment]:flex-1; }
+  .app-shell   { @apply flex min-h-dvh flex-wrap gap-4 bg-frame p-4; }
+  .sidebar     { @apply flex w-59 shrink-0 flex-col gap-5 px-1 py-3 transition-[width] data-[collapsed=true]:w-16 max-md:hidden; }
+  .sidebar-link { @apply flex h-11 items-center gap-3 rounded-[10px] border border-transparent px-3 text-ink-2
+                         aria-[current=page]:border-line aria-[current=page]:bg-card aria-[current=page]:font-medium aria-[current=page]:text-ink; }
+  .app-main    { @apply min-w-0 flex-[999_1_45rem] rounded-panel bg-panel px-9 pt-7 pb-10 shadow-sm max-sm:px-5; }
+  .page-header { @apply flex flex-wrap items-end justify-between gap-4; }
+  .page-title  { @apply text-[2.5rem] leading-[1.05] font-semibold tracking-[-0.03em] max-sm:text-[2rem]; }
+
+  /* ---------- Número, agenda, timer, assinatura (prancha 18) ---------- */
+  .number-input { @apply flex h-11.5 items-center overflow-hidden rounded-xl border border-line-strong [&>button]:h-full [&>button]:w-11 [&>button]:bg-wrap/60 [&>input]:flex-1 [&>input]:text-center [&>input]:tabular-nums; }
+  .calendar      { @apply grid grid-cols-7 overflow-hidden rounded-xl border-t border-l border-line; }
+  .calendar-cell { @apply flex min-h-23 flex-col gap-1 border-r border-b border-line px-2 py-1.5 text-left aria-selected:bg-wrap/70; }
+  .calendar-event{ @apply flex items-center gap-1.5 truncate rounded-md px-1.5 py-0.5 text-[11px]; }
+  .timer         { @apply flex flex-col items-center gap-1.5 rounded-card border border-line bg-wrap/60 p-4.5 data-[running=true]:border-ok-line data-[running=true]:bg-ok-bg/50; }
+  .timer-time    { @apply font-mono text-[44px] font-medium tracking-tight tabular-nums; }
+  .signature-pad { @apply h-42 touch-none rounded-xl border border-dashed border-muted/60 bg-wrap/60; }
+  .signature-typed { @apply font-['Caveat',cursive] text-4xl text-ink; }
+
+  .auth-page   { @apply flex min-h-screen p-4 text-ink; background: light-dark(var(--frame), #0C0C12); }
+  .auth-frame  { @apply flex flex-1 flex-col gap-7 rounded-[22px] border px-8 py-12; border-color: light-dark(var(--line), #24242E); background: light-dark(var(--panel), #101016); }
+  .auth-card   { @apply relative overflow-hidden rounded-[18px] border border-line-strong bg-panel; box-shadow: 0 30px 80px light-dark(rgb(24 24 27 / 0.12), rgb(0 0 0 / 0.45)); }
+  .auth-icon   { @apply grid size-14 place-items-center rounded-2xl border border-line-strong bg-card text-ink; box-shadow: 0 10px 30px color-mix(in oklab, var(--ai) 18%, transparent); }
+  .auth-grid   { @apply pointer-events-none absolute inset-x-0 top-0 h-60;
+                 background-image: linear-gradient(color-mix(in oklab, var(--ink) 5.5%, transparent) 1px, transparent 1px),
+                                   linear-gradient(90deg, color-mix(in oklab, var(--ink) 5.5%, transparent) 1px, transparent 1px),
+                                   repeating-conic-gradient(color-mix(in oklab, var(--ink) 3.5%, transparent) 0 25%, transparent 0 50%);
+                 background-size: 28px 28px, 28px 28px, 56px 56px;
+                 mask-image: radial-gradient(ellipse 75% 100% at 50% 0%, #000 25%, transparent 78%); }
+  .auth-glow   { @apply pointer-events-none absolute top-[-120px] left-1/2 -ml-45 h-60 w-90;
+                 background: radial-gradient(closest-side, color-mix(in oklab, var(--ai) 16%, transparent), transparent); }
+
+  .color-picker        { @apply relative w-full max-w-75; --cp-color: #2563EB; --cp-hue: #2563EB; }
+  .color-picker-field  { @apply flex h-11.5 items-center gap-2.5 rounded-xl border border-line-strong bg-card px-3 focus-within:border-ink focus-within:ring-4 focus-within:ring-ink/10 data-[invalid=true]:border-missing; }
+  .color-picker-swatch { @apply size-5.5 shrink-0 cursor-pointer rounded-md bg-(--cp-color) shadow-[inset_0_0_0_1px_rgb(0_0_0/0.12)]; }
+  .color-picker-input  { @apply h-full min-w-0 flex-1 bg-transparent font-mono text-sm uppercase outline-none; }
+  .color-picker-panel  { @apply absolute top-full left-0 z-50 mt-2 flex w-76 flex-col gap-3 rounded-[14px] border border-line bg-card p-3 shadow-pop; }
+  .color-picker-area   { @apply relative h-42 cursor-crosshair touch-none rounded-[10px] outline-none focus-visible:ring-4 focus-visible:ring-ink/15;
+                         background: linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, var(--cp-hue)); }
+  .color-picker-handle { @apply pointer-events-none absolute -mt-2 -ml-2 size-4 rounded-full border-2 border-white shadow-[0_0_0_1px_rgb(0_0_0/0.3)]; }
+  .color-picker-presets{ @apply grid grid-cols-8 gap-1.5; }
+  .color-picker-preset { @apply aspect-square cursor-pointer rounded-[7px] shadow-[inset_0_0_0_1px_rgb(0_0_0/0.1)] aria-checked:shadow-[0_0_0_2px_var(--card),0_0_0_4px_var(--ink)]; }
+  .color-picker-hue, .color-picker-alpha { @apply h-5.5 w-full cursor-pointer appearance-none bg-transparent; }
+
+  .filter-menu        { @apply relative inline-block; }
+  .menu-trigger       { @apply inline-flex h-9.5 cursor-pointer items-center gap-2 rounded-[10px] border border-line-strong bg-card px-3 text-sm text-ink aria-expanded:border-ink aria-expanded:bg-wrap; }
+  .menu-badge         { @apply grid h-4.5 min-w-4.5 place-items-center rounded-full bg-ink px-1.25 text-[11px] font-semibold text-on-primary; }
+  .menu-panel         { @apply absolute top-full left-0 z-50 mt-1.5 flex w-65 flex-col rounded-[14px] border border-line bg-card shadow-pop; }
+  .menu-head          { @apply flex items-center justify-between py-2.5 pr-2.5 pl-3.5 text-sm font-semibold; }
+  .menu-list          { @apply flex flex-col px-1.5 pb-1.5; }
+  .menu-row           { @apply flex min-h-10 w-full cursor-pointer items-center gap-2.5 rounded-[9px] px-2.5 text-left text-sm text-ink outline-none hover:bg-wrap focus-visible:bg-wrap aria-expanded:bg-wrap; }
+  .menu-count         { @apply grid h-4.5 min-w-4.5 place-items-center rounded-full border border-line bg-wrap px-1.25 font-mono text-[10px]; }
+  .menu-sub           { @apply absolute left-[calc(100%+6px)] z-50 flex w-59 flex-col rounded-[14px] border border-line bg-card p-1.5 shadow-pop; }
+  .menu-check         { @apply flex min-h-10 cursor-pointer items-center gap-2.5 rounded-[9px] px-2.5 text-sm outline-none hover:bg-wrap focus-visible:bg-wrap has-checked:bg-wrap/70; }
+  .menu-check input   { @apply sr-only; }
+  .menu-check-mark    { @apply ml-1 grid size-4 place-items-center text-ink opacity-0 [.menu-check:has(input:checked)_&]:opacity-100; }
+  .menu-check-meta    { @apply ml-auto font-mono text-[11px] text-muted; }
+  .menu-footer        { @apply grid grid-cols-2 gap-2 border-t border-line-soft p-2.5; }
+}
+
+/* The check and the dash of a box: an `appearance: none` input draws them itself, as a mask painted with the
+   colour of text on the fill, so they read in both themes. */
+.checkbox:checked::after,
+.checkbox[data-partial="true"]::after {
+  content: "";
+  width: 14px;
+  height: 14px;
+  background-color: var(--on-primary);
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+}
+
+.checkbox:checked::after {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 10.5l3.5 3.5L15 6.5'/%3E%3C/svg%3E");
+}
+
+.checkbox[data-partial="true"] {
+  border-color: var(--ink);
+  background-color: var(--ink);
+}
+
+.checkbox[data-partial="true"]::after {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M5.5 10h9'/%3E%3C/svg%3E");
+}
+
+@keyframes switch-saving {
+  from { opacity: 1; }
+  to { opacity: 0.35; }
+}
+
+.switch[aria-busy="true"] {
+  cursor: progress;
+}
+
+.switch[aria-busy="true"]::after {
+  animation: switch-saving 0.8s ease-in-out infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .switch[aria-busy="true"]::after {
+    animation: none;
+    opacity: 0.5;
+  }
+}
+
+/* The thumb is white on a dark track; on the light track of the dark theme (ink flips) it takes the text colour on
+   the fill, and on the amber and green tracks it stays white. */
+.switch[aria-checked="true"]::after {
+  background-color: var(--on-primary);
+}
+
+.switch-ai[aria-checked="true"]::after,
+.switch-ok[aria-checked="true"]::after {
+  background-color: #fff;
+}
+
+.chart-tip-box {
+  fill: var(--card);
+  stroke: var(--line);
+  filter: drop-shadow(0 10px 20px rgb(24 24 27 / 0.12));
+}
+
+.range {
+  --p: 50%;
+  width: 100%;
+  height: 24px;
+  margin: 0;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.range::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, var(--ink) var(--p), var(--line) var(--p));
+}
+
+.range::-moz-range-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--line);
+}
+
+.range::-moz-range-progress {
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--ink);
+}
+
+.range::-webkit-slider-thumb,
+.range-thumb::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  border: 2px solid var(--ink);
+  background: #fff;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
+  cursor: grab;
+}
+
+.range::-webkit-slider-thumb {
+  margin-top: -7px;
+}
+
+.range::-moz-range-thumb,
+.range-thumb::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 9999px;
+  border: 2px solid var(--ink);
+  background: #fff;
+  cursor: grab;
+}
+
+.range:focus-visible {
+  outline: none;
+}
+
+.range:focus-visible::-webkit-slider-thumb,
+.range-thumb:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--ink) 12%, transparent);
+}
+
+.range:focus-visible::-moz-range-thumb,
+.range-thumb:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--ink) 12%, transparent);
+}
+
+.range:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Two range inputs on one track: only the thumbs take the pointer, so both can be dragged. */
+.range-thumb {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  appearance: none;
+  background: transparent;
+  pointer-events: none;
+}
+
+.range-thumb::-webkit-slider-thumb {
+  pointer-events: auto;
+}
+
+.range-thumb::-moz-range-thumb {
+  pointer-events: auto;
+}
+
+.color-picker-hue::-webkit-slider-runnable-track,
+.color-picker-hue::-moz-range-track {
+  height: 10px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+}
+
+.color-picker-alpha::-webkit-slider-runnable-track,
+.color-picker-alpha::-moz-range-track {
+  height: 10px;
+  border-radius: 9999px;
+  background:
+    linear-gradient(90deg, transparent, var(--cp-color)),
+    repeating-conic-gradient(#e4e4e7 0 25%, #fff 0 50%) 0 0 / 10px 10px;
+}
+
+.color-picker-hue::-webkit-slider-thumb,
+.color-picker-alpha::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -4px;
+  border-radius: 9999px;
+  border: 3px solid #fff;
+  background: var(--cp-color);
+  box-shadow: 0 0 0 1px rgb(24 24 27 / 0.25), 0 1px 3px rgb(0 0 0 / 0.25);
+}
+
+.color-picker-hue::-moz-range-thumb,
+.color-picker-alpha::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  border: 3px solid #fff;
+  background: var(--cp-color);
+}

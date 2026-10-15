@@ -1,0 +1,15 @@
+<%!-- title: Basic | text: Columns defined by slots over a list of rows. --%>
+<DataTable.data_table
+  id="data-table-basic"
+  label="Open pull requests"
+  rows={[
+    %{id: "142", title: "Tithe in transaction", author: "carlos-andre", changes: 187},
+    %{id: "145", title: "Refunds and CSV export", author: "carlos-andre", changes: 120},
+    %{id: "63", title: "Search with filters", author: "alex-nogueira", changes: 33}
+  ]}
+>
+  <:col :let={row} label="PR" class="font-mono">#{row.id}</:col>
+  <:col :let={row} label="Title">{row.title}</:col>
+  <:col :let={row} label="Author" class="text-ink-2">{row.author}</:col>
+  <:col :let={row} label="Changes" class="font-mono">{row.changes}</:col>
+</DataTable.data_table>

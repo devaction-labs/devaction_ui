@@ -1,0 +1,21 @@
+<%!-- title: With delta | text: The trend slot holds a small tag beside the value. --%>
+<div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+  <Stat.stat label="Ready">
+    78,4<span class="text-base text-muted">%</span>
+    <:trend>
+      <.tag variant={:ok} size={:sm}>+6 pts</.tag>
+    </:trend>
+  </Stat.stat>
+  <Stat.stat label="Open PRs" tone={:risk}>
+    12
+    <:trend>
+      <.tag variant={:risk} size={:sm}>+4</.tag>
+    </:trend>
+  </Stat.stat>
+  <Stat.stat label="Review time">
+    1,8<span class="text-base text-muted">d</span>
+    <:trend>
+      <.tag variant={:neutral} size={:sm}>same</.tag>
+    </:trend>
+  </Stat.stat>
+</div>

@@ -1,0 +1,6 @@
+<%!-- title: Variants | text: Spin, dual and glow. | layout: center --%>
+<div class="flex flex-wrap items-center gap-6">
+  <Aura.aura :for={variant <- [:spin, :dual, :glow]} variant={variant}>
+    <div class="bg-card px-4 py-3 text-sm text-ink">{variant}</div>
+  </Aura.aura>
+</div>

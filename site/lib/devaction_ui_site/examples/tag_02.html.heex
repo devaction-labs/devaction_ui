@@ -1,0 +1,9 @@
+<%!-- title: Sizes | text: Medium by default, small for lists and cards. | layout: center --%>
+<div class="flex flex-col items-start gap-3">
+  <div class="flex flex-wrap items-center gap-2">
+    <.tag :for={v <- [:risk, :warn, :ok, :info, :neutral]} variant={v} size={:md}>{v}</.tag>
+  </div>
+  <div class="flex flex-wrap items-center gap-2">
+    <.tag :for={v <- [:risk, :warn, :ok, :info, :neutral]} variant={v} size={:sm}>{v}</.tag>
+  </div>
+</div>

@@ -1,0 +1,19 @@
+<%!-- title: Step and unit | text: A larger step with the unit written beside the field. --%>
+<div class="flex items-center gap-3">
+  <NumberInput.number_input
+    id="number-input-step"
+    name="hours"
+    value={40}
+    label="Hours per week"
+    min={0}
+    max={60}
+    step={5}
+    event="seats_step"
+    decrease_label="Fewer hours"
+    increase_label="More hours"
+  >
+    <:minus_icon>−</:minus_icon>
+    <:plus_icon>+</:plus_icon>
+  </NumberInput.number_input>
+  <span class="text-sm text-muted">hours per week</span>
+</div>

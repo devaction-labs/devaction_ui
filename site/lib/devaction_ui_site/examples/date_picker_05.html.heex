@@ -1,0 +1,7 @@
+<%!-- title: Due Chips | text: A chip that reads a deadline against today: late, today or upcoming --%>
+<div class="flex flex-wrap items-center gap-3">
+  <DatePicker.due_chip date={~D[2026-10-12]} today={~D[2026-10-14]} text="2 days late" />
+  <DatePicker.due_chip date={~D[2026-10-14]} today={~D[2026-10-14]} text="Today" />
+  <DatePicker.due_chip date={~D[2026-10-15]} today={~D[2026-10-14]} text="Tomorrow" />
+  <DatePicker.due_chip date={~D[2026-10-20]} today={~D[2026-10-14]} text="Tue 20" />
+</div>

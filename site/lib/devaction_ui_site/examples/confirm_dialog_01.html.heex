@@ -1,0 +1,24 @@
+<%!-- title: Basic | text: A short question before publishing; the confirming button says what it does --%>
+<div class="flex flex-wrap items-center gap-3">
+  <Button.button id="confirm-dialog-open" size={:sm} phx-click="confirm_open">
+    Publish review
+  </Button.button>
+  <.tag :if={@published} variant={:ok}>Published on GitHub</.tag>
+</div>
+<ConfirmDialog.confirm_dialog
+  :if={@confirming}
+  id="confirm-dialog-basic"
+  eyebrow="PUBLISH"
+  title="Publish the review on GitHub?"
+  on_cancel="confirm_cancel"
+  close_label="Close"
+>
+  <:close_icon><.icon name="cancel-01" class="size-3.5" /></:close_icon>
+  10 comments will be published on sge-api #142 as "request changes". 2 dismissed findings stay only here.
+  <:actions>
+    <Button.button id="confirm-dialog-cancel" variant={:secondary} phx-click="confirm_cancel">
+      Cancel
+    </Button.button>
+    <Button.button id="confirm-dialog-ok" phx-click="confirm_publish">Publish</Button.button>
+  </:actions>
+</ConfirmDialog.confirm_dialog>

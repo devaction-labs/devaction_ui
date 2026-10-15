@@ -1,0 +1,27 @@
+<%!-- title: Many pages | text: Gaps stand in for the pages far from the current one. --%>
+<div class="flex flex-col gap-6">
+  <Pagination.pagination
+    page={1}
+    pages={24}
+    path={&"/c/pagination?page=#{&1}"}
+    label="First page"
+    previous="Previous"
+    next="Next"
+  />
+  <Pagination.pagination
+    page={12}
+    pages={24}
+    path={&"/c/pagination?page=#{&1}"}
+    label="Middle page"
+    previous="Previous"
+    next="Next"
+  />
+  <Pagination.pagination
+    page={24}
+    pages={24}
+    path={&"/c/pagination?page=#{&1}"}
+    label="Last page"
+    previous="Previous"
+    next="Next"
+  />
+</div>

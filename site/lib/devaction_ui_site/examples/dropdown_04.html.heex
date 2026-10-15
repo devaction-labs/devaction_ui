@@ -1,0 +1,8 @@
+<%!-- title: Separator and danger | text: A rule groups items and a destructive item is colored as such | layout: center --%>
+<Dropdown.dropdown id="dropdown-danger" label="Repository actions">
+  <:trigger>Repository <.icon name="arrow-down-01" class="size-4" /></:trigger>
+  <:item event="overlay_close">Settings</:item>
+  <:item event="overlay_close">Pause monitoring</:item>
+  <:item event="overlay_close" separator danger>Remove repository</:item>
+  <:check_icon><.icon name="tick-02" class="size-4" /></:check_icon>
+</Dropdown.dropdown>

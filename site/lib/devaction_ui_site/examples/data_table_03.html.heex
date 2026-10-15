@@ -1,0 +1,23 @@
+<%!-- title: Selectable | text: Checkboxes per row and a bulk bar that appears with the selection. --%>
+<DataTable.data_table
+  id="data-table-selectable"
+  label="Pull requests to review"
+  rows={[
+    %{id: "142", title: "Tithe in transaction", author: "carlos-andre", status: "open"},
+    %{id: "145", title: "Refunds and CSV export", author: "carlos-andre", status: "open"},
+    %{id: "63", title: "Search with filters", author: "alex-nogueira", status: "open"}
+  ]}
+  selectable
+  select_all_label="Select all"
+  select_row_label="Select row"
+  selected_label="__COUNT__ selected"
+  clear_label="Clear"
+>
+  <:col :let={row} label="PR" class="font-mono">#{row.id}</:col>
+  <:col :let={row} label="Title">{row.title}</:col>
+  <:col :let={row} label="Author" class="text-ink-2">{row.author}</:col>
+  <:bulk>
+    <Button.button size={:sm} variant={:secondary}>Approve</Button.button>
+    <Button.button size={:sm}>Assign</Button.button>
+  </:bulk>
+</DataTable.data_table>

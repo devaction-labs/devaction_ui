@@ -1,0 +1,13 @@
+<%!-- title: With icons | text: An icon before each label, from the icon slot. | layout: center --%>
+<Segmented.segmented
+  id="segmented-icons"
+  label="Layout"
+  value={@shell.layout}
+  event="shell_layout"
+>
+  <:icon :let={option}>
+    <.icon name={%{"rows" => "contracts"}[option.value] || "sparkles"} class="size-4" />
+  </:icon>
+  <:option value="rows" label="Rows" />
+  <:option value="cards" label="Cards" />
+</Segmented.segmented>

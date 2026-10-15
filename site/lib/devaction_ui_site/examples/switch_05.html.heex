@@ -1,0 +1,19 @@
+<%!-- title: Switch card | text: The whole card is the switch and takes the on wash. --%>
+<div class="grid gap-3 md:grid-cols-2">
+  <Switch.switch_card
+    :for={
+      {key, label, description} <- [
+        {"card_ai", "Suggest lessons", "From the findings of each PR."},
+        {"card_scope", "Warn about scope", "When a PR looks outside the contract."}
+      ]
+    }
+    id={"switch-card-#{key}"}
+    label={label}
+    description={description}
+    checked={key in @switches.on}
+    phx-click="switch_toggle"
+    phx-value-key={key}
+  >
+    <:icon><.icon name="sparkles" class="size-5" /></:icon>
+  </Switch.switch_card>
+</div>

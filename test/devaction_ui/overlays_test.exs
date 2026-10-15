@@ -1,0 +1,285 @@
+defmodule DevactionUI.OverlaysTest do
+  @moduledoc "The drawer, the modal, the dialog before something that cannot be undone and the tooltip."
+  use ExUnit.Case, async: true
+
+  import Phoenix.Component
+  import Phoenix.LiveViewTest
+
+  alias DevactionUI.{DangerDialog, Drawer, Modal, Tooltip}
+  alias Phoenix.LiveView.JS
+
+  describe "Drawer" do
+    defp drawer(extra \\ %{}) do
+      assigns = Map.merge(%{variant: :floating, side: :right, size: :md}, extra)
+
+      rendered_to_string(~H"""
+      <Drawer.drawer
+        id="d"
+        variant={@variant}
+        side={@side}
+        size={@size}
+        on_close="close"
+        close_label="Close"
+      >
+        <:close_icon>X</:close_icon>
+        <:title>Edit profile</:title>
+        <:subtitle>Your data</:subtitle>
+        BODY
+        <:footer>FOOT</:footer>
+      </Drawer.drawer>
+      """)
+    end
+
+    test "is a labelled modal dialog with a title, a subtitle, a body and a footer" do
+      html = drawer()
+
+      assert html =~ ~s(role="dialog")
+      assert html =~ ~s(aria-modal="true")
+      assert html =~ ~s(aria-labelledby="d-title")
+      assert html =~ "Edit profile"
+      assert html =~ "Your data"
+      assert html =~ "BODY"
+      assert html =~ "drawer-footer"
+      assert html =~ ~s(aria-label="Close")
+      assert html =~ "drawer-backdrop"
+    end
+
+    test "closes on Esc, the backdrop and the close button, and gives the focus back" do
+      html = drawer()
+
+      assert html =~ ~s(phx-key="escape")
+      assert length(Regex.scan(~r/pop_focus/, html)) >= 3
+    end
+
+    test "docks, comes from the left and takes the width" do
+      assert drawer(%{variant: :docked}) =~ "drawer-docked"
+      assert drawer(%{side: :left}) =~ "drawer-left"
+      assert drawer(%{size: :sm}) =~ "drawer-sm"
+      assert drawer(%{size: :lg}) =~ "drawer-lg"
+      refute drawer() =~ "drawer-docked"
+    end
+
+    test "has no footer when it has no actions" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Drawer.drawer id="d" on_close={JS.push("c")} close_label="Close">
+          <:close_icon>X</:close_icon>
+          <:title>T</:title>
+          B
+        </Drawer.drawer>
+        """)
+
+      refute html =~ "drawer-footer"
+      refute html =~ "<p"
+    end
+
+    test "open/1 remembers the focus before the event" do
+      assert %JS{ops: [["push_focus", _], ["push", %{event: "go"}]]} = Drawer.open("go")
+
+      assert %JS{ops: [["push_focus", _], ["push", %{event: "x"}]]} =
+               Drawer.open(JS.push("x"))
+    end
+  end
+
+  describe "Modal" do
+    test "is a labelled dialog of the size asked, with the icon tile and the footer" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Modal.modal id="m" size={:sm} tone={:ok} on_close="close">
+          <:icon>I</:icon>
+          <:title>Done</:title>
+          <:subtitle>All saved</:subtitle>
+          <:footer>OK</:footer>
+        </Modal.modal>
+        """)
+
+      assert html =~ ~s(role="dialog")
+      assert html =~ "modal-sm"
+      assert html =~ "modal-icon"
+      assert html =~ "border-tag-ok-line"
+      assert html =~ "modal-footer"
+      assert html =~ "All saved"
+      refute html =~ ~s(aria-label=")
+    end
+
+    test "has a close button only when it has a label, and a centered success" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Modal.modal id="m" size={:lg} centered on_close="close" close_label="Close">
+          <:close_icon>X</:close_icon>
+          <:title>T</:title>
+          BODY
+          <:footer>F</:footer>
+        </Modal.modal>
+        """)
+
+      assert html =~ ~s(aria-label="Close")
+      assert html =~ "modal-lg"
+      assert html =~ "text-center"
+      assert html =~ "justify-center"
+      assert html =~ "BODY"
+    end
+
+    test "a modal that is not dismissible ignores a click outside" do
+      assigns = %{}
+
+      locked =
+        rendered_to_string(~H|<Modal.modal id="m" dismissible={false} on_close="c">
+  <:title>T</:title>
+</Modal.modal>|)
+
+      open = rendered_to_string(~H|<Modal.modal id="m" on_close="c">
+  <:title>T</:title>
+</Modal.modal>|)
+
+      refute locked =~ ~r/modal-backdrop[^>]*phx-click|phx-click[^>]*modal-backdrop/
+      assert open =~ ~r/phx-click[^>]*|modal-backdrop/
+      assert open =~ "pop_focus"
+    end
+
+    test "takes the focus on the control it is told, or on the first one" do
+      assigns = %{}
+
+      first = rendered_to_string(~H|<Modal.modal id="m" on_close="c">
+  <:title>T</:title>
+</Modal.modal>|)
+      assert first =~ "focus_first"
+
+      told =
+        rendered_to_string(~H|<Modal.modal id="m" focus="#name" on_close="c">
+  <:title>T</:title>
+</Modal.modal>|)
+
+      assert told =~ "#name"
+      refute told =~ "focus_first"
+    end
+
+    test "every tone has its tile" do
+      assigns = %{}
+
+      for {tone, expected} <- [
+            neutral: "bg-wrap",
+            info: "tag-info",
+            ok: "tag-ok",
+            warn: "tag-warn",
+            risk: "tag-risk"
+          ] do
+        html =
+          rendered_to_string(~H"""
+          <Modal.modal id="m" tone={tone} on_close="c">
+            <:icon>I</:icon><:title>T</:title>
+          </Modal.modal>
+          """)
+
+        assert html =~ expected
+      end
+    end
+  end
+
+  describe "DangerDialog" do
+    defp danger(typed) do
+      assigns = %{typed: typed}
+
+      rendered_to_string(~H"""
+      <DangerDialog.danger_dialog
+        id="x"
+        name="sge-api"
+        typed={@typed}
+        on_type="type"
+        on_confirm="confirm"
+        on_close="close"
+        confirm_label="Stop"
+        cancel_label="Cancel"
+        close_label="Close"
+        type_label="Type it"
+      >
+        <:icon>I</:icon>
+        <:close_icon>X</:close_icon>
+        <:title>Stop?</:title>
+        What is lost.
+      </DangerDialog.danger_dialog>
+      """)
+    end
+
+    test "the red button stays locked until the name is typed" do
+      assert DangerDialog.confirmed?("sge-api", "sge-api")
+      assert DangerDialog.confirmed?("  sge-api ", "sge-api")
+      refute DangerDialog.confirmed?("sge", "sge-api")
+      refute DangerDialog.confirmed?(nil, "sge-api")
+
+      locked = danger("sge")
+
+      assert locked =~ ~r/id="x-confirm"[^>]*aria-disabled="true"/s or
+               locked =~ ~s(aria-disabled="true")
+
+      refute locked =~ ~s(phx-click="confirm")
+
+      open = danger("sge-api")
+      assert open =~ ~s(aria-disabled="false")
+      assert open =~ ~s(phx-click="confirm")
+    end
+
+    test "asks for the name in a field that reports each key and does not close on a click outside" do
+      html = danger("")
+
+      assert html =~ ~s(phx-keyup="type")
+      assert html =~ "#x-typed"
+      assert html =~ "focus"
+      assert html =~ ~s(autocomplete="off")
+      assert html =~ "Type it"
+      assert html =~ "What is lost."
+      refute html =~ ~r/modal-backdrop[^>]*phx-click/
+    end
+  end
+
+  describe "Tooltip" do
+    test "is described by its text and shows on all four sides" do
+      assigns = %{}
+
+      for {side, expected} <- [
+            top: "bottom-full",
+            bottom: "top-full",
+            left: "right-full",
+            right: "left-full"
+          ] do
+        html =
+          rendered_to_string(~H"""
+          <Tooltip.tooltip id="t" text="Search" placement={side}><button>S</button></Tooltip.tooltip>
+          """)
+
+        assert html =~ ~s(role="tooltip")
+        assert html =~ ~s(aria-describedby="t-tip")
+        assert html =~ expected
+        assert html =~ ~s(data-side="#{side}")
+      end
+    end
+
+    test "waits before showing, shows the shortcut and the rich variant has a heading" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Tooltip.tooltip id="t" text="Search" shortcut="⌘K"><button>S</button></Tooltip.tooltip>
+        """)
+
+      assert html =~ "delay-[400ms]"
+      assert html =~ "⌘K"
+      assert html =~ "<kbd"
+
+      rich =
+        rendered_to_string(~H"""
+        <Tooltip.tooltip id="t" title="RingScore 69" text="18 of 26"><button>S</button></Tooltip.tooltip>
+        """)
+
+      assert rich =~ "RingScore 69"
+      assert rich =~ "max-w-72"
+      refute rich =~ "<kbd"
+    end
+  end
+end

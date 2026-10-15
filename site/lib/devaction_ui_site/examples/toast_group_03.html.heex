@@ -1,0 +1,23 @@
+<%!-- title: With action | text: A toast can offer one action, such as undoing what just happened --%>
+<div class="max-w-[380px]">
+  <ToastGroup.toast_group
+    id="toast-group-action"
+    label="Notices"
+    on_dismiss="dismiss_toast"
+    on_clear="clear_toasts"
+    expand_label="Show all"
+    collapse_label="Collapse"
+    clear_label="Clear"
+    dismiss_label="Close"
+    count_label="__COUNT__ notices"
+  >
+    <:toast
+      id="toast-action-1"
+      kind={:dark}
+      title="sge-api is no longer monitored"
+      duration={0}
+      action_label="Undo"
+      action_event="clear_toasts"
+    />
+  </ToastGroup.toast_group>
+</div>

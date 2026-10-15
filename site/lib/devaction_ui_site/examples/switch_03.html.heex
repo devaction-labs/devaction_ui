@@ -1,0 +1,7 @@
+<%!-- title: Tones | text: Default, AI and success, off and on. | layout: center --%>
+<div class="flex flex-wrap items-center gap-6">
+  <div :for={tone <- [:default, :ai, :ok]} class="flex items-center gap-3">
+    <Switch.switch id={"switch-tone-#{tone}-off"} label={"#{tone} off"} tone={tone} />
+    <Switch.switch id={"switch-tone-#{tone}-on"} label={"#{tone} on"} tone={tone} checked />
+  </div>
+</div>

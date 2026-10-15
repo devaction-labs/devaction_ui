@@ -1,0 +1,9 @@
+{
+  "name": "devaction-ui-site-assets",
+  "private": true,
+  "type": "module",
+  "description": "Builds the icon sprite of the documentation site. The site's JavaScript is bundled by esbuild.",
+  "devDependencies": {
+    "@hugeicons/core-free-icons": "4.3.5"
+  }
+}

@@ -1,0 +1,10 @@
+<%!-- title: Status | text: A status dot with a label for screen readers | layout: center --%>
+<div class="flex flex-wrap items-center gap-4">
+  <Avatar.avatar
+    :for={status <- [:online, :away, :busy, :offline]}
+    name="Carlos André"
+    size={:lg}
+    status={status}
+    status_label={to_string(status)}
+  />
+</div>

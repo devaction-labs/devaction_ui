@@ -1,0 +1,109 @@
+<AuthLayout.auth_layout
+  about_label="About DevAction IA"
+  headline="Contracts, code and learning in the same place."
+  copyright="© 2026 DevAction Labs"
+>
+  <:brand>
+    <span class="grid size-[34px] place-items-center rounded-[9px] border border-line-strong bg-[#060C1F]">
+      <svg width="32" height="32" viewBox="50 50 1154 1154" aria-hidden="true">
+        <path
+          d="M395 303 H728 L912 492 Q968 552 968 628 Q968 706 905 770 L828 832 Q834 800 812 776 L392 330 Q380 314 395 303 Z"
+          fill="#FFFFFF"
+        />
+        <path
+          d="M628 662 Q641 650 654 662 L797 808 Q812 826 797 843 L722 935 Q712 945 698 945 H388 Q366 945 380 925 Z"
+          fill="#E3A72F"
+        />
+      </svg>
+    </span>
+    <span class="text-lg font-semibold tracking-[-0.01em]">DevAction IA</span>
+  </:brand>
+
+  <:feature
+    title="PR review with AI"
+    text="The AI reads the diff, points out risks and suggests the fix before the merge."
+  >
+    <.icon name="git-pull-request" class="size-[18px]" />
+  </:feature>
+  <:feature
+    title="Contracts with milestones"
+    text="Scope, amendments and invoicing tied to what the team delivers."
+  >
+    <.icon name="contracts" class="size-[18px]" />
+  </:feature>
+  <:feature
+    title="Learn from what you ship"
+    text="Every review becomes a short lesson on your path."
+  >
+    <.icon name="book-02" class="size-[18px]" />
+  </:feature>
+
+  <:link href="#">Terms</:link>
+  <:link href="#">Privacy</:link>
+  <:link href="#">Status</:link>
+
+  <AuthCard.auth_card
+    title="Welcome back, Alex"
+    icon_class="!size-16 !border-0 !bg-transparent !shadow-none"
+  >
+    <:icon>
+      <span class="relative grid size-16 place-items-center rounded-full border border-[#3F3866] bg-[#2E2A4A] font-mono text-lg text-[#C4B9FF]">
+        AN
+        <span class="absolute -right-0.5 -bottom-0.5 grid size-6 place-items-center rounded-full border-2 border-panel bg-[#060C1F]">
+          <svg width="20" height="20" viewBox="50 50 1154 1154" aria-hidden="true">
+            <path
+              d="M395 303 H728 L912 492 Q968 552 968 628 Q968 706 905 770 L828 832 Q834 800 812 776 L392 330 Q380 314 395 303 Z"
+              fill="#FFFFFF"
+            />
+            <path
+              d="M628 662 Q641 650 654 662 L797 808 Q812 826 797 843 L722 935 Q712 945 698 945 H388 Q366 945 380 925 Z"
+              fill="#E3A72F"
+            />
+          </svg>
+        </span>
+      </span>
+    </:icon>
+    <:subtitle>You are signing in as alex@devaction.com.br.</:subtitle>
+
+    <div class="flex items-center gap-3 rounded-xl border border-line bg-wrap px-3.5 py-3 text-sm">
+      <.icon name="laptop" class="size-5 text-muted" />
+      <span class="flex flex-1 flex-col">
+        <span class="text-ink">Chrome on macOS</span>
+        <span class="text-xs text-muted">this browser · now</span>
+      </span>
+    </div>
+
+    <fieldset class="m-0 flex flex-col gap-2.5 border-0 p-0">
+      <legend class="sr-only">For how long</legend>
+      <Choice.choice_card
+        id="keep-yes"
+        name="keep"
+        value="yes"
+        label="Keep me signed in"
+        description="Do not ask for sign-in on this device"
+        checked
+        class="has-checked:border-ai has-checked:bg-tag-warn-bg/40 [&_.radio:checked]:border-ai"
+      >
+        <:icon><.icon name="shield-01" class="size-5" /></:icon>
+      </Choice.choice_card>
+      <Choice.choice_card
+        id="keep-no"
+        name="keep"
+        value="no"
+        label="Just this once"
+        description="Sign out when the browser closes. Good for a shared computer"
+        class="has-checked:border-ai has-checked:bg-tag-warn-bg/40 [&_.radio:checked]:border-ai"
+      >
+        <:icon><.icon name="clock-01" class="size-5" /></:icon>
+      </Choice.choice_card>
+    </fieldset>
+
+    <Button.button variant={:primary} size={:md} class="w-full font-semibold">
+      Sign in and stay signed in
+    </Button.button>
+
+    <p class="m-0 text-center text-[13px] leading-normal text-muted">
+      Not you? Close this tab. The link expires on its own and nobody gets in.
+    </p>
+  </AuthCard.auth_card>
+</AuthLayout.auth_layout>
