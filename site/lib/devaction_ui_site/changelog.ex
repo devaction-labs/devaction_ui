@@ -352,7 +352,9 @@ defmodule DevactionUISite.Changelog do
     total = length(Catalog.all())
     added = Enum.count(Catalog.all(), &(Catalog.since(&1) == "0.2"))
 
-    Repo.delete_all(from(version in Version, where: version.version in ["v0.1", "v0.2", "v0.3", "v0.4"]))
+    Repo.delete_all(
+      from(version in Version, where: version.version in ["v0.1", "v0.2", "v0.3", "v0.4"])
+    )
 
     versions =
       for {release, index} <- Enum.with_index(@releases, 1) do
