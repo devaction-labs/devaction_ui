@@ -107,12 +107,12 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 | `DevactionUI.Slider` | a native range input and a two-thumb range slider whose thumbs never cross, with the fill and the value following the drag; a value `bubble` over the thumb and a `:vertical` orientation |
 | `DevactionUI.SignatureField` | draw or type a signature; the pad stays mounted when the mode changes, and the SVG of the stroke is safe to keep. The typed name is set in the Caveat font (weight 500), which you load yourself |
 | `DevactionUI.Combobox` | a select with a search field, accent-insensitive filtering and the ARIA combobox keys |
-| `DevactionUI.DataTable` | sticky header, sortable columns (`aria-sort`, the server sorts), row selection with a tri-state header checkbox and a bulk bar that shows while something is ticked, two densities |
-| `DevactionUI.Kanban` | columns with WIP limits and cards that move by drag or Alt + arrows, announced to screen readers; the LiveView gets one `move_card` event |
-| `DevactionUI.Editor` | a TipTap toolbar and surface that sends HTML and Markdown in hidden inputs; `/` blocks, `@` mentions, image upload, an AI tool, a compact comment form, visible label, error and disabled |
+| `DevactionUI.DataTable` | sticky header, sortable columns (`aria-sort`, the server sorts), row selection with a tri-state header checkbox and a bulk bar that shows while something is ticked, two densities; `toolbar` and `footer` slots, a density toggle, `loading` (skeleton rows) and `error` states, and a default empty text through an attr |
+| `DevactionUI.Kanban` | columns with WIP limits and cards that move by drag or Alt + arrows, announced to screen readers; the LiveView gets one `move_card` event; dragging works with mouse, pen and touch (pointer events); the keyboard keeps Alt + arrows |
+| `DevactionUI.Editor` | a TipTap toolbar and surface that sends HTML and Markdown in hidden inputs; `/` blocks, `@` mentions, image upload, an AI tool, a compact comment form, visible label, error and disabled; `toolbar_position` for a compact editor with the toolbar at the bottom, and attrs for the CSRF header and the event names of uploads |
 | `DevactionUI.Autocomplete` | a field with grouped suggestions (the server searches), the match in bold, ↑ ↓ Enter, ⌘↵ for an "ask the AI" row |
-| `DevactionUI.DatePicker` | a month calendar for one day or a range, keyboard grid, shortcuts, dates as ISO in hidden inputs; plus `due_chip/1` (late, today, later) |
-| `DevactionUI.Calendar` | a month or a week of days with coloured event chips, a keyboard grid (arrows, Home, End, Page keys); `title` and `cell_label` come from the caller; no hours grid |
+| `DevactionUI.DatePicker` | a month calendar for one day or a range, keyboard grid, shortcuts, dates as ISO in hidden inputs; plus `due_chip/1` (late, today, later); `date_input/1` (a masked field with the calendar in a popover) and `date_range/1` (two linked fields) |
+| `DevactionUI.Calendar` | a month or a week of days with coloured event chips, a keyboard grid (arrows, Home, End, Page keys); `title` and `cell_label` come from the caller; the week view has an hours grid (`hours` range, `weekend`, events with `starts_at`/`ends_at`), a `legend` slot and the `:chart_1` to `:chart_4` kinds |
 | `DevactionUI.Popover` | a panel with an arrow anchored to a button; Esc and outside click close it, focus goes in and comes back |
 | `DevactionUI.ToastGroup` | notices stacked into layers with a count, opened into a list, auto-dismissing and pausing on hover |
 | `DevactionUI.EmptyState` | the dashed card of a list with nothing in it: icon chip, title, one line, optional action |
@@ -135,7 +135,7 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 | `DevactionUI.Progress` | a linear progress bar |
 | `DevactionUI.ProgressToast` | a notice that fills as a job advances, with an aura, and leaves by itself when it is done |
 | `DevactionUI.Skeleton` | a shimmering placeholder |
-| `DevactionUI.Timer` | hours on a task in large mono digits (`HH:MM:SS`), start or pause and stop and log; the server owns the seconds, the browser only draws them between updates |
+| `DevactionUI.Timer` | hours on a task in large mono digits (`HH:MM:SS`), start or pause and stop and log; the server owns the seconds, the browser only draws them between updates; `timer_mini/1` (a dot and `HH:MM` for the app bar) and `time_log/1` (the list of what was logged today) |
 | `DevactionUI.Spinner` | a spinning ring |
 
 Where an app also has its own `alert`, `badge`, `button` or `pagination`, call these qualified
