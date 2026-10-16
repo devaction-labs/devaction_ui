@@ -12,6 +12,7 @@ defmodule DevactionUISite.UI do
       import DevactionUISite.Icon
 
       alias DevactionUI.Textarea
+      alias DevactionUISite.ReviewDemo
       alias Phoenix.LiveView.JS
 
       alias DevactionUI.{
@@ -41,6 +42,7 @@ defmodule DevactionUISite.UI do
         DataTable,
         DatePicker,
         DescriptionList,
+        DiffView,
         Divider,
         Drawer,
         Dropdown,
@@ -48,6 +50,7 @@ defmodule DevactionUISite.UI do
         Editor,
         EmptyState,
         Field,
+        FileTree,
         FilterMenu,
         FilterPill,
         InputGroup,

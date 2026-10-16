@@ -20,6 +20,7 @@ import MoneyMask from "./money_mask.js"
 import DataTable from "./data_table.js"
 import DateInput from "./date_input.js"
 import DatePicker from "./date_picker.js"
+import FileTree from "./file_tree.js"
 import FilterMenu from "./filter_menu.js"
 import {Indeterminate, NumberInput, Range, RangePair, Segmented, Switch} from "./controls.js"
 import Kanban from "./kanban.js"
@@ -52,6 +53,7 @@ export const hooks = {
   "DevactionUI.MoneyMask": MoneyMask,
   "DevactionUI.NotificationCenter": NotificationCenter,
   "DevactionUI.NumberInput": NumberInput,
+  "DevactionUI.FileTree": FileTree,
   "DevactionUI.FilterMenu": FilterMenu,
   "DevactionUI.Indeterminate": Indeterminate,
   "DevactionUI.Kanban": Kanban,

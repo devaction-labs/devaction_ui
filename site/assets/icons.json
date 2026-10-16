@@ -606,5 +606,10 @@
   "name": "globe-02",
   "group": "Site",
   "label": "Idioma"
+ },
+ {
+  "name": "file-01",
+  "group": "Site",
+  "label": "Arquivo"
  }
 ]

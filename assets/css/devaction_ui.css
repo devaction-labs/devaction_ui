@@ -913,4 +913,31 @@
 
 @media (prefers-reduced-motion: reduce) {
   .notif-row, .notif-tab, .cookie-btn, .pricing-cta { transition: none; }
+/* File tree and diff view (artboard "Árvore de arquivos, comentário no diff"). */
+:root {
+  --tree-folder: light-dark(#A16207, #E3A72F);
+  --finding-risk: light-dark(#B91C1C, #FFB4AA);
+  --on-finding: light-dark(#FFFFFF, #20202A);
+  --diff-add-fg: light-dark(#14532D, #8EF0B4);
+  --diff-del-fg: light-dark(#7F1D1D, #FFB4AA);
+  --diff-ctx-fg: light-dark(#27272A, #D4D4DE);
+  --diff-surface: light-dark(#F7F7F8, #1C1C25);
+  --diff-soft-fg: light-dark(#52525B, #B4B4C4);
+}
+
+@theme inline {
+  --color-tree-folder: var(--tree-folder);
+  --color-finding-risk: var(--finding-risk);
+  --color-on-finding: var(--on-finding);
+  --color-diff-add-fg: var(--diff-add-fg);
+  --color-diff-del-fg: var(--diff-del-fg);
+  --color-diff-ctx-fg: var(--diff-ctx-fg);
+  --color-diff-surface: var(--diff-surface);
+  --color-diff-soft-fg: var(--diff-soft-fg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-file-tree] [data-chevron] {
+    transition: none;
+  }
 }

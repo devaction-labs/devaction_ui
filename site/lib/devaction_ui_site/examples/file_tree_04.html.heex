@@ -1,0 +1,21 @@
+<%!-- title: Keyboard | text: Tab enters the tree on one item. ↑ ↓ Home End move, → opens a folder or enters it, ← closes it or goes to the parent, Enter selects. Press T anywhere on the page to jump to the search field. --%>
+<div class="flex h-[400px] w-[300px] overflow-hidden rounded-2xl border border-line bg-card">
+  <FileTree.tree
+    id="file-tree-keys"
+    class="w-full"
+    label="Changed files"
+    title="Files changed"
+    search_label="Filter files"
+    search_key="t"
+    nodes={ReviewDemo.nodes()}
+    open={@review.open}
+    selected={@review.selected}
+    query={@review.query}
+  >
+    <:search_hint>T</:search_hint>
+    <:search_icon><.icon name="search-01" class="size-3.5" /></:search_icon>
+    <:folder_icon><.icon name="folder-01" class="size-[15px]" /></:folder_icon>
+    <:file_icon><.icon name="file-01" class="size-[15px]" /></:file_icon>
+    <:chevron_icon><.icon name="arrow-right-01" class="size-3" /></:chevron_icon>
+  </FileTree.tree>
+</div>

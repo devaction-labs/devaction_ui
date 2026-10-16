@@ -1,6 +1,6 @@
 import assert from "node:assert/strict"
 import test from "node:test"
-import {decide, gridTarget, keyName, moveSegment, nextTab, runKey, tabExit, tabStop, wrap} from "./keys.js"
+import {decide, gridTarget, isTyping, keyName, moveSegment, nextTab, runKey, tabExit, tabStop, treeKey, wrap} from "./keys.js"
 
 const event = (key, mods = {}) => ({key, altKey: false, metaKey: false, ctrlKey: false, prevented: false, preventDefault() { this.prevented = true }, ...mods})
 
@@ -185,4 +185,55 @@ test("Tab at the last control leaves forward, Shift+Tab at the first returns to 
   assert.equal(tabExit({shift: true, active: "a", ...ends}), "back")
   assert.equal(tabExit({shift: false, active: "m", ...ends}), null)
   assert.equal(tabExit({shift: true, active: "m", ...ends}), null)
+})
+
+const tree = [
+  {level: 1, expandable: true, expanded: true},
+  {level: 2, expandable: true, expanded: false},
+  {level: 3, expandable: false, expanded: false},
+  {level: 2, expandable: false, expanded: false},
+  {level: 1, expandable: true, expanded: false},
+]
+
+test("↑ and ↓ move through the visible items and stop at the ends", () => {
+  assert.deepEqual(treeKey("ArrowDown", tree, 0), {focus: 1})
+  assert.deepEqual(treeKey("ArrowUp", tree, 3), {focus: 2})
+  assert.deepEqual(treeKey("ArrowUp", tree, 0), {focus: 0})
+  assert.deepEqual(treeKey("ArrowDown", tree, 4), {focus: 4})
+})
+
+test("Home and End jump to the first and last item", () => {
+  assert.deepEqual(treeKey("Home", tree, 3), {focus: 0})
+  assert.deepEqual(treeKey("End", tree, 0), {focus: 4})
+})
+
+test("→ opens a closed folder, enters an open one and does nothing on a file", () => {
+  assert.deepEqual(treeKey("ArrowRight", tree, 1), {click: 1})
+  assert.deepEqual(treeKey("ArrowRight", tree, 0), {focus: 1})
+  assert.equal(treeKey("ArrowRight", tree, 3), null)
+})
+
+test("→ on an open folder with nothing inside does nothing", () => {
+  assert.equal(treeKey("ArrowRight", [{level: 1, expandable: true, expanded: true}], 0), null)
+})
+
+test("← closes an open folder, otherwise goes to the parent", () => {
+  assert.deepEqual(treeKey("ArrowLeft", tree, 0), {click: 0})
+  assert.deepEqual(treeKey("ArrowLeft", tree, 2), {focus: 1})
+  assert.deepEqual(treeKey("ArrowLeft", tree, 3), {focus: 0})
+  assert.equal(treeKey("ArrowLeft", tree, 4), null)
+})
+
+test("an unknown key, an empty tree or no focused item is not ours", () => {
+  assert.equal(treeKey("x", tree, 0), null)
+  assert.equal(treeKey("ArrowDown", [], 0), null)
+  assert.equal(treeKey("ArrowDown", tree, -1), null)
+})
+
+test("typing in a field is told from typing on the page", () => {
+  assert.equal(isTyping({tagName: "input"}), true)
+  assert.equal(isTyping({tagName: "TEXTAREA"}), true)
+  assert.equal(isTyping({tagName: "DIV", isContentEditable: true}), true)
+  assert.equal(isTyping({tagName: "BUTTON"}), false)
+  assert.equal(isTyping(), false)
 })

@@ -1,0 +1,54 @@
+<%!-- title: In a review screen | text: The tree beside a diff: choosing a file shows its diff, a folder opens and closes, the filters narrow the list, and the comment button of a line opens a conversation. --%>
+<div class="grid h-[640px] grid-cols-[300px_1fr] overflow-hidden rounded-2xl border border-line bg-card">
+  <FileTree.tree
+    id="file-tree-screen"
+    class="border-r border-line"
+    label="Changed files"
+    title="Files changed"
+    filters_label="Show"
+    search_label="Filter files"
+    search_key="t"
+    findings_label="%{count} findings"
+    nodes={ReviewDemo.nodes()}
+    open={@review.open}
+    selected={@review.selected}
+    filter={@review.filter}
+    query={@review.query}
+  >
+    <:pill id={:all} label="All" />
+    <:pill id={:findings} label="With findings" />
+    <:pill id={:new} label="New" />
+    <:legend status={:added} label="new" />
+    <:legend status={:modified} label="changed" />
+    <:legend status={:deleted} label="removed" />
+    <:empty>No file matches.</:empty>
+    <:search_hint>T</:search_hint>
+    <:search_icon><.icon name="search-01" class="size-3.5" /></:search_icon>
+    <:folder_icon><.icon name="folder-01" class="size-[15px]" /></:folder_icon>
+    <:file_icon><.icon name="file-01" class="size-[15px]" /></:file_icon>
+    <:chevron_icon><.icon name="arrow-right-01" class="size-3" /></:chevron_icon>
+  </FileTree.tree>
+  <DiffView.diff
+    id="diff-screen"
+    path={@review.selected}
+    hunks={ReviewDemo.hunks(@review, @review.selected)}
+    additions={elem(ReviewDemo.stat(@review.selected), 0)}
+    deletions={elem(ReviewDemo.stat(@review.selected), 1)}
+    lang={:elixir}
+    viewed={@review.selected in @review.viewed}
+    viewed_label="Viewed"
+    viewed_event="toggle_viewed"
+    comment_label="Comment on line %{line}"
+    comment_event="comment_line"
+  >
+    <:file_icon><.icon name="file-01" class="size-4" /></:file_icon>
+    <:check_icon><.icon name="tick-02" class="size-3" /></:check_icon>
+    <:thread
+      :for={{line, side, thread} <- ReviewDemo.threads(@review)}
+      line={line}
+      side={side}
+    >
+      <ReviewDemo.thread path={@review.selected} line={line} side={side} thread={thread} />
+    </:thread>
+  </DiffView.diff>
+</div>
