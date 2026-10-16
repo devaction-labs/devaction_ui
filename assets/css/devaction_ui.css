@@ -423,14 +423,14 @@
   .color-picker        { @apply relative w-full max-w-75; --cp-color: #2563EB; --cp-hue: #2563EB; }
   .color-picker-field  { @apply flex h-11 items-center gap-2.5 rounded-xl border border-line-strong bg-card px-3 focus-within:border-ink focus-within:ring-4 focus-within:ring-ink/10 data-[invalid=true]:border-missing has-disabled:border-dashed has-disabled:bg-wrap has-disabled:text-muted; }
   .color-picker-row    { @apply flex h-9.5 items-center rounded-[10px] bg-wrap px-2.5; }
-  .color-picker-swatch { @apply size-5.5 shrink-0 cursor-pointer disabled:cursor-not-allowed rounded-md bg-(--cp-color) shadow-[inset_0_0_0_1px_rgb(0_0_0/0.12)]; }
+  .color-picker-swatch { @apply size-5.5 shrink-0 cursor-pointer disabled:cursor-not-allowed rounded-md bg-(--cp-color) shadow-[inset_0_0_0_1px_var(--picker-edge)]; }
   .color-picker-input  { @apply h-full min-w-0 flex-1 bg-transparent font-mono text-sm uppercase outline-none; }
-  .color-picker-panel  { @apply absolute top-full left-0 z-50 mt-2 flex w-76 flex-col gap-3 rounded-[14px] border border-line bg-card p-3 shadow-pop; }
+  .color-picker-panel  { @apply absolute top-full left-0 z-50 mt-2 flex w-76 flex-col gap-3 rounded-[14px] border border-line bg-card p-3 shadow-[0_16px_40px_var(--picker-shadow)]; }
   .color-picker-area   { @apply relative h-42 cursor-crosshair touch-none rounded-[10px] outline-none focus-visible:ring-4 focus-visible:ring-ink/15;
                          background: linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, var(--cp-hue)); }
-  .color-picker-handle { @apply pointer-events-none absolute -mt-2 -ml-2 size-4 rounded-full border-2 border-white shadow-[0_0_0_1px_rgb(0_0_0/0.3)]; }
+  .color-picker-handle { @apply pointer-events-none absolute -mt-2 -ml-2 size-4 rounded-full border-2 border-white shadow-[0_0_0_1px_var(--picker-ring)]; }
   .color-picker-presets{ @apply grid grid-cols-8 gap-1.5; }
-  .color-picker-preset { @apply aspect-square cursor-pointer rounded-[7px] shadow-[inset_0_0_0_1px_rgb(0_0_0/0.1)] aria-pressed:shadow-[0_0_0_2px_var(--card),0_0_0_4px_var(--ink)]; }
+  .color-picker-preset { @apply aspect-square cursor-pointer rounded-[7px] shadow-[inset_0_0_0_1px_var(--picker-edge)] aria-pressed:shadow-[0_0_0_2px_var(--card),0_0_0_4px_var(--ink)]; }
   .color-picker-hue, .color-picker-alpha { @apply h-5.5 w-full cursor-pointer appearance-none bg-transparent; }
 
   .filter-menu        { @apply relative inline-block; }
@@ -579,10 +579,21 @@
   pointer-events: auto;
 }
 
+/* Colours of the colour picker that are shadows and the squares behind an opacity: they follow the theme. */
+:root {
+  --picker-shadow: light-dark(rgb(24 24 27 / 0.12), rgb(0 0 0 / 0.5));
+  --picker-shadow-sm: light-dark(rgb(0 0 0 / 0.25), rgb(0 0 0 / 0.6));
+  --picker-edge: light-dark(rgb(0 0 0 / 0.12), rgb(255 255 255 / 0.18));
+  --picker-ring: light-dark(rgb(0 0 0 / 0.3), rgb(0 0 0 / 0.55));
+  --picker-checker-a: light-dark(#E4E4E7, #3A3A48);
+  --picker-checker-b: light-dark(#FFFFFF, #26262F);
+}
+
 .color-picker-hue::-webkit-slider-runnable-track,
 .color-picker-hue::-moz-range-track {
   height: 10px;
   border-radius: 9999px;
+  box-shadow: inset 0 0 0 1px var(--picker-edge);
   background: linear-gradient(90deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
 }
 
@@ -590,9 +601,10 @@
 .color-picker-alpha::-moz-range-track {
   height: 10px;
   border-radius: 9999px;
+  box-shadow: inset 0 0 0 1px var(--picker-edge);
   background:
     linear-gradient(90deg, transparent, var(--cp-color)),
-    repeating-conic-gradient(#e4e4e7 0 25%, #fff 0 50%) 0 0 / 10px 10px;
+    repeating-conic-gradient(var(--picker-checker-a) 0 25%, var(--picker-checker-b) 0 50%) 0 0 / 10px 10px;
 }
 
 .color-picker-hue::-webkit-slider-thumb,
@@ -604,7 +616,7 @@
   border-radius: 9999px;
   border: 3px solid #fff;
   background: var(--cp-color);
-  box-shadow: 0 0 0 1px rgb(24 24 27 / 0.25), 0 1px 3px rgb(0 0 0 / 0.25);
+  box-shadow: 0 0 0 1px var(--picker-ring), 0 1px 3px var(--picker-shadow-sm);
 }
 
 .color-picker-hue::-moz-range-thumb,
@@ -614,6 +626,22 @@
   border-radius: 9999px;
   border: 3px solid #fff;
   background: var(--cp-color);
+  box-shadow: 0 0 0 1px var(--picker-ring), 0 1px 3px var(--picker-shadow-sm);
+}
+
+.color-picker-hue:focus-visible,
+.color-picker-alpha:focus-visible {
+  outline: none;
+}
+
+.color-picker-hue:focus-visible::-webkit-slider-thumb,
+.color-picker-alpha:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 1px var(--picker-ring), 0 0 0 5px color-mix(in oklab, var(--ink) 15%, transparent);
+}
+
+.color-picker-hue:focus-visible::-moz-range-thumb,
+.color-picker-alpha:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 1px var(--picker-ring), 0 0 0 5px color-mix(in oklab, var(--ink) 15%, transparent);
 }
 
 .color-picker-hue::-webkit-slider-thumb {
