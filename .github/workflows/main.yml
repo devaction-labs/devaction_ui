@@ -1,0 +1,149 @@
+name: Main
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      deploy_version:
+        description: "Rollback: image tag already in GHCR to redeploy (v1.4.2 or sha-abc123)."
+        required: false
+        type: string
+      build_image:
+        description: "Build and push the image to GHCR without releasing."
+        required: false
+        default: false
+        type: boolean
+
+permissions: {}
+
+jobs:
+  gate:
+    name: Deploy Gate
+    uses: devaction-labs/.github/.github/workflows/deploy-gate.yml@main
+    permissions:
+      pull-requests: read
+
+  tag:
+    name: Tag & Release
+    needs: [gate]
+    if: github.event_name == 'push' && needs.gate.outputs.proceed == 'true'
+    uses: devaction-labs/.github/.github/workflows/tag-release.yml@main
+    permissions:
+      contents: write
+      pull-requests: read
+
+  image:
+    name: Build & push image (GHCR)
+    needs: [tag]
+    if: ${{ !cancelled() && ((github.event_name == 'push' && needs.tag.result == 'success') || (github.event_name == 'workflow_dispatch' && inputs.build_image)) }}
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
+      image_tag: ${{ steps.ver.outputs.version != '' && steps.ver.outputs.version || format('sha-{0}', github.sha) }}
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          persist-credentials: false
+
+      - name: Resolve version tag for this commit
+        id: ver
+        run: |
+          version=$(git tag --points-at "$GITHUB_SHA" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1 || true)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "version_bare=${version#v}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          provenance: false
+          platforms: linux/amd64
+          tags: |
+            ghcr.io/${{ github.repository }}:sha-${{ github.sha }}
+            ghcr.io/${{ github.repository }}:latest
+            ${{ steps.ver.outputs.version != '' && format('ghcr.io/{0}:{1}', github.repository, steps.ver.outputs.version) || '' }}
+            ${{ steps.ver.outputs.version_bare != '' && format('ghcr.io/{0}:{1}', github.repository, steps.ver.outputs.version_bare) || '' }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Scan image for OS vulnerabilities
+        uses: aquasecurity/trivy-action@v0.36.0
+        env:
+          TRIVY_USERNAME: ${{ github.actor }}
+          TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          image-ref: ghcr.io/${{ github.repository }}:sha-${{ github.sha }}
+          format: table
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: 1
+
+  deploy-image:
+    name: Deploy prebuilt image
+    needs: [image]
+    if: ${{ !cancelled() && needs.image.result == 'success' }}
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    environment: production
+    timeout-minutes: 30
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Pin the pushed image and roll it out
+        env:
+          OPENSHIP_API_URL: ${{ secrets.OPENSHIP_CLOUD_API_URL }}
+          OPENSHIP_API_TOKEN: ${{ secrets.OPENSHIP_CLOUD_API_TOKEN }}
+          OPENSHIP_PROJECT_ID: ${{ secrets.OPENSHIP_CLOUD_PROJECT_ID }}
+          IMAGE_VERSION: ${{ needs.image.outputs.image_tag }}
+        run: bash .github/scripts/openship-deploy.sh
+
+  deploy-version:
+    name: Deploy specific image version (manual rollback)
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.deploy_version != '' }}
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    environment: production
+    timeout-minutes: 30
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Pin that version and roll it out
+        env:
+          OPENSHIP_API_URL: ${{ secrets.OPENSHIP_CLOUD_API_URL }}
+          OPENSHIP_API_TOKEN: ${{ secrets.OPENSHIP_CLOUD_API_TOKEN }}
+          OPENSHIP_PROJECT_ID: ${{ secrets.OPENSHIP_CLOUD_PROJECT_ID }}
+          IMAGE_VERSION: ${{ inputs.deploy_version }}
+        run: bash .github/scripts/openship-deploy.sh
+
+  sync-develop:
+    name: Sync main → develop
+    needs: [deploy-image]
+    if: github.event_name == 'push'
+    uses: devaction-labs/.github/.github/workflows/sync-develop.yml@main
+    permissions:
+      contents: write

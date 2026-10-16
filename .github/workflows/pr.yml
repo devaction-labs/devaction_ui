@@ -1,0 +1,77 @@
+name: PR
+
+on:
+  pull_request:
+    branches: [main, develop]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  MIX_ENV: test
+
+jobs:
+  package:
+    name: Package (format, credo, tests)
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124 # v1.24.1
+        with:
+          otp-version: "29"
+          elixir-version: "1.20"
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+      - uses: actions/cache@v5
+        with:
+          path: |
+            deps
+            _build
+          key: pkg-${{ runner.os }}-${{ hashFiles('mix.lock') }}
+      - run: mix deps.get
+      - run: mix format --check-formatted
+      - run: mix compile --warnings-as-errors
+      - run: mix credo --strict
+      - run: mix test
+      - run: mix assets.setup
+      - run: mix js.test
+
+  site:
+    name: Site (format, credo, tests)
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124 # v1.24.1
+        with:
+          otp-version: "29"
+          elixir-version: "1.20"
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+      - uses: actions/cache@v5
+        with:
+          path: |
+            site/deps
+            site/_build
+          key: site-${{ runner.os }}-${{ hashFiles('site/mix.lock', 'mix.lock') }}
+      - run: mix deps.get
+      - run: mix format --check-formatted
+      - run: mix compile --warnings-as-errors
+      - run: mix credo --strict
+      - run: mix test
+      - run: node --test assets/js/*.test.js
