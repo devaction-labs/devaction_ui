@@ -1,0 +1,7 @@
+<%!-- title: Highlighted lines | text: `highlight_lines` takes numbers and ranges, and works with a language. --%>
+<.code_block
+  lang={:elixir}
+  line_numbers
+  highlight_lines={[2, 4..5]}
+  code={"defmodule Invoice do\n  @moduledoc \"An invoice\"\n\n  def total(items) do\n    Enum.sum(items)\n  end\nend"}
+/>

@@ -1,0 +1,7 @@
+<%!-- title: Diff | text: With `diff`, a leading `+` is an added line and `-` a removed one; the marker stays in the text. --%>
+<.code_block
+  diff
+  lang={:elixir}
+  label="Suggested change"
+  code="  def total(items) do\n-   Enum.reduce(items, 0, fn i, acc -> acc + i end)\n+   Enum.sum(items)\n  end"
+/>

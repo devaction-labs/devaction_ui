@@ -1,0 +1,6 @@
+<%!-- title: HEEx directives | text: `:if`, `:for` and `phx-*` are directives, and the Elixir inside `{}` is coloured. --%>
+<.code_block
+  lang={:heex}
+  line_numbers
+  code={"<li :for={item <- @items} :if={item.visible} phx-click=\"pick\" class=\"row\">\n  {String.upcase(item.name)}\n</li>"}
+/>
