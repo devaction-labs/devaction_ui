@@ -8,7 +8,7 @@ defmodule DevactionUISite.ExampleLive do
   """
   use Phoenix.LiveView
 
-  alias DevactionUISite.TopicHTML
+  alias DevactionUISite.{ReviewDemo, TopicHTML}
 
   @forms_repos ~w(sge-api ayram-web hub-api)
   @overlays ~w(drawer_floating drawer_docked drawer_left drawer_wide modal_confirm modal_form modal_success modal_tall danger drawer_sheet drawer_stack confirm_locked)
@@ -49,6 +49,7 @@ defmodule DevactionUISite.ExampleLive do
     {:ok,
      assign(socket,
        example_id: example,
+       review: ReviewDemo.state(),
        rows: @rows,
        sort: nil,
        board: @board,
@@ -402,6 +403,33 @@ defmodule DevactionUISite.ExampleLive do
 
   def handle_event("cancel_upload", %{"ref" => ref}, socket),
     do: {:noreply, cancel_upload(socket, :transcript, ref)}
+
+  def handle_event("select_file", params, socket),
+    do: {:noreply, update(socket, :review, &ReviewDemo.select(&1, params))}
+
+  def handle_event("toggle_folder", params, socket),
+    do: {:noreply, update(socket, :review, &ReviewDemo.toggle(&1, params))}
+
+  def handle_event("filter_files", params, socket),
+    do: {:noreply, update(socket, :review, &ReviewDemo.filter(&1, params))}
+
+  def handle_event("search_files", params, socket),
+    do: {:noreply, update(socket, :review, &ReviewDemo.search(&1, params))}
+
+  def handle_event("toggle_viewed", params, socket),
+    do: {:noreply, update(socket, :review, &ReviewDemo.view(&1, params))}
+
+  def handle_event("comment_line", params, socket),
+    do: {:noreply, update(socket, :review, &ReviewDemo.comment(&1, params))}
+
+  def handle_event("resolve_thread", params, socket),
+    do: {:noreply, update(socket, :review, &ReviewDemo.resolve(&1, params))}
+
+  def handle_event("reply_thread", params, socket),
+    do: {:noreply, update(socket, :review, &ReviewDemo.reply(&1, params))}
+
+  def handle_event("apply_suggestion", params, socket),
+    do: {:noreply, update(socket, :review, &ReviewDemo.apply_suggestion(&1, params))}
 
   def handle_event(_event, _params, socket), do: {:noreply, socket}
 

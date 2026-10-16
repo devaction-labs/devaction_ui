@@ -1,0 +1,18 @@
+<%!-- title: Basic | text: Folders and files in display order. The server keeps what is open and what is selected; a folder sends `toggle_folder` and a file `select_file`, both with the path. --%>
+<div class="flex h-[360px] w-[300px] overflow-hidden rounded-2xl border border-line bg-card">
+  <FileTree.tree
+    id="file-tree-basic"
+    class="w-full"
+    label="Changed files"
+    title="Files changed"
+    search_label="Filter files"
+    nodes={ReviewDemo.nodes()}
+    open={@review.open}
+    selected={@review.selected}
+  >
+    <:search_icon><.icon name="search-01" class="size-3.5" /></:search_icon>
+    <:folder_icon><.icon name="folder-01" class="size-[15px]" /></:folder_icon>
+    <:file_icon><.icon name="file-01" class="size-[15px]" /></:file_icon>
+    <:chevron_icon><.icon name="arrow-right-01" class="size-3" /></:chevron_icon>
+  </FileTree.tree>
+</div>

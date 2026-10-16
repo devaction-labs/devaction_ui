@@ -1,0 +1,29 @@
+<%!-- title: Filters and search | text: The pills show all files, the ones with findings or the new ones; the search keeps the files whose path contains the text and opens their folders. Both are events (`filter_files`, `search_files`), so the server decides what shows. --%>
+<div class="flex h-[420px] w-[300px] overflow-hidden rounded-2xl border border-line bg-card">
+  <FileTree.tree
+    id="file-tree-filters"
+    class="w-full"
+    label="Changed files"
+    title="Files changed"
+    filters_label="Show"
+    search_label="Filter files"
+    findings_label="%{count} findings"
+    nodes={ReviewDemo.nodes()}
+    open={@review.open}
+    selected={@review.selected}
+    filter={@review.filter}
+    query={@review.query}
+  >
+    <:pill id={:all} label="All" />
+    <:pill id={:findings} label="With findings" />
+    <:pill id={:new} label="New" />
+    <:legend status={:added} label="new" />
+    <:legend status={:modified} label="changed" />
+    <:legend status={:deleted} label="removed" />
+    <:empty>No file matches.</:empty>
+    <:search_icon><.icon name="search-01" class="size-3.5" /></:search_icon>
+    <:folder_icon><.icon name="folder-01" class="size-[15px]" /></:folder_icon>
+    <:file_icon><.icon name="file-01" class="size-[15px]" /></:file_icon>
+    <:chevron_icon><.icon name="arrow-right-01" class="size-3" /></:chevron_icon>
+  </FileTree.tree>
+</div>

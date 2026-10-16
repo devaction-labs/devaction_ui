@@ -1,0 +1,26 @@
+<%!-- title: Viewed files | text: A review lists one diff per file, and each has its own checkbox. `viewed_event` sends the `path`; the server keeps which files were seen. --%>
+<div class="flex flex-col gap-4">
+  <div
+    :for={
+      {path, hunks} <- [
+        {ReviewDemo.milestone(), ReviewDemo.milestone_hunks()},
+        {"lib/sge/contracts/scope.ex", ReviewDemo.scope_hunks()}
+      ]
+    }
+    class="flex h-[300px] overflow-hidden rounded-2xl border border-line bg-card"
+  >
+    <DiffView.diff
+      id={"diff-viewed-#{Path.basename(path)}"}
+      class="w-full"
+      path={path}
+      hunks={hunks}
+      viewed={path in @review.viewed}
+      viewed_label="Viewed"
+      viewed_event="toggle_viewed"
+      comment_label="Comment on line %{line}"
+    >
+      <:file_icon><.icon name="file-01" class="size-4" /></:file_icon>
+      <:check_icon><.icon name="tick-02" class="size-3" /></:check_icon>
+    </DiffView.diff>
+  </div>
+</div>

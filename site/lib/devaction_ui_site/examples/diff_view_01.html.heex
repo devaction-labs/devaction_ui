@@ -1,0 +1,19 @@
+<%!-- title: Basic | text: The header has the path, the lines added and removed and a "Viewed" checkbox; the table has the old and new line numbers, the sign, and a button on each line that sends `comment_line` with the line. --%>
+<div class="flex h-[420px] overflow-hidden rounded-2xl border border-line bg-card">
+  <DiffView.diff
+    id="diff-basic"
+    class="w-full"
+    path={ReviewDemo.milestone()}
+    hunks={ReviewDemo.milestone_hunks()}
+    additions={18}
+    deletions={6}
+    viewed={ReviewDemo.milestone() in @review.viewed}
+    viewed_label="Viewed"
+    viewed_event="toggle_viewed"
+    comment_label="Comment on line %{line}"
+    comment_event="comment_line"
+  >
+    <:file_icon><.icon name="file-01" class="size-4" /></:file_icon>
+    <:check_icon><.icon name="tick-02" class="size-3" /></:check_icon>
+  </DiffView.diff>
+</div>

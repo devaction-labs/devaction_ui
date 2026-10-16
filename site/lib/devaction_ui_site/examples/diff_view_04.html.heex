@@ -1,0 +1,28 @@
+<%!-- title: Hunks and removed lines | text: Each hunk can have a header row. Removed lines have no comment button unless `comment_removed` is set; then the button sends `side="old"` and the thread opens under the removed line. --%>
+<div class="flex h-[520px] overflow-hidden rounded-2xl border border-line bg-card">
+  <DiffView.diff
+    id="diff-hunks"
+    class="w-full"
+    path="lib/sge/contracts/scope.ex"
+    hunks={ReviewDemo.scope_hunks()}
+    lang={:elixir}
+    comment_removed
+    viewed_label="Viewed"
+    comment_label="Comment on line %{line}"
+    comment_event="comment_line"
+  >
+    <:file_icon><.icon name="file-01" class="size-4" /></:file_icon>
+    <:thread
+      :for={{line, side, thread} <- ReviewDemo.threads(@review)}
+      line={line}
+      side={side}
+    >
+      <ReviewDemo.thread
+        path="lib/sge/contracts/scope.ex"
+        line={line}
+        side={side}
+        thread={thread}
+      />
+    </:thread>
+  </DiffView.diff>
+</div>

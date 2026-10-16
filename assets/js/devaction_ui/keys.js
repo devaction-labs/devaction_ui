@@ -133,3 +133,53 @@ export function gridTarget(index, key, {columns, total}) {
 
   return moves[key]?.() ?? null
 }
+
+const parentOf = (items, index) => {
+  const level = items[index].level
+  const above = items.map((item, at) => [item, at]).slice(0, index).filter(([item]) => item.level < level)
+  return above.at(-1)?.[1]
+}
+
+const firstChild = (items, index) => (items[index + 1]?.level > items[index].level ? index + 1 : undefined)
+
+const TREE_KEYS = {
+  ArrowDown: (items, index) => ({focus: Math.min(index + 1, items.length - 1)}),
+  ArrowUp: (items, index) => ({focus: Math.max(index - 1, 0)}),
+  Home: () => ({focus: 0}),
+  End: (items) => ({focus: items.length - 1}),
+  ArrowRight: (items, index) =>
+    decide(
+      [
+        [(list, at) => list[at].expandable && !list[at].expanded, (_list, at) => ({click: at})],
+        [(list, at) => list[at].expandable && firstChild(list, at) !== undefined, (list, at) => ({focus: firstChild(list, at)})],
+        [() => true, () => null],
+      ],
+      items,
+      index,
+    ),
+  ArrowLeft: (items, index) =>
+    decide(
+      [
+        [(list, at) => list[at].expandable && list[at].expanded, (_list, at) => ({click: at})],
+        [(list, at) => parentOf(list, at) !== undefined, (list, at) => ({focus: parentOf(list, at)})],
+        [() => true, () => null],
+      ],
+      items,
+      index,
+    ),
+}
+
+/**
+ * What a key does in a tree of items shown in a flat list: `{focus: index}` moves the focus, `{click: index}`
+ * opens or closes the folder at `index`, and `null` is a key the tree does not take (or has nothing to do).
+ * ↑ ↓ Home End move; → opens a closed folder or enters an open one; ← closes an open folder or goes to the
+ * parent. Each item is `{level, expandable, expanded}`.
+ *
+ * @param {string} key the name of the key (`keyName`)
+ * @param {{level: number, expandable: boolean, expanded: boolean}[]} items the visible items, in order
+ * @param {number} index the item that has the focus
+ */
+export const treeKey = (key, items, index) => (items.length === 0 || index < 0 ? null : (TREE_KEYS[key]?.(items, index) ?? null))
+
+/** Whether a key pressed in `target` is text going into a field (`INPUT`, `TEXTAREA`, `SELECT` or editable content). */
+export const isTyping = ({tagName = "", isContentEditable = false} = {}) => isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(tagName.toUpperCase())

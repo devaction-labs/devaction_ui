@@ -12,6 +12,7 @@ defmodule DevactionUISite.UI do
       import DevactionUISite.Icon
 
       alias DevactionUI.Textarea
+      alias DevactionUISite.ReviewDemo
       alias Phoenix.LiveView.JS
 
       alias DevactionUI.{
@@ -37,12 +38,14 @@ defmodule DevactionUISite.UI do
         DangerDialog,
         DataTable,
         DatePicker,
+        DiffView,
         Divider,
         Drawer,
         Dropdown,
         Dropzone,
         Editor,
         EmptyState,
+        FileTree,
         FilterMenu,
         FilterPill,
         InputGroup,
