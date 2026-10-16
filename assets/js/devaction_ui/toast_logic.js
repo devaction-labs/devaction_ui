@@ -46,6 +46,23 @@ export const stackPadding = (count) => (count > 1 ? "16px" : "")
 export const countText = ({heading, label, count}) =>
   [heading, label.replace("__COUNT__", String(count))].filter(Boolean).join(" \u00b7 ")
 
+/** How long the list stays open after the pointer or the focus has left the pile, so a stray move does not close it. */
+export const HOVER_CLOSE_MS = 250
+
+/**
+ * What the pile does when the pointer or the focus comes in (`enter`) or goes out (`leave`): a collapsed stack
+ * opens, and a list that opened by itself closes again; one the person opened on purpose (a click) stays.
+ */
+export const hoverStep = ({event, stacked, expanded, auto}) =>
+  decide(
+    [
+      [(s) => s.event === "enter" && s.stacked && !s.expanded, () => "open"],
+      [(s) => s.event === "leave" && s.auto && s.expanded, () => "close"],
+      [() => true, () => null],
+    ],
+    {event, stacked, expanded, auto},
+  )
+
 /** What Escape does: close an open list first, else close the toast the focus is on, else nothing. */
 export const escapeStep = ({expanded, focused}) =>
   decide(

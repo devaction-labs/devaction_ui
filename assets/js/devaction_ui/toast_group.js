@@ -1,9 +1,11 @@
 import {runKey} from "./keys.js"
-import {countText, escapeStep, layerCount, planLayout, stackPadding, styleFor} from "./toast_logic.js"
+import {countText, escapeStep, HOVER_CLOSE_MS, hoverStep, layerCount, planLayout, stackPadding, styleFor} from "./toast_logic.js"
 
 /**
  * Notices that pile up without covering the screen: a toast with up to two layers peeking out above it
- * while there are several, a panel with a heading, "Collapse" and "Clear" when opened. A toast closes by itself after its `data-duration` (0
+ * while there are several, a panel with a heading, "Collapse" and "Clear" when opened. The pile opens by
+ * itself while the pointer or the focus is on it and closes a moment after they leave; a click opens it for
+ * good (until "Collapse"), which is also what a tap does. A toast closes by itself after its `data-duration` (0
  * keeps it), the timers pausing while the pointer or the focus is in the group or the list is open. Closing
  * one or clearing all is told to the LiveView (`data-on-dismiss`, `data-on-clear`), which is the source of
  * truth for what is shown. Escape closes the open list, or the toast the focus is on.
@@ -12,10 +14,15 @@ export default {
   mounted() {
     this.timers = new Map()
     this.paused = false
+    this.auto = false
     this.el.addEventListener("click", (event) => this.onClick(event))
     this.el.addEventListener("keydown", (event) => this.onKey(event))
-    ;["mouseenter", "focusin"].forEach((name) => this.el.addEventListener(name, () => this.pause(true)))
-    ;["mouseleave", "focusout"].forEach((name) => this.el.addEventListener(name, () => this.pause(false)))
+    ;["mouseenter", "focusin"].forEach((name) =>
+      this.el.addEventListener(name, () => (this.pause(true), this.hover("enter"))),
+    )
+    ;["mouseleave", "focusout"].forEach((name) =>
+      this.el.addEventListener(name, () => (this.pause(false), this.hover("leave"))),
+    )
     this.layout()
   },
 
@@ -25,6 +32,18 @@ export default {
 
   destroyed() {
     this.timers.forEach((timer) => clearTimeout(timer))
+    clearTimeout(this.leaving)
+  },
+
+  hover(event) {
+    clearTimeout(this.leaving)
+    const state = {event, stacked: this.el.dataset.stacked === "true", expanded: this.expanded(), auto: this.auto}
+    const steps = {
+      open: () => ((this.auto = true), this.expand(true)),
+      close: () => (this.leaving = setTimeout(() => ((this.auto = false), this.expand(false)), HOVER_CLOSE_MS)),
+      null: () => false,
+    }
+    steps[hoverStep(state)]()
   },
 
   toasts() {
@@ -40,10 +59,10 @@ export default {
     const actions = [
       ["[data-dismiss]", (button) => this.dismiss(button.closest("[data-toast]"))],
       ["[data-clear]", () => this.clear()],
-      ["[data-collapse]", () => this.expand(false)],
-      ["[data-expand]", () => this.expand(true)],
+      ["[data-collapse]", () => ((this.auto = false), this.expand(false))],
+      ["[data-expand]", () => ((this.auto = false), this.expand(true))],
       // A click on a stacked toast opens the stack; on an open one it does nothing.
-      ["[data-toast]", () => !this.expanded() && this.expand(true)],
+      ["[data-toast]", () => ((this.auto = false), !this.expanded() && this.expand(true))],
     ]
     const [selector, act] = actions.find(([candidate]) => on(candidate)) ?? []
     selector && act(on(selector))

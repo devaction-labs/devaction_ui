@@ -1,9 +1,10 @@
 defmodule DevactionUI.ToastGroup do
   @moduledoc """
   Notices that pile up without covering the screen: as soon as there is more than one, the newest shows alone
-  with up to two layers peeking out above it, a little narrower each, and a click (or the button) opens them
-  into a panel with the `heading` and the count, "Collapse" and "Clear", where each notice is a white card
-  with its dot.
+  with up to two layers peeking out above it, a little narrower each. Pointing at the pile (or focusing it)
+  opens it by itself into a panel with the `heading` and the count, "Collapse" and "Clear", where each notice
+  is a white card with its dot, and it closes a moment after the pointer leaves; a click (or a tap) keeps it
+  open until "Collapse".
   Each toast closes by itself after `duration` milliseconds (0 keeps it), pausing while the pointer or the
   focus is in the group or the list is open. Closing one, or clearing all, is sent to the LiveView
   (`on_dismiss`, `on_clear`), which is the source of truth: it removes the toast from what it renders.

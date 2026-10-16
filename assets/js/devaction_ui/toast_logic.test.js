@@ -1,6 +1,6 @@
 import assert from "node:assert/strict"
 import test from "node:test"
-import {countText, escapeStep, EXIT_MS, layerCount, leftAfter, LINGER_MS, plan, planLayout, stackPadding, styleFor} from "./toast_logic.js"
+import {countText, escapeStep, EXIT_MS, HOVER_CLOSE_MS, hoverStep, layerCount, leftAfter, LINGER_MS, plan, planLayout, stackPadding, styleFor} from "./toast_logic.js"
 
 test("one toast is never a stack, and opening it changes nothing", () => {
   assert.deepEqual(planLayout({count: 1, expanded: true}), {expanded: false, stacked: false, showBar: false, showExpand: false})
@@ -66,4 +66,14 @@ test("what is left of the wait is kept across a pause", () => {
 
 test("the exit lasts 400 ms, as long as the toast-out animation", () => {
   assert.equal(EXIT_MS, 400)
+})
+
+test("pointing at a collapsed stack opens it, and it closes again only if it opened by itself", () => {
+  const stack = {stacked: true, expanded: false, auto: false}
+  assert.equal(hoverStep({...stack, event: "enter"}), "open")
+  assert.equal(hoverStep({...stack, event: "enter", stacked: false}), null)
+  assert.equal(hoverStep({...stack, event: "enter", expanded: true}), null)
+  assert.equal(hoverStep({...stack, event: "leave", expanded: true, auto: true}), "close")
+  assert.equal(hoverStep({...stack, event: "leave", expanded: true, auto: false}), null)
+  assert.equal(HOVER_CLOSE_MS, 250)
 })
