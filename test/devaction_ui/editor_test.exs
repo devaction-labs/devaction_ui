@@ -192,4 +192,107 @@ defmodule DevactionUI.EditorTest do
     assert html =~ ~r/id="e-hint"[^>]*>\s*Markdown works\s*</
     assert html =~ ~r/class="editor-footer">\s*Send\s*</
   end
+
+  describe "the toolbar at the bottom" do
+    defp bottom(extra \\ %{}) do
+      assigns = Map.merge(%{position: :bottom, footer: true, tools: true}, extra)
+
+      rendered_to_string(~H"""
+      <Editor.editor
+        style_label="Text style"
+        toolbar_label="Formatting"
+        words_label="words"
+        link_label="Link address"
+        id="c"
+        name="comment"
+        label="Comment"
+        compact
+        toolbar_position={@position}
+      >
+        <:tool :if={@tools} name="bold" label="Bold">B</:tool>
+        <:tool :if={@tools} name="link" label="Link" separator>L</:tool>
+        <:footer :if={@footer}>Comment</:footer>
+      </Editor.editor>
+      """)
+    end
+
+    test "the toolbar comes after the surface, in one bar with the footer" do
+      html = bottom()
+
+      assert html =~ ~s(class="editor-bar")
+      assert html =~ "editor-toolbar-inline"
+      refute html =~ ~s(class="editor-toolbar")
+      refute html =~ "editor-footer"
+      {surface, _} = :binary.match(html, "data-editor-content")
+      {toolbar, _} = :binary.match(html, ~s(role="toolbar"))
+      assert toolbar > surface
+      assert html =~ ~r/class="ml-auto flex items-center gap-2">\s*Comment\s*</
+    end
+
+    test "the send button is outside the toolbar, which keeps its name and its tools" do
+      html = bottom()
+
+      assert html =~ ~s(aria-label="Formatting")
+      assert html =~ ~s(id="c-tool-bold")
+      assert html =~ ~r/role="toolbar".*<\/div>\s*<div class="ml-auto/s
+      refute html =~ ~r/role="toolbar"[^>]*>[^<]*<button[^>]*>\s*Comment/s
+    end
+
+    test "with no tools the bar holds the footer alone, and with nothing it is not drawn" do
+      assert bottom(%{tools: false}) =~ ~s(class="editor-bar")
+      refute bottom(%{tools: false}) =~ ~s(role="toolbar")
+      refute bottom(%{tools: false, footer: false}) =~ "editor-bar"
+    end
+
+    test "on top, as before, the toolbar leads and the footer closes" do
+      html = bottom(%{position: :top})
+
+      {toolbar, _} = :binary.match(html, ~s(role="toolbar"))
+      {surface, _} = :binary.match(html, "data-editor-content")
+      assert toolbar < surface
+      assert html =~ ~s(class="editor-toolbar")
+      assert html =~ "editor-footer"
+      refute html =~ "editor-bar"
+    end
+  end
+
+  describe "the names shared with the host" do
+    test "have Phoenix's defaults" do
+      html = editor()
+
+      assert html =~ ~s(data-csrf-meta="csrf-token")
+      assert html =~ ~s(data-csrf-header="x-csrf-token")
+      assert html =~ ~s(data-improve-event="improve")
+      assert html =~ ~s(data-replace-event="editor:replace")
+      assert html =~ ~s(data-failed-event="editor:failed")
+    end
+
+    test "can be replaced" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Editor.editor
+          style_label="Text style"
+          toolbar_label="Formatting"
+          words_label="words"
+          link_label="Link address"
+          id="n"
+          name="note"
+          label="Note"
+          csrf_meta="xsrf"
+          csrf_header="x-xsrf-token"
+          improve_event="rewrite"
+          replace_event="note:rewritten"
+          failed_event="note:failed"
+        />
+        """)
+
+      assert html =~ ~s(data-csrf-meta="xsrf")
+      assert html =~ ~s(data-csrf-header="x-xsrf-token")
+      assert html =~ ~s(data-improve-event="rewrite")
+      assert html =~ ~s(data-replace-event="note:rewritten")
+      assert html =~ ~s(data-failed-event="note:failed")
+    end
+  end
 end

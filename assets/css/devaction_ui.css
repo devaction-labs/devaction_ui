@@ -276,6 +276,9 @@
   .editor-root[data-disabled="true"] .editor { @apply bg-wrap opacity-60; }
   .editor-btn[data-ai] { @apply w-auto gap-1.5 border border-tag-warn-line bg-tag-warn-bg px-2.5 text-tag-warn-text hover:bg-tag-warn-bg hover:opacity-80 aria-pressed:bg-tag-warn-bg aria-pressed:text-tag-warn-text; }
   .editor-footer   { @apply flex items-center justify-between gap-2 rounded-b-xl border-t border-line bg-wrap/60 px-3 py-2; }
+  .editor-bar      { @apply flex flex-wrap items-center gap-2 rounded-b-xl border-t border-line bg-wrap/60 px-2 py-1.5; }
+  .editor-toolbar-inline { @apply flex flex-wrap items-center gap-0.5; }
+  .editor-bar .editor-btn:not([data-ai]) { @apply size-7.5; }
   .editor-sep      { @apply mx-1 h-4.5 w-px bg-line; }
   .editor-btn      { @apply grid size-8.5 place-items-center rounded-lg text-ink-2 hover:bg-wrap aria-pressed:bg-line aria-pressed:text-ink; }
   .editor-content  { @apply min-h-40 px-5 py-4 leading-relaxed text-ink-2 outline-none

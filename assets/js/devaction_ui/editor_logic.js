@@ -124,3 +124,15 @@ export const rowParts = (item) =>
     {text: item.label, className: "flex-1 truncate"},
     item.hint && {text: item.hint, className: "shrink-0 font-mono text-xs text-muted"},
   ].filter(Boolean)
+
+/** The names the hook shares with its host, from the element's `data-*` (the defaults are Phoenix's). */
+export const hostNames = (dataset) => ({
+  csrfMeta: dataset.csrfMeta || "csrf-token",
+  csrfHeader: dataset.csrfHeader || "x-csrf-token",
+  improve: dataset.improveEvent || "improve",
+  replace: dataset.replaceEvent || "editor:replace",
+  failed: dataset.failedEvent || "editor:failed",
+})
+
+/** The headers of an image upload: the content type, and the token (empty when the page has none) in `csrfHeader`. */
+export const uploadHeaders = ({token, csrfHeader, type}) => ({[csrfHeader]: token ?? "", "content-type": type})
