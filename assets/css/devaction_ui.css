@@ -71,6 +71,7 @@
   --ink: light-dark(#18181B, #EDEDF2);
   --ink-2: light-dark(#3F3F46, #C9C9D6);
   --muted: light-dark(#71717A, #9B9BAE);
+  --muted-chrome: light-dark(#696973, #9B9BAE);
   --muted-2: light-dark(#A1A1AA, #6C6C80);
   --on-primary: light-dark(#FFFFFF, #15151C);
   --ai: light-dark(#D29A1E, #E3A72F);
@@ -459,7 +460,7 @@
   .segmented-sm > .segment { @apply h-7 rounded-md px-2.5 text-[13px]; }
   .segmented-full { @apply flex w-full [&>.segment]:flex-1; }
   .app-shell   { @apply flex min-h-dvh flex-wrap gap-4 bg-frame p-4; }
-  .sidebar     { @apply flex w-59 shrink-0 flex-col gap-[18px] px-0.5 py-2 transition-[width] data-[collapsed=true]:w-16 data-[responsive=true]:max-md:hidden; }
+  .sidebar     { @apply [--muted:var(--muted-chrome)] flex w-59 shrink-0 flex-col gap-[18px] px-0.5 py-2 transition-[width] data-[collapsed=true]:w-16 data-[responsive=true]:max-md:hidden; }
   .sidebar-link { @apply flex h-[42px] items-center gap-3 rounded-[10px] border border-transparent px-2.5 text-ink-2 group-data-[collapsed=true]/sidebar:justify-center
                          aria-[current=page]:border-line aria-[current=page]:bg-card aria-[current=page]:font-medium aria-[current=page]:text-ink; }
   .app-main    { @apply min-w-0 flex-[999_1_45rem] rounded-panel bg-panel px-9 pt-7 pb-10 shadow-sm max-sm:px-5; }
@@ -1101,6 +1102,7 @@
     --sidebar-w-rail: 60px;
     --header-h: 52px;
     --panel-radius: 14px;
+    --muted: var(--muted-chrome);
     display: flex;
     gap: var(--shell-gap);
     min-height: var(--shell-h, 100dvh);
@@ -1458,7 +1460,7 @@
   .composer-file    { @apply relative box-border flex h-13 items-center gap-2 rounded-xl border border-line bg-wrap p-1.25 text-[13px]; }
   .composer-file img { @apply h-10 w-13 rounded-lg object-cover; }
   .composer-file-remove { @apply absolute -top-1.75 -right-1.75 grid size-5 cursor-pointer place-items-center rounded-full border-2 border-card bg-ink p-0 text-on-primary; }
-  .composer-input   { @apply box-border block min-h-7.5 w-full resize-none overflow-y-hidden border-0 bg-transparent px-4 pt-3.5 pb-1.5 text-[15px] leading-[1.55] text-ink outline-none placeholder:text-muted placeholder:opacity-80
+  .composer-input   { @apply box-border block min-h-7.5 w-full resize-none overflow-y-hidden border-0 bg-transparent px-4 pt-3.5 pb-1.5 text-[15px] leading-[1.55] text-ink outline-none placeholder:text-muted
                              [.composer[data-busy=true]_&]:text-muted;
                       scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
   .composer-actions { @apply flex items-center gap-0.5 px-2.5 pt-2 pb-2.5; }
