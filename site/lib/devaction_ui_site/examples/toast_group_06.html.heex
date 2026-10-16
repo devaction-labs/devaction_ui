@@ -1,22 +1,32 @@
-<%!-- title: Heading and dots | text: The pile with a heading and a dot for each notice; opened it is a panel with a card for each --%>
-<div class="relative h-60 w-[380px] max-w-full">
-  <ToastGroup.toast_group
-    id="toast-group-panel"
-    label="AI review"
-    heading="AI review"
-    on_dismiss="dismiss_toast"
-    on_clear="clear_toasts"
-    expand_label="Show all"
-    collapse_label="Collapse"
-    clear_label="Clear"
-    dismiss_label="Close"
-    count_label="__COUNT__"
-    class="absolute inset-x-0 bottom-0"
-  >
-    <:toast id="toast-panel-3" dot={:warn} title="Review of #142 is ready" duration={0}>
-      +2 notices
-    </:toast>
-    <:toast id="toast-panel-2" dot={:risk} title="#145 is out of scope" duration={0} />
-    <:toast id="toast-panel-1" dot={:ok} title="#87 approved by the AI" duration={0} />
-  </ToastGroup.toast_group>
+<%!-- title: Flash | text: The flash of the socket becomes toasts: info shows as ok and error as risk. --%>
+<div class="grid w-full gap-3">
+  <div class="flex flex-wrap gap-2">
+    <Button.button
+      id="toast-flash-info"
+      variant={:secondary}
+      size={:sm}
+      phx-click="toast_flash"
+      phx-value-kind="info"
+    >
+      put_flash :info
+    </Button.button>
+    <Button.button
+      id="toast-flash-error"
+      variant={:secondary}
+      size={:sm}
+      phx-click="toast_flash"
+      phx-value-kind="error"
+    >
+      put_flash :error
+    </Button.button>
+  </div>
+  <div class="flex h-[200px] items-end">
+    <ToastGroup.toast_group
+      id="toast-flash"
+      inline
+      flash={@flash}
+      label="Notifications (Alt+T)"
+      dismiss_label="Close"
+    />
+  </div>
 </div>

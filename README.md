@@ -121,7 +121,7 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 | `DevactionUI.DateRange` | a trigger that shows a range and a popover with ready-made ranges, two months with the band and a hover preview, the days picked and Cancel / Apply; ISO dates in two hidden inputs, and an optional column for a `TimeField` |
 | `DevactionUI.Calendar` | a month or a week of days with coloured event chips, a keyboard grid (arrows, Home, End, Page keys); `title` and `cell_label` come from the caller; the week view has an hours grid (`hours` range, `weekend`, events with `starts_at`/`ends_at`), a `legend` slot and the `:chart_1` to `:chart_4` kinds |
 | `DevactionUI.Popover` | a panel with an arrow anchored to a button; Esc and outside click close it, focus goes in and comes back |
-| `DevactionUI.ToastGroup` | notices stacked into layers with a count, opened into a list, auto-dismissing and pausing on hover |
+| `DevactionUI.ToastGroup` | toasts pushed from the server (`put_toast`, `update_toast`), piled behind the front one and opened into a list on hover or focus, with timers that pause, Alt+T, swipe and a loading variant |
 | `DevactionUI.EmptyState` | the dashed card of a list with nothing in it: icon chip, title, one line, optional action |
 | `DevactionUI.Avatar` | two letters in a circle (`initials/1`) and a stack that overlaps by 8px, named once as a group, and `group/1` (rounded squares overlapping by a quarter, status dots, a `+N` chip, a caption) |
 | `DevactionUI.ChatBubble` | one message with the AI (left, with its mark) or the person (right, in ink); amber when the AI did something |

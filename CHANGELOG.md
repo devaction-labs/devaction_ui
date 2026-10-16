@@ -2,6 +2,12 @@
 
 Every release lists new components, improvements, fixes and breaking changes. While the version is 0.x a minor release may break compatibility, and every break is listed with the step to follow.
 
+## 0.2.3
+
+### Breaking changes
+
+- `toast_group`: rebuilt to the new design: toasts are pushed from the server with `put_toast`/`update_toast`/`dismiss_toast` instead of `:toast` slots; `label` and `dismiss_label` are required.
+
 ## 0.2.2
 
 ### Fixed

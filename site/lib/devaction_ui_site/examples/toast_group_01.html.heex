@@ -1,19 +1,36 @@
-<%!-- title: Stack | text: With more than one notice they pile up, the layers peeking out above the newest; pointing at the pile opens the list --%>
-<div class="relative h-60 w-[380px] max-w-full">
-  <ToastGroup.toast_group
-    id="toast-group-stack"
-    label="Notices"
-    on_dismiss="dismiss_toast"
-    on_clear="clear_toasts"
-    expand_label="Show all"
-    collapse_label="Collapse"
-    clear_label="Clear"
-    dismiss_label="Close"
-    count_label="__COUNT__ notices"
-    class="absolute inset-x-0 bottom-0"
-  >
-    <:toast id="toast-stack-3" kind={:dark} title="Review published on PR #142" duration={0} />
-    <:toast id="toast-stack-2" kind={:light} title="Lessons generated for sge-api" duration={0} />
-    <:toast id="toast-stack-1" kind={:dark} title="Repository synced" duration={0} />
-  </ToastGroup.toast_group>
+<%!-- title: Try it | text: Fire a few toasts and point at the pile. Closed, only the front one shows and two peek behind it; open, it is a list. --%>
+<div class="grid w-full gap-3">
+  <div class="flex flex-wrap gap-2">
+    <Button.button
+      :for={
+        {kind, label} <-
+          [
+            {"ok", "Saved"},
+            {"ai", "AI"},
+            {"action", "With action"},
+            {"warn", "Warning"},
+            {"risk", "Error"},
+            {"loading", "Loading"}
+          ]
+      }
+      id={"toast-try-#{kind}"}
+      variant={:secondary}
+      size={:sm}
+      phx-click="toast_push"
+      phx-value-kind={kind}
+    >
+      {label}
+    </Button.button>
+    <Button.button id="toast-try-clear" variant={:ghost} size={:sm} phx-click="toast_clear">
+      Clear
+    </Button.button>
+  </div>
+  <div class="flex h-[520px] items-end">
+    <ToastGroup.toast_group
+      id="toast-try"
+      inline
+      label="Notifications (Alt+T)"
+      dismiss_label="Close"
+    />
+  </div>
 </div>

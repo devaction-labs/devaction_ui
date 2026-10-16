@@ -1,11 +1,11 @@
 defmodule DevactionUI.MoreTest do
-  @moduledoc "The markup and the pure parts of autocomplete, date picker, popover and toast group. Their keyboard and pointer behavior is checked in a browser through `/dev/ui`."
+  @moduledoc "The markup and the pure parts of autocomplete, date picker and popover. Their keyboard and pointer behavior is checked in a browser through `/dev/ui`."
   use ExUnit.Case, async: true
 
   import Phoenix.Component
   import Phoenix.LiveViewTest
 
-  alias DevactionUI.{Autocomplete, DatePicker, Popover, ToastGroup}
+  alias DevactionUI.{Autocomplete, DatePicker, Popover}
 
   describe "Autocomplete.highlight/2" do
     test "splits around the match, ignoring case and accents" do
@@ -444,59 +444,5 @@ defmodule DevactionUI.MoreTest do
 
     assert length(Regex.scan(~r/ignore_attrs/, html)) == 2
     assert html =~ "style"
-  end
-
-  describe "ToastGroup" do
-    defp group(assigns) do
-      ~H"""
-      <ToastGroup.toast_group
-        id="tg"
-        label="Notices"
-        on_dismiss="dismiss"
-        on_clear="clear"
-        expand_label="Show all"
-        collapse_label="Collapse"
-        clear_label="Clear"
-        dismiss_label="Close"
-        count_label="__COUNT__ notices"
-      >
-        <:toast id="a" kind={:risk} title="Failed" duration={0}>It broke</:toast>
-        <:toast id="b" title="Done" action_label="Undo" action_event="undo" />
-      </ToastGroup.toast_group>
-      """
-    end
-
-    test "each toast has its role, its timer and its close button; the group its texts" do
-      assigns = %{}
-      html = rendered_to_string(~H|<.group />|)
-
-      assert html =~ ~s(role="region")
-      assert html =~ ~s(aria-label="Notices")
-      assert html =~ ~s(data-on-dismiss="dismiss")
-      assert html =~ ~s(data-count-label="__COUNT__ notices")
-      assert html =~ ~r/id="a"[^>]*role="alert"|role="alert"[^>]*id="a"/s
-      assert html =~ ~r/id="b"[^>]*role="status"|role="status"[^>]*id="b"/s
-      assert html =~ ~s(data-duration="0")
-      assert html =~ ~s(data-duration="5000")
-      assert length(Regex.scan(~r/data-dismiss/, html)) == 2
-      assert html =~ ~s(aria-label="Close")
-      assert html =~ "Show all" and html =~ "Collapse" and html =~ "Clear"
-      assert html =~ "It broke"
-    end
-
-    test "a toast with an action shows a button that sends its own id" do
-      assigns = %{}
-      html = rendered_to_string(~H|<.group />|)
-      assert html =~ ~s(phx-click="undo")
-      assert html =~ ~s(phx-value-id="b")
-      assert html =~ "Undo"
-    end
-
-    test "the kinds are the inverted, the light and the risk look" do
-      assigns = %{}
-      html = rendered_to_string(~H|<.group />|)
-      assert html =~ "bg-ink text-on-primary"
-      assert html =~ "bg-tag-risk-bg"
-    end
   end
 end

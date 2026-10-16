@@ -1,26 +1,32 @@
-<%!-- title: Icon and link action | text: The icon slot receives each toast's kind; the action can navigate instead of sending an event --%>
-<div class="max-w-[380px]">
-  <ToastGroup.toast_group
-    id="toast-group-icon"
-    label="Notices"
-    on_dismiss="dismiss_toast"
-    on_clear="clear_toasts"
-    expand_label="Show all"
-    collapse_label="Collapse"
-    clear_label="Clear"
-    dismiss_label="Close"
-    count_label="__COUNT__ notices"
+<%!-- title: Positions | text: bottom-right is the default; the group can sit at any corner or centre. Here they are inline, inside their stage. --%>
+<div class="grid w-full gap-3 lg:grid-cols-2">
+  <div
+    :for={
+      {position, align} <-
+        [
+          {"bottom-right", "items-end"},
+          {"bottom-left", "items-end"},
+          {"bottom-center", "items-end"},
+          {"top-right", "items-start"},
+          {"top-left", "items-start"},
+          {"top-center", "items-start"}
+        ]
+    }
+    class="grid gap-1"
   >
-    <:icon :let={kind}>
-      <.icon name={(kind == :risk && "alert-02") || "checkmark-circle-02"} class="size-5" />
-    </:icon>
-    <:toast
-      id="toast-icon-1"
-      kind={:light}
-      title="Review published"
-      duration={0}
-      action_label="Open"
-      action_navigate="/components/toast_group"
-    />
-  </ToastGroup.toast_group>
+    <span class="font-mono text-xs text-muted">{position}</span>
+    <div class={["flex h-24", align]}>
+      <ToastGroup.toast_group
+        id={"toast-position-#{position}"}
+        inline
+        position={position}
+        duration={0}
+        hotkey={false}
+        flash={%{"info" => "Changes saved."}}
+        label={"Notifications #{position}"}
+        dismiss_label="Close"
+        class="w-full"
+      />
+    </div>
+  </div>
 </div>
