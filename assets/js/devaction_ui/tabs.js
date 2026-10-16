@@ -45,19 +45,23 @@ export default {
   },
 
   tabs() {
-    return [...this.el.querySelectorAll('[role="tablist"] > [role="tab"]')]
+    return [...this.el.querySelectorAll('[role="tablist"] > [role="tab"]')].filter((tab) => this.owns(tab))
+  },
+  owns(node) {
+    return node.closest("[data-server-selected]") === this.el
   },
 
   onClick(event) {
     const tab = event.target.closest('[role="tab"]')
-    tab && this.el.contains(tab) && this.select(tab)
+    tab && this.owns(tab) && this.select(tab)
   },
 
   onKey(event) {
-    if (!event.target.closest('[role="tablist"]')) return
+    const list = event.target.closest('[role="tablist"]')
+    if (!list || !this.owns(list)) return
     const tabs = this.tabs()
     const current = tabs.findIndex((tab) => tab.getAttribute("aria-selected") === "true")
-    const layout = this.layout(event)
+    const layout = this.layout(list)
     const go = (key) => () => {
       const target = tabs[nextTab(key, current, tabs.length, layout)]
       return target ? this.go(target) : false
@@ -66,8 +70,7 @@ export default {
     runKey(Object.fromEntries(TAB_KEYS.map((key) => [key, go(key)])), event)
   },
 
-  layout(event) {
-    const list = event.target.closest('[role="tablist"]')
+  layout(list) {
     return {
       orientation: list.getAttribute("aria-orientation") ?? "horizontal",
       rtl: getComputedStyle(list).direction === "rtl",

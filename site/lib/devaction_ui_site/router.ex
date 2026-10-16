@@ -17,7 +17,7 @@ defmodule DevactionUISite.Router do
     plug :put_secure_browser_headers, %{
       "content-security-policy" =>
         "default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; " <>
-          "style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; " <>
+          "style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; " <>
           "connect-src 'self' ws: wss: https://cloudflareinsights.com; frame-ancestors 'self'"
     }
   end

@@ -66,6 +66,9 @@ export const intentOf = (event, state) =>
     [event.key === "ArrowUp" && state.text === "", "edit-last"],
   ].find(([matches]) => matches)?.[1] ?? "none"
 
+/** Whether a key press activates a button that is not a button (a `label` with `role="button"`): Enter or Space. */
+export const activatesButton = (event) => event.key === "Enter" || event.key === " "
+
 /** Whether a drag carries files (and not text or a link): `types` is `dataTransfer.types`. */
 export const carriesFiles = (types) => [...(types ?? [])].includes("Files")
 

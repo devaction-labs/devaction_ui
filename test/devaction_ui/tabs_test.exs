@@ -22,13 +22,26 @@ defmodule DevactionUI.TabsTest do
     assert render_tabs(:boxed) =~ ~r/font-mono text-xs text-muted">\s*4/
   end
 
+  test "the selected line tab is medium weight, never semibold" do
+    html = render_tabs(:line)
+
+    assert html =~ "aria-selected:font-medium"
+    refute html =~ "font-semibold"
+  end
+
   test "the line variant is muted until selected and the boxed one is ink-2" do
     line = render_tabs(:line)
     boxed = render_tabs(:boxed)
 
-    assert line =~ "text-muted aria-selected:border-ink"
+    assert line =~ "text-muted focus-visible:ring-inset aria-selected:border-ink"
     refute line =~ "text-ink-2"
     assert boxed =~ "text-ink-2"
+  end
+
+  test "a horizontal list scrolls on its own instead of widening the page" do
+    assert render_tabs(:line) =~ "overflow-x-auto"
+    assert render_tabs(:boxed) =~ "overflow-x-auto"
+    assert render_tabs(:line) =~ "whitespace-nowrap"
   end
 
   test "the server's selection is rendered for the hook to compare" do

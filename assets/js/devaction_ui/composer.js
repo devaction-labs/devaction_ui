@@ -1,4 +1,4 @@
-import {applyPick, canSend, carriesFiles, countView, fieldHeight, intentOf, isOver, joinFiles, moveActive, triggerOf} from "./composer_logic.js"
+import {activatesButton, applyPick, canSend, carriesFiles, countView, fieldHeight, intentOf, isOver, joinFiles, moveActive, triggerOf} from "./composer_logic.js"
 import {notify} from "./dom.js"
 
 /**
@@ -16,6 +16,9 @@ import {notify} from "./dom.js"
  * the list has rows the hook owns its keys: ↑ ↓ move the highlight (`aria-selected`), Enter or Tab choose the row
  * (a click on it, which puts its `data-insert` in place of the typed word) and Esc closes the list.
  *
+ * Over the limit the field says `aria-invalid`. A file button drawn as a `label` with `role="button"` opens the chooser
+ * with Enter or Space too.
+ *
  * Files pasted into the field or dropped on the composer go to its `input[type=file]` (the `live_file_input`, so
  * LiveView uploads them) and also leave in `composer:files`. After a send the server pushes `composer:clear`
  * with the id of the composer: LiveView never overwrites a focused field, so the hook empties it.
@@ -26,6 +29,7 @@ export default {
 
     this.el.addEventListener("input", (event) => event.target === this.input() && (this.sync(), this.watch()))
     this.el.addEventListener("keydown", (event) => event.target === this.input() && this.onKey(event))
+    this.el.addEventListener("keydown", (event) => this.onLabelKey(event))
     this.el.addEventListener("paste", (event) => event.target === this.input() && this.take(event, event.clipboardData?.files))
     this.el.addEventListener("keyup", (event) => event.target === this.input() && this.onCaret(event))
     this.el.addEventListener("click", (event) => this.onClick(event))
@@ -151,7 +155,9 @@ export default {
     const {height, scrolls} = fieldHeight({...this.measures, scrollHeight: input.scrollHeight})
     input.style.height = `${height}px`
     input.style.overflowY = scrolls ? "auto" : "hidden"
-    this.el.toggleAttribute("data-over", isOver(state.text, state.maxLength))
+    const over = isOver(state.text, state.maxLength)
+    this.el.toggleAttribute("data-over", over)
+    input.setAttribute("aria-invalid", String(over))
     this.send().disabled = !state.busy && !canSend(state)
     this.syncCount(state)
   },
@@ -192,6 +198,10 @@ export default {
     this.el.dispatchEvent(new CustomEvent("composer:edit-last", {bubbles: true}))
   },
 
+  onLabelKey(event) {
+    const label = event.target.closest("label[role=button]")
+    label && activatesButton(event) && (event.preventDefault(), label.click())
+  },
   onDragOver(event) {
     carriesFiles(event.dataTransfer?.types) && (event.preventDefault(), this.el.setAttribute("data-dragging", ""))
   },
