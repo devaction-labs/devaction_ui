@@ -5,7 +5,7 @@ defmodule DevactionUI.EmailTag do
 
   Five tones carry the meaning: `:risk`, `:warn`, `:info`, `:ok` and `:neutral`. The tone never stands alone: the label
   is always text, and you write it in capitals because a mail client does not always honor `text-transform`.
-  Border, background and text come from one map in `DevactionUI.Email.Style`, in literal hex, because an e-mail has
+  Border, background and text come from one private map, in literal hex, because an e-mail has
   no CSS variables.
   """
 

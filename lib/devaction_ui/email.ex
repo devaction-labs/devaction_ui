@@ -4,7 +4,7 @@ defmodule DevactionUI.Email do
   footer below, the heading, the paragraph, the button and the copy-and-paste link.
 
   An e-mail client has no Tailwind, no CSS variables and no flexbox: everything here is a table with inline styles,
-  and the hex values are the canvas's own, kept in one place (`DevactionUI.Email.Style`). The only stylesheet is the
+  and the hex values are the canvas's own, kept in one place (a private style module). The only stylesheet is the
   `<style>` of `document/1`: the 600 px column, the narrow padding under 620 px and the dark mode, which the client
   turns on with `prefers-color-scheme` and which restyles the elements that carry an `em-*` class (`em-body`,
   `em-card`, `em-ink`, `em-muted`, `em-soft`, `em-line`, `em-panel`, `em-btn-primary`, `em-btn-secondary`).

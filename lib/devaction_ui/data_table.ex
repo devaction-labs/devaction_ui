@@ -65,7 +65,7 @@ defmodule DevactionUI.DataTable do
 
   attr :rows, :any,
     required: true,
-    doc: "a list, or a `Phoenix.LiveView.LiveStream` for a long table"
+    doc: "a list, or a LiveView stream for a long table"
 
   attr :row_id, :any, default: &DevactionUI.DataTable.default_id/1, doc: "a function: row -> id"
   attr :sort, :any, default: nil, doc: "`{key, :asc | :desc}` or nil"
