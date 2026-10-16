@@ -2,6 +2,20 @@
 
 Every release lists new components, improvements, fixes and breaking changes. While the version is 0.x a minor release may break compatibility, and every break is listed with the step to follow.
 
+## Unreleased
+
+Found by the audit of the 0.3.x components against the artboards (issue 74).
+
+### Fixed
+
+- The build of a host app no longer needs the `@tiptap/*` packages unless an editor is rendered: `editor_tiptap.js` loads them with `import()` and a `.catch`, so esbuild only warns, and a mounted editor without them names the missing package.
+- `Shell`: below 1024px the closed drawer is out of the tab order (`visibility: hidden`) and the open one makes the page behind `inert`; in the rail the name of an item shows on keyboard focus too, and beside the item instead of over its icon.
+- `Tabs`: a horizontal list scrolls on its own instead of widening the page on a narrow screen, its tabs do not wrap or shrink, and an unselected tab turns ink on hover. Tabs nested in a panel no longer answer the keys and clicks of the tabs around them.
+- `Pagination`: the previous and next controls stay on the first and last page as dimmed, `aria-disabled` spans, so the row does not change width; `size={:sm}` draws the 30px cells of a table footer.
+- `Composer`: a file button drawn as a `label` opens the chooser with Enter and Space, and the field says `aria-invalid` over its limit and points at the counter with `aria-describedby`.
+- `DataTable`: the scrolling box is a named, focusable region (a keyboard can scroll a wide table), and the buttons of the bulk bar keep their light text on the dark bar whatever their own variant.
+- `RowMenu`: the menu is the compact one of the artboard (190px, 5px of padding, 34px items; `Dropdown compact`), and a `danger` item hovers in the risk tone.
+
 ## 0.3.2
 
 ### Improved

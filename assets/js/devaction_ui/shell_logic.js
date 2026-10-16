@@ -49,6 +49,9 @@ export const isToggleKey = (event, target = {}) =>
  */
 export const expanded = ({mobile, drawerOpen, state}) => (mobile ? drawerOpen : state === "open")
 
+/** Whether the page behind the sidebar is out of reach: only while the drawer of a small screen is open. */
+export const pageInert = ({mobile, drawerOpen}) => mobile && drawerOpen
+
 /**
  * The label of the toggle for the state it is in: it offers to close what is open.
  *

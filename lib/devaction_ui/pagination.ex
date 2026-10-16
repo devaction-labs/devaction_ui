@@ -7,7 +7,9 @@ defmodule DevactionUI.Pagination do
   `:patch` (the default, inside the same LiveView), `:navigate` (to another LiveView) or `:href` (a plain
   link, for a controller page). A `page` outside `1..pages` is clamped into it, so the current page never
   disappears. The previous and next links carry a 14px chevron (inline SVG, mirrored on a right-to-left page)
-  that the `previous_icon` and `next_icon` slots replace.
+  that the `previous_icon` and `next_icon` slots replace. On the first page the previous control stays, dimmed
+  and `aria-disabled` and not a link (and the same for next on the last), so the row does not change width as
+  the person pages. `size: :sm` draws 30px cells for the footer of a table.
 
       <.pagination
         page={@page}
@@ -45,6 +47,12 @@ defmodule DevactionUI.Pagination do
     doc: "text for the previous link, for assistive technology"
 
   attr :next, :string, required: true, doc: "text for the next link, for assistive technology"
+
+  attr :size, :atom,
+    values: [:md, :sm],
+    default: :md,
+    doc: "the cells are 38px, or 30px (`:sm`) for the footer of a table"
+
   attr :class, :any, default: nil
 
   attr :total, :integer,
@@ -77,6 +85,7 @@ defmodule DevactionUI.Pagination do
       label={@label}
       previous={@previous}
       next={@next}
+      size={@size}
       class={@class}
       rest={@rest}
       previous_icon={@previous_icon}
@@ -106,18 +115,18 @@ defmodule DevactionUI.Pagination do
 
     ~H"""
     <nav aria-label={@label} class={["flex items-center gap-1", @class]} {@rest}>
-      <.link
-        :if={@page > 1}
-        {link_attrs(@kind, @path.(@page - 1))}
-        aria-label={@previous}
-        class={[cell(), "border border-line-strong bg-card text-ink"]}
-      >
-        <span aria-hidden="true">{render_slot(@previous_icon) || chevron(:previous)}</span>
-      </.link>
+      <.step
+        target={target(@page, @pages, :previous)}
+        kind={@kind}
+        path={@path}
+        label={@previous}
+        size={@size}
+        icon={render_slot(@previous_icon) || chevron(:previous)}
+      />
       <%= for entry <- @entries do %>
         <span
           :if={entry == :gap}
-          class="flex h-[38px] w-6 items-center justify-center text-muted"
+          class={["flex w-6 items-center justify-center text-muted", gap_height(@size)]}
           aria-hidden="true"
         >
           …
@@ -127,26 +136,62 @@ defmodule DevactionUI.Pagination do
           {link_attrs(@kind, @path.(entry))}
           aria-current={entry == @page && "page"}
           class={[
-            cell(),
+            cell(@size),
             (entry == @page && "bg-ink text-on-primary") || "text-ink-2 hover:bg-wrap"
           ]}
         >
           {entry}
         </.link>
       <% end %>
-      <.link
-        :if={@page < @pages}
-        {link_attrs(@kind, @path.(@page + 1))}
-        aria-label={@next}
-        class={[cell(), "border border-line-strong bg-card text-ink"]}
-      >
-        <span aria-hidden="true">{render_slot(@next_icon) || chevron(:next)}</span>
-      </.link>
+      <.step
+        target={target(@page, @pages, :next)}
+        kind={@kind}
+        path={@path}
+        label={@next}
+        size={@size}
+        icon={render_slot(@next_icon) || chevron(:next)}
+      />
     </nav>
     """
   end
 
   defp links(assigns), do: ~H""
+
+  attr :target, :any, required: true
+  attr :kind, :atom, required: true
+  attr :path, :any, required: true
+  attr :label, :string, required: true
+  attr :size, :atom, required: true
+  attr :icon, :any, required: true
+
+  defp step(%{target: nil} = assigns) do
+    ~H"""
+    <span
+      role="link"
+      aria-disabled="true"
+      aria-label={@label}
+      class={[cell(@size), "border border-line-strong bg-card text-ink opacity-40"]}
+    >
+      <span aria-hidden="true">{@icon}</span>
+    </span>
+    """
+  end
+
+  defp step(assigns) do
+    ~H"""
+    <.link
+      {link_attrs(@kind, @path.(@target))}
+      aria-label={@label}
+      class={[cell(@size), "border border-line-strong bg-card text-ink"]}
+    >
+      <span aria-hidden="true">{@icon}</span>
+    </.link>
+    """
+  end
+
+  defp target(page, _pages, :previous) when page > 1, do: page - 1
+  defp target(page, pages, :next) when page < pages, do: page + 1
+  defp target(_page, _pages, _direction), do: nil
 
   defp chevron(direction) do
     assigns = %{path: chevron_path(direction)}
@@ -169,8 +214,14 @@ defmodule DevactionUI.Pagination do
   defp chevron_path(:previous), do: "m15 6-6 6 6 6"
   defp chevron_path(:next), do: "m9 6 6 6-6 6"
 
-  defp cell,
+  defp cell(:md),
     do: "flex size-[38px] items-center justify-center rounded-[10px] text-sm no-underline"
+
+  defp cell(:sm),
+    do: "flex size-[30px] items-center justify-center rounded-lg text-[13px] no-underline"
+
+  defp gap_height(:md), do: "h-[38px]"
+  defp gap_height(:sm), do: "h-[30px]"
 
   defp link_attrs(:patch, url), do: [patch: url]
   defp link_attrs(:navigate, url), do: [navigate: url]

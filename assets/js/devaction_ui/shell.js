@@ -1,4 +1,4 @@
-import {GROUPS_KEY, MOBILE_BELOW, expanded, isToggleKey, otherState, parseGroups, stateCookie, stateOf, toggleLabel, withGroup} from "./shell_logic.js"
+import {GROUPS_KEY, MOBILE_BELOW, expanded, isToggleKey, otherState, pageInert, parseGroups, stateCookie, stateOf, toggleLabel, withGroup} from "./shell_logic.js"
 
 const readGroups = () => {
   try {
@@ -21,7 +21,8 @@ const writeGroups = (groups) => {
  * ⌘B or Ctrl+B and the `[data-sidebar-toggle]` button switch it; on a desktop screen the choice is the
  * `data-sidebar` attribute (`open` or `rail`) and the `dui_sidebar` cookie, which the server reads to render the
  * right state on the next first paint; on a small screen it is `data-mobile-open`. The backdrop, Esc and
- * following a link close the drawer, and focus goes into it and back out. A `[data-sidebar-group]` keeps being
+ * following a link close the drawer, and focus goes into it and back out; while it is open the page behind is
+ * `inert`, so the keys cannot wander off into it. A `[data-sidebar-group]` keeps being
  * open or closed in the local storage, by its id. The shell fires `dui:sidebar` with `{detail: {state}}` when
  * the state changes. LiveView is told to leave these attributes alone, so a patch does not undo what the
  * person chose.
@@ -107,6 +108,8 @@ export default {
   },
 
   sync() {
+    const inert = pageInert({mobile: this.mobile(), drawerOpen: this.drawerOpen()})
+    this.el.querySelectorAll(":scope > :not(.shell-sidebar, .shell-backdrop)").forEach((part) => (part.inert = inert))
     const isExpanded = expanded({mobile: this.mobile(), drawerOpen: this.drawerOpen(), state: this.state()})
     this.el.querySelectorAll("[data-sidebar-toggle]").forEach((button) => {
       button.setAttribute("aria-expanded", String(isExpanded))

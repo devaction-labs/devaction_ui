@@ -104,6 +104,13 @@ defmodule DevactionUI.ComposerTest do
     assert has?(html, "#chat-count[phx-update=ignore][hidden]")
   end
 
+  test "the field points at the counter and leaves its invalid state to the hook" do
+    html = composer()
+
+    assert has?(html, "textarea[aria-describedby=chat-count]")
+    assert html =~ "aria-invalid"
+  end
+
   test "an empty field starts with the send button off, a filled one with it on" do
     assert has?(composer(), "button.composer-send[type=submit][disabled]")
     refute has?(composer(%{value: "hello"}), "button.composer-send[disabled]")
