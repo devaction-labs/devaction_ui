@@ -103,7 +103,7 @@ defmodule DevactionUI.EmptyStepperProgressTest do
       assert html =~ "· done"
       assert html =~ "· to do"
       assert html =~ "✓"
-      assert html =~ ">!<"
+      refute html =~ ">!<"
       assert html =~ "First"
     end
 
