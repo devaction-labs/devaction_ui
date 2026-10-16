@@ -1,0 +1,47 @@
+<%!-- title: Plain hint and loading | text: A PR number as bare mono text, and what the list says while the server searches | layout: center --%>
+<div class="flex w-full max-w-md flex-col gap-24">
+  <Autocomplete.autocomplete
+    id="autocomplete-plain"
+    label="Search pull requests"
+    value="fix"
+    event="search"
+    groups={[
+      %{
+        label: "Pull requests",
+        items: [
+          %{
+            id: "p142",
+            label: "Fix the N+1 in contributions",
+            to: "/",
+            hint: "#142",
+            hint_style: :plain,
+            tone: :risk
+          },
+          %{
+            id: "p139",
+            label: "Fix tithe rounding",
+            to: "/",
+            hint: "#139",
+            hint_style: :plain,
+            tone: :neutral
+          }
+        ]
+      }
+    ]}
+    empty="Nothing found"
+  >
+    <:search_icon><.icon name="search-01" class="size-4" /></:search_icon>
+  </Autocomplete.autocomplete>
+  <Autocomplete.autocomplete
+    id="autocomplete-loading"
+    label="Search lessons"
+    value="ecto"
+    event="search"
+    loading
+    loading_label="Searching..."
+    empty="Nothing found"
+  >
+    <:search_icon><.icon name="search-01" class="size-4" /></:search_icon>
+    <:loading_icon><.icon name="loading-03" class="size-4" /></:loading_icon>
+  </Autocomplete.autocomplete>
+</div>

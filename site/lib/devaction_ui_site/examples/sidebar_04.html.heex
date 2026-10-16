@@ -1,0 +1,46 @@
+<%!-- title: Search, groups and the person | text: `Sidebar.search` with the key hint, items under collapsible `group` headings and `Sidebar.user` with a menu trigger. --%>
+<div class="flex gap-4 rounded-2xl bg-frame p-4">
+  <Sidebar.sidebar
+    id="sidebar-blocks"
+    label="Workspace"
+    closed_groups={["Library"]}
+    on_toggle="shell_collapse"
+    toggle_label="Collapse the menu"
+  >
+    <:toggle_icon><.icon name="arrow-down-01" class="size-5 rotate-90" /></:toggle_icon>
+    <:group_icon><.icon name="arrow-down-01" class="size-4 -rotate-90" /></:group_icon>
+    <:header>
+      <Sidebar.search
+        id="sidebar-search"
+        label="Search"
+        placeholder="Search"
+        hint="⌘K"
+        class="w-full"
+      >
+        <:icon><.icon name="search-01" class="size-4" /></:icon>
+      </Sidebar.search>
+    </:header>
+    <:icon :let={item}><.icon name={sidebar_icon(item.label)} class="size-5" /></:icon>
+    <:item to="/c/sidebar" label="Today" current />
+    <:item to="/c/sidebar" label="Projects" count="4" tone={:risk} group="Work" />
+    <:item to="/c/sidebar" label="Contracts" group="Work" />
+    <:item to="/c/sidebar" label="Review" group="Library" />
+    <:item to="/c/sidebar" label="Lessons" group="Library" />
+    <:footer>
+      <Sidebar.user name="Alex Nogueira" detail="DevAction Labs">
+        <:menu>
+          <button
+            type="button"
+            aria-label="Account menu"
+            class="rounded-md p-1 text-muted hover:text-ink"
+          >
+            <.icon name="arrow-down-01" class="size-4" />
+          </button>
+        </:menu>
+      </Sidebar.user>
+    </:footer>
+  </Sidebar.sidebar>
+  <div class="flex flex-1 items-center justify-center rounded-xl border border-dashed border-line-strong text-sm text-muted">
+    The screen
+  </div>
+</div>

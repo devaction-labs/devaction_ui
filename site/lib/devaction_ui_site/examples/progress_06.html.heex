@@ -1,0 +1,11 @@
+<%!-- title: Value label and parts | text: The value in words, and one bar in chunks with a tone each. --%>
+<div class="grid max-w-md gap-5">
+  <.progress value={60} label="Milestones" value_label="3 of 5" show_value />
+  <.progress
+    label="Pull requests"
+    parts={[%{value: 50, tone: :ok}, %{value: 20, tone: :warn}]}
+    value_label="5 merged, 2 in review"
+    show_value
+    size={:lg}
+  />
+</div>

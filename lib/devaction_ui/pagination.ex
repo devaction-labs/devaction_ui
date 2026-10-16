@@ -1,13 +1,40 @@
 defmodule DevactionUI.Pagination do
   @moduledoc """
   Page links: previous, a window of numbers around the current one with the first and last page and an
-  ellipsis where it skips, and next. `path` is a function from a page number to the URL (or `patch` target).
+  ellipsis where it skips, and next.
+
+  `path` is a function from a page number to the URL of that page. `kind` says how the link goes there:
+  `:patch` (the default, inside the same LiveView), `:navigate` (to another LiveView) or `:href` (a plain
+  link, for a controller page). A `page` outside `1..pages` is clamped into it, so the current page never
+  disappears. The previous and next links carry a 14px chevron (inline SVG, mirrored on a right-to-left page)
+  that the `previous_icon` and `next_icon` slots replace.
+
+      <.pagination
+        page={@page}
+        pages={@pages}
+        path={&~p"/pull-requests?page=\#{&1}"}
+        label="Pages"
+        previous="Previous page"
+        next="Next page"
+      >
+        <:previous_icon><.icon name="arrow-left" class="size-3.5" /></:previous_icon>
+        <:next_icon><.icon name="arrow-right" class="size-3.5" /></:next_icon>
+      </.pagination>
   """
   use Phoenix.Component
 
-  attr :page, :integer, required: true
-  attr :pages, :integer, required: true
-  attr :path, :any, required: true, doc: "a function: page number -> path"
+  attr :page, :integer, required: true, doc: "the current page, clamped into `1..pages`"
+
+  attr :pages, :integer,
+    required: true,
+    doc: "how many pages there are; with one or none nothing is drawn"
+
+  attr :path, :any, required: true, doc: "a function: page number -> URL of that page"
+
+  attr :kind, :atom,
+    values: [:patch, :navigate, :href],
+    default: :patch,
+    doc: "how the links go to a page"
 
   attr :label, :string,
     required: true,
@@ -21,27 +48,36 @@ defmodule DevactionUI.Pagination do
   attr :class, :any, default: nil
 
   attr :rest, :global
-  slot :previous_icon, doc: "replaces the typographic ‹"
-  slot :next_icon, doc: "replaces the typographic ›"
+  slot :previous_icon, doc: "replaces the 14px chevron of the previous link"
+  slot :next_icon, doc: "replaces the 14px chevron of the next link"
 
+  @doc "The page links, or nothing when there is a single page."
+  @spec pagination(map()) :: Phoenix.LiveView.Rendered.t()
   def pagination(%{pages: pages} = assigns) when pages > 1 do
-    assigns = assign(assigns, :entries, entries(assigns.page, assigns.pages))
+    page = clamp(assigns.page, pages)
+    assigns = assign(assigns, page: page, entries: entries(page, pages))
 
     ~H"""
-    <nav aria-label={@label} class={["flex items-center gap-1.5", @class]} {@rest}>
+    <nav aria-label={@label} class={["flex items-center gap-1", @class]} {@rest}>
       <.link
         :if={@page > 1}
-        patch={@path.(@page - 1)}
+        {link_attrs(@kind, @path.(@page - 1))}
         aria-label={@previous}
         class={[cell(), "border border-line-strong bg-card text-ink"]}
       >
-        <span aria-hidden="true">{render_slot(@previous_icon) || "‹"}</span>
+        <span aria-hidden="true">{render_slot(@previous_icon) || chevron(:previous)}</span>
       </.link>
       <%= for entry <- @entries do %>
-        <span :if={entry == :gap} class="px-1 text-muted" aria-hidden="true">…</span>
+        <span
+          :if={entry == :gap}
+          class="flex h-[38px] w-6 items-center justify-center text-muted"
+          aria-hidden="true"
+        >
+          …
+        </span>
         <.link
           :if={entry != :gap}
-          patch={@path.(entry)}
+          {link_attrs(@kind, @path.(entry))}
           aria-current={entry == @page && "page"}
           class={[
             cell(),
@@ -53,11 +89,11 @@ defmodule DevactionUI.Pagination do
       <% end %>
       <.link
         :if={@page < @pages}
-        patch={@path.(@page + 1)}
+        {link_attrs(@kind, @path.(@page + 1))}
         aria-label={@next}
         class={[cell(), "border border-line-strong bg-card text-ink"]}
       >
-        <span aria-hidden="true">{render_slot(@next_icon) || "›"}</span>
+        <span aria-hidden="true">{render_slot(@next_icon) || chevron(:next)}</span>
       </.link>
     </nav>
     """
@@ -65,14 +101,43 @@ defmodule DevactionUI.Pagination do
 
   def pagination(assigns), do: ~H""
 
-  defp cell,
-    do: "flex size-10 items-center justify-center rounded-[10px] text-sm no-underline"
+  defp chevron(direction) do
+    assigns = %{path: chevron_path(direction)}
 
-  @doc "The page numbers to draw, with `:gap` where pages are skipped: always the first, the last and one on each side of the current."
-  @spec entries(pos_integer(), pos_integer()) :: [pos_integer() | :gap]
+    ~H"""
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="size-3.5 rtl:-scale-x-100"
+    >
+      <path d={@path} />
+    </svg>
+    """
+  end
+
+  defp chevron_path(:previous), do: "m15 6-6 6 6 6"
+  defp chevron_path(:next), do: "m9 6 6 6-6 6"
+
+  defp cell,
+    do: "flex size-[38px] items-center justify-center rounded-[10px] text-sm no-underline"
+
+  defp link_attrs(:patch, url), do: [patch: url]
+  defp link_attrs(:navigate, url), do: [navigate: url]
+  defp link_attrs(:href, url), do: [href: url]
+
+  defp clamp(page, pages), do: page |> max(1) |> min(pages)
+
+  @doc "The page numbers to draw, with `:gap` where pages are skipped: always the first, the last and one on each side of the current. A `page` outside `1..pages` is clamped into it."
+  @spec entries(integer(), pos_integer()) :: [pos_integer() | :gap]
   def entries(page, pages) do
+    current = clamp(page, pages)
+
     wanted =
-      Enum.uniq([1, page - 1, page, page + 1, pages])
+      Enum.uniq([1, current - 1, current, current + 1, pages])
       |> Enum.filter(&(&1 in 1..pages//1))
       |> Enum.sort()
 

@@ -1,0 +1,27 @@
+<%!-- title: Categories open | text: With open the list shows a switch per category; the first is locked on, the others follow the server. --%>
+<CookieConsent.banner
+  id="cookies-open"
+  fixed={false}
+  open
+  title="We use cookies."
+  privacy_label="Privacy policy"
+  privacy_href="#"
+  preferences_label="Preferences"
+  necessary_label="Only necessary"
+  accept_label="Accept all"
+>
+  The necessary ones keep you signed in. Analytics ones help us improve the site and only turn on if you accept.
+  <:category
+    id="necessary"
+    title="Necessary"
+    description="Session, security and theme preferences. Always on."
+    locked
+  />
+  <:category
+    id="analytics"
+    title="Analytics"
+    description="Pages visited, without identifying you."
+    checked
+  />
+  <:category id="marketing" title="Marketing" description="Measure ad campaigns." />
+</CookieConsent.banner>

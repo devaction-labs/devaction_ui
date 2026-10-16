@@ -1,0 +1,6 @@
+<%!-- title: Keyboard | text: Tab enters on the chosen segment; the arrow keys, Home and End move the focus (a disabled one is skipped) and Enter or Space chooses. | layout: center --%>
+<Segmented.segmented id="segmented-keys" label="Status" value={@shell.status} event="shell_status">
+  <:option value="open" label="Open" count="8" />
+  <:option value="blocked" label="Blocked" disabled />
+  <:option value="done" label="Done" count="3" />
+</Segmented.segmented>

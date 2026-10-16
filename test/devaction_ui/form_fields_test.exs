@@ -76,7 +76,71 @@ defmodule DevactionUI.FormFieldsTest do
       refute loading =~ ~s(aria-label="Clear")
       refute loading =~ "false"
 
-      assert rendered_to_string(~H|<InputGroup.input_group id="a" loading />|) =~ "…"
+      assert_raise ArgumentError, ~r/loading_label/, fn ->
+        rendered_to_string(~H|<InputGroup.input_group id="a" loading />|)
+      end
+    end
+
+    test "passes the validation attributes and the description of the error to the input" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <InputGroup.input_group
+          id="a"
+          pattern="[a-z]+"
+          minlength="3"
+          form="f"
+          list="opts"
+          invalid
+          aria-describedby="a-error"
+        />
+        """)
+
+      assert html =~ ~s(pattern="[a-z]+")
+      assert html =~ ~s(minlength="3")
+      assert html =~ ~s(form="f")
+      assert html =~ ~s(list="opts")
+      assert html =~ ~s(aria-describedby="a-error")
+    end
+
+    test "an invalid and disabled field says both, a readonly one is plain readonly" do
+      assigns = %{}
+      html = rendered_to_string(~H|<InputGroup.input_group id="a" invalid disabled readonly />|)
+      assert html =~ ~s(aria-invalid="true")
+      assert html =~ "disabled"
+      assert html =~ "readonly"
+    end
+
+    test "add-ons are boxed unless loose, and mono when asked" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <InputGroup.input_group id="a">
+          <:prefix mono>R$</:prefix>
+          <:suffix loose>.devaction.app</:suffix>
+          <:suffix>por marco</:suffix>
+        </InputGroup.input_group>
+        """)
+
+      assert html =~ ~r/class="input-addon font-mono[^"]*">R\$/
+      assert html =~ ~r/class="input-note[^"]*">\.devaction\.app/
+      assert html =~ ~r/class="input-addon[^"]*">por marco/
+    end
+
+    test "the action keeps the phx-click given in rest" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(
+          ~H|<InputGroup.input_action label="Copy" phx-click="copy" phx-value-id="1">
+  X
+</InputGroup.input_action>|
+        )
+
+      assert html =~ ~s(phx-click="copy")
+      assert html =~ ~s(phx-value-id="1")
     end
   end
 
@@ -126,13 +190,113 @@ defmodule DevactionUI.FormFieldsTest do
       refute html =~ "textarea-count"
     end
 
-    test "says it is wrong and looks disabled" do
+    test "the error is on the textarea only, for the frame to draw the ring" do
       assigns = %{}
       html = rendered_to_string(~H|<Textarea.textarea id="t" invalid disabled />|)
 
-      assert html =~ ~s(aria-invalid="true")
-      assert html =~ "border-missing"
-      assert html =~ "border-dashed"
+      assert [_] = Regex.scan(~r/aria-invalid="true"/, html)
+      assert html =~ ~r/<textarea[^>]*aria-invalid="true"/
+      refute html =~ ~r/<div[^>]*aria-invalid/
+      assert html =~ "disabled"
+    end
+
+    test "rows is the least height" do
+      assigns = %{}
+      assert rendered_to_string(~H|<Textarea.textarea id="t" rows={2} />|) =~ "--rows: 2"
+    end
+
+    test "the counter describes the field and joins the description the caller gives" do
+      assigns = %{}
+
+      html = rendered_to_string(~H|<Textarea.textarea id="t" maxlength={10} />|)
+      assert html =~ ~s(aria-describedby="t-count")
+      assert html =~ ~s(aria-live="off")
+
+      html =
+        rendered_to_string(
+          ~H|<Textarea.textarea id="t" maxlength={10} value="123456789" aria-describedby="t-help" />|
+        )
+
+      assert html =~ ~s(aria-describedby="t-help t-count")
+      assert html =~ ~s(aria-live="polite")
+      assert [_] = Regex.scan(~r/aria-describedby/, html)
+
+      refute rendered_to_string(~H|<Textarea.textarea id="t" />|) =~ "aria-describedby"
+    end
+
+    test "takes minlength, form and wrap" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H|<Textarea.textarea id="t" minlength="5" form="f" wrap="soft" />|)
+
+      assert html =~ ~s(minlength="5")
+      assert html =~ ~s(form="f")
+      assert html =~ ~s(wrap="soft")
+    end
+
+    test "a footer button is 34px, with an AI look and what the caller gives in rest" do
+      assigns = %{}
+
+      plain =
+        rendered_to_string(
+          ~H|<Textarea.footer_button label="Attach" phx-click="attach">A</Textarea.footer_button>|
+        )
+
+      ai =
+        rendered_to_string(
+          ~H|<Textarea.footer_button label="Improve" variant={:ai}>I</Textarea.footer_button>|
+        )
+
+      assert plain =~ "h-[34px]"
+      assert plain =~ ~s(phx-click="attach")
+      assert ai =~ "tag-warn-bg"
+    end
+
+    test "the padding of a footer button belongs to its variant, never both" do
+      assigns = %{}
+
+      plain =
+        rendered_to_string(~H|<Textarea.footer_button label="Attach">A</Textarea.footer_button>|)
+
+      ai =
+        rendered_to_string(
+          ~H|<Textarea.footer_button label="Improve" variant={:ai}>I</Textarea.footer_button>|
+        )
+
+      assert plain =~ " px-2 "
+      refute plain =~ "px-2.5"
+      assert ai =~ "px-2.5"
+      refute ai =~ " px-2 "
+      assert ai =~ "rounded-[9px]"
+    end
+  end
+
+  describe "the field frames in the stylesheet" do
+    @css File.read!(Path.expand("../../assets/css/devaction_ui.css", __DIR__))
+    @external_resource Path.expand("../../assets/css/devaction_ui.css", __DIR__)
+
+    for rule <- ~w(.input-group .textarea .number-input) do
+      test "#{rule} gets the ring, the error and the disabled fill from tokens, not from the ink" do
+        [declaration] =
+          Regex.run(~r/#{Regex.escape(unquote(rule))}[ ,][^{]*\{[^}]*--ring-field:[^}]*\}/s, @css)
+
+        assert declaration =~ "--ring-field-error"
+        assert declaration =~ "--fill-field-error"
+        assert declaration =~ "--fill-field-off"
+        assert declaration =~ "rgb(237 237 242 / 0.10)"
+      end
+    end
+
+    test "the input group and the textarea read those tokens" do
+      for rule <- ["  .input-group  {", "  .textarea        {"] do
+        [block] = Regex.run(~r/#{Regex.escape(rule)}[^}]*\}/s, @css)
+        assert block =~ "ring-(color:--ring-field)"
+        assert block =~ "ring-(color:--ring-field-error)"
+        assert block =~ "bg-(--fill-field-error)"
+        assert block =~ "bg-(--fill-field-off)"
+        refute block =~ "ring-ink/8"
+      end
     end
   end
 
@@ -153,17 +317,29 @@ defmodule DevactionUI.FormFieldsTest do
 
       assert on =~ ~s(type="checkbox")
       assert on =~ "checked"
-      assert on =~ ~s(aria-checked="true")
+      refute on =~ "aria-checked"
       assert on =~ "choice-desc"
 
       partial = rendered_to_string(~H|<Choice.checkbox id="c" checked partial label="L" />|)
       assert partial =~ ~s(data-partial="true")
-      assert partial =~ ~s(aria-checked="mixed")
+      assert partial =~ ~s(phx-hook="DevactionUI.Indeterminate")
+      refute partial =~ "aria-checked"
       refute partial =~ ~r/<input[^>]* checked/
 
       bare = rendered_to_string(~H|<Choice.checkbox id="c" />|)
-      assert bare =~ ~s(aria-checked="false")
+      refute bare =~ "aria-checked"
       refute bare =~ "choice-desc"
+    end
+
+    test "a disabled box reaches the input and the label is medium weight" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H|<Choice.checkbox id="c" label="L" disabled form="f" />|)
+
+      assert html =~ ~r/<input[^>]* disabled/
+      assert html =~ ~s(form="f")
+      assert html =~ "font-medium"
     end
 
     test "a radio shares its name and shows its description" do
@@ -202,6 +378,117 @@ defmodule DevactionUI.FormFieldsTest do
 
       assert box =~ ~s(type="checkbox")
       assert box =~ ~s(class="checkbox")
+    end
+
+    test "a choice card is a row by default and a stack on request" do
+      assigns = %{}
+
+      row = rendered_to_string(~H|<Choice.choice_card id="c" name="p" value="v" label="L" />|)
+      assert row =~ "items-start"
+      refute row =~ "flex-col items-start"
+      refute row =~ "order-first"
+
+      stack =
+        rendered_to_string(
+          ~H|<Choice.choice_card id="c" name="p" value="v" label="L" layout={:stack} />|
+        )
+
+      assert stack =~ "flex-col items-start"
+      assert stack =~ "order-first"
+    end
+
+    test "a card in error has the invalid mark on the card and the input" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H|<Choice.choice_card id="c" name="p" value="v" label="L" invalid />|)
+
+      assert html =~ ~s(data-invalid="true")
+      assert html =~ ~s(aria-invalid="true")
+
+      refute rendered_to_string(~H|<Choice.choice_card id="c" name="p" value="v" label="L" />|) =~
+               "aria-invalid"
+    end
+
+    test "the small size and the task variant are classes of the label" do
+      assigns = %{}
+
+      small =
+        rendered_to_string(~H|<Choice.radio id="r" name="m" value="a" label="A" size={:sm} />|)
+
+      assert small =~ "choice-sm"
+
+      refute rendered_to_string(~H|<Choice.radio id="r" name="m" value="a" label="A" />|) =~
+               "choice-sm"
+
+      task = rendered_to_string(~H|<Choice.checkbox id="c" label="L" variant={:task} />|)
+      assert task =~ "choice-task"
+      assert task =~ ~s(type="checkbox")
+      refute rendered_to_string(~H|<Choice.checkbox id="c" label="L" />|) =~ "choice-task"
+    end
+
+    test "a checkbox group is a fieldset with a legend around the boxes" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Choice.checkbox_group id="g" legend="Notify me" help="Pick any" required>
+          <Choice.checkbox id="c1" name="n[]" value="a" label="A" />
+          <Choice.checkbox id="c2" name="n[]" value="b" label="B" />
+        </Choice.checkbox_group>
+        """)
+
+      assert html =~ ~r/<fieldset[^>]*id="g"/
+      assert html =~ ~r/<legend[^>]*>\s*Notify me/
+      assert html =~ ~s(aria-describedby="g-help")
+      assert html =~ ~s(id="g-help")
+      assert html =~ ~r/<span[^>]*aria-hidden="true"[^>]*>\*/
+      assert length(Regex.scan(~r/type="checkbox"/, html)) == 2
+      refute html =~ "role="
+      refute html =~ "aria-invalid"
+    end
+
+    test "a radio group is a radiogroup that points at its help and its error" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Choice.radio_group
+          id="g"
+          legend="Priority"
+          help="One only"
+          error="Choose one"
+          required
+          orientation={:horizontal}
+        >
+          <Choice.radio id="r1" name="p" value="a" label="A" />
+          <Choice.radio id="r2" name="p" value="b" label="B" />
+        </Choice.radio_group>
+        """)
+
+      assert html =~ ~s(role="radiogroup")
+      assert html =~ ~s(aria-required="true")
+      assert html =~ ~s(aria-describedby="g-help g-error")
+      assert html =~ ~s(aria-invalid="true")
+      assert html =~ ~r/<p[^>]*id="g-error"[^>]*role="alert"|<p[^>]*role="alert"[^>]*id="g-error"/
+      assert html =~ "gap-x-4"
+      assert length(Regex.scan(~r/type="radio"/, html)) == 2
+    end
+
+    test "a disabled group reaches the fieldset, a plain one has neither help nor error" do
+      assigns = %{}
+
+      off =
+        rendered_to_string(~H"""
+        <Choice.radio_group id="g" legend="L" disabled>
+          <Choice.radio id="r1" name="p" value="a" label="A" />
+        </Choice.radio_group>
+        """)
+
+      assert off =~ ~r/<fieldset[^>]* disabled/
+      refute off =~ "aria-describedby"
+      refute off =~ "aria-required"
+      refute off =~ ~r/<span[^>]*>\*/
     end
   end
 end

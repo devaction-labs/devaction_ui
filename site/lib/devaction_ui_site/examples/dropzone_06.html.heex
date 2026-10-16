@@ -1,0 +1,32 @@
+<%!-- title: Try again, cancel and clear | text: The events come through attrs and carry the row's ref: Try again restarts the stopped file, the cross removes a row, Clear finished drops what was sent. The server owns the list. --%>
+<Dropzone.queue
+  id="dropzone-events"
+  title="Drop files or click to choose"
+  hint="PDF, PNG or JPG · up to 25 MB each · at most 10"
+  summary={"#{length(@queue)} files · #{Enum.count(@queue, &(&1.state == :uploading))} uploading · #{Enum.count(@queue, &(&1.state in [:failed, :rejected]))} with an error"}
+  clear_label="Clear finished"
+  clear_event="queue_clear"
+  retry_event="queue_retry"
+  cancel_event="queue_cancel"
+  entries={@queue}
+  labels={
+    %{
+      sent: "Sent",
+      uploading: "uploading · %{size}",
+      queued: "Queued",
+      failed: "Connection dropped",
+      stopped: "stopped at %{percent}%",
+      rejected: "Type not accepted",
+      rejected_hint: "use PDF, PNG or JPG",
+      retry: "Try again",
+      cancel: "Cancel %{name}",
+      remove: "Remove %{name}"
+    }
+  }
+  class="max-w-xl"
+>
+  <:icon><.icon name="arrow-up-02" class="size-5.5" /></:icon>
+  <:retry_icon><.icon name="refresh" class="size-3.5" /></:retry_icon>
+  <:cancel_icon><.icon name="cancel-01" class="size-[15px]" /></:cancel_icon>
+  <:remove_icon><.icon name="delete-02" class="size-[15px]" /></:remove_icon>
+</Dropzone.queue>

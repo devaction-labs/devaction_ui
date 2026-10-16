@@ -1,0 +1,30 @@
+<%!-- title: Locked | text: Small, not dismissible by a click outside, with a close button in the corner --%>
+<Button.button
+  id="confirm-locked-open"
+  variant={:secondary}
+  size={:sm}
+  class="self-start"
+  phx-click={Modal.open(JS.push("overlay_open", value: %{kind: "confirm_locked"}))}
+>
+  Archive the project
+</Button.button>
+<ConfirmDialog.confirm_dialog
+  :if={@overlays.kind == "confirm_locked"}
+  id="confirm-locked"
+  title="Archive sge-api?"
+  size={:sm}
+  tone={:info}
+  dismissible={false}
+  close_label="Close"
+  on_cancel="overlay_close"
+>
+  <:icon><.icon name="git-pull-request" class="size-5" /></:icon>
+  <:close_icon><.icon name="cancel-01" class="size-4" /></:close_icon>
+  The reviews stay readable, but the repository stops being monitored.
+  <:actions>
+    <Button.button id="confirm-locked-cancel" variant={:secondary} phx-click="overlay_close">
+      Cancel
+    </Button.button>
+    <Button.button id="confirm-locked-ok" phx-click="overlay_close">Archive</Button.button>
+  </:actions>
+</ConfirmDialog.confirm_dialog>

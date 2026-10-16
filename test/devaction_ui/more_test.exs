@@ -91,6 +91,150 @@ defmodule DevactionUI.MoreTest do
       assert html =~ "Ask the AI"
     end
 
+    test "each group is a named role=group and the rows carry aria-selected" do
+      assigns = %{value: "ecto", groups: @groups, ask: nil}
+      html = rendered_to_string(~H|<.ac value={@value} groups={@groups} ask={@ask} />|)
+
+      assert html =~ ~s(role="group" aria-labelledby="ac-group-0")
+      assert html =~ ~s(id="ac-group-0")
+      assert html =~ ~s(aria-selected="false")
+      assert html =~ "shadow-pop"
+    end
+
+    test "tells assistive technology the list is open only when it has a row" do
+      assigns = %{value: "ecto", groups: @groups, ask: nil}
+      open = rendered_to_string(~H|<.ac value={@value} groups={@groups} ask={@ask} />|)
+      assert open =~ ~s(aria-expanded="true")
+
+      assigns = %{value: "zzz", groups: [], ask: nil}
+      none = rendered_to_string(~H|<.ac value={@value} groups={@groups} ask={@ask} />|)
+      assert none =~ ~s(aria-expanded="false")
+
+      assigns = %{value: "zzz", groups: [], ask: "Ask the AI"}
+      ask = rendered_to_string(~H|<.ac value={@value} groups={@groups} ask={@ask} />|)
+      assert ask =~ ~s(aria-expanded="true")
+
+      assigns = %{value: "", groups: [], ask: nil}
+      closed = rendered_to_string(~H|<.ac value={@value} groups={@groups} ask={@ask} />|)
+      assert closed =~ ~s(aria-expanded="false")
+    end
+
+    test "a row can patch or go to an href, and the key caps and the icon are the caller's" do
+      assigns = %{
+        value: "a",
+        groups: [
+          %{
+            label: "G",
+            items: [
+              %{id: "p", label: "Patch", patch: "/p"},
+              %{id: "h", label: "Href", href: "https://example.com"}
+            ]
+          }
+        ],
+        ask: "Ask"
+      }
+
+      html =
+        rendered_to_string(~H"""
+        <Autocomplete.autocomplete
+          id="ac"
+          label="Search"
+          event="search"
+          value={@value}
+          groups={@groups}
+          empty="Nothing"
+          ask_label={@ask}
+          ask_event="ask"
+          ask_kbd="Ctrl ↵"
+          debounce={400}
+        >
+          <:search_icon>SEARCH-ICON</:search_icon>
+        </Autocomplete.autocomplete>
+        """)
+
+      assert html =~ ~s(data-phx-link="patch")
+      assert html =~ ~s(href="https://example.com")
+      assert html =~ "SEARCH-ICON"
+      refute html =~ "⌕"
+      assert html =~ ~r/<kbd[^>]*>\s*Ctrl ↵\s*<\/kbd>/
+      assert html =~ ~s(phx-debounce="400")
+    end
+
+    test "the AI row has no key cap unless the caller names one, and the field is 44px" do
+      assigns = %{value: "ecto", groups: @groups, ask: "Ask the AI"}
+      html = rendered_to_string(~H|<.ac value={@value} groups={@groups} ask={@ask} />|)
+      refute html =~ "⌘↵"
+      assert html =~ "h-11"
+      assert html =~ ~s(phx-debounce="150")
+      assert html =~ "⌕"
+    end
+
+    test "a plain hint is bare mono text in its tone (a PR number); a badge has a background" do
+      assigns = %{
+        value: "fix",
+        groups: [
+          %{
+            label: "PRs",
+            items: [
+              %{id: "1", label: "Fix", to: "/1", hint: "#142", tone: :risk, hint_style: :plain},
+              %{id: "2", label: "Fix too", to: "/2", hint: "30", tone: :warn}
+            ]
+          }
+        ],
+        ask: nil
+      }
+
+      html = rendered_to_string(~H|<.ac value={@value} groups={@groups} ask={@ask} />|)
+
+      assert html =~ ~r/class="font-mono text-xs text-tag-risk-text"[^>]*>\s*#142/
+      assert html =~ ~r/class="rounded-\[5px\] [^"]*bg-tag-warn-bg[^"]*"[^>]*>\s*30/
+    end
+
+    test "loading shows its label and icon, marks the list busy and keeps the empty text away" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Autocomplete.autocomplete
+          id="ac"
+          label="Search"
+          event="search"
+          value="ecto"
+          empty="Nothing"
+          loading
+          loading_label="Searching"
+        >
+          <:loading_icon>SPIN</:loading_icon>
+        </Autocomplete.autocomplete>
+        """)
+
+      assert html =~ ~s(aria-busy="true")
+      assert html =~ ~r/role="status"[^>]*>\s*<span[^>]*animate-spin[^>]*>\s*SPIN/
+      assert html =~ "Searching"
+      refute html =~ "Nothing"
+    end
+
+    test "the empty state can be a slot that gets the query" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Autocomplete.autocomplete
+          id="ac"
+          label="Search"
+          event="search"
+          value="zzz"
+          empty="Nothing"
+        >
+          <:empty_state :let={query}>No match for {query}. <a href="/new">Create it</a></:empty_state>
+        </Autocomplete.autocomplete>
+        """)
+
+      assert html =~ ~s(No match for zzz. <a href="/new">Create it</a>)
+      refute html =~ "Nothing"
+      refute rendered_to_string(~H|<.ac value="ecto" groups={[]} ask={nil} />|) =~ "aria-busy"
+    end
+
     test "escapes what it highlights" do
       assigns = %{
         value: "a",
@@ -145,6 +289,42 @@ defmodule DevactionUI.MoreTest do
       assert html =~ ~s(data-min="2026-10-10")
     end
 
+    test "the arrows come from the icon slots, and the title, range hint and shadow are options" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <DatePicker.date_picker
+          id="d"
+          name="due"
+          today="2026-10-14"
+          previous_label="Prev"
+          next_label="Next"
+          capitalize={false}
+          inside_label="in the range"
+          shadow
+        >
+          <:prev_icon>L</:prev_icon>
+          <:next_icon>R</:next_icon>
+        </DatePicker.date_picker>
+        """)
+
+      assert html =~ ~r/<template data-previous-icon>\s*L\s*<\/template>/
+      assert html =~ ~r/<template data-next-icon>\s*R\s*<\/template>/
+      assert html =~ ~s(data-capitalize="false")
+      assert html =~ ~s(data-inside="in the range")
+      assert html =~ "shadow-pop"
+    end
+
+    test "by default it capitalises, has no shadow and says nothing about the range" do
+      assigns = %{mode: :single, value: nil, min: nil}
+      html = rendered_to_string(~H|<.picker mode={@mode} value={@value} min={@min} />|)
+
+      assert html =~ ~s(data-capitalize="true")
+      refute html =~ "data-inside"
+      refute html =~ "shadow-pop"
+    end
+
     test "no value is empty inputs" do
       assigns = %{mode: :single, value: nil, min: nil}
       html = rendered_to_string(~H|<.picker mode={@mode} value={@value} min={@min} />|)
@@ -172,6 +352,7 @@ defmodule DevactionUI.MoreTest do
       assert html =~ ~s(data-state="late")
       assert html =~ "bg-tag-risk-bg"
       assert html =~ "2 days late"
+      assert html =~ "px-2.5"
     end
   end
 
@@ -194,6 +375,75 @@ defmodule DevactionUI.MoreTest do
     assert html =~ "right-0"
     assert html =~ ~r/data-panel[^>]*hidden/s
     assert html =~ "Body"
+  end
+
+  test "Popover keeps its default width when the caller adds classes, and sits 6 px from the trigger" do
+    assigns = %{}
+
+    html =
+      rendered_to_string(~H"""
+      <Popover.popover id="p" label="Details" panel_class="p-6">
+        <:trigger><a href="#">Open</a></:trigger>
+        Body
+      </Popover.popover>
+      """)
+
+    assert html =~ "[:where(&amp;)]:w-80"
+    assert html =~ "p-6"
+    assert html =~ "mt-1.5"
+    assert html =~ "mb-1.5"
+  end
+
+  test "Popover opens on any of the four sides, with the arrow and the alignment following the side" do
+    assigns = %{}
+
+    html =
+      rendered_to_string(~H"""
+      <Popover.popover id="p" label="Details" placement={:right} align={:end}>
+        <:trigger><a href="#">Open</a></:trigger>
+        Body
+      </Popover.popover>
+      """)
+
+    assert html =~ ~s(data-placement="right")
+    assert html =~ ~s(data-align="end")
+    assert html =~ "data-[side=right]:left-full"
+    assert html =~ "data-[side=left]:right-full"
+    assert html =~ "data-[side=right]:bottom-0"
+    assert html =~ "data-[side=left]:-right-[6px]"
+    assert html =~ "data-[side=right]:-left-[6px]"
+    assert html =~ "data-[side=right]:bottom-7"
+    refute html =~ "data-portal"
+  end
+
+  test "Popover with portal tells the hook to take the panel out of its box" do
+    assigns = %{}
+
+    html =
+      rendered_to_string(~H"""
+      <Popover.popover id="p" label="Details" portal>
+        <:trigger><a href="#">Open</a></:trigger>
+        Body
+      </Popover.popover>
+      """)
+
+    assert html =~ ~r/<div[^>]*id="p"[^>]*data-portal/s
+    assert html =~ ~s(phx-hook="DevactionUI.Popover")
+  end
+
+  test "Popover keeps what the hook sets on the panel and on the arrow across updates" do
+    assigns = %{}
+
+    html =
+      rendered_to_string(~H"""
+      <Popover.popover id="p" label="Details">
+        <:trigger><a href="#">Open</a></:trigger>
+        Body
+      </Popover.popover>
+      """)
+
+    assert length(Regex.scan(~r/ignore_attrs/, html)) == 2
+    assert html =~ "style"
   end
 
   describe "ToastGroup" do

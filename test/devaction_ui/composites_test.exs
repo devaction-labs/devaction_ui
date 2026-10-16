@@ -112,6 +112,8 @@ defmodule DevactionUI.CompositesTest do
     end
   end
 
+  doctest DevactionUI.MoneyInput
+
   describe "MoneyInput" do
     test "parse reads the cents from what is shown" do
       assert MoneyInput.parse("R$ 1.234,56") == {:ok, 123_456}
@@ -137,6 +139,166 @@ defmodule DevactionUI.CompositesTest do
       assert bad =~ ~s(aria-describedby="m-error")
       assert bad =~ "Too low."
     end
+
+    test "is an input group with the R$ add-on, decimal keyboard and the group's own height and error look" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(
+          ~H|<MoneyInput.money_input id="m" name="amount" label="Value" value="123456" />|
+        )
+
+      assert html =~ ~s(id="m-group")
+      assert html =~ "input-group"
+      assert html =~ ~r/class="input-addon font-mono[^"]*">R\$/
+      assert html =~ ~s(inputmode="decimal")
+      assert html =~ ~s(placeholder="0,00")
+      assert html =~ "[&amp;&gt;input]:text-right"
+      assert html =~ ~s(value="1.234,56")
+    end
+
+    defp money(attrs) do
+      assigns = %{attrs: attrs}
+
+      rendered_to_string(~H"""
+      <MoneyInput.money_input id="m" name="amount" label="Value" {@attrs} />
+      """)
+    end
+
+    test "the value is rendered masked, whether it is minor units, raw digits or already masked" do
+      assert money(value: 123_456) =~ ~s(value="1.234,56")
+      assert money(value: "123456") =~ ~s(value="1.234,56")
+      assert money(value: "12.500,00") =~ ~s(value="12.500,00")
+      assert money(value: 5) =~ ~s(value="0,05")
+      refute money(value: nil) =~ ~s(value="0)
+      refute money(value: "") =~ ~r/ value="[^"]/
+    end
+
+    test "the currency comes from the attrs and the hook is told" do
+      html = money(prefix: "$", decimal: ".", group: ",", value: 123_456)
+      assert html =~ ~s(value="1,234.56")
+      assert html =~ ~r/class="input-addon font-mono[^"]*">\$/
+      assert html =~ ~s(placeholder="0.00")
+      assert html =~ ~s(data-decimal=".")
+      assert html =~ ~s(data-group=",")
+      assert html =~ ~s(data-precision="2")
+      assert html =~ ~s(data-signed="false")
+    end
+
+    test "precision 0 has no decimals, and a suffix replaces the prefix" do
+      html = money(prefix: nil, suffix: "€", group: " ", precision: 0, value: 1_234_567)
+      assert html =~ ~s(value="1 234 567")
+      assert html =~ ~s(placeholder="0")
+      assert html =~ ~r/class="input-addon font-mono[^"]*">€/
+      refute html =~ "R$"
+      assert html =~ ~s(data-precision="0")
+    end
+
+    test "a placeholder given wins, and signed lets the sign show" do
+      assert money(placeholder: "Amount") =~ ~s(placeholder="Amount")
+      html = money(signed: true, value: "-1500")
+      assert html =~ ~s(value="-15,00")
+      assert html =~ ~s(data-signed="true")
+      assert money(value: "-1500") =~ ~s(value="15,00")
+    end
+
+    test "the label can be a slot, and without either it raises" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <MoneyInput.money_input id="m" name="a">
+          <:label_content>Price <b>*</b></:label_content>
+        </MoneyInput.money_input>
+        """)
+
+      assert html =~ ~r/<label for="m"[^>]*>\s*Price <b>\*<\/b>/
+
+      assert_raise ArgumentError, fn ->
+        rendered_to_string(~H|<MoneyInput.money_input id="m" name="a" />|)
+      end
+    end
+
+    test "the help sits under the field, is its description and comes before the error" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <MoneyInput.money_input id="m" name="a" label="V" errors={["Too low."]} aria-describedby="x">
+          <:help>Gross of taxes.</:help>
+        </MoneyInput.money_input>
+        """)
+
+      assert html =~ ~s(id="m-help")
+      assert html =~ "Gross of taxes."
+      assert html =~ ~s(aria-describedby="x m-help m-error")
+    end
+
+    test "the error look and the disabled and readonly looks come from the input group" do
+      html = money(errors: ["No."], disabled: true)
+      assert html =~ ~s(aria-invalid="true")
+      assert html =~ ~r/ disabled[ >]/
+      assert money(readonly: true) =~ ~r/ readonly[ >]/
+    end
+
+    test "mask renders what the hook renders" do
+      assert MoneyInput.mask("1") == "0,01"
+      assert MoneyInput.mask("R$ 1.234,56") == "1.234,56"
+      assert MoneyInput.mask("0005") == "0,05"
+      assert MoneyInput.mask("abc") == ""
+      assert MoneyInput.mask(nil) == ""
+      assert MoneyInput.mask("-12", signed: true) == "-0,12"
+      assert MoneyInput.mask("-12") == "0,12"
+      assert MoneyInput.mask("1234567", group: "$") == "12$345,67"
+    end
+
+    test "format groups by three and takes the separators and the precision" do
+      assert MoneyInput.format(0) == "0,00"
+      assert MoneyInput.format(100_000_000) == "1.000.000,00"
+      assert MoneyInput.format(-123_456, decimal: ".", group: "'") == "-1'234.56"
+      assert MoneyInput.format(7, precision: 3) == "0,007"
+      assert MoneyInput.format(99_999, precision: 0, group: "") == "99999"
+    end
+
+    test "parse reads the sign only when signed, and a lone sign has no digits" do
+      assert MoneyInput.parse("-1,50") == {:ok, 150}
+      assert MoneyInput.parse("-1,50", signed: true) == {:ok, -150}
+      assert MoneyInput.parse("-", signed: true) == :error
+      assert MoneyInput.parse("-0,00", signed: true) == {:ok, 0}
+    end
+
+    test "an error is tied to the field next to the description the caller gives" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <MoneyInput.money_input
+          id="m"
+          name="amount"
+          label="Value"
+          errors={["Too low."]}
+          aria-describedby="m-help"
+        />
+        """)
+
+      assert html =~ ~s(aria-describedby="m-help m-error")
+      assert [_] = Regex.scan(~r/aria-describedby/, html)
+      assert html =~ ~s(id="m-error")
+    end
+
+    test "the description of the caller alone stays, and none gives none" do
+      assigns = %{}
+
+      help =
+        rendered_to_string(
+          ~H|<MoneyInput.money_input id="m" name="a" label="V" aria-describedby="m-help" />|
+        )
+
+      assert help =~ ~s(aria-describedby="m-help")
+
+      refute rendered_to_string(~H|<MoneyInput.money_input id="m" name="a" label="V" />|) =~
+               "aria-describedby"
+    end
   end
 
   describe "dropdown/1" do
@@ -152,7 +314,6 @@ defmodule DevactionUI.CompositesTest do
           <:item event="export" separator shortcut="⌘E">Export</:item>
           <:item event="drop" danger>Archive</:item>
           <:item navigate="/somewhere">Go</:item>
-          <:check_icon>✓</:check_icon>
         </Dropdown.dropdown>
         """)
 
@@ -172,14 +333,90 @@ defmodule DevactionUI.CompositesTest do
       assert length(Regex.scan(~r/role="menuitem"/, html)) == 3
     end
 
-    test "the chosen item has the check, a separator and a shortcut are drawn, a link goes", %{
-      html: html
-    } do
-      assert html =~ "✓"
+    test "a choice has the 16px ring that fills when chosen, a separator and a shortcut are drawn, a link goes",
+         %{html: html} do
+      assert html =~ "group-aria-checked/item:border-[5px]"
       assert html =~ ~s(role="separator")
       assert html =~ "⌘E"
       assert html =~ ~s(href="/somewhere")
       assert html =~ "text-tag-risk-text"
+    end
+
+    test "the menu is 220px with the menu shadow and opens below", %{html: html} do
+      assert html =~ "w-55"
+      assert html =~ "shadow-menu"
+      assert html =~ ~s(data-side="bottom")
+      assert html =~ "h-[42px]"
+    end
+
+    defp render_dropdown(attrs) do
+      assigns = %{attrs: attrs}
+
+      rendered_to_string(~H"""
+      <Dropdown.dropdown id="d" label="Menu" {@attrs}>
+        <:trigger>Menu</:trigger>
+        <:item event="a" heading="Group">A</:item>
+        <:item event="b" disabled>B</:item>
+        <:item patch="/p">P</:item>
+        <:item href="https://example.com">H</:item>
+      </Dropdown.dropdown>
+      """)
+    end
+
+    test "the small button is 38px with radius 10 and align end puts the menu at the right" do
+      html = render_dropdown(size: :sm, align: :end)
+      assert html =~ "h-[38px]"
+      assert html =~ "rounded-[10px]"
+      assert html =~ "right-0"
+    end
+
+    test "the trigger can be an icon-only square with its own name and classes" do
+      html = render_dropdown(variant: :icon, trigger_label: "More", trigger_class: "extra")
+      assert html =~ ~s(aria-label="More")
+      assert html =~ "size-[42px]"
+      assert html =~ "extra"
+      refute html =~ "border-line-strong px-3.5"
+    end
+
+    test "a heading captions the item, a disabled one is out of the keys, links go to patch and href" do
+      html = render_dropdown([])
+      assert html =~ ~r/role="presentation"[^>]*>\s*Group/
+      assert html =~ ~r/aria-disabled="true"[^>]*disabled|disabled[^>]*aria-disabled="true"/
+      assert html =~ ~s(data-phx-link="patch")
+      assert html =~ ~s(href="https://example.com")
+    end
+
+    test "an item sends its value as choice and every entry of values as a phx-value" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Dropdown.dropdown id="d" label="Menu">
+          <:trigger>Menu</:trigger>
+          <:item event="pick" value="a" values={%{id: 7, kind: "task"}}>A</:item>
+          <:item event="pick" values={%{id: 8}}>B</:item>
+          <:item event="pick" value="c">C</:item>
+          <:item patch="/p" value="d" values={%{id: 9}}>D</:item>
+        </Dropdown.dropdown>
+        """)
+
+      assert html =~ ~s(phx-value-choice="a")
+      assert html =~ ~s(phx-value-id="7")
+      assert html =~ ~s(phx-value-kind="task")
+      assert html =~ ~s(phx-value-id="8")
+      assert html =~ ~s(phx-value-choice="c")
+      assert html =~ ~s(phx-value-choice="d")
+      assert html =~ ~s(phx-value-id="9")
+      assert length(Regex.scan(~r/phx-value-choice/, html)) == 3
+    end
+
+    test "closes on select unless close_on_select is false" do
+      assert render_dropdown([]) =~ ~s(data-close-on-select="true")
+      assert render_dropdown(close_on_select: false) =~ ~s(data-close-on-select="false")
+    end
+
+    test "an item that starts with an icon lines it up with the text", %{html: html} do
+      assert html =~ ~s(class="flex flex-1 items-center gap-2.5")
     end
   end
 
@@ -189,8 +426,8 @@ defmodule DevactionUI.CompositesTest do
 
       html =
         rendered_to_string(~H"""
-        <ConfirmDialog.confirm_dialog id="c" title="Publish?" on_cancel="cancel" close_label="Close">
-          <:close_icon>x</:close_icon>
+        <ConfirmDialog.confirm_dialog id="c" title="Publish?" on_cancel="cancel">
+          <:icon>i</:icon>
           Ten comments.
           <:actions><button id="no">No</button><button id="yes">Yes</button></:actions>
         </ConfirmDialog.confirm_dialog>
@@ -199,9 +436,38 @@ defmodule DevactionUI.CompositesTest do
       assert html =~ ~s(role="dialog")
       assert html =~ ~s(aria-modal="true")
       assert html =~ ~s(aria-labelledby="c-title")
-      assert html =~ ~s(aria-label="Close")
-      assert html =~ ~s(phx-key="escape")
+      assert html =~ ~s(aria-describedby="c-subtitle")
+      assert html =~ ~s(phx-hook="DevactionUI.Overlay")
+      assert html =~ "modal-md"
+      assert html =~ "modal-icon"
+      assert html =~ "pop_focus"
+      assert html =~ "Ten comments."
       assert html =~ ~s(id="no") and html =~ ~s(id="yes")
+      refute html =~ "aria-label="
+    end
+
+    test "has a close button only when it has a label, and can be made not dismissible" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <ConfirmDialog.confirm_dialog
+          id="c"
+          title="Publish?"
+          on_cancel="cancel"
+          close_label="Close"
+          size={:sm}
+          dismissible={false}
+        >
+          <:close_icon>x</:close_icon>
+          Ten comments.
+          <:actions><button>No</button></:actions>
+        </ConfirmDialog.confirm_dialog>
+        """)
+
+      assert html =~ ~s(aria-label="Close")
+      assert html =~ "modal-sm"
+      refute html =~ ~r/modal-backdrop[^>]*phx-click/
     end
   end
 end

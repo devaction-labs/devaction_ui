@@ -1,0 +1,21 @@
+<%!-- title: Letters and other lengths | text: `length` sets the boxes and `numeric={false}` takes letters too, for a backup code or a coupon. | layout: center --%>
+<div class="flex flex-col items-center gap-6">
+  <OtpInput.input
+    id="otp-letters"
+    name="otp_letters"
+    label="Backup code"
+    box_label="Character %{n} of %{total}"
+    length={4}
+    numeric={false}
+    value="A7"
+  />
+  <OtpInput.input
+    id="otp-disabled"
+    name="otp_disabled"
+    label="Verification code"
+    box_label="Digit %{n} of %{total}"
+    length={4}
+    value="4829"
+    disabled
+  />
+</div>

@@ -1,0 +1,14 @@
+<%!-- title: Row menu | text: An icon-only trigger with its own name, a group heading, a disabled item and links | layout: center --%>
+<Dropdown.dropdown
+  id="dropdown-row"
+  label="Task actions"
+  variant={:icon}
+  size={:sm}
+  trigger_label="More actions"
+  align={:end}
+>
+  <:trigger><.icon name="more-horizontal" class="size-4" /></:trigger>
+  <:item event="overlay_close" heading="Task">Edit</:item>
+  <:item event="overlay_close" disabled>Archive</:item>
+  <:item href="https://github.com" separator>Open on GitHub</:item>
+</Dropdown.dropdown>

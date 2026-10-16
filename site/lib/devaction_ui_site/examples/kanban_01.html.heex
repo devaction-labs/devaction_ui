@@ -1,21 +1,23 @@
-<%!-- title: Moving cards | text: Drag cards between columns; the server keeps the board. The Doing column holds at most two. --%>
+<%!-- title: Moving cards | text: Drag cards between columns with a mouse, a pen or a finger (hold a moment on a touch screen), or Alt and the arrow keys; the server keeps the board. The Doing column holds at most two. --%>
 <Kanban.kanban
   id="kanban-live"
   label="Tasks"
   drop_label="Drop here"
   full_label="Limit reached"
   moved_label="Moved to __COLUMN__"
+  hint_label="Alt and the arrow keys move the card"
 >
   <:column
     :for={
-      {id, title, wip} <- [
-        {"todo", "To do", nil},
-        {"doing", "Doing", 2},
-        {"done", "Done", nil}
+      {id, title, wip, tone} <- [
+        {"todo", "To do", nil, :neutral},
+        {"doing", "Doing", 2, :warn},
+        {"done", "Done", nil, :ok}
       ]
     }
     id={id}
     title={title}
+    tone={tone}
     wip={wip}
     count={length(@board[id])}
   >

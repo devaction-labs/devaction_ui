@@ -1,0 +1,33 @@
+<%!-- title: Range with bubbles | text: A bubble over each thumb, horizontal or vertical; the thumbs still never cross. --%>
+<form
+  id="slider-range-bubble-form"
+  phx-change="inputs_change"
+  class="m-0 flex flex-wrap gap-10 pt-8"
+>
+  <Slider.range_slider
+    id="slider-range-bubble"
+    label="Budget"
+    name_low="from"
+    name_high="to"
+    label_low="From"
+    label_high="To"
+    low={@inputs.from}
+    high={@inputs.to}
+    format_text="R$ %{value}k"
+    bubble
+    class="w-72"
+  />
+  <Slider.range_slider
+    id="slider-range-vertical"
+    label="Score"
+    name_low="score_from"
+    name_high="score_to"
+    label_low="Lowest score"
+    label_high="Highest score"
+    low={30}
+    high={80}
+    orientation={:vertical}
+    bubble
+    class="pr-12"
+  />
+</form>

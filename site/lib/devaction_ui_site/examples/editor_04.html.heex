@@ -1,0 +1,28 @@
+<%!-- title: Comment, Toolbar at the Bottom | text: The compact variant with the tools under the surface in one bar with the send button; the CSRF header and the event names are attrs. --%>
+<.form for={%{}} id="comment-bottom-form" phx-submit="comment_send">
+  <Editor.editor
+    style_label="Text style"
+    toolbar_label="Formatting"
+    words_label="words"
+    link_label="Link address"
+    id="demo-comment-bottom"
+    name="comment_bottom"
+    label="Comment"
+    placeholder="Write a comment…"
+    compact
+    send_on_enter
+    toolbar_position={:bottom}
+    csrf_header="x-csrf-token"
+    improve_event="improve"
+  >
+    <:tool name="bold" label="Bold"><.icon name="text-bold" class="size-4" /></:tool>
+    <:tool name="italic" label="Italic"><.icon name="text-italic" class="size-4" /></:tool>
+    <:tool name="link" label="Link"><.icon name="link-01" class="size-4" /></:tool>
+    <:footer>
+      <span class="font-mono text-xs text-muted">⌘↵</span>
+      <Button.button id="comment-bottom-submit" type="submit" variant={:primary} size={:sm}>
+        Comment
+      </Button.button>
+    </:footer>
+  </Editor.editor>
+</.form>

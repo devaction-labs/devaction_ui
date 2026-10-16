@@ -1,0 +1,41 @@
+<%!-- title: Marker, Clear and Error | text: A color marker before each option, a button that empties the choice and the message of an invalid field --%>
+<div class="flex max-w-sm flex-col gap-4">
+  <Combobox.combobox
+    id="combobox-marker"
+    name="project_marker"
+    label="Project"
+    placeholder="Choose a project"
+    search_placeholder="Search projects"
+    empty="No project found"
+    clear_label="Clear the project"
+    value="hub"
+    options={[
+      %{value: "sge", label: "SGE · Igreja Central", hint: "elixir"},
+      %{value: "hub", label: "Hub Comércio", hint: "laravel"}
+    ]}
+  >
+    <:chevron_icon><.icon name="arrow-down-01" class="size-3.5" /></:chevron_icon>
+    <:search_icon><.icon name="search-01" class="size-3.5" /></:search_icon>
+    <:clear_icon><.icon name="cancel-01" class="size-3.5" /></:clear_icon>
+    <:option_marker :let={option}>
+      <span class={[
+        "block size-2.5 rounded-[3px]",
+        (option.value == "sge" && "bg-learn") || "bg-ai"
+      ]} />
+    </:option_marker>
+  </Combobox.combobox>
+  <Combobox.combobox
+    id="combobox-error"
+    name="project_error"
+    label="Project"
+    placeholder="Choose a project"
+    search_placeholder="Search projects"
+    empty="No project found"
+    required
+    error="Choose the project of this contract"
+    options={[%{value: "sge", label: "SGE · Igreja Central"}]}
+  >
+    <:chevron_icon><.icon name="arrow-down-01" class="size-3.5" /></:chevron_icon>
+    <:search_icon><.icon name="search-01" class="size-3.5" /></:search_icon>
+  </Combobox.combobox>
+</div>

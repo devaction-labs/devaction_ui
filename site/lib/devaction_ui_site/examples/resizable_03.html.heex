@@ -1,0 +1,37 @@
+<%!-- title: Three panels, sizes from the server | text: Each move sends the sizes at its end; the server may keep them and give them back, and a button of its own resets them. --%>
+<div class="flex flex-col gap-3">
+  <Resizable.group
+    id="resizable-three"
+    label="Project"
+    handle_label="Resize the panels"
+    class="h-48"
+  >
+    <:panel
+      :for={
+        {id, label, min, max} <- [
+          {"nav", "Files", 15, 30},
+          {"main", "Content", 30, 100},
+          {"side", "Inspector", 15, 35}
+        ]
+      }
+      id={id}
+      size={@resizable.sizes[id]}
+      min={min}
+      max={max}
+      class="p-3"
+    >
+      <span class="block font-mono text-[11px] text-muted">{String.upcase(label)} · <span data-size-value>{round(@resizable.sizes[id])}</span>%</span>
+      <span class="mt-1 block text-xs text-muted">{min}% to {max}%</span>
+    </:panel>
+  </Resizable.group>
+  <div class="flex items-center gap-3">
+    <button
+      type="button"
+      phx-click="resizable_reset"
+      class="h-9 rounded-[10px] border border-line-strong bg-card px-3 text-sm text-ink outline-none hover:bg-wrap focus-visible:ring-4 focus-visible:ring-ink/10"
+    >Reset sizes</button>
+    <p class="m-0 font-mono text-xs text-muted" aria-live="polite">
+      sizes: {Enum.map_join(["nav", "main", "side"], " / ", &round(@resizable.sizes[&1]))}
+    </p>
+  </div>
+</div>

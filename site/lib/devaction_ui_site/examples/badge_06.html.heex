@@ -1,0 +1,12 @@
+<%!-- title: Chip and indigo dot | text: A person as a pill with a small avatar, and the indigo dot of what is being reviewed | layout: center --%>
+<div class="flex flex-wrap items-center gap-4">
+  <Badge.chip initials="CA">Carlos Andre</Badge.chip>
+  <Badge.chip initials="FP" tone={:risk}>Fernando Pinto</Badge.chip>
+  <Badge.chip initials="AN" tone={:emerald}>Alex Nogueira</Badge.chip>
+  <span class="inline-flex items-center gap-1.5 text-sm text-tag-indigo-strong">
+    <Badge.dot pulse tone={:indigo} label="Reviewing" /> AI reviewing
+  </span>
+  <span class="inline-flex items-center gap-1.5 text-sm text-ink">
+    <Badge.dot tone={:ok} label="Connected" /> Connected
+  </span>
+</div>

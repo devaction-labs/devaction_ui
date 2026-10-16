@@ -1,0 +1,13 @@
+<%!-- title: In a form | text: The joined code is one hidden input, so a form's `phx-change` hears it: type or paste 482913 to see it verified, anything else is refused. | layout: center --%>
+<form phx-change="otp_check" phx-submit="otp_check" class="m-0">
+  <OtpInput.input
+    id="otp-form"
+    name="code"
+    label="Verification code"
+    box_label="Digit %{n} of %{total}"
+    value={@otp_form.value}
+    status={@otp_form.status}
+    separator_after={3}
+    helper={@otp_form.helper}
+  />
+</form>

@@ -1,0 +1,21 @@
+<%!-- title: Removable | text: A × takes the filter away; each × is named by its own pill, so a screen reader hears "Remove SGE". --%>
+<div class="flex flex-wrap gap-1.5">
+  <FilterPill.filter_pill
+    label="SGE"
+    active
+    remove_event="filter_remove"
+    remove_label="Remove %{label}"
+  />
+  <FilterPill.filter_pill
+    label="Hub API"
+    remove_event="filter_remove"
+    remove_label="Remove %{label}"
+  />
+  <FilterPill.filter_pill
+    label="Only AI reviewed"
+    tone={:warn}
+    remove_event="filter_remove"
+    remove_label="Remove %{label}"
+  />
+  <FilterPill.add_pill label="Filter" event="filter_add" />
+</div>

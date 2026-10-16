@@ -1,4 +1,4 @@
-export const clamp = (value, min, max) => Math.min(max, Math.max(min, value))
+import {clamp} from "./numbers.js"
 
 const channel = (h, s, v, n) => {
   const k = (n + h / 60) % 6
@@ -29,6 +29,15 @@ export function hexToHsv(hex) {
   const a = match[2] ? Math.round((parseInt(match[2], 16) / 255) * 100) : 100
   return {h, s: max === 0 ? 0 : delta / max, v: max, a}
 }
+
+/** `{s, v}` for a pointer inside the box of the square: saturation grows to the right, value to the top. */
+export const pointToSv = (event, box) => ({
+  s: clamp((event.clientX - box.left) / box.width, 0, 1),
+  v: clamp(1 - (event.clientY - box.top) / box.height, 0, 1),
+})
+
+/** The change that moves `key` (`"s"` or `"v"`) of `state` by `by`, kept inside 0 to 1. */
+export const nudged = (state, key, by) => ({[key]: clamp(state[key] + by, 0, 1)})
 
 /** `hex` with its alpha (0-100) appended as two digits; unchanged when opaque. */
 export const withAlpha = (hex, alpha) => (alpha >= 100 ? hex : hex + hex2((alpha / 100) * 255))

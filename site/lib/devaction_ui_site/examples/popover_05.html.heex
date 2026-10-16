@@ -1,0 +1,12 @@
+<%!-- title: Near the edge | text: A trigger at the edge of the screen: the panel is shifted inside it and the arrow stays on the trigger --%>
+<div class="flex justify-end">
+  <Popover.popover id="popover-edge" label="Review status">
+    <:trigger>
+      <Button.button variant={:secondary} size={:sm}>Review status</Button.button>
+    </:trigger>
+    <p class="m-0 font-semibold text-ink">Shifted to fit</p>
+    <p class="m-0 mt-1 text-sm text-ink-2">
+      The panel is 320 px wide and the trigger sits at the right edge, so it moves left while the arrow keeps pointing at the button.
+    </p>
+  </Popover.popover>
+</div>

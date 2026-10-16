@@ -1,7 +1,8 @@
 defmodule DevactionUI.Badge do
   @moduledoc """
-  Two small signals: `count/1`, the round bubble with a number (4 pull requests waiting), and `dot/1`, the
-  status dot (connected, running). A dot can pulse, and stops under `prefers-reduced-motion`.
+  Three small signals: `count/1`, the round bubble with a number (4 pull requests waiting), `dot/1`, the
+  status dot (connected, reviewing) and `chip/1`, the pill with a small avatar and a name. A dot can pulse,
+  and stops under `prefers-reduced-motion`; it is drawn in the brighter `dot` shade of its tone.
   """
   use Phoenix.Component
 
@@ -17,7 +18,7 @@ defmodule DevactionUI.Badge do
     ~H"""
     <span
       class={[
-        "inline-flex h-[22px] min-w-[22px] items-center justify-center rounded-full px-1.5 text-xs font-medium",
+        "inline-flex h-[22px] min-w-[22px] items-center justify-center rounded-full px-[7px] text-xs font-semibold",
         (@tone == :risk && "bg-missing text-white") || "bg-ink text-on-primary",
         @class
       ]}
@@ -31,7 +32,10 @@ defmodule DevactionUI.Badge do
   defp shown(value, max) when value > max, do: "#{max}+"
   defp shown(value, _max), do: value
 
-  attr :tone, :atom, values: [:ok, :warn, :risk, :info, :neutral], default: :ok
+  attr :tone, :atom,
+    values: [:ok, :warn, :risk, :info, :neutral, :indigo, :emerald],
+    default: :ok
+
   attr :pulse, :boolean, default: false
 
   attr :label, :string,
@@ -49,12 +53,51 @@ defmodule DevactionUI.Badge do
       aria-hidden={is_nil(@label) && "true"}
       class={[
         "inline-block size-2 rounded-full",
-        Tone.fill(@tone),
-        @pulse && "animate-pulse motion-reduce:animate-none",
+        Tone.dot(@tone),
+        @pulse && "animate-pulse-dot motion-reduce:animate-none",
         @class
       ]}
       {@rest}
     />
+    """
+  end
+
+  attr :initials, :string,
+    default: nil,
+    doc: "the letters in the small avatar; ignored when the `avatar` slot is given"
+
+  attr :tone, :atom,
+    values: [:indigo, :emerald, :risk, :warn, :ok, :info, :neutral],
+    default: :indigo,
+    doc: "the tint of the small avatar"
+
+  attr :class, :any, default: nil
+  attr :rest, :global
+  slot :avatar, doc: "replaces the initials, drawn by the caller in a 22 px circle"
+  slot :inner_block, required: true, doc: "the name"
+
+  @doc "A pill with a small avatar and a name, for a person assigned to something."
+  def chip(assigns) do
+    ~H"""
+    <span
+      class={[
+        "inline-flex items-center gap-1.5 rounded-full bg-tag-neutral-bg py-1 pr-2.5 pl-1 text-[13px] text-ink",
+        @class
+      ]}
+      {@rest}
+    >
+      <span
+        class={[
+          "flex size-[22px] shrink-0 items-center justify-center overflow-hidden rounded-full font-mono text-[10px]",
+          Tone.bg(@tone),
+          Tone.text(@tone)
+        ]}
+        aria-hidden="true"
+      >
+        {(@avatar != [] && render_slot(@avatar)) || @initials}
+      </span>
+      {render_slot(@inner_block)}
+    </span>
     """
   end
 end

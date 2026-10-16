@@ -1,0 +1,12 @@
+<%!-- title: Vertical | text: orientation vertical puts the tabs in a column beside the panels; the keys are Up, Down, Home and End. --%>
+<Tabs.tabs id="tabs-vertical" label="Account settings" variant={:line} orientation={:vertical}>
+  <:tab id="tabs-vertical-profile" label="Profile">
+    <p class="text-sm text-ink-2">Your name, photo and the language of the interface.</p>
+  </:tab>
+  <:tab id="tabs-vertical-security" label="Security" count="2" count_tone={:warn}>
+    <p class="text-sm text-ink-2">Password, two-step verification and active sessions.</p>
+  </:tab>
+  <:tab id="tabs-vertical-billing" label="Billing">
+    <p class="text-sm text-ink-2">Plan, invoices and the payment method.</p>
+  </:tab>
+</Tabs.tabs>

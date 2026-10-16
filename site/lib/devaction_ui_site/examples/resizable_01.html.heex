@@ -1,0 +1,23 @@
+<%!-- title: Two panels | text: Drag the divider, press the left and right arrows (Shift for a larger step) or double click it to go back to 50/50. The sizes in the labels are the caller's. --%>
+<Resizable.group
+  id="resizable-basic"
+  label="Review"
+  handle_label="Resize the panels"
+  class="h-[300px]"
+>
+  <:panel id="diff" size={58} min={20} max={80} class="p-4">
+    <span class="block font-mono text-[11px] text-muted">DIFF · <span data-size-value>58</span>%</span>
+    <span class="mt-2.5 block font-mono text-xs leading-[1.9] text-ink-2">
+      <span class="block bg-del whitespace-pre text-tag-risk-strong">{"-  @required ~w(title amount contract_id)a"}</span>
+      <span class="block bg-add whitespace-pre text-tag-ok-strong">{"+  @required ~w(title amount contract_id due_on)a"}</span>
+      <span class="block whitespace-pre">{"   def changeset(milestone, attrs) do"}</span>
+      <span class="block bg-add whitespace-pre text-tag-ok-strong">{"+    milestone |> cast(attrs, @required)"}</span>
+    </span>
+  </:panel>
+  <:panel id="summary" size={42} class="bg-tag-warn-bg/40 p-4">
+    <span class="block font-mono text-[11px] text-tag-warn-text">AI SUMMARY · <span data-size-value>42</span>%</span>
+    <span class="mt-2.5 block text-sm leading-relaxed text-ink-2">
+      The PR makes due_on required. Two blocking findings: there is no migration for old milestones and the test does not cover a milestone with no date. Apart from that, the change stays within the scope of M3.
+    </span>
+  </:panel>
+</Resizable.group>

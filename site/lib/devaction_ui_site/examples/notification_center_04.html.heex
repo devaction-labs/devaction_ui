@@ -1,0 +1,19 @@
+<%!-- title: Empty | text: A tab with nothing in it says so with the empty_label. | layout: center --%>
+<div class="w-full max-w-[420px]">
+  <NotificationCenter.panel
+    id="notifications-empty"
+    title="Notifications"
+    read_all_label="Mark all as read"
+    tabs_label="Filter notifications"
+    tabs={[
+      %{id: "all", label: "All", count: nil},
+      %{id: "mentions", label: "Mentions", count: nil}
+    ]}
+    tab="mentions"
+    groups={[]}
+    unread_label="Unread"
+    empty_label="Nothing here."
+    preferences_label="Notification preferences"
+    all_label="See all"
+  />
+</div>

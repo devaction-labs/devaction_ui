@@ -1,0 +1,37 @@
+<%!-- title: Basic | text: The text and three actions; Preferences opens the categories and Esc closes only them. Here it flows in the page (fixed false). --%>
+<CookieConsent.banner
+  id="cookies-basic"
+  fixed={false}
+  title="We use cookies."
+  open={@cookies.open}
+  privacy_label="Privacy policy"
+  privacy_href="#"
+  preferences_label="Preferences"
+  preferences_event="cookies_prefs"
+  necessary_label="Only necessary"
+  necessary_event="cookies_necessary"
+  accept_label="Accept all"
+  accept_event="cookies_accept"
+  category_event="cookies_category"
+>
+  The necessary ones keep you signed in. Analytics ones help us improve the site and only turn on if you accept.
+  <:category
+    id="necessary"
+    title="Necessary"
+    description="Session, security and theme preferences. Always on."
+    locked
+  />
+  <:category
+    id="analytics"
+    title="Analytics"
+    description="Pages visited, without identifying you."
+    checked={@cookies.analytics}
+  />
+  <:category
+    id="marketing"
+    title="Marketing"
+    description="Measure ad campaigns."
+    checked={@cookies.marketing}
+  />
+</CookieConsent.banner>
+<p :if={@cookies.answered} class="mt-3 text-xs text-muted">Answered: {@cookies.answered}.</p>

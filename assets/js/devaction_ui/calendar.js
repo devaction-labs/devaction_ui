@@ -1,4 +1,4 @@
-import {target} from "./calendar_logic.js"
+import {gridTarget} from "./keys.js"
 
 /**
  * The keyboard of a calendar grid: `phx-hook="DevactionUI.Calendar"` on the `role="grid"` box with
@@ -41,7 +41,7 @@ export default {
 
     const cells = this.cells()
     const index = cells.indexOf(cell)
-    const next = target(index, event.key, {columns: Number(this.el.dataset.columns), total: cells.length})
+    const next = gridTarget(index, event.key, {columns: Number(this.el.dataset.columns), total: cells.length})
     if (next === null) return
 
     event.preventDefault()

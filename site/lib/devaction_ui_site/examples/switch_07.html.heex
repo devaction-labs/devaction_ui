@@ -1,0 +1,16 @@
+<%!-- title: In a form | text: With a name the switch carries "true" or "false" in a hidden field, so a form submits it and phx-change hears it. --%>
+<form class="flex max-w-md flex-col" phx-change="noop" phx-submit="noop">
+  <Switch.switch_row
+    id="switch-field-digest"
+    name="settings[digest]"
+    label="Weekly digest"
+    description="Sent on Mondays; saved with the form."
+    checked
+  />
+  <Switch.switch_row
+    id="switch-field-push"
+    name="settings[push]"
+    label="Push on the phone"
+    description="Off until you turn it on."
+  />
+</form>

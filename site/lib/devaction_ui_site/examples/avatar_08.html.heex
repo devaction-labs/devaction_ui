@@ -1,0 +1,8 @@
+<%!-- title: Colour by name | text: tone auto picks one of four colours from a stable hash of the name | layout: center --%>
+<div class="flex flex-wrap items-center gap-3">
+  <Avatar.avatar
+    :for={name <- ["Ana Lima", "Bruno Costa", "Carla Dias", "Diego Melo", "Elisa Rocha"]}
+    name={name}
+    tone={:auto}
+  />
+</div>

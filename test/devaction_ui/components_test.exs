@@ -105,12 +105,169 @@ defmodule DevactionUI.ComponentsTest do
     end
   end
 
+  describe "code_block/1 regions and copy" do
+    test "the neutral and ok tones are tinted like the risk one" do
+      assigns = %{}
+
+      for {tone, border} <- [neutral: "border-tag-neutral-line", ok: "border-tag-ok-line"] do
+        assigns = Map.put(assigns, :tone, tone)
+        html = rendered_to_string(~H|<.code_block tone={@tone} label="L" code="x" />|)
+
+        assert html =~ border
+        assert html =~ "text-tag-#{tone}-text"
+      end
+    end
+
+    test "a label makes the block a named region the keyboard can focus" do
+      assigns = %{}
+      html = rendered_to_string(~H|<.code_block label="The fix" code="x" />|)
+
+      assert html =~ ~s(role="region")
+      assert html =~ ~s(aria-label="The fix")
+      assert html =~ ~s(tabindex="0")
+    end
+
+    test "without a label there is neither a region nor a tab stop" do
+      assigns = %{}
+      html = rendered_to_string(~H|<.code_block code="x" />|)
+
+      refute html =~ "role="
+      refute html =~ "tabindex"
+    end
+
+    test "copy_label adds a hidden button under the hook, and says nothing without it" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(
+          ~H|<.code_block id="cb" copy_label="Copy" copied_label="Copied" code="x" />|
+        )
+
+      assert html =~ ~s(phx-hook="DevactionUI.CodeCopy")
+      assert html =~ ~s(data-copied-label="Copied")
+      assert html =~ ~r/<button[^>]*hidden[^>]*data-code-copy/
+      assert html =~ ">Copy<"
+      assert html =~ ~s(role="status")
+
+      plain = rendered_to_string(~H|<.code_block id="cb" code="x" />|)
+      refute plain =~ "button"
+      refute plain =~ "phx-hook"
+    end
+
+    test "the copy icon replaces the visible name, which stays for assistive technology" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <.code_block id="cb" copy_label="Copy" code="x">
+          <:copy_icon>ICON</:copy_icon>
+        </.code_block>
+        """)
+
+      assert html =~ "ICON"
+      assert html =~ ~r/class="sr-only">Copy</
+    end
+
+    test "the hook needs an id, so a copy button without one is a mistake" do
+      assigns = %{}
+
+      assert_raise ArgumentError, ~r/id/, fn ->
+        rendered_to_string(~H|<.code_block copy_label="Copy" code="x" />|)
+      end
+    end
+  end
+
+  describe "code_block/1 lines" do
+    defp lines_of(html) do
+      html |> LazyHTML.from_fragment() |> LazyHTML.query("code > span.code-line")
+    end
+
+    test "without a line feature the code is one run, with no line spans" do
+      assigns = %{code: "a\nb"}
+      html = rendered_to_string(~H|<.code_block code={@code} />|)
+
+      assert Enum.empty?(lines_of(html))
+      refute html =~ "--code-gutter"
+    end
+
+    test "line_numbers numbers every line, sizes the gutter and keeps the text copyable" do
+      code = Enum.map_join(1..12, "\n", &"l#{&1}")
+      assigns = %{code: code}
+      html = rendered_to_string(~H|<.code_block code={@code} line_numbers />|)
+
+      assert Enum.count(lines_of(html)) == 12
+      assert html =~ ~s(data-line="12")
+      assert html =~ ~s(data-numbered)
+      assert html =~ "--code-gutter: 2ch"
+
+      text = html |> LazyHTML.from_fragment() |> LazyHTML.query("code") |> LazyHTML.text()
+      assert text == code
+    end
+
+    test "highlight_lines marks numbers and ranges" do
+      assigns = %{code: "a\nb\nc\nd\ne"}
+      html = rendered_to_string(~H|<.code_block code={@code} highlight_lines={[2, 4..5]} />|)
+
+      marked =
+        html
+        |> LazyHTML.from_fragment()
+        |> LazyHTML.query("[data-highlighted]")
+        |> Enum.map(&(&1 |> LazyHTML.attribute("data-line") |> hd()))
+
+      assert marked == ["2", "4", "5"]
+    end
+
+    test "diff reads the marker of each line and keeps it in the text" do
+      assigns = %{code: "  keep\n+ new\n- old"}
+      html = rendered_to_string(~H|<.code_block code={@code} diff />|)
+
+      kinds =
+        html
+        |> LazyHTML.from_fragment()
+        |> LazyHTML.query("[data-diff]")
+        |> Enum.map(&(&1 |> LazyHTML.attribute("data-diff") |> hd()))
+
+      assert kinds == ["context", "add", "del"]
+      assert html =~ "+ new" and html =~ "- old"
+    end
+
+    test "lines go with a language: the tokens are coloured inside each line" do
+      assigns = %{code: "def a\nend"}
+      html = rendered_to_string(~H|<.code_block lang={:elixir} code={@code} line_numbers />|)
+
+      assert html =~ ~s(<span class="text-[#C4A7E7]">def</span>)
+      assert Enum.count(lines_of(html)) == 2
+    end
+  end
+
   test "kbd/1 draws a key cap" do
     assigns = %{}
     html = rendered_to_string(~H|<.kbd>⌘K</.kbd>|)
     assert html =~ "<kbd"
     assert html =~ "⌘K"
     assert html =~ "border-b-2"
+    assert html =~ "border-line"
+    refute html =~ "border-line-strong"
+  end
+
+  test "kbd/1 has an inverse tone for dark surfaces and a bare one for menus" do
+    assigns = %{}
+
+    inverse = rendered_to_string(~H|<.kbd tone={:inverse}>⌘B</.kbd>|)
+    assert inverse =~ "bg-kbd-inverse"
+    assert inverse =~ "text-[10px]"
+    refute inverse =~ "border"
+
+    bare = rendered_to_string(~H|<.kbd tone={:bare}>⌘E</.kbd>|)
+    assert bare =~ "text-muted"
+    refute bare =~ "border"
+    refute bare =~ "bg-"
+  end
+
+  test "kbd/1 has a larger cap" do
+    assigns = %{}
+    html = rendered_to_string(~H|<.kbd size={:md}>Esc</.kbd>|)
+    assert html =~ "px-[7px]"
   end
 
   describe "progress/1" do

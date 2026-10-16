@@ -9,13 +9,14 @@ defmodule DevactionUISite.Catalog do
 
   @categories [
     {"Base",
-     ~w(Accordion Alert Avatar Badge Button Callout CodeBlock EmptyState Kbd Panel Progress Skeleton Spinner Stat Tabs Tag Timeline)},
+     ~w(Accordion Alert Avatar Badge Banner Button Callout CodeBlock DescriptionList EmptyState Kbd Panel Progress Separator Skeleton Spinner Stat Tabs Tag Timeline)},
     {"Overlay",
-     ~w(CommandPalette ConfirmDialog DangerDialog Drawer Dropdown Modal Popover ProgressToast ToastGroup Tooltip)},
+     ~w(CommandPalette ConfirmDialog ContextMenu CookieConsent DangerDialog Drawer Dropdown HoverCard Modal NotificationCenter Popover ProgressToast ToastGroup Tooltip)},
     {"Form",
-     ~w(Autocomplete Choice ColorPicker Combobox DatePicker Dropzone Editor FilterMenu InputGroup MoneyInput NumberInput Pillbox Segmented SignatureField Slider Switch Textarea Timer)},
+     ~w(Autocomplete Choice ColorPicker Combobox CopyField DatePicker DateRange Dropzone Editor Field FilterMenu FilterPill InputGroup MoneyInput NumberInput OtpInput PasswordStrength Pillbox Segmented SignatureField Slider Switch Textarea TimeField Timer)},
     {"Navigation", ~w(Breadcrumb PageHeader Pagination Sidebar Stepper Steps)},
-    {"Data", ~w(Calendar Chart DataTable Kanban)},
+    {"Data",
+     ~w(Calendar Chart DataTable DiffView FileTree Kanban PdfViewer Pricing Resizable SortableList)},
     {"AI", ~w(AiPrompt Aura ChatBubble)}
   ]
 
@@ -45,11 +46,20 @@ defmodule DevactionUISite.Catalog do
 
   @entries Enum.flat_map(@groups, fn {_category, entries} -> entries end)
 
+  @since_v02 ~w(Banner ContextMenu CookieConsent CopyField DateRange DescriptionList DiffView Field FileTree
+                FilterPill HoverCard NotificationCenter OtpInput PdfViewer Pricing Resizable Separator
+                SortableList TimeField)
+
   @doc "The components, grouped by category, in the order of the sidebar."
   def groups, do: @groups
 
   @doc "Every component in order."
   def all, do: @entries
+
+  @doc "The version a component came with: the ones added in v0.2 say 0.2, the rest say 0.1."
+  def since(%{module: module}), do: since(Reference.short(module))
+  def since(name) when name in @since_v02, do: "0.2"
+  def since(_name), do: "0.1"
 
   @doc "The category a component belongs to."
   def group_of(%{category: category}), do: category

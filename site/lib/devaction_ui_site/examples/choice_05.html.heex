@@ -1,0 +1,36 @@
+<%!-- title: Stacked Cards | text: The mark above the text and the input on top, for cards in a grid --%>
+<fieldset id="choice-stack" class="m-0 grid gap-2 border-0 p-0 sm:grid-cols-3">
+  <legend class="mb-1 text-sm font-medium">Plan</legend>
+  <Choice.choice_card
+    id="choice-stack-free"
+    layout={:stack}
+    name="choice_plan"
+    value="free"
+    label="Free"
+    description="One workspace."
+    checked
+  >
+    <:icon><.icon name="sparkles" class="size-5" /></:icon>
+  </Choice.choice_card>
+  <Choice.choice_card
+    id="choice-stack-team"
+    layout={:stack}
+    name="choice_plan"
+    value="team"
+    label="Team"
+    description="Shared reviews."
+  >
+    <:icon><.icon name="github" class="size-5" /></:icon>
+  </Choice.choice_card>
+  <Choice.choice_card
+    id="choice-stack-off"
+    layout={:stack}
+    name="choice_plan"
+    value="enterprise"
+    label="Enterprise"
+    description="Ask the sales team."
+    disabled
+  >
+    <:icon><.icon name="mail-01" class="size-5" /></:icon>
+  </Choice.choice_card>
+</fieldset>

@@ -53,7 +53,14 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
    so there is no `@source` to add.
 2. JS: `import {hooks as devactionUI} from "../../deps/devaction_ui/assets/js/devaction_ui"` and merge into
    the LiveSocket `hooks`.
-3. Fonts: Geist and Geist Mono are named in the tokens; the host app serves them.
+3. Editor only: `DevactionUI.Editor` needs TipTap. Copy the `dependencies` of `deps/devaction_ui/assets/package.json`
+   (the `@tiptap/*` packages, pinned to 3.32.0) into the app's `package.json` and `npm install`. The hook loads
+   TipTap with a dynamic `import()` when an editor is mounted, so an app that renders none can skip this.
+4. Fonts: Geist and Geist Mono are named in the tokens; the host app serves them. The minimum is the
+   canvas's own link: `https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap`.
+   The typed name of `SignatureField` uses Caveat (weight 500), which the host app serves too.
+5. Theme: the stylesheet sets `:root { color-scheme: light dark }`, so the page follows the system theme.
+   To pin one, set `data-theme="light"` or `data-theme="dark"` (or the `.light` / `.dark` class) on `<html>`.
 
 ## The rules that keep it extractable
 
@@ -80,13 +87,14 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 | `DevactionUI.Tone` | the five tones (`risk`, `warn`, `ok`, `info`, `neutral`) as class strings, and the canvas's kinds (`note`, `ai`, `tip`, `warning`, `decision`) mapped to them |
 | `DevactionUI.Tag` | the mono label; `variant`, `size: :md \| :sm`, `surface: :tinted \| :plain` |
 | `DevactionUI.Callout` | a tinted block with title, icon, body and actions |
-| `DevactionUI.CodeBlock` | code in mono: the dark suggestion block and the tinted "your code" / "idiomatic" ones |
+| `DevactionUI.CodeBlock` | code in mono: the dark suggestion block and the tinted "your code" / "idiomatic" ones; a `label` makes it a focusable region, `copy_label` adds a copy button; `lang: :heex` or `:elixir` colours it; `line_numbers`, `highlight_lines` and `diff` work on its lines |
 | `DevactionUI.Kbd` | a key cap |
 | `DevactionUI.Panel` | the canvas card (a soft wrap around a bordered panel), `eyebrow/1` and `empty/1` |
 | `DevactionUI.Button` | button or link, `variant` (primary, secondary, ghost, ai, danger, info, link), `size` sm/md/lg, `loading` |
 | `DevactionUI.Alert` | a short message with an icon and a title |
 | `DevactionUI.Breadcrumb` | where the page is |
 | `DevactionUI.Pagination` | page links with a window and gaps |
+| `DevactionUI.PdfViewer` | a PDF viewer with a thumbnail rail, a toolbar, signature fields in percent of the page and a panel of signers; pdf.js draws the page in the hook (`pdfjs-dist`, loaded by `import()`, the worker URL from `worker_src`), and a server-rendered page slot is the fallback |
 | `DevactionUI.Stat` | a number with its caption, a trend and an inverted `highlight` |
 | `DevactionUI.Badge` | `count/1` bubble and `dot/1` status dot, optionally pulsing |
 | `DevactionUI.Steps` | steps with connectors: done, current, pending |
@@ -94,27 +102,60 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 | `DevactionUI.Tabs` | boxed or underlined tabs, switched on the client with ← → Home End |
 | `DevactionUI.Accordion` | `<details>` sections, exclusive through a shared `name`, no JavaScript |
 | `DevactionUI.Tooltip` | a hint on hover and focus, CSS only |
-| `DevactionUI.Pillbox` | removable pills in a field; Enter or comma adds, Backspace removes |
+| `DevactionUI.Pillbox` | removable pills in a field; Enter or comma adds, Backspace removes; `empty_sentinel` makes an emptied list still reach the server |
+| `DevactionUI.FilterPill` | the round pills of a filter bar: on or off (ink), amber, with a ×, and the dashed `add_pill/1` |
+| `DevactionUI.ColorPicker` | a hex field with a panel: saturation and brightness square, hue and opacity strips, presets, the eyedropper where the browser has one |
+| `DevactionUI.Slider` | a native range input and a two-thumb range slider whose thumbs never cross, with the fill and the value following the drag; a value `bubble` over the thumb and a `:vertical` orientation |
+| `DevactionUI.SignatureField` | draw or type a signature; the pad stays mounted when the mode changes, and the SVG of the stroke is safe to keep. The typed name is set in the Caveat font (weight 500), which you load yourself |
 | `DevactionUI.Combobox` | a select with a search field, accent-insensitive filtering and the ARIA combobox keys |
-| `DevactionUI.DataTable` | sticky header, sortable columns (`aria-sort`, the server sorts), row selection with a tri-state header checkbox and a bulk bar that shows while something is ticked, two densities |
-| `DevactionUI.Kanban` | columns with WIP limits and cards that move by drag or Alt + arrows, announced to screen readers; the LiveView gets one `move_card` event |
+| `DevactionUI.DataTable` | sticky header, sortable columns (`aria-sort`, the server sorts), row selection with a tri-state header checkbox and a bulk bar that shows while something is ticked, two densities; `toolbar` and `footer` slots, a density toggle, `loading` (skeleton rows) and `error` states, and a default empty text through an attr |
+| `DevactionUI.Kanban` | columns with WIP limits and cards that move by drag or Alt + arrows, announced to screen readers; the LiveView gets one `move_card` event; dragging works with mouse, pen and touch (pointer events); the keyboard keeps Alt + arrows |
+| `DevactionUI.FileTree` | the tree of changed files of a review: status letters, findings badges, search, filter pills and a legend; arrows, ← → and Home End move and open it; sends `select_file` and a folder toggle |
+| `DevactionUI.DiffView` | the unified diff of one file with old and new line numbers, a comment button on every line, tinted added and removed rows and the conversation (`line_thread`) with a suggested change and a reply field |
+| `DevactionUI.SortableList` | rows put in order by dragging a handle, by up and down buttons or by keyboard (Space picks up, arrows move, Space drops, Esc cancels), each step said in a live region; the LiveView gets one `reorder` event with the new order of ids and owns the order |
+| `DevactionUI.Resizable` | panels with dividers (`role="separator"`) moved by drag, ← → (Shift for a larger step), Home and End, and a double click that shares two panels equally; min and max percentages, horizontal or vertical; the sizes are sent when a move ends and nothing is stored |
+| `DevactionUI.Editor` | a TipTap toolbar and surface that sends HTML and Markdown in hidden inputs; `/` blocks, `@` mentions, image upload, an AI tool, a compact comment form, visible label, error and disabled; `toolbar_position` for a compact editor with the toolbar at the bottom, and attrs for the CSRF header and the event names of uploads |
+| `DevactionUI.Editor.suggest/1` | the popup of the `@` and `/` menus as a component: a group label, rows with a mark, title and hint, and the active row with its Enter key cap |
 | `DevactionUI.Autocomplete` | a field with grouped suggestions (the server searches), the match in bold, ↑ ↓ Enter, ⌘↵ for an "ask the AI" row |
-| `DevactionUI.DatePicker` | a month calendar for one day or a range, keyboard grid, shortcuts, dates as ISO in hidden inputs; plus `due_chip/1` (late, today, later) |
+| `DevactionUI.DatePicker` | a month calendar for one day or a range, keyboard grid, shortcuts, dates as ISO in hidden inputs; plus `due_chip/1` (late, today, later); `date_input/1` (a masked field with the calendar in a popover) and `date_range/1` (two linked fields) |
+| `DevactionUI.DateRange` | a trigger that shows a range and a popover with ready-made ranges, two months with the band and a hover preview, the days picked and Cancel / Apply; ISO dates in two hidden inputs, and an optional column for a `TimeField` |
+| `DevactionUI.Calendar` | a month or a week of days with coloured event chips, a keyboard grid (arrows, Home, End, Page keys); `title` and `cell_label` come from the caller; the week view has an hours grid (`hours` range, `weekend`, events with `starts_at`/`ends_at`), a `legend` slot and the `:chart_1` to `:chart_4` kinds |
 | `DevactionUI.Popover` | a panel with an arrow anchored to a button; Esc and outside click close it, focus goes in and comes back |
 | `DevactionUI.ToastGroup` | notices stacked into layers with a count, opened into a list, auto-dismissing and pausing on hover |
 | `DevactionUI.EmptyState` | the dashed card of a list with nothing in it: icon chip, title, one line, optional action |
-| `DevactionUI.Avatar` | two letters in a circle (`initials/1`) and a stack that overlaps by 8px, named once as a group |
+| `DevactionUI.Avatar` | two letters in a circle (`initials/1`) and a stack that overlaps by 8px, named once as a group, and `group/1` (rounded squares overlapping by a quarter, status dots, a `+N` chip, a caption) |
 | `DevactionUI.ChatBubble` | one message with the AI (left, with its mark) or the person (right, in ink); amber when the AI did something |
-| `DevactionUI.AiPrompt` | the ink pill that talks to the AI: amber dot, field, round send button; a form, so Enter sends |
+| `DevactionUI.AiPrompt` | the ink pill that talks to the AI: amber dot, required field, round send button; `loading`, `disabled`, `streaming` with a stop button, an `attachments` slot and a `target`; a form, so Enter sends |
+| `DevactionUI.Sidebar` | the app's side menu, 236 px or 64 px collapsed with tooltips; `aria-current`, a toned `count` per item, collapsible `group`s, `responsive` to keep it on small screens; `Sidebar.search` (with the key hint) and `Sidebar.user` (avatar, name, menu trigger) for its header and footer |
+| `DevactionUI.AuthCard` | the card of a sign-in screen: grid and glow header, icon tile (`brand` or amber), `h1`/`h2` title, form, quiet footer strip |
+| `DevactionUI.AuthLayout` | the framed page around it: product column with reasons to sign in, the card, a footer `nav` (named by `nav_label`); `AuthLayout.auth_brand` draws the mark tile and the name |
+| `DevactionUI.Highlight` | `heex/1` and `elixir/1`: split source into `{kind, text}` tokens (tags, components, slots, attributes, `:if`/`:for`/`phx-*` directives, strings, the Elixir inside expressions, comments) for `CodeBlock`; `lines/1` cuts them at the line breaks |
 | `DevactionUI.MoneyInput` | a field masked as `R$ 1.234,56` (`DevactionUI.MoneyMask` hook); `parse/1` returns the cents |
 | `DevactionUI.Dropdown` | a button with a menu of actions or choices (radio items with a check), ↑ ↓ Home End Esc |
+| `DevactionUI.ContextMenu` | the menu of a right click or Shift + F10 on an area, placed at the pointer and kept inside the window, with the items of a `Dropdown` (icons, shortcuts, separators, danger), roving focus and typeahead; with a `more` slot the same items also open from a "···" button |
+| `DevactionUI.HoverCard` | a card on a dotted-underline trigger that opens after 400 ms of pointer or on focus, closes with a delay so the pointer can reach it, Esc dismisses it, a tap opens it on touch (WCAG 1.4.13) |
 | `DevactionUI.ConfirmDialog` | the modal that asks before something that cannot be taken back; focus trapped, Esc closes |
-| `DevactionUI.Dropzone` | the dashed area over a LiveView upload; lights up while a file is over it |
-| `DevactionUI.Aura` | a turning ring of light (or a breathing halo) around the AI at work |
+| `DevactionUI.Dropzone` | the dashed area over a LiveView upload; lights up (and announces it) while a file is over it, writes the limits from the upload config, lists each file with a progress bar and a remove button; `queue/1` adds the gridded area and a row per file (sent, uploading, stopped with Try again, queued, refused), the summary and Clear finished |
+| `DevactionUI.Choice` | checkbox (with the partial state and a task style), radio, choice card, and the `checkbox_group/1` and `radio_group/1` fieldsets with help and error |
+| `DevactionUI.Switch` | a `role="switch"` button for what takes effect at once; `name` makes it a form field through a hidden input; row, card and the `saved_note/1` live region |
+| `DevactionUI.Segmented` | a pill of toggle buttons (`aria-pressed`) with a roving tabindex and arrow keys, counts, disabled options and `patch`/`navigate` |
+| `DevactionUI.NotificationCenter` | `panel/1`: the notification panel (tabs with unread counts, day groups, tone-coloured icon tiles, warm unread tint and dot, "mark all as read", footer); ↑ ↓ between rows, ← → between tabs; events by attr, the `icon` slot receives the item |
+| `DevactionUI.Pricing` | `table/1`: a billing toggle built on `Segmented` and a card per plan (price, period and features all by attr, never invented), a highlighted plan with a ribbon, a text-only plan, a `check` slot |
+| `DevactionUI.CookieConsent` | `banner/1`: a non-modal `role="dialog"` anchored to the bottom, three actions and the category list with a switch each (the first locked on); Esc closes only the preferences |
+| `DevactionUI.Aura` | a turning ring of light (or a breathing halo) around the AI at work; `variant`, `size`, `shape`, `speed`; still under reduced motion |
+| `DevactionUI.Chart` | SVG charts drawn on the server: a line chart (with a table view), bars, columns, a ring and a sparkline; the four `chart-*` colours, hover and focus dim the others |
 | `DevactionUI.Progress` | a linear progress bar |
 | `DevactionUI.ProgressToast` | a notice that fills as a job advances, with an aura, and leaves by itself when it is done |
 | `DevactionUI.Skeleton` | a shimmering placeholder |
+| `DevactionUI.Timer` | hours on a task in large mono digits (`HH:MM:SS`), start or pause and stop and log; the server owns the seconds, the browser only draws them between updates; `timer_mini/1` (a dot and `HH:MM` for the app bar) and `time_log/1` (the list of what was logged today) |
+| `DevactionUI.TimeField` | a start and an end time as `HH:MM` text with the suggestions around the one in focus (each with its length), the chosen one inverted, the duration and a note; arrows, Enter and a mask |
+| `DevactionUI.OtpInput` | the boxes of a one-time code: paste fills them all, Backspace steps back, `autocomplete="one-time-code"`, the joined code in one hidden input; idle, error and ok states, a helper line and a resend slot |
 | `DevactionUI.Spinner` | a spinning ring |
+| `DevactionUI.Field` | the label (required `*`, an `optional` word), hint, error with icon and `182 / 200` counter around any input; hands the ids (`aria-describedby`, `aria-invalid`, `aria-required`) to the input through `:let={field}` |
+| `DevactionUI.DescriptionList` | term and value rows in a real `dl`, hairlines between them; an item can be a link, a tone or monospace; `:inline` or `:stacked` |
+| `DevactionUI.Separator` | the hairline plain, with a text in the middle (`or continue with`), vertical, and `inline/1`, a row of facts divided by bars |
+| `DevactionUI.CopyField` | a read-only monospace value with a show/hide eye (masked with bullets, the server owns it) and a Copy button that says `copied_label` (the `DevactionUI.CopyField` hook) |
+| `DevactionUI.Banner` | the full-width strip in four tones (info, warning, critical, offline) with an icon, a bold lead, an action and a dismiss button; `critical` is an alert |
 
 Where an app also has its own `alert`, `badge`, `button` or `pagination`, call these qualified
 (`<DevactionUI.Alert.alert>`) instead of importing them, so the two never collide.

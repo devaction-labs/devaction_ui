@@ -2,6 +2,8 @@ import Config
 
 config :phoenix, :json_library, Jason
 
+config :devaction_ui_site, ecto_repos: [DevactionUISite.Repo]
+
 config :devaction_ui_site, DevactionUISite.Endpoint,
   url: [host: "localhost"],
   adapter: Bandit.PhoenixAdapter,

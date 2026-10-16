@@ -1,4 +1,6 @@
-const SIZE = {width: 400, height: 160}
+const SIZE = {width: 360, height: 170}
+
+const DEFAULT_COLOR = "#18181B"
 
 /** One decimal, so a stroke stays short. */
 export function round(value) {
@@ -26,9 +28,12 @@ export function signaturePath(strokes) {
   return strokes.map(strokePath).join(" ")
 }
 
-/** The SVG of a path, or `null` when nothing was drawn. The path is only commands and numbers, written by the code above. */
-export function toSvg(path) {
+/** The SVG of a path in `color`, or `null` when nothing was drawn. The path is only commands and numbers, written by the code above. */
+export function toSvg(path, color = DEFAULT_COLOR) {
   return path === ""
     ? null
-    : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${SIZE.width} ${SIZE.height}"><path d="${path}" fill="none" stroke="#18181B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+    : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${SIZE.width} ${SIZE.height}"><path d="${path}" fill="none" stroke="${color}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
 }
+
+/** The status text for the strokes drawn: `empty` with none, `ready` with some. */
+export const statusText = (strokes, {empty, ready}) => (strokes.length === 0 ? empty : ready) ?? ""

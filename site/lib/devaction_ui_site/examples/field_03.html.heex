@@ -1,0 +1,19 @@
+<%!-- title: Error | text: The message is announced, the input turns invalid and both are linked for assistive technology --%>
+<Field.field
+  :let={field}
+  id="field-error"
+  label="Repository slug"
+  required
+  error="Use only lowercase letters, numbers and hyphens."
+  class="max-w-md"
+>
+  <:error_icon><.icon name="alert-02" /></:error_icon>
+  <InputGroup.input_group
+    id={field.id}
+    name="slug"
+    value="devaction-labs/SGE API"
+    invalid={field.invalid}
+    aria-required="true"
+    aria-describedby={field.aria[:"aria-describedby"]}
+  />
+</Field.field>

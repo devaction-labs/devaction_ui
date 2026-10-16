@@ -1,7 +1,7 @@
 defmodule DevactionUI.MixProject do
   use Mix.Project
 
-  @version "0.1.0"
+  @version "0.2.0"
   @source_url "https://github.com/devaction-labs/devaction_ui"
 
   def project do
@@ -48,12 +48,13 @@ defmodule DevactionUI.MixProject do
     [
       licenses: ["MIT"],
       links: %{"GitHub" => @source_url},
-      files: ~w(lib assets/css assets/js README.md LICENSE mix.exs),
+      files:
+        ~w(lib assets/css assets/js assets/package.json README.md CHANGELOG.md LICENSE mix.exs),
       exclude_patterns: [~r/\.test\.js$/]
     ]
   end
 
   defp docs do
-    [main: "readme", extras: ["README.md"], source_ref: "v#{@version}"]
+    [main: "readme", extras: ["README.md", "CHANGELOG.md"], source_ref: "v#{@version}"]
   end
 end

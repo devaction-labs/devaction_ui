@@ -4,12 +4,14 @@ import {LiveSocket} from "phoenix_live_view"
 import {hooks as devactionUI} from "../../../assets/js/devaction_ui"
 import SiteFit from "./site_fit.js"
 import SiteToc from "./site_toc.js"
+import SiteChangelog from "./site_changelog.js"
+import SiteInstall from "./site_install.js"
 
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
   params: {_csrf_token: csrfToken, tz_offset: new Date().getTimezoneOffset()},
-  hooks: {...devactionUI, SiteFit, SiteToc},
+  hooks: {...devactionUI, SiteFit, SiteToc, SiteChangelog, SiteInstall},
 })
 
 liveSocket.connect()

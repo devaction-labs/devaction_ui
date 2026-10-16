@@ -1,15 +1,20 @@
-import {monthOf, moveFocus, pick, sameDayIn, shiftMonth} from "./dates.js"
+import {clampMin, monthOf, moveFocus, pick, sameDayIn, shiftMonth} from "./dates.js"
 import {renderCalendar} from "./date_picker_view.js"
+import {notify} from "./dom.js"
 import {runKey} from "./keys.js"
 
 const UTC = {timeZone: "UTC"}
+const SET_EVENT = "devaction:date-picker-set"
 
 /**
  * A month calendar for one day or a range. The server gives it what only the server knows (`data-today` in
  * the workspace's time zone, the minimum, the locale, the shortcuts); month and weekday names come from the
  * browser's `Intl`. A pick goes into the hidden inputs as ISO dates and fires `input` so `phx-change` hears
  * it. Keys: ← → a day, ↑ ↓ a week, PageUp/PageDown a month, Home/End the ends of the week, Enter picks.
- * The element is `phx-update="ignore"`: give it a new id to reset it from the server.
+ * The element is `phx-update="ignore"`: a new `value` from the server is not shown until the element gets a new
+ * id, unless something sends it a `devaction:date-picker-set` event with `{from, to}` in its `detail` (a
+ * `Phoenix.LiveView.JS.dispatch/3` from the server, or the date field that owns it). The month title is
+ * capitalised unless `data-capitalize="false"`; the arrows come from the `<template>`s of the icon slots.
  */
 export default {
   mounted() {
@@ -19,7 +24,8 @@ export default {
     this.min = data.min || null
     this.weekStart = Number.parseInt(data.weekStart, 10)
     this.selection = {from: data.from || null, to: data.to || null}
-    this.focus = this.selection.from ?? this.today
+    this.focus = clampMin(this.selection.from ?? this.today, this.min)
+    this.capitalize = data.capitalize !== "false"
     this.view = monthOf(this.focus)
 
     this.monthFormat = new Intl.DateTimeFormat(data.locale, {...UTC, month: "long", year: "numeric"})
@@ -28,7 +34,24 @@ export default {
 
     this.el.addEventListener("click", (event) => this.onClick(event))
     this.el.addEventListener("keydown", (event) => this.onKey(event))
+    this.el.addEventListener(SET_EVENT, (event) => this.set(event.detail))
     this.draw()
+  },
+
+  set({from = null, to = null} = {}) {
+    this.selection = {from, to}
+    this.focus = clampMin(from ?? this.focus, this.min)
+    this.view = monthOf(this.focus)
+    this.writeInputs()
+    this.draw()
+  },
+
+  writeInputs() {
+    const from = this.el.querySelector("[data-from-input]")
+    const to = this.el.querySelector("[data-to-input]")
+    from.value = this.selection.from ?? ""
+    to && (to.value = this.selection.to ?? "")
+    return from
   },
 
   onClick(event) {
@@ -67,18 +90,15 @@ export default {
     this.focus = iso
     this.view = jump ? monthOf(iso) : this.view
 
-    const from = this.el.querySelector("[data-from-input]")
-    const to = this.el.querySelector("[data-to-input]")
-    from.value = this.selection.from ?? ""
-    to && (to.value = this.selection.to ?? "")
+    const from = this.writeInputs()
 
     this.draw({refocus: true})
-    from.dispatchEvent(new Event("input", {bubbles: true}))
+    notify(from)
   },
 
   title() {
     const text = this.monthFormat.format(new Date(Date.UTC(this.view.year, this.view.month, 1)))
-    return text.charAt(0).toUpperCase() + text.slice(1)
+    return this.capitalize ? text.charAt(0).toUpperCase() + text.slice(1) : text
   },
 
   weekdays() {
@@ -86,6 +106,11 @@ export default {
     return [...Array(7)].map((_, index) =>
       this.weekdayFormat.format(new Date(Date.UTC(2023, 0, 1 + ((index + this.weekStart) % 7)))),
     )
+  },
+
+  icon(name) {
+    const html = this.el.querySelector(`template[data-${name}-icon]`)?.innerHTML.trim()
+    return html || undefined
   },
 
   draw({refocus = false} = {}) {
@@ -97,6 +122,9 @@ export default {
         weekdays: this.weekdays(),
         previous: data.previous,
         next: data.next,
+        previousIcon: this.icon("previous"),
+        nextIcon: this.icon("next"),
+        insideLabel: data.inside,
         dayLabel: (iso) => this.dayFormat.format(new Date(`${iso}T00:00:00Z`)),
       },
     )

@@ -1,0 +1,21 @@
+<%!-- title: In a form | text: The fields are the form's own inputs (`entry[start]`, `entry[end]`), so `phx-change` hears every pick; the server shows what it got. --%>
+<form phx-change="time_change" class="m-0 flex max-w-[300px] flex-col gap-3">
+  <TimeField.input
+    id="time-field-form"
+    start_name="entry[start]"
+    end_name="entry[end]"
+    start_value={@times.start}
+    end_value={@times.stop}
+    start_label="Start"
+    end_label="End"
+    list_label="Times"
+    duration_label="Duration"
+    hours_label="%{count} h"
+    minutes_label="%{count} min"
+  >
+    <:icon><.icon name="clock-01" class="size-[15px]" /></:icon>
+  </TimeField.input>
+  <p class="m-0 text-sm text-ink-2">
+    Sent: <span class="font-mono text-ink">{@times.start} → {@times.stop}</span>
+  </p>
+</form>

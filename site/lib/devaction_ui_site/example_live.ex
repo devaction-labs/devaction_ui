@@ -8,10 +8,10 @@ defmodule DevactionUISite.ExampleLive do
   """
   use Phoenix.LiveView
 
-  alias DevactionUISite.TopicHTML
+  alias DevactionUISite.{ReviewDemo, TopicHTML}
 
   @forms_repos ~w(sge-api ayram-web hub-api)
-  @overlays ~w(drawer_floating drawer_docked drawer_left drawer_wide modal_confirm modal_form modal_success danger)
+  @overlays ~w(drawer_floating drawer_docked drawer_left drawer_wide modal_confirm modal_form modal_success modal_tall danger drawer_sheet drawer_stack confirm_locked)
 
   @rows [
     %{
@@ -44,11 +44,104 @@ defmodule DevactionUISite.ExampleLive do
     "done" => [{"c4", "Importar planilha"}]
   }
 
+  @notifications [
+    %{
+      id: "n1",
+      day: "Today",
+      type: "reviews",
+      icon: "sparkles",
+      tone: :warn,
+      title: "The AI finished the review of #214: 2 blocking findings",
+      meta: "sge-api · 4 min ago"
+    },
+    %{
+      id: "n2",
+      day: "Today",
+      type: "mentions",
+      icon: "@",
+      tone: :info,
+      title: "Carlos André mentioned you in \"Financial reports\"",
+      meta: "SGE · M3 · 1 h ago"
+    },
+    %{
+      id: "n3",
+      day: "Today",
+      type: "other",
+      icon: "contracts",
+      tone: :risk,
+      title: "The AYRAM contract renews in 3 days with no proposal sent",
+      meta: "Contracts · 3 h ago"
+    },
+    %{
+      id: "n4",
+      day: "Yesterday",
+      type: "reviews",
+      icon: "checkmark-circle-02",
+      tone: :ok,
+      old: true,
+      title: "Hub API #88 approved by the AI, ready to merge",
+      meta: "hub-api · yesterday 17:40"
+    },
+    %{
+      id: "n5",
+      day: "Yesterday",
+      type: "mentions",
+      icon: "user",
+      tone: :neutral,
+      old: true,
+      title: "Fernando assigned \"Schedule and shifts\" to you",
+      meta: "SGE · M4 · yesterday 10:12"
+    }
+  ]
+
+  @queue [
+    %{ref: "1", name: "Contract SGE · Addendum 02.pdf", size: 1_800_000, state: :sent},
+    %{
+      ref: "2",
+      name: "M3 reports specification.pdf",
+      size: 6_100_000,
+      state: :uploading,
+      progress: 64
+    },
+    %{
+      ref: "3",
+      name: "finance-screenshot.png",
+      size: 3_400_000,
+      state: :failed,
+      progress: 38,
+      message: "Connection dropped"
+    },
+    %{ref: "4", name: "Meeting minutes 10-14.pdf", size: 420_000, state: :queued},
+    %{ref: "5", name: "hours-sheet.xlsx", size: 88_000, state: :rejected}
+  ]
+
+  @otp_states %{
+    "empty" => %{state: "empty", value: "", status: :idle, helper: "6 digits"},
+    "typing" => %{state: "typing", value: "482", status: :idle, helper: "3 digits to go"},
+    "error" => %{
+      state: "error",
+      value: "482913",
+      status: :error,
+      helper: "Wrong code. 2 tries left."
+    },
+    "ok" => %{state: "ok", value: "482913", status: :ok, helper: "Verified. Signing in…"}
+  }
+  @milestones %{
+    "m1" => {"M1", "Member registry", "delivered"},
+    "m2" => {"M2", "Tithes and offerings", "delivered"},
+    "m3" => {"M3", "Financial reports", "Oct 16"},
+    "m4" => {"M4", "Schedules and shifts", "Nov 20"},
+    "m5" => {"M5", "Members app", "Dec 18"}
+  }
+  @milestone_order ~w(m1 m2 m3 m4 m5)
+  @panes %{"nav" => 20.0, "main" => 55.0, "side" => 25.0}
+
   @impl true
   def mount(_params, %{"example" => example}, socket) do
     {:ok,
      assign(socket,
        example_id: example,
+       review: ReviewDemo.state(),
        rows: @rows,
        sort: nil,
        board: @board,
@@ -58,6 +151,12 @@ defmodule DevactionUISite.ExampleLive do
        toast_seq: 0,
        job: nil,
        order: "deadline",
+       pdf: pdf_state(pdf_start(example), 100, false),
+       queue: @queue,
+       otp: @otp_states["typing"],
+       otp_form: %{value: "", status: :idle, helper: "Try 482913"},
+       range_applied: nil,
+       times: %{start: "09:00", stop: "11:15"},
        editor: %{
          markdown: "",
          sent: nil,
@@ -90,6 +189,8 @@ defmodule DevactionUISite.ExampleLive do
        },
        inputs: %{
          seats: 2,
+         rate: 0.5,
+         area: 12.5,
          hours: 12,
          hours_format: 24,
          hours_ticks: 20,
@@ -119,7 +220,16 @@ defmodule DevactionUISite.ExampleLive do
          model: "fixed",
          publish: "draft"
        },
-       overlays: %{kind: nil, typed: "", done: false},
+       notifications: notifications(%{tab: "all", read: []}),
+       pricing: %{period: "yearly", chosen: nil},
+       cookies: %{open: false, analytics: false, marketing: false, answered: nil},
+       overlays: %{kind: nil, typed: "", done: false, nested: false},
+       secret_revealed: false,
+       banners_dismissed: [],
+       menus: %{picked: nil},
+       suggest: %{mode: "mention", active: 0},
+       sortable: %{items: @milestones, order: @milestone_order, last: nil},
+       resizable: %{sizes: @panes},
        switches: %{on: ["auto_review", "card_ai", "repo-sge-api"], saving: nil, saved: false},
        confirming: false,
        published: false,
@@ -185,12 +295,19 @@ defmodule DevactionUISite.ExampleLive do
     do: {:noreply, update_forms(socket, &Map.put(&1, :publish, publish))}
 
   def handle_event("overlay_open", %{"kind" => kind}, socket) when kind in @overlays,
-    do: {:noreply, assign(socket, :overlays, %{kind: kind, typed: "", done: false})}
+    do:
+      {:noreply, assign(socket, :overlays, %{kind: kind, typed: "", done: false, nested: false})}
 
   def handle_event("overlay_open", _params, socket), do: {:noreply, socket}
 
   def handle_event("overlay_close", _params, socket),
-    do: {:noreply, update(socket, :overlays, &%{&1 | kind: nil, typed: ""})}
+    do: {:noreply, update(socket, :overlays, &%{&1 | kind: nil, typed: "", nested: false})}
+
+  def handle_event("overlay_nested", _params, socket),
+    do: {:noreply, update(socket, :overlays, &%{&1 | nested: true})}
+
+  def handle_event("overlay_unnest", _params, socket),
+    do: {:noreply, update(socket, :overlays, &%{&1 | nested: false})}
 
   def handle_event("overlay_type", %{"value" => typed}, socket),
     do: {:noreply, update(socket, :overlays, &%{&1 | typed: typed})}
@@ -223,12 +340,26 @@ defmodule DevactionUISite.ExampleLive do
   end
 
   def handle_event("seats_step", %{"step" => step}, socket) do
-    delta = String.to_integer(step)
-
     {:noreply,
      update_inputs(
        socket,
-       &Map.update!(&1, :seats, fn seats -> DevactionUI.NumberInput.step(seats, delta, 1, 5) end)
+       &Map.update!(&1, :seats, fn seats -> DevactionUI.NumberInput.step(seats, step, 1, 5) end)
+     )}
+  end
+
+  def handle_event("area_step", %{"step" => step}, socket) do
+    {:noreply,
+     update_inputs(
+       socket,
+       &Map.update!(&1, :area, fn area -> DevactionUI.NumberInput.step(area, step, 0, 100) end)
+     )}
+  end
+
+  def handle_event("rate_step", %{"step" => step}, socket) do
+    {:noreply,
+     update_inputs(
+       socket,
+       &Map.update!(&1, :rate, fn rate -> DevactionUI.NumberInput.step(rate, step, 0, 2) end)
      )}
   end
 
@@ -377,6 +508,170 @@ defmodule DevactionUISite.ExampleLive do
     {:noreply, assign(socket, :board, move(socket.assigns.board, id, to, index))}
   end
 
+  def handle_event("cancel_upload", %{"ref" => ref}, socket),
+    do: {:noreply, cancel_upload(socket, :transcript, ref)}
+
+  def handle_event("pdf_page", %{"page" => page}, %{assigns: %{pdf: pdf}} = socket),
+    do: {:noreply, assign(socket, :pdf, pdf_state(whole(page, pdf.page), pdf.zoom, pdf.signed))}
+
+  def handle_event("pdf_zoom", %{"zoom" => zoom}, %{assigns: %{pdf: pdf}} = socket),
+    do: {:noreply, assign(socket, :pdf, pdf_state(pdf.page, whole(zoom, pdf.zoom), pdf.signed))}
+
+  def handle_event("pdf_jump", _params, %{assigns: %{pdf: pdf}} = socket),
+    do: {:noreply, assign(socket, :pdf, pdf_state(4, pdf.zoom, pdf.signed))}
+
+  def handle_event("pdf_sign", %{"signer" => "Alex" <> _rest}, %{assigns: %{pdf: pdf}} = socket),
+    do: {:noreply, assign(socket, :pdf, pdf_state(pdf.page, pdf.zoom, true))}
+
+  def handle_event("pdf_sign", _params, socket), do: {:noreply, socket}
+
+  def handle_event("secret_toggle", _params, socket),
+    do: {:noreply, update(socket, :secret_revealed, &(not &1))}
+
+  def handle_event("banner_dismiss", %{"tone" => tone}, socket)
+      when tone in ~w(info warning critical offline),
+      do: {:noreply, update(socket, :banners_dismissed, &[tone | &1])}
+
+  def handle_event("banner_reset", _params, socket),
+    do: {:noreply, assign(socket, :banners_dismissed, [])}
+
+  def handle_event("notif_tab", %{"id" => tab}, %{assigns: %{notifications: current}} = socket)
+      when tab in ["all", "mentions", "reviews"],
+      do: {:noreply, assign(socket, :notifications, notifications(%{current | tab: tab}))}
+
+  def handle_event("notif_open", %{"id" => id}, %{assigns: %{notifications: current}} = socket),
+    do: {:noreply, assign(socket, :notifications, notifications(read(current, [id])))}
+
+  def handle_event("notif_read_all", _params, %{assigns: %{notifications: current}} = socket),
+    do:
+      {:noreply,
+       assign(
+         socket,
+         :notifications,
+         notifications(read(current, Enum.map(@notifications, & &1.id)))
+       )}
+
+  def handle_event("pricing_period", %{"value" => period}, socket)
+      when period in ["monthly", "yearly"],
+      do: {:noreply, update(socket, :pricing, &%{&1 | period: period})}
+
+  def handle_event("pricing_choose", %{"plan" => plan}, socket),
+    do: {:noreply, update(socket, :pricing, &%{&1 | chosen: plan})}
+
+  def handle_event("cookies_prefs", _params, socket),
+    do: {:noreply, update(socket, :cookies, &%{&1 | open: !&1.open})}
+
+  def handle_event("cookies_category", %{"id" => id}, socket)
+      when id in ["analytics", "marketing"] do
+    key = String.to_existing_atom(id)
+    {:noreply, update(socket, :cookies, &Map.update!(&1, key, fn on -> !on end))}
+  end
+
+  def handle_event("cookies_necessary", _params, socket),
+    do: {:noreply, assign(socket, :cookies, answered(false, "necessary"))}
+
+  def handle_event("cookies_accept", _params, socket),
+    do: {:noreply, assign(socket, :cookies, answered(true, "all"))}
+
+  def handle_event("select_file", params, socket),
+    do: {:noreply, update(socket, :review, &ReviewDemo.select(&1, params))}
+
+  def handle_event("toggle_folder", params, socket),
+    do: {:noreply, update(socket, :review, &ReviewDemo.toggle(&1, params))}
+
+  def handle_event("filter_files", params, socket),
+    do: {:noreply, update(socket, :review, &ReviewDemo.filter(&1, params))}
+
+  def handle_event("search_files", params, socket),
+    do: {:noreply, update(socket, :review, &ReviewDemo.search(&1, params))}
+
+  def handle_event("toggle_viewed", params, socket),
+    do: {:noreply, update(socket, :review, &ReviewDemo.view(&1, params))}
+
+  def handle_event("comment_line", params, socket),
+    do: {:noreply, update(socket, :review, &ReviewDemo.comment(&1, params))}
+
+  def handle_event("resolve_thread", params, socket),
+    do: {:noreply, update(socket, :review, &ReviewDemo.resolve(&1, params))}
+
+  def handle_event("reply_thread", params, socket),
+    do: {:noreply, update(socket, :review, &ReviewDemo.reply(&1, params))}
+
+  def handle_event("apply_suggestion", params, socket),
+    do: {:noreply, update(socket, :review, &ReviewDemo.apply_suggestion(&1, params))}
+
+  def handle_event("queue_retry", %{"ref" => ref}, socket),
+    do: {:noreply, update(socket, :queue, &Enum.map(&1, fn row -> retry_row(row, ref) end))}
+
+  def handle_event("queue_cancel", %{"ref" => ref}, socket),
+    do: {:noreply, update(socket, :queue, &Enum.reject(&1, fn row -> row.ref == ref end))}
+
+  def handle_event("queue_clear", _params, socket),
+    do: {:noreply, update(socket, :queue, &Enum.reject(&1, fn row -> row.state == :sent end))}
+
+  def handle_event("otp_state", %{"value" => state}, socket) when is_map_key(@otp_states, state),
+    do: {:noreply, assign(socket, :otp, Map.fetch!(@otp_states, state))}
+
+  def handle_event("otp_check", %{"code" => code}, socket),
+    do: {:noreply, assign(socket, :otp_form, check_code(code))}
+
+  def handle_event("range_change", %{"period_from" => from, "period_to" => to}, socket),
+    do: {:noreply, assign(socket, :range_applied, {from, to})}
+
+  def handle_event("time_change", %{"entry" => %{"start" => start, "end" => stop}}, socket),
+    do: {:noreply, assign(socket, :times, %{start: start, stop: stop})}
+
+  def handle_event("context_pick", %{"choice" => choice}, socket),
+    do: {:noreply, update(socket, :menus, &%{&1 | picked: choice})}
+
+  def handle_event("suggest_mode", %{"value" => mode}, socket) when mode in ["mention", "slash"],
+    do: {:noreply, update(socket, :suggest, &%{&1 | mode: mode})}
+
+  def handle_event("suggest_pick", %{"choice" => choice}, socket) do
+    case Integer.parse(choice) do
+      {index, ""} when index in 0..3 ->
+        {:noreply, update(socket, :suggest, &%{&1 | active: index})}
+
+      _other ->
+        {:noreply, socket}
+    end
+  end
+
+  def handle_event(
+        "reorder",
+        %{"order" => order} = params,
+        %{assigns: %{sortable: sortable}} = socket
+      )
+      when is_list(order) do
+    case Enum.sort(order) == Enum.sort(sortable.order) do
+      true ->
+        last = %{id: params["id"], from: params["from"], to: params["to"]}
+        {:noreply, assign(socket, :sortable, %{sortable | order: order, last: last})}
+
+      false ->
+        {:noreply, socket}
+    end
+  end
+
+  def handle_event("sortable_sort", _params, socket),
+    do: {:noreply, update(socket, :sortable, &%{&1 | order: @milestone_order, last: nil})}
+
+  def handle_event("sortable_reverse", _params, socket),
+    do: {:noreply, update(socket, :sortable, &%{&1 | order: Enum.reverse(&1.order), last: nil})}
+
+  def handle_event("resize", %{"sizes" => sizes}, socket) when is_map(sizes) do
+    known = Map.take(sizes, Map.keys(@panes))
+
+    case Enum.all?(known, fn {_id, size} -> is_number(size) end) and
+           map_size(known) == map_size(@panes) do
+      true -> {:noreply, update(socket, :resizable, &%{&1 | sizes: known})}
+      false -> {:noreply, socket}
+    end
+  end
+
+  def handle_event("resizable_reset", _params, socket),
+    do: {:noreply, update(socket, :resizable, &%{&1 | sizes: @panes})}
+
   def handle_event(_event, _params, socket), do: {:noreply, socket}
 
   @lessons [
@@ -389,6 +684,71 @@ defmodule DevactionUISite.ExampleLive do
     {"61", "Multi no checkout"},
     {"145", "Estornos de dízimo"}
   ]
+
+  defp pdf_start("pdf_viewer_05"), do: 1
+  defp pdf_start(_example), do: 4
+
+  defp whole(value, fallback) do
+    case Integer.parse(to_string(value)) do
+      {number, ""} -> number
+      _other -> fallback
+    end
+  end
+
+  defp pdf_state(page, zoom, signed) do
+    %{
+      page: DevactionUI.PdfViewer.clamp_page(page, 4),
+      zoom: zoom |> max(50) |> min(300),
+      signed: signed,
+      fields: [
+        %{
+          page: 4,
+          x: 8,
+          y: 80.6,
+          w: 38.6,
+          h: 10.4,
+          signer: "Responsible · Campo Limpo Church",
+          state: :signed,
+          label: "Signed"
+        },
+        %{
+          page: 4,
+          x: 53.3,
+          y: 80.6,
+          w: 38.6,
+          h: 10.4,
+          signer: "Alex · DevAction Labs",
+          state: pdf_mine(signed),
+          label: pdf_mine_label(signed)
+        }
+      ],
+      signers: [
+        %{
+          name: "Church Admin",
+          role: "Campo Limpo Church",
+          status: :signed,
+          status_label: "Signed",
+          tone: :red
+        },
+        %{
+          name: "Alex",
+          role: "DevAction Labs",
+          status: pdf_status(signed),
+          status_label: pdf_status_label(signed),
+          mine: true
+        }
+      ]
+    }
+  end
+
+  defp pdf_mine(true), do: :signed
+  defp pdf_mine(false), do: :mine
+  defp pdf_mine_label(true), do: "Signed"
+  defp pdf_mine_label(false), do: "Sign"
+  defp pdf_status(true), do: :signed
+  defp pdf_status(false), do: :pending
+  defp pdf_status_label(true), do: "Signed"
+  defp pdf_status_label(false), do: "Pending"
 
   defp search(""), do: []
 
@@ -437,7 +797,9 @@ defmodule DevactionUISite.ExampleLive do
   defp toggle(list, item, true), do: List.delete(list, item)
   defp toggle(list, item, false), do: [item | list]
 
-  defp confirm(socket, true), do: assign(socket, :overlays, %{kind: nil, typed: "", done: true})
+  defp confirm(socket, true),
+    do: assign(socket, :overlays, %{kind: nil, typed: "", done: true, nested: false})
+
   defp confirm(socket, false), do: socket
 
   defp job_state(100), do: :done
@@ -454,6 +816,59 @@ defmodule DevactionUISite.ExampleLive do
       :error -> default
     end
   end
+
+  defp answered(on, answer),
+    do: %{open: false, analytics: on, marketing: on, answered: answer}
+
+  defp read(%{read: read} = current, ids), do: %{current | read: Enum.uniq(read ++ ids)}
+
+  defp notifications(%{tab: tab, read: read}) do
+    visible = Enum.filter(@notifications, &(tab == "all" or &1.type == tab))
+
+    unread = fn type ->
+      Enum.count(@notifications, &(not read?(&1, read) and match_type?(&1, type)))
+    end
+
+    %{
+      tab: tab,
+      read: read,
+      tabs: [
+        %{id: "all", label: "All", count: unread.("all")},
+        %{id: "mentions", label: "Mentions", count: unread.("mentions")},
+        %{id: "reviews", label: "Reviews", count: unread.("reviews")}
+      ],
+      groups:
+        for day <- visible |> Enum.map(& &1.day) |> Enum.uniq() do
+          %{
+            id: String.downcase(day),
+            label: String.upcase(day),
+            items:
+              for item <- visible, item.day == day do
+                Map.put(item, :unread, not read?(item, read))
+              end
+          }
+        end
+    }
+  end
+
+  defp read?(%{old: true}, _read), do: true
+  defp read?(%{id: id}, read), do: id in read
+
+  defp match_type?(_item, "all"), do: true
+  defp match_type?(%{type: type}, type), do: true
+  defp match_type?(_item, _type), do: false
+
+  defp retry_row(%{ref: ref, state: :failed} = row, ref),
+    do: %{row | state: :uploading, progress: 12}
+
+  defp retry_row(row, _ref), do: row
+
+  defp check_code("482913"), do: %{value: "482913", status: :ok, helper: "Verified. Signing in…"}
+
+  defp check_code(code) when byte_size(code) == 6,
+    do: %{value: code, status: :error, helper: "Wrong code. Try 482913."}
+
+  defp check_code(code), do: %{value: code, status: :idle, helper: "Try 482913"}
 
   defp update_shell(socket, changes),
     do: update(socket, :shell, &Map.merge(&1, Map.new(changes)))

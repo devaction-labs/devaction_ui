@@ -1,4 +1,4 @@
-<%!-- title: Basic | text: Press the button to open the palette with scopes, grouped results, an AI action and key hints --%>
+<%!-- title: Basic | text: Press the button to open the palette with scopes as tabs (left and right arrows move between them), a recent group with plain PR numbers, an AI action and key hints --%>
 <Button.button id="command-palette-open" size={:sm} class="self-start" phx-click="palette_open">
   Open the palette
 </Button.button>
@@ -15,13 +15,15 @@
       "" ->
         [
           %{
-            label: "Pull requests",
+            label: "Recent",
             items: [
               %{
                 id: "p142",
                 label: "Wrap tithes in a transaction",
                 to: "/",
+                sub: "Open for 3 days",
                 hint: "#142",
+                hint_style: :plain,
                 tone: :risk
               },
               %{
@@ -29,6 +31,7 @@
                 label: "Fix the N+1 in contributions",
                 to: "/",
                 hint: "#139",
+                hint_style: :plain,
                 tone: :warn
               }
             ]
@@ -48,6 +51,7 @@
   empty="Nothing found."
   ask_label={@shell.query != "" && "Ask the AI about \"#{@shell.query}\""}
   ask_event="ask"
+  ask_kbd="⌘↵"
   scopes={[
     %{value: "all", label: "All"},
     %{value: "prs", label: "PRs"},
@@ -58,4 +62,5 @@
   keys={[{"↑↓", "move"}, {"↵", "open"}, {"⌘↵", "ask the AI"}, {"esc", "close"}]}
 >
   <:search_icon><.icon name="search-01" class="size-[18px]" /></:search_icon>
+  <:item_icon><.icon name="task-01" class="size-4" /></:item_icon>
 </CommandPalette.palette>

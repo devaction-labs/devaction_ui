@@ -27,6 +27,8 @@ defmodule DevactionUISite.MixProject do
       {:phoenix_live_view, "~> 1.2"},
       {:phoenix_html, "~> 4.1"},
       {:jason, "~> 1.2"},
+      {:ecto_sql, "~> 3.13"},
+      {:ecto_sqlite3, "~> 0.21"},
       {:bandit, "~> 1.13"},
       {:esbuild, "~> 0.10", runtime: Mix.env() == :dev},
       {:tailwind, "~> 0.5", runtime: Mix.env() == :dev},

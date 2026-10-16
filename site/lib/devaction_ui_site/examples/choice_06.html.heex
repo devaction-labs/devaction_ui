@@ -1,0 +1,44 @@
+<%!-- title: Groups | text: A fieldset with a legend names a set of boxes or radios, with the help and the error of the group --%>
+<div class="flex flex-col gap-6">
+  <Choice.checkbox_group
+    id="choice-group-boxes"
+    legend="Email notifications"
+    help="You can change this later."
+    required
+  >
+    <Choice.checkbox
+      id="choice-group-boxes-1"
+      name="choice_notify[]"
+      value="reviews"
+      label="Reviews"
+      checked
+    />
+    <Choice.checkbox
+      id="choice-group-boxes-2"
+      name="choice_notify[]"
+      value="digest"
+      label="Weekly digest"
+    />
+  </Choice.checkbox_group>
+  <Choice.radio_group
+    id="choice-group-radios"
+    legend="Priority"
+    orientation={:horizontal}
+    error="Choose a priority."
+  >
+    <Choice.radio
+      id="choice-group-radios-1"
+      name="choice_priority"
+      value="low"
+      label="Low"
+      size={:sm}
+    />
+    <Choice.radio
+      id="choice-group-radios-2"
+      name="choice_priority"
+      value="high"
+      label="High"
+      size={:sm}
+    />
+  </Choice.radio_group>
+</div>

@@ -1,6 +1,6 @@
 import test from "node:test"
 import assert from "node:assert/strict"
-import {selectionState} from "./data_table_logic.js"
+import {nextDensity, selectionState} from "./data_table_logic.js"
 
 test("nothing ticked: no bar, header clear", () => {
   assert.deepEqual(selectionState(0, 4), {all: false, mixed: false, barHidden: true})
@@ -12,6 +12,12 @@ test("some ticked: the header is mixed and the bar shows", () => {
 
 test("all ticked: the header is checked", () => {
   assert.deepEqual(selectionState(4, 4), {all: true, mixed: false, barHidden: false})
+})
+
+test("the density toggle goes to the other density", () => {
+  assert.equal(nextDensity("comfortable"), "compact")
+  assert.equal(nextDensity("compact"), "comfortable")
+  assert.equal(nextDensity(undefined), "comfortable")
 })
 
 test("an empty table is never all selected", () => {

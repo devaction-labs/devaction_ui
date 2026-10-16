@@ -1,0 +1,39 @@
+<%!-- title: Option Icons and Alignment | text: A color dot before each option, a panel lined up with the end of the button and a count that waits for Apply --%>
+<div class="flex min-h-[22rem] justify-end">
+  <FilterMenu.filter_menu
+    id="area-filters"
+    label="Filter"
+    apply_label="Apply"
+    reset_label="Clear"
+    close_label="Close"
+    align={:end}
+    groups={[
+      %{
+        key: "area",
+        label: "Area",
+        type: :checkbox,
+        options: [
+          %{value: "backend", label: "Backend", count: 14},
+          %{value: "frontend", label: "Frontend", count: 9, checked: true},
+          %{value: "infra", label: "Infrastructure", count: 3}
+        ]
+      }
+    ]}
+  >
+    <:trigger_icon><.icon name="filter" class="size-4" /></:trigger_icon>
+    <:group_icon :let={_group}>
+      <.icon name="checkmark-circle-02" class="size-4 text-muted" />
+    </:group_icon>
+    <:chevron_icon><.icon name="arrow-right-01" class="size-3.5 text-muted" /></:chevron_icon>
+    <:check_icon><.icon name="tick-02" class="size-4" /></:check_icon>
+    <:close_icon><.icon name="cancel-01" class="size-3.5" /></:close_icon>
+    <:option_icon :let={slot}>
+      <span class={[
+        "size-2.5 rounded-full",
+        %{"backend" => "bg-learn", "frontend" => "bg-ai", "infra" => "bg-missing"}[
+          slot.option.value
+        ]
+      ]} />
+    </:option_icon>
+  </FilterMenu.filter_menu>
+</div>

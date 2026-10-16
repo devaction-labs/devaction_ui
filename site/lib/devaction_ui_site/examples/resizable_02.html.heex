@@ -1,0 +1,17 @@
+<%!-- title: Vertical | text: Panels one above the other, with limits: the editor keeps between 30% and 80%. The up and down arrows move the divider. --%>
+<Resizable.group
+  id="resizable-vertical"
+  label="Workspace"
+  handle_label="Resize the panels"
+  orientation={:vertical}
+  class="h-80"
+>
+  <:panel id="editor" size={65} min={30} max={80} class="p-4">
+    <span class="block font-mono text-[11px] text-muted">EDITOR · <span data-size-value>65</span>%</span>
+    <span class="mt-2 block font-mono text-xs leading-[1.9] text-ink-2">def changeset(milestone, attrs) do</span>
+  </:panel>
+  <:panel id="console" size={35} class="bg-wrap p-4">
+    <span class="block font-mono text-[11px] text-muted">CONSOLE · <span data-size-value>35</span>%</span>
+    <span class="mt-2 block font-mono text-xs leading-[1.9] text-ink-2">12 tests, 0 failures</span>
+  </:panel>
+</Resizable.group>

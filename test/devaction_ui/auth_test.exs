@@ -14,6 +14,7 @@ defmodule DevactionUI.AuthTest do
       rendered_to_string(~H"""
       <AuthLayout.auth_layout
         about_label="About the product"
+        nav_label="Legal"
         headline="Contracts, code and learning in one place."
         copyright="© 2026 DevAction Labs"
       >
@@ -47,8 +48,66 @@ defmodule DevactionUI.AuthTest do
       assert html =~ ~s(href="/privacy")
     end
 
+    test "the columns are the main landmark and the footer links a named nav" do
+      html = layout()
+
+      assert html =~ ~r/<main id="main"[^>]*>.*the-card.*<\/main>/s
+      assert html =~ ~r/<footer.*<nav aria-label="Legal".*href="\/terms".*<\/footer>/s
+    end
+
+    test "the id of main is the host's, for its skip link" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <AuthLayout.auth_layout
+          about_label="A"
+          nav_label="N"
+          main_id="content"
+          headline="H"
+          copyright="C"
+        >
+          <:brand>B</:brand>
+          x
+        </AuthLayout.auth_layout>
+        """)
+
+      assert html =~ ~s(<main id="content")
+    end
+
     test "the icons of the reasons are hidden from assistive technology" do
       assert layout() =~ ~r/aria-hidden="true"[^>]*>\s*I1/s
+    end
+
+    test "the footer and the reasons take their colours from tokens, never a hex" do
+      html = layout()
+
+      assert html =~ "text-(--auth-foot)"
+      assert html =~ "bg-(--auth-feature)"
+      refute html =~ "#8A8A9C"
+      refute html =~ "#17171F"
+    end
+  end
+
+  describe "auth_brand/1" do
+    test "is the tile on the brand tokens, with the symbol hidden, and the name" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <AuthLayout.auth_brand name="DevAction IA" id="brand" data-x="1">
+          <:mark><svg id="mark" /></:mark>
+        </AuthLayout.auth_brand>
+        """)
+
+      assert html =~
+               ~r/<span[^>]*bg-\(--brand-tile\)[^>]*aria-hidden="true"[^>]*>\s*<svg id="mark"/s
+
+      assert html =~ "size-[34px]"
+      assert html =~ "border-(--brand-tile-line)"
+      assert html =~ "DevAction IA"
+      assert html =~ "text-lg font-semibold"
+      assert html =~ ~s(data-x="1")
     end
   end
 
@@ -89,6 +148,49 @@ defmodule DevactionUI.AuthTest do
       assert html =~ "<strong>alex@devaction.com.br</strong>"
     end
 
+    test "the heading is an h2 when the card is not the page" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H|<AuthCard.auth_card title="T" heading={:h2}>x</AuthCard.auth_card>|)
+
+      assert html =~ ~r/<h2 class="[^"]*">T<\/h2>/
+      refute html =~ "<h1"
+    end
+
+    test "the brand tone puts the icon on the product's tile, through tokens" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <AuthCard.auth_card title="T" icon_tone={:brand}>
+          <:icon>I</:icon>
+          x
+        </AuthCard.auth_card>
+        """)
+
+      assert html =~ "bg-(--brand-tile)"
+      assert html =~ "border-(--brand-tile-line)"
+      refute html =~ "#060C1F"
+    end
+
+    test "the footer strip is px-7 py-[18px] on a line" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <AuthCard.auth_card title="T">
+          x
+          <:footer>F</:footer>
+        </AuthCard.auth_card>
+        """)
+
+      assert html =~
+               "border-t border-(--auth-strip-line) bg-(--auth-strip) px-7 py-[18px]"
+
+      refute html =~ "#16161D"
+    end
+
     test "without an icon or a footer neither is drawn" do
       assigns = %{}
 
@@ -119,7 +221,7 @@ defmodule DevactionUI.AuthTest do
 
       assert_raise ArgumentError, fn ->
         rendered_to_string(~H"""
-        <AuthLayout.auth_layout about_label="A" headline="H" copyright="C">
+        <AuthLayout.auth_layout about_label="A" nav_label="N" headline="H" copyright="C">
           <:brand>B</:brand>
           <:link href="javascript:alert(1)">Bad</:link>
           x
@@ -171,11 +273,25 @@ defmodule DevactionUI.AuthTest do
       assert PasswordStrength.evaluate("Ação").rules[:mixed_case]
     end
 
-    test "the score is the rules met, at least 1 for any text, and 4 only when long as well" do
-      assert PasswordStrength.evaluate("a").score == 1
+    test "the score is the rules met, plus one for 16 characters, and 0 when no rule is met" do
+      assert PasswordStrength.evaluate("a").score == 0
       assert PasswordStrength.evaluate("Ab1").score == 2
       assert PasswordStrength.evaluate("Abcdefghijk1").score == 3
       assert PasswordStrength.evaluate("Abcdefghijklmnop1").score == 4
+    end
+
+    test "two rules and 16 characters make 3, and no rule stays 0 however long" do
+      assert PasswordStrength.evaluate("abcdefghijklmnop", 20).score == 0
+      assert PasswordStrength.evaluate("abcdefghijklmnop").score == 2
+      assert PasswordStrength.evaluate("abcdefghijklmno1").score == 3
+      assert PasswordStrength.evaluate("Abcdefghij1", 12).score == 2
+    end
+
+    test "the 16 characters of the bonus do not follow the minimum length" do
+      assert PasswordStrength.evaluate("abcdefghijklmno", 8).score == 1
+      assert PasswordStrength.evaluate("abcdefghijklmnop", 8).score == 2
+      assert PasswordStrength.evaluate("Abcdefgh1", 8).score == 3
+      assert PasswordStrength.evaluate("Abcdefghijklmno1", 8).score == 4
     end
 
     test "the minimum length is the caller's" do
@@ -189,7 +305,12 @@ defmodule DevactionUI.AuthTest do
       assigns = %{score: score, rules: rules}
 
       rendered_to_string(~H"""
-      <PasswordStrength.password_strength score={@score} label="Weak" rules={@rules}>
+      <PasswordStrength.password_strength
+        score={@score}
+        label="Weak"
+        meter_label="Password strength"
+        rules={@rules}
+      >
         <:met_icon>OK</:met_icon>
         <:unmet_icon>--</:unmet_icon>
       </PasswordStrength.password_strength>
@@ -201,15 +322,63 @@ defmodule DevactionUI.AuthTest do
 
       assert html =~ ~s(role="meter")
       assert html =~ ~s(aria-valuenow="2")
-      assert html =~ ~s(aria-label="Weak")
+      assert html =~ ~s(aria-label="Password strength")
+      assert html =~ ~s(aria-valuetext="Weak")
       assert html =~ "12 characters"
+    end
+
+    test "the line is announced politely and takes the colour of the score" do
+      assert meter(2, []) =~ ~r/<p aria-live="polite" class="[^"]*text-tag-warn-text/
+      assert meter(0, []) =~ ~r/<p aria-live="polite" class="[^"]*text-muted/
+    end
+
+    test "a rule that is met colours the whole line, not only the mark" do
+      met = meter(1, [%{label: "A", met: true}, %{label: "B", met: false}])
+
+      assert met =~ ~r/<li data-met="true" class="[^"]*text-tag-ok-text/
+      assert met =~ ~r/<li data-met="false" class="[^"]*text-muted/
+      refute met =~ ~r/<span class="[^"]*text-tag-ok-text/
+    end
+
+    test "each score takes the fill and the line colour of its tone" do
+      for {score, tone} <- [{1, :risk}, {2, :warn}, {3, :info}, {4, :ok}] do
+        html = meter(score, [])
+        assert html =~ ~r/h-\[5px\] rounded-full #{Regex.escape(DevactionUI.Tone.fill(tone))}/
+
+        assert html =~
+                 ~r/<p aria-live="polite" class="[^"]*#{Regex.escape(DevactionUI.Tone.text(tone))}/
+      end
+    end
+
+    test "a met rule takes the text colour of the ok tone, whatever that is" do
+      html = meter(1, [%{label: "A", met: true}])
+
+      assert html =~
+               ~r/<li data-met="true" class="[^"]*#{Regex.escape(DevactionUI.Tone.text(:ok))}/
+    end
+
+    test "without icons the rules are still listed" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <PasswordStrength.password_strength
+          score={1}
+          label="Weak"
+          meter_label="Strength"
+          rules={[%{label: "A", met: true}]}
+        />
+        """)
+
+      assert html =~ "A"
+      assert html =~ ~s(aria-hidden="true")
     end
 
     test "the bars up to the score are filled and the rest are empty" do
       html = meter(3, [])
 
-      assert length(Regex.scan(~r/h-1 rounded-full bg-tag-info/, html)) <= 3
-      assert length(Regex.scan(~r/h-1 rounded-full bg-line/, html)) == 1
+      assert length(Regex.scan(~r/h-\[5px\] rounded-full bg-learn/, html)) <= 3
+      assert length(Regex.scan(~r/h-\[5px\] rounded-full bg-line/, html)) == 1
     end
 
     test "a rule that is met gets its mark and a rule that is not gets the other" do

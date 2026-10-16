@@ -1,6 +1,6 @@
 import test from "node:test"
 import assert from "node:assert/strict"
-import {commands, styles, currentStyle, names, safeHref, wordCount} from "./editor_logic.js"
+import {blocks, commands, currentStyle, filterItems, imageProblem, names, nextIndex, rowParts, safeHref, sends, styles, textboxAttributes, uploadError, wordCount} from "./editor_logic.js"
 
 const chain = () => {
   const calls = []
@@ -50,7 +50,6 @@ test("the words are counted by their spaces", () => {
   assert.equal(wordCount(null), 0)
 })
 
-import {blocks, filterItems, nextIndex, sends, imageProblem, uploadError} from "./editor_logic.js"
 
 test("every block of the slash menu runs one command", () => {
   for (const [name, run] of Object.entries(blocks)) {
@@ -108,4 +107,23 @@ test("the toolbar keys move round the tools, Home and End go to the ends, other 
   assert.equal(toolbarTarget("Home", 2, 3), 0)
   assert.equal(toolbarTarget("End", 0, 3), 2)
   assert.equal(toolbarTarget("a", 0, 3), null)
+})
+
+test("the text area is named by its label, or by the visible label when there is one", () => {
+  const plain = textboxAttributes({label: "Notes", invalid: false, disabled: false})
+  assert.equal(plain["aria-label"], "Notes")
+  assert.equal(plain["aria-labelledby"], null)
+  assert.equal(plain["aria-invalid"], null)
+
+  const labelled = textboxAttributes({label: "Notes", labelledby: "e-label", describedby: "e-error", invalid: true, disabled: true})
+  assert.equal(labelled["aria-label"], null)
+  assert.equal(labelled["aria-labelledby"], "e-label")
+  assert.equal(labelled["aria-describedby"], "e-error")
+  assert.equal(labelled["aria-invalid"], "true")
+  assert.equal(labelled["aria-disabled"], "true")
+})
+
+test("a menu row has the label, and the icon and the hint when the item has them", () => {
+  assert.deepEqual(rowParts({label: "Heading"}).map((part) => part.text), ["Heading"])
+  assert.deepEqual(rowParts({label: "Heading", icon: "H", hint: "#"}).map((part) => part.text), ["H", "Heading", "#"])
 })

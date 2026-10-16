@@ -3,7 +3,14 @@ defmodule DevactionUI.ColorPicker do
   A colour field with a panel: a square for saturation and brightness, a hue strip, an optional opacity strip, a
   row of preset colours and, in a browser that has one, the eyedropper. It always sends hex (`#RRGGBB`, or
   `#RRGGBBAA` with `alpha`) in the text field named `name`, so a form reads it like any other field and
-  `phx-change` hears every change.
+  `phx-change` hears every change. The hook sits on a wrapper with the id `<id>-picker` (the field keeps `id`
+  itself), and `rest` goes to that wrapper. `disabled` locks the field, the swatch and the panel, `required`
+  goes to the text field.
+
+  The start colour is the `value` attr (default `#2563EB`) and the presets are the `presets` attr: the browser
+  reads both from the markup (`data-value`, the preset buttons), so there is no second copy to keep in step. The
+  shadows of the panel, the swatch and the thumbs are the `--picker-*` tokens of the stylesheet, which change
+  with the theme.
 
   The area is a `role="slider"` moved with the pointer or the arrow keys (Shift for a bigger step); the hue and
   opacity strips are native range inputs. Esc closes the panel and gives the focus back to the field. All words
@@ -20,11 +27,13 @@ defmodule DevactionUI.ColorPicker do
 
   attr :id, :string, required: true
   attr :name, :string, required: true
-  attr :value, :string, default: "#2563EB", doc: "`#RRGGBB`, or `#RRGGBBAA` with `alpha`"
+  attr :value, :string, default: @fallback, doc: "`#RRGGBB`, or `#RRGGBBAA` with `alpha`"
   attr :label, :string, required: true, doc: "the visible name of the field"
   attr :presets, :list, default: @presets, doc: "the ready colours, as hex"
   attr :alpha, :boolean, default: false, doc: "adds the opacity strip"
   attr :error, :string, default: nil
+  attr :disabled, :boolean, default: false
+  attr :required, :boolean, default: false
   attr :toggle_label, :string, required: true, doc: "names the swatch button that opens the panel"
   attr :area_label, :string, required: true, doc: "names the saturation and brightness square"
 
@@ -38,10 +47,13 @@ defmodule DevactionUI.ColorPicker do
 
   attr :eyedropper_label, :string,
     default: nil,
-    doc: "the eyedropper button's text; it shows only when given"
+    doc:
+      "names the eyedropper button, which shows only when given (as its text, unless there is an icon)"
 
   attr :class, :any, default: nil
   attr :rest, :global
+
+  slot :eyedropper_icon, doc: "the eyedropper button's icon, drawn by the caller"
 
   def color_picker(assigns) do
     assigns =
@@ -70,6 +82,7 @@ defmodule DevactionUI.ColorPicker do
           aria-haspopup="dialog"
           aria-expanded="false"
           aria-label={@toggle_label}
+          disabled={@disabled}
           phx-mounted={keep_client_attributes()}
         ></button>
         <input
@@ -82,6 +95,8 @@ defmodule DevactionUI.ColorPicker do
           spellcheck="false"
           autocomplete="off"
           maxlength="9"
+          disabled={@disabled}
+          required={@required}
           aria-invalid={@error && "true"}
           aria-describedby={@error && @id <> "-error"}
         />
@@ -120,15 +135,20 @@ defmodule DevactionUI.ColorPicker do
           aria-label={@alpha_label}
           data-alpha
         />
-        <button
-          :if={@eyedropper_label}
-          type="button"
-          hidden
-          data-eyedropper
-          class="self-start rounded-lg px-2 py-1 text-sm text-ink-2 hover:bg-wrap"
-        >
-          {@eyedropper_label}
-        </button>
+        <div class="color-picker-row">
+          <output class="font-mono text-[13px] uppercase" data-value-text>{@safe_value}</output>
+          <button
+            :if={@eyedropper_label}
+            type="button"
+            hidden
+            data-eyedropper
+            aria-label={@eyedropper_label}
+            class="ml-auto grid min-h-[30px] min-w-[30px] place-items-center rounded-lg px-2 text-sm text-ink-2 hover:bg-wrap"
+          >
+            <span :if={@eyedropper_icon != []} aria-hidden="true">{render_slot(@eyedropper_icon)}</span>
+            <span :if={@eyedropper_icon == []}>{@eyedropper_label}</span>
+          </button>
+        </div>
         <div class="color-picker-presets" role="group" aria-label={@presets_label}>
           <button
             :for={preset <- @safe_presets}

@@ -2,10 +2,26 @@ defmodule DevactionUI.Sidebar do
   @moduledoc """
   The side menu of an app: 236 px wide, or 64 px when collapsed, where each item keeps its icon and shows its
   name in a tooltip on hover and on keyboard focus. The current item has `aria-current="page"`. The caller keeps
-  whether it is collapsed (`collapsed`) and gets the press of the toggle in `on_toggle`; it is hidden on small
-  screens, where the app has its own navigation.
+  whether it is collapsed (`collapsed`) and gets the press of the toggle in `on_toggle`, which needs a
+  `toggle_label` (without one it raises). It is hidden below the `md` breakpoint, where the app has its own
+  navigation; `responsive={false}` keeps it on every screen.
+
+  Each `item` slot takes `to` and `label` (required), `current` (marks `aria-current="page"`), `count` (a small
+  badge, hidden when collapsed) and `tone` (`:risk`, `:warn`, `:ok`, `:info` or `:neutral` tints that badge; with
+  none it is the quiet grey one). When collapsed the tooltip is the accessible name of the link.
+
+  Groups. Consecutive items with the same `group` (its title) sit under a collapsible heading, a native
+  `<details>` that the keyboard opens and closes by itself; `closed_groups` lists the titles that start
+  closed (the browser keeps what the person toggled until the server changes the list). Collapsed, the
+  headings go and the items stay in one list.
+
+  Building blocks for the `header` and `footer` slots: `search/1`, the field with its key hint (a `Kbd`), and
+  `user/1`, the person with a menu trigger, which has the border above it. Collapsed, the field goes and the
+  person stays as the avatar.
   """
   use Phoenix.Component
+
+  alias DevactionUI.{Avatar, Kbd, Tone}
 
   attr :id, :string, required: true
 
@@ -23,8 +39,17 @@ defmodule DevactionUI.Sidebar do
     default: nil,
     doc: "what the toggle button does, read by assistive technology"
 
+  attr :responsive, :boolean,
+    default: true,
+    doc: "hides it below the `md` breakpoint; `false` keeps it on every screen"
+
+  attr :closed_groups, :list,
+    default: [],
+    doc: "the `group` titles that start closed"
+
   attr :class, :any, default: nil
   slot :toggle_icon
+  slot :group_icon, doc: "the chevron of a group heading; it turns when the group is open"
   slot :header, doc: "the brand or the workspace, above the items"
   slot :footer, doc: "what stays at the bottom: the person, a help link"
 
@@ -33,6 +58,8 @@ defmodule DevactionUI.Sidebar do
     attr :label, :string, required: true
     attr :current, :boolean
     attr :count, :any
+    attr :tone, :atom, values: [:risk, :warn, :ok, :info, :neutral]
+    attr :group, :string
   end
 
   slot :icon, doc: "the icon of an item; gets `%{label: item label}`"
@@ -43,42 +70,58 @@ defmodule DevactionUI.Sidebar do
 
   attr :rest, :global
 
+  def sidebar(%{on_toggle: on_toggle, toggle_label: nil}) when is_binary(on_toggle),
+    do: raise(ArgumentError, "sidebar: `on_toggle` needs a `toggle_label`")
+
   def sidebar(assigns) do
     ~H"""
     <nav
       id={@id}
       aria-label={@label}
       data-collapsed={to_string(@collapsed)}
-      class={["sidebar", @class]}
+      data-responsive={to_string(@responsive)}
+      class={["sidebar group/sidebar", @class]}
       {@rest}
     >
       <div :if={@header != []} class="flex items-center gap-2.5 px-1">{render_slot(@header)}</div>
-      <ul class="m-0 flex list-none flex-col gap-1 p-0">
-        <li :for={item <- @item} class="group/tip relative">
-          <.link
-            navigate={item.to}
-            aria-current={Map.get(item, :current) && "page"}
-            aria-label={@collapsed && item.label}
-            class="sidebar-link no-underline outline-none focus-visible:ring-4 focus-visible:ring-ink/10"
-          >
-            <span class="size-5 shrink-0">{render_slot(@icon, %{label: item.label})}</span>
-            <span :if={!@collapsed} class="flex-1 truncate">{item.label}</span>
-            <span
-              :if={!@collapsed and Map.get(item, :count)}
-              class="rounded-md bg-wrap px-1.5 font-mono text-[11px] text-muted"
+      <.group
+        :for={{title, entries} <- groups(@item, @collapsed)}
+        id={"#{@id}-group-#{entries |> hd() |> elem(1)}"}
+        title={title}
+        open={title not in @closed_groups}
+      >
+        <:icon>{render_slot(@group_icon)}</:icon>
+        <ul class="m-0 flex list-none flex-col gap-0.5 p-0">
+          <li :for={{item, index} <- entries} class="group/tip relative">
+            <.link
+              navigate={item.to}
+              aria-current={Map.get(item, :current) && "page"}
+              aria-labelledby={@collapsed && "#{@id}-tip-#{index}"}
+              class="sidebar-link no-underline outline-none focus-visible:ring-4 focus-visible:ring-ink/10"
             >
-              {item.count}
+              <span class="size-[19px] shrink-0">{render_slot(@icon, %{label: item.label})}</span>
+              <span :if={!@collapsed} class="flex-1 truncate">{item.label}</span>
+              <span
+                :if={!@collapsed and Map.get(item, :count)}
+                class={[
+                  "rounded-[5px] px-1.5 py-px font-mono text-[10px]",
+                  count_class(Map.get(item, :tone))
+                ]}
+              >
+                {item.count}
+              </span>
+            </.link>
+            <span
+              :if={@collapsed}
+              id={"#{@id}-tip-#{index}"}
+              role="tooltip"
+              class="pointer-events-none absolute top-1/2 left-full z-50 ml-2 -translate-y-1/2 rounded-lg bg-ink px-2.5 py-1.5 text-xs whitespace-nowrap text-on-primary opacity-0 shadow-lg transition-opacity group-hover/tip:opacity-100 group-focus-within/tip:opacity-100 motion-reduce:transition-none"
+            >
+              {item.label}
             </span>
-          </.link>
-          <span
-            :if={@collapsed}
-            role="tooltip"
-            class="pointer-events-none absolute top-1/2 left-full z-50 ml-2 -translate-y-1/2 rounded-lg bg-ink px-2.5 py-1.5 text-xs whitespace-nowrap text-on-primary opacity-0 shadow-lg transition-opacity group-hover/tip:opacity-100 group-focus-within/tip:opacity-100 motion-reduce:transition-none"
-          >
-            {item.label}
-          </span>
-        </li>
-      </ul>
+          </li>
+        </ul>
+      </.group>
       <div class="mt-auto flex flex-col gap-2">
         {render_slot(@footer)}
         <button
@@ -97,4 +140,111 @@ defmodule DevactionUI.Sidebar do
     </nav>
     """
   end
+
+  defp groups(items, collapsed) do
+    items
+    |> Enum.with_index()
+    |> Enum.chunk_by(fn {item, _index} -> group_title(item, collapsed) end)
+    |> Enum.map(fn [{item, _index} | _rest] = entries ->
+      {group_title(item, collapsed), entries}
+    end)
+  end
+
+  defp group_title(_item, true), do: nil
+  defp group_title(item, false), do: Map.get(item, :group)
+
+  attr :id, :string, required: true
+  attr :title, :string, required: true
+  attr :open, :boolean, required: true
+  slot :icon, required: true
+  slot :inner_block, required: true
+
+  defp group(%{title: nil} = assigns), do: ~H"{render_slot(@inner_block)}"
+
+  defp group(assigns) do
+    ~H"""
+    <details id={@id} open={@open} class="group/details flex flex-col gap-0.5">
+      <summary class="flex h-8 cursor-pointer list-none items-center justify-between rounded-lg px-2.5 text-xs font-medium tracking-[0.04em] text-muted uppercase outline-none marker:hidden hover:text-ink focus-visible:ring-4 focus-visible:ring-ink/10 [&::-webkit-details-marker]:hidden">
+        {@title}
+        <span class="size-4 shrink-0 transition-transform group-open/details:rotate-90 motion-reduce:transition-none">
+          {render_slot(@icon)}
+        </span>
+      </summary>
+      {render_slot(@inner_block)}
+    </details>
+    """
+  end
+
+  attr :id, :string, required: true
+  attr :label, :string, required: true, doc: "names the field for assistive technology"
+  attr :name, :string, default: "q"
+  attr :value, :string, default: nil
+  attr :placeholder, :string, default: nil
+  attr :hint, :string, default: nil, doc: "the key that opens the search, as text: `⌘K`"
+  attr :class, :any, default: nil
+  attr :rest, :global, doc: "goes to the input: `phx-change`, `phx-keyup`, `aria-keyshortcuts`"
+  slot :icon, doc: "the magnifier, drawn by the caller"
+
+  @doc "The search field of a sidebar, 40px, with the key hint at its end; hidden when the sidebar is collapsed."
+  @spec search(map()) :: Phoenix.LiveView.Rendered.t()
+  def search(assigns) do
+    ~H"""
+    <label
+      for={@id}
+      class={[
+        "flex h-10 items-center gap-2 rounded-[10px] border border-line bg-card px-2.5 text-[13px] text-muted focus-within:border-ink focus-within:ring-4 focus-within:ring-ink/10 group-data-[collapsed=true]/sidebar:hidden",
+        @class
+      ]}
+    >
+      <span :if={@icon != []} class="size-4 shrink-0" aria-hidden="true">{render_slot(@icon)}</span>
+      <input
+        id={@id}
+        type="search"
+        name={@name}
+        value={@value}
+        placeholder={@placeholder}
+        aria-label={@label}
+        class="min-w-0 flex-1 border-0 bg-transparent p-0 text-[13px] text-ink outline-none placeholder:text-muted focus:ring-0"
+        {@rest}
+      />
+      <Kbd.kbd :if={@hint} aria-hidden="true" class="ml-auto">{@hint}</Kbd.kbd>
+    </label>
+    """
+  end
+
+  attr :name, :string, required: true
+  attr :detail, :string, default: nil, doc: "the workspace or the role, under the name"
+  attr :tone, :atom, values: [:ok, :warn, :risk, :info, :neutral], default: :info
+  attr :class, :any, default: nil
+  attr :rest, :global
+
+  slot :menu,
+    doc:
+      "the trigger of the person's menu (a `Dropdown` trigger, a button); hidden when collapsed"
+
+  @doc "The person at the foot of a sidebar: avatar, name, detail and a menu trigger, under a line."
+  @spec user(map()) :: Phoenix.LiveView.Rendered.t()
+  def user(assigns) do
+    ~H"""
+    <div
+      class={[
+        "flex items-center gap-2.5 border-t border-line-strong px-1.5 py-2 group-data-[collapsed=true]/sidebar:justify-center",
+        @class
+      ]}
+      {@rest}
+    >
+      <Avatar.avatar name={@name} tone={@tone} size={:sm} />
+      <span class="flex min-w-0 flex-1 flex-col text-[13px] group-data-[collapsed=true]/sidebar:hidden">
+        <span class="truncate font-medium text-ink">{@name}</span>
+        <span :if={@detail} class="truncate text-muted">{@detail}</span>
+      </span>
+      <span :if={@menu != []} class="shrink-0 group-data-[collapsed=true]/sidebar:hidden">
+        {render_slot(@menu)}
+      </span>
+    </div>
+    """
+  end
+
+  defp count_class(nil), do: "bg-wrap text-muted"
+  defp count_class(tone), do: ["border", Tone.surface(tone), Tone.text(tone)]
 end

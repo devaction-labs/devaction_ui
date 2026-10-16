@@ -8,12 +8,10 @@
 <ConfirmDialog.confirm_dialog
   :if={@confirming}
   id="confirm-dialog-basic"
-  eyebrow="PUBLISH"
   title="Publish the review on GitHub?"
   on_cancel="confirm_cancel"
-  close_label="Close"
 >
-  <:close_icon><.icon name="cancel-01" class="size-3.5" /></:close_icon>
+  <:icon><.icon name="git-pull-request" class="size-5" /></:icon>
   10 comments will be published on sge-api #142 as "request changes". 2 dismissed findings stay only here.
   <:actions>
     <Button.button id="confirm-dialog-cancel" variant={:secondary} phx-click="confirm_cancel">

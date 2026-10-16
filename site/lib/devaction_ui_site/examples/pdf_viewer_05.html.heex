@@ -1,0 +1,38 @@
+<%!-- title: Go to my signature | text: The jump in the toolbar and the primary button of the panel take the viewer to the page of the field to sign; pressing the field signs it. --%>
+<PdfViewer.viewer
+  id="pdf-jump"
+  name="Contract SGE · Amendment 02.pdf"
+  page={@pdf.page}
+  pages={4}
+  zoom={@pdf.zoom}
+  fields={@pdf.fields}
+  page_event="pdf_page"
+  zoom_event="pdf_zoom"
+  jump_event="pdf_jump"
+  field_event="pdf_sign"
+  jump_label="Go to my signature"
+  mine_label="You sign here"
+  pages_label="Pages"
+  page_label="Page"
+  zoom_label="Zoom"
+  zoom_out_label="Zoom out"
+  zoom_in_label="Zoom in"
+>
+  <:sheet :let={number}>
+    <div class="text-center font-bold tracking-[0.04em]">PAGE {number} OF 4</div>
+    <p class="mt-[1.2em]">
+      As agreed, the parties sign this amendment electronically, in the presence of the witnesses.
+    </p>
+  </:sheet>
+  <:jump_icon><.icon name="edit-02" class="size-4" /></:jump_icon>
+  <:panel>
+    <PdfViewer.signatures
+      title="Signatures"
+      signers={@pdf.signers}
+      jump_event="pdf_jump"
+      jump_label="Go to my signature"
+    >
+      <:note>Your field is on page 4. Click it to sign.</:note>
+    </PdfViewer.signatures>
+  </:panel>
+</PdfViewer.viewer>

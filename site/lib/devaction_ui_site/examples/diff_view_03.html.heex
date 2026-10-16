@@ -1,0 +1,25 @@
+<%!-- title: Conversation on a line | text: A `:thread` slot opens under its line and turns that line's button amber. `line_thread` has the author with the AI tag, the replies, a suggested change with its apply action, and the reply field with Resolve and Comment. --%>
+<div class="flex h-[720px] overflow-hidden rounded-2xl border border-line bg-card">
+  <DiffView.diff
+    id="diff-thread"
+    class="w-full"
+    path={ReviewDemo.milestone()}
+    hunks={ReviewDemo.hunks(@review, ReviewDemo.milestone())}
+    additions={18}
+    deletions={6}
+    lang={:elixir}
+    viewed_label="Viewed"
+    comment_label="Comment on line %{line}"
+    comment_event="comment_line"
+  >
+    <:file_icon><.icon name="file-01" class="size-4" /></:file_icon>
+    <:check_icon><.icon name="tick-02" class="size-3" /></:check_icon>
+    <:thread
+      :for={{line, side, thread} <- ReviewDemo.threads(@review)}
+      line={line}
+      side={side}
+    >
+      <ReviewDemo.thread path={ReviewDemo.milestone()} line={line} side={side} thread={thread} />
+    </:thread>
+  </DiffView.diff>
+</div>

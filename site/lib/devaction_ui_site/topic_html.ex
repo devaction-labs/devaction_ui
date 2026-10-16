@@ -4,7 +4,6 @@ defmodule DevactionUISite.TopicHTML do
   first line is a HEEx comment with its title and a short text. `render/2` draws one with the page's assigns,
   and `for_topic/1` lists a topic's examples with the text of each, which the page shows under the preview.
   """
-  use DevactionUISite.UI
 
   @header ~r/\A<%!-- title: (?<title>.*?) \| text: (?<text>.*?)(?: \| layout: (?<layout>\w+))? --%>\n/
 
@@ -34,24 +33,23 @@ defmodule DevactionUISite.TopicHTML do
              end)
             |> Enum.sort_by(& &1.id)
 
-  embed_templates "examples/*"
+  @shards [
+    {~w(a b), DevactionUISite.TopicShardAB},
+    {~w(c), DevactionUISite.TopicShardC},
+    {~w(d e), DevactionUISite.TopicShardDE},
+    {~w(f g h i j k l m n), DevactionUISite.TopicShardFN},
+    {~w(o p), DevactionUISite.TopicShardOP},
+    {~w(r s), DevactionUISite.TopicShardRS},
+    {~w(t u v w x y z), DevactionUISite.TopicShardTZ}
+  ]
 
-  for %{id: id, render: render} <- @examples do
-    def render(unquote(id), assigns), do: unquote(render)(assigns)
+  for %{id: id, render: render, slug: slug} <- @examples do
+    {_letters, shard} =
+      Enum.find(@shards, fn {letters, _shard} -> String.first(slug) in letters end)
+
+    def render(unquote(id), assigns), do: unquote(shard).unquote(render)(assigns)
   end
 
   @doc "The examples of a topic in order."
   def for_topic(slug), do: Enum.filter(@examples, &(&1.slug == slug))
-
-  @months ~w(January February March April May June July August September October November December)
-
-  defp calendar_title(date, :month),
-    do: Elixir.Calendar.strftime(date, "%B %Y", month_names: &Enum.at(@months, &1 - 1))
-
-  defp calendar_title(date, :week), do: Calendar.title(date, :week)
-
-  defp sidebar_icon("Today"), do: "sparkles"
-  defp sidebar_icon("Projects"), do: "contracts"
-  defp sidebar_icon("Contracts"), do: "contracts"
-  defp sidebar_icon(_label), do: "git-pull-request"
 end

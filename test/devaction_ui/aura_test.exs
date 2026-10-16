@@ -49,6 +49,64 @@ defmodule DevactionUI.AuraTest do
       refute has?(glow, "#a.p-px, #a.p-\\[1\\.5px\\]")
     end
 
+    test "the shape rounds the ring and the content, and the size is the ring width" do
+      assigns = %{}
+
+      for {shape, ring, inner} <- [
+            {:card, "rounded-[15.5px]", "\\[\\&\\>\\*\\]\\:rounded-\\[14px\\]"},
+            {:pill, "rounded-full", "\\[\\&\\>\\*\\]\\:rounded-full"},
+            {:circle, "rounded-full", "\\[\\&\\>\\*\\]\\:rounded-full"}
+          ] do
+        assigns = Map.put(assigns, :shape, shape)
+
+        html =
+          rendered_to_string(~H"""
+          <Aura.aura id="a" shape={@shape} aria-busy="true">x</Aura.aura>
+          """)
+
+        assert html =~ ring, "#{shape}"
+        assert has?(html, "#a.#{inner}[aria-busy=true]"), "#{shape}"
+      end
+
+      md =
+        rendered_to_string(~H"""
+        <Aura.aura id="a" size={:md}>x</Aura.aura>
+        """)
+
+      assert has?(md, "#a.p-0\\.5")
+    end
+
+    test "the fast speed is the chip's 1.4 s, for the ring and for the dual one" do
+      assigns = %{}
+
+      for variant <- [:spin, :dual] do
+        assigns = Map.put(assigns, :variant, variant)
+
+        html =
+          rendered_to_string(~H"""
+          <Aura.aura id="a" variant={@variant} speed={:fast}>x</Aura.aura>
+          """)
+
+        assert has?(html, "#a.animate-aura-spin-fast"), "#{variant}"
+      end
+    end
+
+    test "no colour is fixed: the ring follows the tone and the trail the line token, in both themes" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Aura.aura id="a" variant={:dual} tone={:ai}>x</Aura.aura>
+        <Aura.aura id="b" variant={:spin} tone={:risk}>x</Aura.aura>
+        """)
+
+      assert html =~ "var(--line)"
+      assert html =~ "currentColor"
+      refute html =~ ~r/#[0-9A-Fa-f]{3,6}[^\w]/
+      assert has?(html, "#a.text-ai")
+      assert has?(html, "#b.text-missing")
+    end
+
     test "all of it stops under reduced motion" do
       assigns = %{}
 

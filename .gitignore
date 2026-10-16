@@ -1,6 +1,10 @@
-/_build/
-/deps/
+/_build
+/deps
 /doc/
-/assets/node_modules/
+/assets/node_modules
+/site/_build
+/site/deps
+/site/node_modules
+/.claude/
 erl_crash.dump
 *.ez

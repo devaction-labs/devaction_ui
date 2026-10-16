@@ -1,13 +1,14 @@
-import {clamp, fill, hexToHsv, hsvToHex, withAlpha} from "./color_logic.js"
+import {fill, hexToHsv, hsvToHex, nudged, pointToSv, withAlpha} from "./color_logic.js"
+import {notify} from "./dom.js"
 import {runKey} from "./keys.js"
-
-const FALLBACK = "#2563EB"
 
 /**
  * A colour field with a panel: a square for saturation and brightness, a hue strip, an optional opacity
  * strip, a row of presets and, where the browser has one, the eyedropper. It always writes hex into the
  * text field and tells the form with an `input` event. The words (the area's spoken value) come from the
- * server in `data-area-text`; the server's `JS.ignore_attributes` keeps LiveView from closing the panel.
+ * server in `data-area-text`; the server's `JS.ignore_attributes` keeps LiveView from closing the panel. The
+ * server always writes a valid colour in `data-value`, which is where the start comes from when the text field
+ * holds something else.
  */
 export default {
   mounted() {
@@ -19,7 +20,8 @@ export default {
     this.handle = part("handle")
     this.hue = part("hue")
     this.alpha = part("alpha")
-    this.state = hexToHsv(this.input.value) ?? hexToHsv(this.el.dataset.value) ?? hexToHsv(FALLBACK)
+    this.valueText = part("value-text")
+    this.state = hexToHsv(this.input.value) ?? hexToHsv(this.el.dataset.value)
     this.bind()
     this.render(false)
   },
@@ -27,6 +29,7 @@ export default {
   updated() {
     const next = hexToHsv(this.input.value)
     next && this.input.value !== this.value() && this.set({...next, a: this.alpha ? next.a : 100}, {keepInput: true})
+    this.valueText.textContent = this.value()
   },
 
   destroyed() {
@@ -73,11 +76,7 @@ export default {
 
   bindArea() {
     const fromPointer = (event) => {
-      const box = this.area.getBoundingClientRect()
-      this.set({
-        s: clamp((event.clientX - box.left) / box.width, 0, 1),
-        v: clamp(1 - (event.clientY - box.top) / box.height, 0, 1),
-      })
+      this.set(pointToSv(event, this.area.getBoundingClientRect()))
     }
     this.area.addEventListener("pointerdown", (event) => {
       this.area.setPointerCapture(event.pointerId)
@@ -86,7 +85,7 @@ export default {
     this.area.addEventListener("pointermove", (event) => this.area.hasPointerCapture(event.pointerId) && fromPointer(event))
     this.area.addEventListener("keydown", (event) => {
       const step = event.shiftKey ? 0.1 : 0.02
-      const nudge = (key, by) => () => this.set({[key]: clamp(this.state[key] + by, 0, 1)})
+      const nudge = (key, by) => () => this.set(nudged(this.state, key, by))
       runKey(
         {ArrowLeft: nudge("s", -step), ArrowRight: nudge("s", step), ArrowUp: nudge("v", step), ArrowDown: nudge("v", -step)},
         event,
@@ -126,6 +125,7 @@ export default {
       "aria-valuetext",
       fill(this.el.dataset.areaText ?? "%{color}", {color: hex, saturation: Math.round(s * 100), brightness: Math.round(v * 100)}),
     )
+    this.valueText.textContent = this.value()
     this.hue.value = Math.round(h)
     this.alpha && (this.alpha.value = a)
     this.el
@@ -137,7 +137,7 @@ export default {
 
   emit() {
     this.emitting = true
-    this.input.dispatchEvent(new Event("input", {bubbles: true}))
+    notify(this.input)
     this.emitting = false
   },
 }

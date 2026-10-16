@@ -39,7 +39,7 @@ defmodule DevactionUI.InteractiveTest do
                ~r/id="t-tab-b"[^>]*aria-selected="true"|aria-selected="true"[^>]*id="t-tab-b"/s
 
       assert html =~ "border-b-2"
-      assert html =~ ">4<"
+      assert html =~ ~r/>\s*4\s*</
     end
 
     test "carries the hook" do
@@ -84,7 +84,7 @@ defmodule DevactionUI.InteractiveTest do
     end
   end
 
-  test "Tooltip describes its trigger and says it with role tooltip" do
+  test "Tooltip is tied to its trigger by the hook and says it with role tooltip" do
     assigns = %{}
 
     html =
@@ -92,7 +92,9 @@ defmodule DevactionUI.InteractiveTest do
       <Tooltip.tooltip id="tip" text="Opens GitHub"><a href="/x">GH</a></Tooltip.tooltip>
       """)
 
-    assert html =~ ~s(aria-describedby="tip-tip")
+    assert html =~ ~s(phx-hook="DevactionUI.Tooltip")
+    assert html =~ ~s(data-tip="tip-tip")
+    refute html =~ "aria-describedby"
     assert html =~ ~s(role="tooltip")
     assert html =~ "Opens GitHub"
     assert html =~ "group-focus-within/tip:opacity-100"
@@ -113,6 +115,91 @@ defmodule DevactionUI.InteractiveTest do
       assert html =~ ~s(phx-update="ignore")
       assert html =~ ~s(aria-label="Remove")
       assert html =~ ~s(aria-label="Labels")
+      assert html =~ "border border-line bg-wrap"
+      assert html =~ "min-w-[90px]"
+    end
+
+    test "names each × by its pill and keeps the pattern for the new ones" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Pillbox.pillbox
+          id="pb"
+          name="labels"
+          values={["a", "b"]}
+          label="Labels"
+          remove_label="Remove %{label}"
+          added_label="%{label} added"
+        />
+        """)
+
+      assert html =~ ~s(aria-label="Remove a")
+      assert html =~ ~s(aria-label="Remove b")
+      assert html =~ ~s(data-remove-label="Remove %{label}")
+      assert html =~ ~s(data-added-label="%{label} added")
+      assert html =~ ~s(role="status")
+    end
+
+    test "the field's own attributes and disabled reach the input and the pills" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Pillbox.pillbox
+          id="pb"
+          name="labels"
+          values={["a"]}
+          label="Labels"
+          remove_label="Remove"
+          disabled
+          input_rest={%{"aria-describedby" => "pb-error", "aria-invalid" => "true"}}
+        />
+        """)
+
+      assert html =~ ~r/<input[^>]*type="text"[^>]*aria-describedby="pb-error"/s
+      assert html =~ ~s(aria-invalid="true")
+      assert length(Regex.scan(~r/<(input|button)[^>]* disabled/, html)) >= 3
+    end
+
+    test "has no empty marker unless asked, so the hook reads only the pills" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(
+          ~H|<Pillbox.pillbox id="pb" name="labels" values={["a"]} label="Labels" remove_label="Remove" />|
+        )
+
+      refute html =~ "data-sentinel"
+      refute html =~ ~s(value="" data-sentinel)
+    end
+
+    test "empty_sentinel adds a blank name[] outside the pills, so an emptied list is still sent" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Pillbox.pillbox
+          id="pb"
+          name="labels"
+          values={["a"]}
+          label="Labels"
+          remove_label="Remove"
+          empty_sentinel
+        />
+        """)
+
+      assert html =~
+               ~r/<input[^>]*type="hidden"[^>]*name="labels\[\]"[^>]*value=""[^>]*data-sentinel/
+
+      assert length(Regex.scan(~r/data-sentinel/, html)) == 1
+      assert length(Regex.scan(~r/name="labels\[\]"/, html)) == 3
+    end
+
+    test "clean_values drops the blank marker and takes a missing field as an empty list" do
+      assert Pillbox.clean_values(["", "a", "b"]) == ["a", "b"]
+      assert Pillbox.clean_values([""]) == []
+      assert Pillbox.clean_values(nil) == []
     end
   end
 
@@ -145,6 +232,115 @@ defmodule DevactionUI.InteractiveTest do
       assert html =~ ~s(aria-haspopup="listbox")
       assert html =~ "None"
       assert html =~ "x"
+    end
+
+    defp render_combobox(attrs) do
+      assigns = %{options: options(), attrs: attrs}
+
+      rendered_to_string(~H"""
+      <Combobox.combobox
+        id="cb"
+        name="p"
+        options={@options}
+        label="Project"
+        placeholder="Choose"
+        search_placeholder="Search"
+        empty="None"
+        {@attrs}
+      >
+        <:chevron_icon>V</:chevron_icon>
+        <:search_icon>S</:search_icon>
+        <:clear_icon>X</:clear_icon>
+        <:option_marker :let={option}>M-{option.value}</:option_marker>
+      </Combobox.combobox>
+      """)
+    end
+
+    test "the button is named by the label and the chosen text, so the choice is read" do
+      html = render_combobox(value: "b")
+
+      assert html =~ ~s(aria-labelledby="cb-label cb-current")
+      assert html =~ ~s(id="cb-current")
+      assert html =~ ~r/id="cb-label"[^>]*>\s*Project\s*</
+      refute html =~ ~r/data-trigger[^>]*aria-label=/
+    end
+
+    test "the icons are slots, the open button has its ring and the marker gets the option" do
+      html = render_combobox([])
+
+      assert html =~ ~r/>\s*V\s*</
+      assert html =~ ~r/>\s*S\s*</
+      refute html =~ "⌄"
+      assert html =~ "M-a"
+      assert html =~ "aria-expanded:border-ink"
+      assert html =~ "aria-expanded:ring-4"
+      assert html =~ "hover:bg-wrap"
+      assert html =~ "shadow-pop"
+      assert html =~ "h-11"
+      assert html =~ ~s(data-placeholder="Choose")
+    end
+
+    test "the label is hidden unless show_label draws it above the field, tied to the button" do
+      hidden = render_combobox([])
+      assert hidden =~ ~r/<label id="cb-label" for="cb-trigger" class="sr-only"/
+      assert hidden =~ ~s(id="cb-trigger")
+
+      shown = render_combobox(show_label: true)
+
+      assert shown =~
+               ~r/<label id="cb-label" for="cb-trigger" class="mb-1.5 block text-\[13px\] font-medium/
+
+      refute shown =~ ~r/id="cb-label"[^>]*sr-only/
+    end
+
+    test "the help sits under the field and is read with it, together with the error" do
+      plain = render_combobox([])
+      refute plain =~ "cb-help"
+      refute plain =~ "aria-describedby"
+
+      help = render_combobox(help: "Where the PR is merged")
+      assert help =~ ~s(aria-describedby="cb-help")
+      assert help =~ ~r/id="cb-help"[^>]*>Where the PR is merged</
+
+      both = render_combobox(help: "Where", error: "Pick one")
+      assert both =~ ~s(aria-describedby="cb-help cb-error")
+    end
+
+    test "the clear button stays on the field, not on the label above it" do
+      html = render_combobox(show_label: true, clear_label: "Clear", value: "a")
+      assert html =~ ~r/<div class="relative">\s*<button[^>]*data-trigger/
+      assert html =~ ~r/data-trigger.*data-clear/s
+    end
+
+    test "the list is not frozen: the options follow the patch" do
+      refute render_combobox([]) =~ "phx-update"
+    end
+
+    test "disabled, required and error states" do
+      html = render_combobox(disabled: true, required: true, error: "Pick one")
+
+      assert html =~ ~r/data-trigger[^>]*disabled/
+      assert html =~ ~s(aria-required="true")
+      assert html =~ ~s(aria-invalid="true")
+      assert html =~ ~s(aria-describedby="cb-error")
+      assert html =~ ~r/id="cb-error"[^>]*role="alert"[^>]*>\s*Pick one/
+      assert html =~ "border-risk-fg"
+      assert html =~ ~r/<input type="hidden"[^>]*disabled/
+
+      plain = render_combobox([])
+      refute plain =~ "aria-invalid"
+      refute plain =~ "cb-error"
+    end
+
+    test "a clear button only with a name, hidden while nothing is chosen" do
+      refute render_combobox([]) =~ "data-clear"
+
+      empty = render_combobox(clear_label: "Clear")
+      assert empty =~ ~r/data-clear[^>]*aria-label="Clear"[^>]*hidden|hidden[^>]*data-clear/
+
+      chosen = render_combobox(clear_label: "Clear", value: "a")
+      assert chosen =~ "data-clear"
+      refute chosen =~ ~r/<button[^>]*data-clear[^>]*\shidden[\s>]/
     end
 
     test "with no value it shows the placeholder, muted" do

@@ -1,0 +1,27 @@
+<%!-- title: Read Only And Error Message | text: A secret to copy, and an error message tied to the field with aria-describedby --%>
+<div class="grid gap-5 md:grid-cols-2">
+  <label class="flex flex-col gap-1.5 text-sm font-medium">
+    Webhook secret
+    <InputGroup.input_group id="input-group-webhook" value="whsec_4f9a1c7e22b0" readonly>
+      <:action>
+        <InputGroup.input_action label="Copy the secret">
+          <.icon name="copy-01" />
+        </InputGroup.input_action>
+      </:action>
+    </InputGroup.input_group>
+  </label>
+  <div class="flex flex-col gap-1.5 text-sm font-medium">
+    <label for="input-group-taken">Subdomain</label>
+    <InputGroup.input_group
+      id="input-group-taken"
+      value="campolimpo"
+      invalid
+      aria-describedby="input-group-taken-error"
+    >
+      <:suffix loose>.devaction.app</:suffix>
+    </InputGroup.input_group>
+    <span id="input-group-taken-error" class="text-[13px] font-normal text-tag-risk-text">
+      This subdomain is already taken.
+    </span>
+  </div>
+</div>

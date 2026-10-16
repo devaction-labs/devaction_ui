@@ -1,4 +1,4 @@
-import {EXIT_MS, leftAfter, LINGER_MS, plan} from "./progress_toast_logic.js"
+import {EXIT_MS, leftAfter, LINGER_MS, plan} from "./toast_logic.js"
 
 /**
  * A job's notice that leaves by itself once the job is done: after a short linger (paused while the

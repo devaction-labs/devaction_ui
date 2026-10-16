@@ -1,0 +1,27 @@
+<%!-- title: Empty and with a minimum | text: With no value the trigger shows the placeholder and Apply waits for both ends; days before `min` cannot be picked. The footer asks for the end once the start is chosen. --%>
+<div class="pb-4">
+  <DateRange.picker
+    id="date-range-min"
+    name="booking"
+    label="Choose the dates"
+    today="2026-10-15"
+    min="2026-10-15"
+    portal
+    placeholder="Choose the dates"
+    previous_label="Previous month"
+    next_label="Next month"
+    presets_label="Ready-made ranges"
+    count_label="%{count} nights"
+    one_label="1 night"
+    pending_label="Pick the end date"
+    cancel_label="Cancel"
+    apply_label="Apply"
+  >
+    <:icon><.icon name="calendar-03" class="size-4" /></:icon>
+    <:prev_icon><.icon name="arrow-left-01" class="size-3.5" /></:prev_icon>
+    <:next_icon><.icon name="arrow-right-01" class="size-3.5" /></:next_icon>
+    <:preset from="2026-10-15" to="2026-10-17">This weekend</:preset>
+    <:preset from="2026-10-15" to="2026-10-22">Next 7 days</:preset>
+    <:preset>Custom</:preset>
+  </DateRange.picker>
+</div>

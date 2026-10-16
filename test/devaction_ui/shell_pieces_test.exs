@@ -7,6 +7,9 @@ defmodule DevactionUI.ShellPiecesTest do
 
   alias DevactionUI.{CommandPalette, PageHeader, Segmented, Sidebar}
 
+  defp tabindexes(html),
+    do: ~r/<button[^>]*tabindex="(-?\d)"/ |> Regex.scan(html) |> Enum.map(&List.last/1)
+
   describe "Segmented" do
     test "is a group of toggle buttons that marks the chosen option and sends the value of a press" do
       assigns = %{}
@@ -26,6 +29,8 @@ defmodule DevactionUI.ShellPiecesTest do
       assert html =~ ~s(phx-click="pick")
       assert html =~ ~s(phx-value-value="list")
       assert html =~ ~r/>\s*3\s*</
+      refute html =~ "bg-wrap"
+      assert html =~ "font-mono text-[11px] text-muted"
       assert html =~ ~s(class="segmented )
       refute html =~ "segmented-full"
     end
@@ -43,11 +48,92 @@ defmodule DevactionUI.ShellPiecesTest do
         """)
 
       assert html =~ "segmented-full"
-      assert html =~ "h-7"
+      assert html =~ "segmented-sm"
       assert html =~ ~s(aria-label="Rows")
       assert html =~ "ICON-a"
       assert html =~ "w-9"
       refute html =~ "<span>Rows</span>"
+    end
+
+    test "an option can be disabled, take a class, and patch or navigate instead of the event" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Segmented.segmented id="s" label="L" value="a">
+          <:option value="a" label="A" patch="/list" />
+          <:option value="b" label="B" navigate="/board" class="extra" disabled />
+          <:option value="c" label="C" />
+        </Segmented.segmented>
+        """)
+
+      assert html =~ "&quot;patch&quot;"
+      assert html =~ "/list"
+      assert html =~ "&quot;navigate&quot;"
+      assert html =~ "/board"
+      assert html =~ "extra"
+      assert html =~ ~r/<button[^>]* disabled/
+      refute html =~ "segmented-sm"
+    end
+
+    test "the group has the hook and only the pressed segment is in the Tab order" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Segmented.segmented id="s" label="L" value="b" event="e">
+          <:option value="a" label="A" />
+          <:option value="b" label="B" />
+          <:option value="c" label="C" />
+        </Segmented.segmented>
+        """)
+
+      assert html =~ ~s(phx-hook="DevactionUI.Segmented")
+      assert tabindexes(html) == ["-1", "0", "-1"]
+      assert html =~ ~s(aria-pressed="true")
+      refute html =~ "role=\"radio"
+    end
+
+    test "with no option chosen the first enabled one is the tab stop" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Segmented.segmented id="s" label="L" value="none" event="e">
+          <:option value="a" label="A" disabled />
+          <:option value="b" label="B" />
+          <:option value="c" label="C" />
+        </Segmented.segmented>
+        """)
+
+      assert tabindexes(html) == ["-1", "0", "-1"]
+    end
+
+    test "a chosen option that is disabled does not hold the tab stop" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Segmented.segmented id="s" label="L" value="a" event="e">
+          <:option value="a" label="A" disabled />
+          <:option value="b" label="B" />
+        </Segmented.segmented>
+        """)
+
+      assert tabindexes(html) == ["-1", "0"]
+    end
+
+    test "the target goes to every segment" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Segmented.segmented id="s" label="L" value="a" event="e" target="#box">
+          <:option value="a" label="A" />
+        </Segmented.segmented>
+        """)
+
+      assert html =~ ~s(phx-target="#box")
     end
   end
 
@@ -125,15 +211,161 @@ defmodule DevactionUI.ShellPiecesTest do
 
       assert html =~ ~s(data-collapsed="true")
       assert length(Regex.scan(~r/role="tooltip"/, html)) == 2
-      assert html =~ ~s(aria-label="Today")
+      assert html =~ ~s(aria-labelledby="nav-tip-0")
+      assert html =~ ~s(id="nav-tip-0")
+      refute html =~ ~s(aria-label="Today")
       assert html =~ "group-hover/tip:opacity-100"
       assert html =~ "group-focus-within/tip:opacity-100"
       assert html =~ ~s(aria-expanded="false")
       refute html =~ ~r/>\s*3\s*</
     end
 
+    test "the count takes the tone of its item, the quiet one without" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Sidebar.sidebar id="nav" label="Main" responsive={false}>
+          <:icon>I</:icon>
+          <:item to="/a" label="A" count="3" tone={:risk} />
+          <:item to="/b" label="B" count="9" />
+        </Sidebar.sidebar>
+        """)
+
+      assert html =~ "bg-tag-risk-bg"
+      assert html =~ "text-tag-risk-text"
+      assert html =~ "bg-wrap text-muted"
+      assert html =~ ~s(data-responsive="false")
+      assert sidebar(false) =~ ~s(data-responsive="true")
+    end
+
+    test "a toggle without a label is a mistake" do
+      assigns = %{}
+
+      assert_raise ArgumentError, ~r/toggle_label/, fn ->
+        rendered_to_string(~H"""
+        <Sidebar.sidebar id="nav" label="Main" on_toggle="t">
+          <:item to="/a" label="A" />
+        </Sidebar.sidebar>
+        """)
+      end
+    end
+
     test "has no toggle when nobody listens" do
       refute sidebar(false, nil) =~ "nav-toggle"
+    end
+
+    defp grouped(collapsed, closed \\ []) do
+      assigns = %{collapsed: collapsed, closed: closed}
+
+      rendered_to_string(~H"""
+      <Sidebar.sidebar id="nav" label="Main" collapsed={@collapsed} closed_groups={@closed}>
+        <:icon>I</:icon>
+        <:group_icon>›</:group_icon>
+        <:item to="/a" label="Today" />
+        <:item to="/b" label="Projects" group="Work" />
+        <:item to="/c" label="Contracts" group="Work" />
+        <:item to="/d" label="Help" group="More" />
+      </Sidebar.sidebar>
+      """)
+    end
+
+    defp query(html, selector),
+      do: html |> LazyHTML.from_fragment() |> LazyHTML.query(selector)
+
+    test "consecutive items of a group sit under a native details with its title" do
+      html = grouped(false)
+
+      assert Enum.count(query(html, "details")) == 2
+      assert Enum.count(query(html, "details#nav-group-1 li")) == 2
+      assert Enum.count(query(html, "details#nav-group-3 li")) == 1
+      assert query(html, "details#nav-group-1 > summary") |> LazyHTML.text() =~ "Work"
+      assert Enum.count(query(html, "details[open]")) == 2
+    end
+
+    test "closed_groups starts those groups closed" do
+      html = grouped(false, ["More"])
+
+      assert Enum.count(query(html, "details[open]")) == 1
+      assert Enum.count(query(html, "details#nav-group-3:not([open])")) == 1
+    end
+
+    test "collapsed there are no headings, only the items, each with its tooltip" do
+      html = grouped(true)
+
+      refute html =~ "<details"
+      refute html =~ "<summary"
+      assert length(Regex.scan(~r/role="tooltip"/, html)) == 4
+      assert html =~ ~s(id="nav-tip-3")
+    end
+
+    test "items have a 19px icon and a 10px count, as the canvas draws them" do
+      html = sidebar(false)
+
+      assert html =~ "size-[19px]"
+      assert html =~ "text-[10px]"
+      assert html =~ "rounded-[5px]"
+    end
+  end
+
+  describe "Sidebar.search/1 and user/1" do
+    test "search is a labelled search field with the key hint, hidden when collapsed" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Sidebar.search
+          id="s"
+          label="Search"
+          placeholder="Search"
+          hint="⌘K"
+          phx-change="find"
+          aria-keyshortcuts="Meta+K"
+        >
+          <:icon>M</:icon>
+        </Sidebar.search>
+        """)
+
+      field = "label[for=s] input#s[type=search][aria-label=Search][phx-change=find]"
+      assert Enum.count(query(html, field)) == 1
+      assert html =~ ~r/<kbd[^>]*aria-hidden="true"[^>]*>\s*⌘K/
+      assert html =~ "h-10"
+      assert html =~ "rounded-[10px]"
+      assert html =~ "group-data-[collapsed=true]/sidebar:hidden"
+    end
+
+    test "search without a hint draws no key" do
+      assigns = %{}
+      html = rendered_to_string(~H|<Sidebar.search id="s" label="Search" />|)
+
+      refute html =~ "<kbd"
+    end
+
+    test "user is the avatar with the name, the detail and the menu, under a line" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Sidebar.user name="Alex Nogueira" detail="DevAction Labs">
+          <:menu><button id="menu" type="button">...</button></:menu>
+        </Sidebar.user>
+        """)
+
+      assert html =~ "border-t border-line-strong"
+      assert html =~ "AN"
+      assert html =~ "Alex Nogueira"
+      assert html =~ "DevAction Labs"
+      assert html =~ ~s(id="menu")
+      assert html =~ "group-data-[collapsed=true]/sidebar:justify-center"
+      assert html =~ "group-data-[collapsed=true]/sidebar:hidden"
+    end
+
+    test "user without a menu or a detail is just the avatar and the name" do
+      assigns = %{}
+      html = rendered_to_string(~H|<Sidebar.user name="Alex Nogueira" />|)
+
+      refute html =~ "DevAction"
+      refute html =~ "id="
     end
   end
 
@@ -150,7 +382,12 @@ defmodule DevactionUI.ShellPiecesTest do
               }
             ],
             ask: "Ask the AI",
-            scopes: [%{value: "all", label: "All"}, %{value: "prs", label: "PRs"}]
+            scopes: [%{value: "all", label: "All"}, %{value: "prs", label: "PRs"}],
+            ask_kbd: nil,
+            close_key: "Esc",
+            debounce: 150,
+            loading: false,
+            scope: "all"
           },
           extra
         )
@@ -167,11 +404,17 @@ defmodule DevactionUI.ShellPiecesTest do
         ask_label={@ask}
         ask_event="ask"
         scopes={@scopes}
-        scope="all"
+        scope={@scope}
         scope_event="scope"
+        loading={@loading}
+        loading_label="Searching"
         keys={[{"↑↓", "move"}, {"↵", "open"}]}
+        ask_kbd={@ask_kbd}
+        close_key={@close_key}
+        debounce={@debounce}
       >
         <:search_icon>S</:search_icon>
+        <:item_icon :let={item}>I-{item.label}</:item_icon>
       </CommandPalette.palette>
       """)
     end
@@ -183,6 +426,9 @@ defmodule DevactionUI.ShellPiecesTest do
       assert html =~ ~s(aria-modal="true")
       assert html =~ ~s(phx-hook="DevactionUI.Autocomplete")
       assert length(Regex.scan(~r/phx-hook=/, html)) == 2
+      assert html =~ ~s(phx-hook="Phoenix.FocusWrap")
+      refute html =~ ~s(phx-hook="DevactionUI.Segmented")
+      assert html =~ ~s(role="tablist")
       assert html =~ ~s(role="combobox")
       assert html =~ ~s(role="listbox")
       assert html =~ "Lessons"
@@ -206,6 +452,134 @@ defmodule DevactionUI.ShellPiecesTest do
       refute bare =~ ~s(phx-click="scope")
       refute bare =~ "data-ask"
       assert bare =~ "Nothing."
+    end
+
+    test "the scopes are a tablist of tabs: the chosen one is selected and the only one in the tab order" do
+      html = palette()
+
+      assert html =~ ~s(role="tablist")
+      assert html =~ ~s(aria-label="Search")
+      assert length(Regex.scan(~r/role="tab"/, html)) == 2
+
+      assert html =~
+               ~r/role="tab"[^>]*aria-selected="true"[^>]*tabindex="0"[^>]*phx-value-value="all"/
+
+      assert html =~
+               ~r/role="tab"[^>]*aria-selected="false"[^>]*tabindex="-1"[^>]*phx-value-value="prs"/
+
+      assert html =~ ~s(aria-controls="p-list")
+      assert html =~ "h-[30px]"
+      assert html =~ "overflow-x-auto"
+      refute html =~ "radiogroup"
+    end
+
+    test "the first scope is the chosen one while none is set" do
+      html = palette(%{scope: nil})
+      assert html =~ ~r/role="tab"[^>]*aria-selected="true"[^>]*phx-value-value="all"/
+    end
+
+    test "loading says so, marks the list busy and drops the empty text" do
+      html = palette(%{loading: true, groups: [], ask: nil})
+
+      assert html =~ ~s(aria-busy="true")
+      assert html =~ ~r/role="status"[^>]*>\s*Searching/
+      refute html =~ "Nothing."
+      refute palette() =~ "aria-busy"
+    end
+
+    test "the empty state can be a slot that gets the query" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <CommandPalette.palette
+          id="p"
+          label="Search"
+          query="zz"
+          search_event="search"
+          close_event="close"
+          empty="Nothing."
+        >
+          <:empty_state :let={query}>No result for {query}</:empty_state>
+        </CommandPalette.palette>
+        """)
+
+      assert html =~ "No result for zz"
+      refute html =~ "Nothing."
+    end
+
+    test "a plain hint is bare mono text in the tone, a badge has a background" do
+      plain =
+        palette(%{
+          groups: [
+            %{
+              label: "PRs",
+              items: [
+                %{id: "p1", label: "Fix", to: "/1", hint: "#1", tone: :risk, hint_style: :plain}
+              ]
+            }
+          ]
+        })
+
+      assert plain =~ ~r/class="font-mono text-xs text-tag-risk-text"[^>]*>\s*#1/
+      assert palette() =~ "rounded-[5px]"
+    end
+
+    test "each group is a named role=group and the rows start unselected" do
+      html = palette()
+
+      assert html =~ ~s(role="group" aria-labelledby="p-group-0")
+      assert html =~ ~s(id="p-group-0")
+      assert html =~ ~s(aria-selected="false")
+      assert File.read!("assets/css/devaction_ui.css") =~ ~r/\.cmdk\s+\{[^}]*shadow-cmdk/
+      assert html =~ "max-h-[420px]"
+    end
+
+    test "aria-expanded follows the list: false with no row at all" do
+      assert palette() =~ ~s(aria-expanded="true")
+
+      bare = palette(%{ask: nil, groups: []})
+      assert bare =~ ~s(aria-expanded="false")
+      assert bare =~ ~r/class="m-0 px-2.5 py-7 text-center[^"]*"[^>]*>\s*Nothing\./
+    end
+
+    test "a row can send an event, patch or go to an href, with a second line, a shortcut and an icon" do
+      html =
+        palette(%{
+          groups: [
+            %{
+              label: "Commands",
+              items: [
+                %{
+                  id: "c1",
+                  label: "Create contract",
+                  event: "create",
+                  sub: "In this project",
+                  shortcut: "G C"
+                },
+                %{id: "c2", label: "Settings", patch: "/settings"},
+                %{id: "c3", label: "Docs", href: "https://example.com"}
+              ]
+            }
+          ]
+        })
+
+      assert html =~ ~s(phx-click="create")
+      assert html =~ ~s(phx-value-id="c1")
+      assert html =~ "In this project"
+      assert html =~ "G C"
+      assert html =~ ~s(data-phx-link="patch")
+      assert html =~ ~s(href="https://example.com")
+      assert html =~ "I-Create contract"
+    end
+
+    test "the field has the Esc key cap, the key of the AI row and the debounce the caller sets" do
+      html = palette()
+      assert html =~ ~r/<kbd[^>]*>\s*Esc\s*<\/kbd>/
+      assert html =~ ~s(phx-debounce="150")
+      refute html =~ "⌘↵"
+
+      assert palette(%{ask_kbd: "Ctrl ↵", close_key: nil, debounce: 300}) =~ "Ctrl ↵"
     end
   end
 end

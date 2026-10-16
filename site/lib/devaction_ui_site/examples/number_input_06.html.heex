@@ -1,0 +1,19 @@
+<%!-- title: With Unit And Help | text: The unit beside the value, read with it, and a line about the limits. ArrowUp, ArrowDown, PageUp and PageDown move it. --%>
+<div class="max-w-xs">
+  <NumberInput.number_input
+    id="number-input-unit"
+    name="hours"
+    value={@inputs.seats}
+    label="Hours per week"
+    unit="h"
+    min={1}
+    max={5}
+    event="seats_step"
+    decrease_label="Fewer hours"
+    increase_label="More hours"
+  >
+    <:minus_icon>−</:minus_icon>
+    <:plus_icon>+</:plus_icon>
+    <:help>Minimum 1, maximum 5.</:help>
+  </NumberInput.number_input>
+</div>

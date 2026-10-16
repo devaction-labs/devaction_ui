@@ -1,0 +1,17 @@
+<%!-- title: Group with +N | text: `max` folds the rest into a +N chip --%>
+<div class="grid gap-4">
+  <Avatar.group
+    label="Reviewers of #214"
+    size={:sm}
+    max={2}
+    people={[
+      %{name: "Ana Nogueira", tone: :ink},
+      %{name: "Ana Iris", tone: :warn},
+      %{name: "Bia Lopes"},
+      %{name: "Caio Prado"},
+      %{name: "Dani Reis"}
+    ]}
+  >
+    <:caption>Reviewers of #214</:caption>
+  </Avatar.group>
+</div>

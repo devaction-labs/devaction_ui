@@ -47,7 +47,8 @@ defmodule DevactionUI.OverlaysTest do
     test "closes on Esc, the backdrop and the close button, and gives the focus back" do
       html = drawer()
 
-      assert html =~ ~s(phx-key="escape")
+      assert html =~ ~s(phx-hook="DevactionUI.Overlay")
+      assert html =~ ~r/data-close="[^"]*pop_focus/
       assert length(Regex.scan(~r/pop_focus/, html)) >= 3
     end
 
@@ -56,7 +57,31 @@ defmodule DevactionUI.OverlaysTest do
       assert drawer(%{side: :left}) =~ "drawer-left"
       assert drawer(%{size: :sm}) =~ "drawer-sm"
       assert drawer(%{size: :lg}) =~ "drawer-lg"
+      assert drawer(%{variant: :sheet}) =~ "drawer-sheet"
       refute drawer() =~ "drawer-docked"
+      refute drawer() =~ "drawer-sheet"
+    end
+
+    test "the subtitle describes the dialog, and the handle shows at any width only on a sheet" do
+      html = drawer()
+
+      assert html =~ ~s(aria-describedby="d-subtitle")
+      assert html =~ ~s(id="d-subtitle")
+      assert html =~ "max-sm:flex"
+      refute drawer(%{variant: :sheet}) =~ "max-sm:flex"
+    end
+
+    test "the drawer is above the page and under a modal, and the handle is a draggable area" do
+      html = drawer()
+
+      assert html =~ ~s(class="drawer-root")
+      assert html =~ ~r/data-handle[^>]*touch-none/s
+      assert html =~ ~r/data-handle[^>]*hidden max-sm:flex/s
+      assert drawer(%{variant: :sheet}) =~ ~r/data-handle[^>]*flex flex-none/s
+      refute drawer(%{variant: :sheet}) =~ "hidden max-sm:flex"
+
+      assert html =~
+               ~r/id="d"[^>]*phx-hook="DevactionUI.Overlay"|phx-hook="DevactionUI.Overlay"[^>]*id="d"/s
     end
 
     test "has no footer when it has no actions" do
@@ -72,7 +97,7 @@ defmodule DevactionUI.OverlaysTest do
         """)
 
       refute html =~ "drawer-footer"
-      refute html =~ "<p"
+      refute html =~ "aria-describedby"
     end
 
     test "open/1 remembers the focus before the event" do
@@ -103,7 +128,45 @@ defmodule DevactionUI.OverlaysTest do
       assert html =~ "border-tag-ok-line"
       assert html =~ "modal-footer"
       assert html =~ "All saved"
+      assert html =~ ~s(aria-describedby="m-subtitle")
+      assert html =~ ~r/<div[^>]*id="m-subtitle"/
       refute html =~ ~s(aria-label=")
+    end
+
+    test "has no description when it has no subtitle, and the body scrolls inside the panel" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Modal.modal id="m" on_close="c">
+          <:title>T</:title>
+          BODY
+        </Modal.modal>
+        """)
+
+      refute html =~ "aria-describedby"
+      assert html =~ ~s(class="modal-body")
+    end
+
+    test "locks the page and answers Esc through the overlay hook, above a drawer" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H|<Modal.modal id="m" on_close="c">
+  <:title>T</:title>
+</Modal.modal>|)
+
+      assert html =~ ~s(phx-hook="DevactionUI.Overlay")
+      assert html =~ ~r/data-close="[^"]*pop_focus[^"]*"/
+      assert html =~ "z-[70]"
+      refute html =~ "phx-window-keydown"
+      refute html =~ "data-handle"
+    end
+
+    test "open/1 remembers the focus before the event and close/1 gives it back" do
+      assert %JS{ops: [["push_focus", _], ["push", %{event: "go"}]]} = Modal.open("go")
+      assert %JS{ops: [["pop_focus", _], ["push", %{event: "x"}]]} = Modal.close("x")
+      assert %JS{ops: [["push", %{event: "y"}], ["pop_focus", _]]} = Modal.close(JS.push("y"))
     end
 
     test "has a close button only when it has a label, and a centered success" do
@@ -197,11 +260,11 @@ defmodule DevactionUI.OverlaysTest do
         confirm_label="Stop"
         cancel_label="Cancel"
         close_label="Close"
-        type_label="Type it"
       >
         <:icon>I</:icon>
         <:close_icon>X</:close_icon>
         <:title>Stop?</:title>
+        <:type_label>Type <code>sge-api</code> to confirm</:type_label>
         What is lost.
       </DangerDialog.danger_dialog>
       """)
@@ -223,6 +286,42 @@ defmodule DevactionUI.OverlaysTest do
       open = danger("sge-api")
       assert open =~ ~s(aria-disabled="false")
       assert open =~ ~s(phx-click="confirm")
+      assert locked =~ ~s(data-unlocked="false")
+      assert open =~ ~s(data-unlocked="true")
+      assert locked =~ ~s(data-valid="false")
+      assert open =~ ~s(data-valid="true")
+    end
+
+    test "Enter in the field submits the confirm event, and Cancel gives the focus back" do
+      html = danger("")
+
+      assert html =~ ~r/<form[^>]*phx-submit="confirm"/
+      assert html =~ ~r/id="x-cancel"[^>]*phx-click="[^"]*pop_focus/s
+    end
+
+    test "the name chip draws the name as code, and the locked button says why through the sentence" do
+      assigns = %{}
+
+      chip =
+        rendered_to_string(~H|<DangerDialog.name_chip class="x">sge-api</DangerDialog.name_chip>|)
+
+      assert chip =~ ~r/<code[^>]*class="[^"]*font-mono[^"]*"[^>]*>sge-api<\/code>/
+      html = danger("sge")
+      assert html =~ ~s(id="x-type-label")
+      assert html =~ ~r/id="x-confirm"[^>]*aria-describedby="x-type-label"/s
+    end
+
+    test "the aria-disabled of the red button follows what was typed" do
+      assert danger("") =~ ~r/id="x-confirm"[^>]*aria-disabled="true"/s
+      assert danger("sge-api") =~ ~r/id="x-confirm"[^>]*aria-disabled="false"/s
+    end
+
+    test "the sentence over the field is a slot and the field is described by the explanation" do
+      html = danger("")
+
+      assert html =~ "<code>sge-api</code>"
+      assert html =~ ~r/id="x-typed"[^>]*aria-describedby="x-subtitle"/s
+      assert html =~ ~s(id="x-subtitle")
     end
 
     test "asks for the name in a field that reports each key and does not close on a click outside" do
@@ -232,32 +331,41 @@ defmodule DevactionUI.OverlaysTest do
       assert html =~ "#x-typed"
       assert html =~ "focus"
       assert html =~ ~s(autocomplete="off")
-      assert html =~ "Type it"
       assert html =~ "What is lost."
       refute html =~ ~r/modal-backdrop[^>]*phx-click/
     end
   end
 
   describe "Tooltip" do
-    test "is described by its text and shows on all four sides" do
-      assigns = %{}
+    test "is described by its text and starts on each of the four sides" do
+      for side <- [:top, :bottom, :left, :right] do
+        assigns = %{side: side}
 
-      for {side, expected} <- [
-            top: "bottom-full",
-            bottom: "top-full",
-            left: "right-full",
-            right: "left-full"
-          ] do
         html =
           rendered_to_string(~H"""
-          <Tooltip.tooltip id="t" text="Search" placement={side}><button>S</button></Tooltip.tooltip>
+          <Tooltip.tooltip id="t" text="Search" placement={@side}><button>S</button></Tooltip.tooltip>
           """)
 
         assert html =~ ~s(role="tooltip")
-        assert html =~ ~s(aria-describedby="t-tip")
-        assert html =~ expected
+        assert html =~ ~s(data-tip="t-tip")
+        assert html =~ ~s(id="t-tip")
         assert html =~ ~s(data-side="#{side}")
+        assert html =~ ~s(data-placement="#{side}")
       end
+    end
+
+    test "can be hovered and dismissed: it takes the pointer only while shown" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Tooltip.tooltip id="t" text="Search"><button>S</button></Tooltip.tooltip>
+        """)
+
+      assert html =~ "group-hover/tip:pointer-events-auto"
+      assert html =~ "group-focus-within/tip:pointer-events-auto"
+      assert html =~ "group-data-[dismissed]/tip:!pointer-events-none"
+      assert html =~ "pointer-events-none"
     end
 
     test "waits before showing, shows the shortcut and the rich variant has a heading" do
@@ -271,6 +379,10 @@ defmodule DevactionUI.OverlaysTest do
       assert html =~ "delay-[400ms]"
       assert html =~ "⌘K"
       assert html =~ "<kbd"
+      assert html =~ "bg-kbd-inverse"
+      assert html =~ "shadow-tip"
+      assert html =~ "px-[9px]"
+      assert html =~ "group-data-[dismissed]/tip"
 
       rich =
         rendered_to_string(~H"""
@@ -278,8 +390,23 @@ defmodule DevactionUI.OverlaysTest do
         """)
 
       assert rich =~ "RingScore 69"
-      assert rich =~ "max-w-72"
+      assert rich =~ "max-w-[280px]"
+      assert rich =~ "rounded-xl"
+      assert rich =~ "shadow-tip-rich"
       refute rich =~ "<kbd"
+    end
+
+    test "draws an arrow that the hook and the CSS turn to the side of the trigger" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Tooltip.tooltip id="t" text="Search"><button>S</button></Tooltip.tooltip>
+        """)
+
+      assert html =~ ~s(class="tip-arrow")
+      assert html =~ ~s(aria-hidden="true")
+      assert html =~ "tip "
     end
   end
 end

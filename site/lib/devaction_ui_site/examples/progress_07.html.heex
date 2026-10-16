@@ -1,0 +1,22 @@
+<%!-- title: Milestones | text: A segmented bar with the piece in progress in amber, and a tone for each done piece --%>
+<div class="grid max-w-md gap-5">
+  <.progress
+    label="Milestones"
+    variant={:segmented}
+    segments={5}
+    current={3}
+    tone={:neutral}
+    value_label="Milestone 3 of 5"
+    show_value
+  />
+  <.progress
+    label="Delivery"
+    variant={:segmented}
+    segments={5}
+    value={60}
+    segment_tones={[:ok, :ok, :warn]}
+    gap={:sm}
+    value_label="3 of 5"
+    show_value
+  />
+</div>

@@ -1,0 +1,18 @@
+<%!-- title: Your own row | text: The entry slot draws each file as you like (it gets the UploadEntry); the remove button is still added beside it. --%>
+<Dropzone.dropzone
+  id="dropzone-custom"
+  upload={@uploads.transcript}
+  title="Drop the transcript or the audio of the meeting"
+  hint=".mp3, .m4a, .txt · up to 200 MB"
+  cancel_event="cancel_upload"
+  cancel_label="Remove %{name}"
+  class="max-w-lg"
+>
+  <:icon><.icon name="upload-04" class="size-5.5" /></:icon>
+  <:entry :let={entry}>
+    <div class="flex items-center justify-between gap-3 text-[13px]">
+      <span class="truncate">{entry.client_name}</span>
+      <span class="font-mono text-muted">{entry.progress}%</span>
+    </div>
+  </:entry>
+</Dropzone.dropzone>

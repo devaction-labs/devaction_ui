@@ -1,0 +1,15 @@
+<%!-- title: Anchored to the bottom | text: By default the notice is fixed to the bottom of the viewport as a non-modal dialog; the page behind stays usable. Here the frame is a transformed box so it sits in the preview. --%>
+<div class="relative h-80 overflow-hidden rounded-xl border border-line bg-wrap [transform:translateZ(0)]">
+  <p class="p-4 text-sm text-muted">The page content stays reachable behind the notice.</p>
+  <CookieConsent.banner
+    id="cookies-fixed"
+    title="We use cookies."
+    privacy_label="Privacy policy"
+    privacy_href="#"
+    preferences_label="Preferences"
+    necessary_label="Only necessary"
+    accept_label="Accept all"
+  >
+    The necessary ones keep you signed in.
+  </CookieConsent.banner>
+</div>

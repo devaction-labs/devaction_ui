@@ -4,9 +4,20 @@ defmodule DevactionUI.Chart do
   the sparkline of a number card. No library and no script: the hover is CSS (and keyboard focus shows the same).
 
   The series take the fixed palette `chart-1` to `chart-4` (blue, amber, teal, purple). Colour is never the only
-  way to tell a series: there is always a legend, the second line is dashed, the end of each line carries its value
-  and the line chart has a table view (`table?`; the caller owns the toggle). Every chart is an `img` with a
-  summary for assistive technology.
+  way to tell a series: there is always a legend, the end of each line carries its value and the line chart has
+  a table view (`table?`; the caller owns the toggle). Lines are solid, as the canvas draws them; a series with
+  `dashed: true` is drawn dashed, with a dashed key in the legend, for a caller that also wants the shape to
+  tell a forecast from a result.
+
+  A chart whose parts can be focused (the line chart's columns, the columns, the bars, the slices of the ring) is
+  a `group` named by its `summary`, and each part is named with its figures; the sparkline, which has no parts,
+  is an `img`. Pointing at or focusing a bar, a column or a slice dims the others, and a column shows its value
+  only then.
+
+  The palette has four colours: a fifth series (or slice) wraps round to the first. A chart with nothing to draw
+  shows its axes (the line and column charts) or nothing at all (bars and ring), so a caller with no data draws
+  its own empty state instead. The table view has no difference column and its heads are not upper-cased: the
+  caller writes the heads as it wants them and can add columns of its own to `series`.
   """
   use Phoenix.Component
 
@@ -18,10 +29,19 @@ defmodule DevactionUI.Chart do
 
   @width 820
   @height 280
-  @left 52
-  @right 730
+  @left 44
+  @right 800
+  @plot_left 64
+  @plot_right 760
   @top 16
   @bottom 250
+
+  @column_height 220
+  @column_left 40
+  @column_from 80
+  @column_to 780
+  @column_top 20
+  @column_bottom 190
 
   @doc "The class that colours the stroke of series `index` (from 0)."
   @spec stroke(non_neg_integer()) :: String.t()
@@ -45,7 +65,8 @@ defmodule DevactionUI.Chart do
 
   attr :series, :list,
     required: true,
-    doc: "`%{label: text, values: [number]}` each; the first one gets the area"
+    doc:
+      "`%{label: text, values: [number]}` each, and `dashed: true` to draw one dashed; the first one gets the area"
 
   attr :format, :any,
     default: nil,
@@ -64,7 +85,7 @@ defmodule DevactionUI.Chart do
     max =
       assigns.series |> Enum.flat_map(& &1.values) |> Enum.max(fn -> 0 end) |> Geometry.nice_max()
 
-    xs = Geometry.spread(length(assigns.labels), @left + 8, @right)
+    xs = Geometry.spread(length(assigns.labels), @plot_left, @plot_right)
 
     lines =
       for {serie, index} <- Enum.with_index(assigns.series) do
@@ -111,14 +132,14 @@ defmodule DevactionUI.Chart do
       <svg
         :if={!@table?}
         viewBox={"0 0 #{@width} #{@height}"}
-        role="img"
+        role="group"
         aria-label={@summary}
         class="block h-auto w-full overflow-visible"
       >
         <g :for={tick <- @grid}>
           <line
             x1={@left}
-            x2={@right + 10}
+            x2={@right}
             y1={Geometry.scale(tick, @max, @bottom, @top)}
             y2={Geometry.scale(tick, @max, @bottom, @top)}
             class="chart-grid"
@@ -138,7 +159,7 @@ defmodule DevactionUI.Chart do
           x={x}
           y={@bottom + 20}
           text-anchor="middle"
-          class="chart-axis"
+          class="chart-axis-x"
         >
           {label}
         </text>
@@ -150,17 +171,17 @@ defmodule DevactionUI.Chart do
         <path
           :for={line <- Enum.reverse(@lines)}
           d={Geometry.line_path(line.points)}
-          stroke-dasharray={dash(line.index)}
+          stroke-dasharray={dash(line.serie)}
           class={["chart-line", stroke(line.index)]}
         />
         <g :for={line <- @lines}>
           <% {x, y} = List.last(line.points) %>
           <circle cx={x} cy={y} r="5" class={["chart-dot", fill(line.index)]} />
           <text
-            x={x + 12}
+            x={x + 10}
             y={line.label_y}
             dy="4"
-            class={["text-xs fill-ink", line.index > 0 && "fill-ink-2"]}
+            class={(line.index > 0 && "fill-ink-2 text-xs") || "fill-ink text-xs font-semibold"}
           >
             {text(@format, List.last(line.serie.values))}
           </text>
@@ -179,7 +200,10 @@ defmodule DevactionUI.Chart do
             height={@bottom - @top + 12}
             fill="transparent"
           />
-          <g class="opacity-0 transition-opacity group-hover/col:opacity-100 group-focus/col:opacity-100 motion-reduce:transition-none">
+          <g
+            aria-hidden="true"
+            class="opacity-0 transition-opacity group-hover/col:opacity-100 group-focus/col:opacity-100 motion-reduce:transition-none"
+          >
             <line
               x1={Enum.at(@xs, column)}
               x2={Enum.at(@xs, column)}
@@ -212,11 +236,25 @@ defmodule DevactionUI.Chart do
   def text(nil, value), do: Geometry.fmt(value)
   def text(format, value), do: format.(value)
 
+  defp dim,
+    do: [
+      "transition-opacity motion-reduce:transition-none",
+      "group-has-[[data-item]:hover]/dim:not-hover:opacity-40",
+      "group-has-[[data-item]:focus-visible]/dim:not-focus-visible:opacity-40"
+    ]
+
+  defp dim_slice,
+    do: [
+      "transition-opacity motion-reduce:transition-none",
+      "group-has-[[data-item]:hover]/dim:not-hover:opacity-35",
+      "group-has-[[data-item]:focus-visible]/dim:not-focus-visible:opacity-35"
+    ]
+
   defp column_half([_one]), do: 40
   defp column_half([a, b | _]), do: (b - a) / 2
 
-  defp dash(0), do: nil
-  defp dash(_index), do: "6 5"
+  defp dash(%{dashed: true}), do: "6 5"
+  defp dash(_serie), do: nil
 
   defp tooltip_rows(series, column, format),
     do:
@@ -270,7 +308,7 @@ defmodule DevactionUI.Chart do
           class={[
             "chart-key",
             bg(index),
-            index > 0 &&
+            Map.get(serie, :dashed, false) &&
               "[mask-image:repeating-linear-gradient(90deg,#000_0_4px,transparent_4px_7px)]"
           ]}
           aria-hidden="true"
@@ -337,23 +375,25 @@ defmodule DevactionUI.Chart do
     ~H"""
     <ul
       id={@id}
-      role="img"
       aria-label={@summary}
-      class={["m-0 flex list-none flex-col gap-3 p-0", @class]}
+      class={["group/dim m-0 flex list-none flex-col gap-3 p-0", @class]}
       {@rest}
     >
       <li
         :for={item <- @items}
-        class="grid grid-cols-[minmax(0,8rem)_1fr_auto] items-center gap-3 text-sm"
+        data-item
+        tabindex="0"
+        aria-label={"#{item.label}: #{text(@format, item.value)}"}
+        class={["grid grid-cols-[92px_1fr] items-center gap-3 text-sm outline-none", dim()]}
       >
         <span class="truncate text-ink-2">{item.label}</span>
-        <span class="h-2 rounded-full bg-line-soft">
+        <span class="flex items-center gap-2">
           <span
-            class="block h-full rounded-full bg-chart-1"
-            style={"width: #{Geometry.fmt(item.value / @max * 100)}%"}
+            class="block h-5 rounded-r-[4px] bg-chart-1"
+            style={"width: calc((100% - 4rem) * #{Geometry.fmt(item.value / @max * 100)} / 100)"}
           />
+          <span class="font-mono text-xs text-ink">{text(@format, item.value)}</span>
         </span>
-        <span class="font-mono text-[13px] text-ink">{text(@format, item.value)}</span>
       </li>
     </ul>
     """
@@ -369,17 +409,17 @@ defmodule DevactionUI.Chart do
 
   def column_chart(assigns) do
     max = assigns.items |> Enum.map(& &1.value) |> Enum.max(fn -> 0 end) |> Geometry.nice_max()
-    xs = Geometry.spread(length(assigns.items), @left + 20, @right - 20)
+    xs = Geometry.spread(length(assigns.items), @column_from, @column_to)
 
     assigns =
       assign(assigns,
         max: max,
         xs: xs,
         width: @width,
-        height: @height,
-        bottom: @bottom,
-        top: @top,
-        left: @left,
+        height: @column_height,
+        bottom: @column_bottom,
+        top: @column_top,
+        left: @column_left,
         right: @right
       )
 
@@ -387,15 +427,15 @@ defmodule DevactionUI.Chart do
     <svg
       id={@id}
       viewBox={"0 0 #{@width} #{@height}"}
-      role="img"
+      role="group"
       aria-label={@summary}
-      class={["block h-auto w-full overflow-visible", @class]}
+      class={["group/dim block h-auto w-full overflow-visible", @class]}
       {@rest}
     >
       <g :for={tick <- Geometry.ticks(@max, 4)}>
         <line
           x1={@left}
-          x2={@right + 10}
+          x2={@right}
           y1={Geometry.scale(tick, @max, @bottom, @top)}
           y2={Geometry.scale(tick, @max, @bottom, @top)}
           class="chart-grid"
@@ -410,7 +450,14 @@ defmodule DevactionUI.Chart do
           {text(@format, tick)}
         </text>
       </g>
-      <g :for={{item, x} <- Enum.zip(@items, @xs)}>
+      <g
+        :for={{item, x} <- Enum.zip(@items, @xs)}
+        data-item
+        tabindex="0"
+        role="img"
+        aria-label={"#{item.label}: #{text(@format, item.value)}"}
+        class={["group/col outline-none", dim()]}
+      >
         <path
           d={
             Geometry.column_path(
@@ -427,11 +474,11 @@ defmodule DevactionUI.Chart do
           x={x}
           y={Geometry.scale(item.value, @max, @bottom, @top) - 8}
           text-anchor="middle"
-          class="fill-ink font-mono text-xs"
+          class="fill-ink text-xs font-semibold opacity-0 transition-opacity group-hover/col:opacity-100 group-focus/col:opacity-100 motion-reduce:transition-none"
         >
           {text(@format, item.value)}
         </text>
-        <text x={x} y={@bottom + 20} text-anchor="middle" class="chart-axis">{item.label}</text>
+        <text x={x} y={@bottom + 20} text-anchor="middle" class="chart-axis-x">{item.label}</text>
       </g>
     </svg>
     """
@@ -441,6 +488,7 @@ defmodule DevactionUI.Chart do
   attr :summary, :string, required: true
   attr :items, :list, required: true, doc: "`%{label: text, value: number}` each"
   attr :format, :any, default: nil
+  attr :size, :integer, default: 220, doc: "the side of the ring, in pixels"
   attr :class, :any, default: nil
   slot :center, doc: "what sits in the hole of the ring: the total"
 
@@ -449,7 +497,7 @@ defmodule DevactionUI.Chart do
   def donut_chart(assigns) do
     values = Enum.map(assigns.items, & &1.value)
     total = Enum.sum(values)
-    slices = Geometry.slices(values, 2.5)
+    slices = Geometry.slices(values, 0)
 
     assigns =
       assign(assigns,
@@ -459,12 +507,24 @@ defmodule DevactionUI.Chart do
 
     ~H"""
     <div id={@id} class={["flex flex-wrap items-center gap-6", @class]} {@rest}>
-      <div class="relative size-40 flex-none">
-        <svg viewBox="0 0 160 160" role="img" aria-label={@summary} class="block size-full">
-          <%= for {_item, slice, {_same, index}} <- @slices, slice do %>
+      <div class="relative flex-none" style={"width: #{@size}px; height: #{@size}px"}>
+        <svg
+          viewBox="0 0 220 220"
+          width={@size}
+          height={@size}
+          role="group"
+          aria-label={@summary}
+          class="group/dim block"
+        >
+          <%= for {item, slice, {_same, index}} <- @slices, slice do %>
             <path
-              d={Geometry.arc_path(80, 80, 76, 52, elem(slice, 0), elem(slice, 1))}
-              class={fill(index)}
+              d={Geometry.arc_path(110, 110, 100, 66, elem(slice, 0), elem(slice, 1))}
+              data-item
+              tabindex="0"
+              role="img"
+              aria-label={"#{item.label}: #{text(@format, item.value)} (#{percent(item.value, @total)})"}
+              stroke-linejoin="round"
+              class={[fill(index), "chart-slice outline-none", dim_slice()]}
             />
           <% end %>
         </svg>
@@ -474,7 +534,7 @@ defmodule DevactionUI.Chart do
       </div>
       <ul class="m-0 flex list-none flex-col gap-2 p-0 text-sm">
         <li :for={{item, _slice, {_same, index}} <- @slices} class="flex items-center gap-2.5">
-          <span class={["size-2.5 rounded-sm", bg(index)]} aria-hidden="true" />
+          <span class={["size-2.5 rounded-[3px]", bg(index)]} aria-hidden="true" />
           <span class="text-ink-2">{item.label}</span>
           <span class="ml-auto pl-4 font-mono text-[13px] text-ink">{text(@format, item.value)}</span>
           <span class="w-10 text-right font-mono text-xs text-muted">{percent(item.value, @total)}</span>
@@ -519,7 +579,7 @@ defmodule DevactionUI.Chart do
       class={["flex-none", @class]}
       {@rest}
     >
-      <path d={Geometry.area_path(@points, @height - 6)} class="fill-chart-1 chart-area" />
+      <path d={Geometry.area_path(@points, @height - 6)} class="fill-chart-1 chart-area-spark" />
       <path d={Geometry.line_path(@points)} class="chart-line stroke-chart-1" />
       <circle
         :if={@last}

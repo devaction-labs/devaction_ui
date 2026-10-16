@@ -7,8 +7,22 @@ defmodule DevactionUISite.DocsHTML do
 
   import DevactionUISite.Icon
 
-  alias DevactionUI.{Button, CodeBlock, Kbd, Panel, Tag}
-  alias DevactionUISite.{Catalog, Doc, Reference, ScreenHTML, Templates, Tokens, TopicHTML}
+  alias DevactionUI.{CodeBlock, Panel, Tag}
+
+  alias DevactionUISite.{
+    Catalog,
+    ChangelogHTML,
+    Doc,
+    HomeHTML,
+    Project,
+    Reference,
+    ScreenHTML,
+    Shell,
+    Templates,
+    Tokens,
+    TopicHTML
+  }
+
   alias Phoenix.LiveView.JS
 
   @install_css ~S|@import "../../deps/devaction_ui/assets/css/devaction_ui.css";|
@@ -38,7 +52,7 @@ new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
         <div
           :for={example <- examples}
           id={"preview-" <> example.id}
-          class="flex flex-col gap-8 rounded-2xl border border-line bg-panel p-8"
+          class="flex flex-col gap-8 rounded-2xl border border-line bg-card p-8"
         >
           <Panel.eyebrow>{example.title}</Panel.eyebrow>
           {live_render(@socket, DevactionUISite.ExampleLive,
@@ -51,13 +65,32 @@ new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
     """
   end
 
+  def page(%{live_action: :home} = assigns) do
+    ~H"""
+    <Shell.shell page={assigns} sidebar={false}>
+      <HomeHTML.page {assigns} />
+    </Shell.shell>
+    """
+  end
+
+  def page(%{live_action: :changelog} = assigns) do
+    ~H"""
+    <Shell.shell page={assigns} sidebar={false}>
+      <ChangelogHTML.page {assigns} />
+    </Shell.shell>
+    """
+  end
+
   def page(assigns) do
-    assigns = assign(assigns, :chrome, shell_attrs(assigns))
+    assigns = assign(assigns, toc: toc(assigns), toc_key: toc_key(assigns))
 
     ~H"""
-    <.shell {@chrome}>
+    <Shell.shell page={assigns} toc={@toc} toc_key={@toc_key}>
       <.content live_action={@live_action} topic={@topic} page_assigns={assigns} />
-    </.shell>
+      <:rail :if={@live_action == :topic}>
+        <.history_cards />
+      </:rail>
+    </Shell.shell>
     """
   end
 
@@ -77,18 +110,9 @@ new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
     ~H"<.topic topic={@topic} assigns={@page_assigns} />"
   end
 
-  defp shell_attrs(assigns) do
-    %{
-      live_action: assigns.live_action,
-      topic: assigns.topic,
-      template: assigns.template_group,
-      groups: assigns.nav_groups,
-      query: assigns.nav_query,
-      toc: toc(assigns),
-      toc_key:
-        "#{assigns.live_action}-#{assigns.topic && assigns.topic.slug}-#{assigns.template_group && assigns.template_group.slug}"
-    }
-  end
+  defp toc_key(%{live_action: :topic, topic: topic}), do: "topic-" <> topic.slug
+  defp toc_key(%{live_action: :templates, template_group: group}), do: "templates-" <> group.slug
+  defp toc_key(%{live_action: action}), do: Atom.to_string(action)
 
   defp toc(%{live_action: :overview}),
     do: [{"principles", "What to expect", 1}, {"components", "Components", 1}]
@@ -110,232 +134,13 @@ new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
   defp toc(%{live_action: :topic, topic: topic}) do
     examples = for example <- TopicHTML.for_topic(topic.slug), do: {example.id, example.title, 1}
 
-    modules =
-      for module <- topic.modules,
-          do: {"api-" <> Reference.short(module), Reference.short(module), 2}
+    api = [{"api", "API reference", 1}]
 
-    examples ++ [{"api", "API reference", 1}] ++ modules
-  end
+    accessibility =
+      for _note <- Enum.take(Enum.flat_map(topic.modules, &Reference.accessibility/1), 1),
+          do: {"accessibility", "Accessibility", 1}
 
-  attr :live_action, :atom, required: true
-  attr :topic, :map, default: nil
-  attr :template, :map, default: nil
-  attr :groups, :list, required: true
-  attr :query, :string, default: ""
-  attr :toc, :list, default: []
-  attr :toc_key, :string, required: true
-  slot :inner_block, required: true
-
-  def shell(assigns) do
-    ~H"""
-    <div id="site" class="min-h-screen bg-frame">
-      <.topbar query={@query} />
-
-      <details id="mobile-nav" class="border-b border-line bg-panel lg:hidden">
-        <summary class="flex cursor-pointer list-none items-center gap-2 px-5 py-3 text-sm font-medium text-ink-2">
-          <.icon name="menu-01" class="size-4" /> Menu
-        </summary>
-        <div class="max-h-[60vh] overflow-y-auto px-5 pb-5">
-          <.sidebar live_action={@live_action} topic={@topic} template={@template} groups={@groups} />
-        </div>
-      </details>
-
-      <div class="mx-auto flex max-w-[1440px]">
-        <aside
-          id="sidebar"
-          class="sticky top-16 hidden h-[calc(100vh-4rem)] w-64 shrink-0 overflow-y-auto border-r border-line px-5 py-8 lg:block"
-        >
-          <.sidebar live_action={@live_action} topic={@topic} template={@template} groups={@groups} />
-        </aside>
-
-        <main class="min-w-0 flex-1 px-5 py-10 sm:px-10 lg:px-14">
-          <div class="mx-auto flex max-w-[780px] flex-col">
-            {render_slot(@inner_block)}
-          </div>
-        </main>
-
-        <aside class="sticky top-16 hidden h-[calc(100vh-4rem)] w-64 shrink-0 overflow-y-auto px-6 py-10 xl:block">
-          <.on_this_page toc={@toc} toc_key={@toc_key} />
-        </aside>
-      </div>
-    </div>
-    """
-  end
-
-  attr :query, :string, default: ""
-
-  defp topbar(assigns) do
-    ~H"""
-    <header id="topbar" class="sticky top-0 z-40 border-b border-line bg-frame/85 backdrop-blur">
-      <div class="mx-auto flex h-16 max-w-[1440px] items-center gap-6 px-5">
-        <.link patch="/" class="flex items-center gap-2.5 no-underline">
-          <span class="grid size-8 place-items-center rounded-lg bg-ink text-on-primary">
-            <.icon name="source-code" class="size-[18px]" />
-          </span>
-          <span class="text-lg font-bold tracking-[-0.03em] text-ink">DevactionUI</span>
-          <Tag.tag size={:sm}>v0.1</Tag.tag>
-        </.link>
-
-        <nav aria-label="Main" class="ml-auto hidden items-center gap-6 text-sm font-medium sm:flex">
-          <.link patch="/c/tag" class="text-ink-2 no-underline hover:text-ink">Components</.link>
-          <.link patch="/installation" class="text-ink-2 no-underline hover:text-ink">Installation</.link>
-          <.link patch="/tokens" class="text-ink-2 no-underline hover:text-ink">Colors</.link>
-        </nav>
-
-        <form
-          id="search-form"
-          phx-change="nav_search"
-          phx-submit="nav_go"
-          role="search"
-          class="relative ml-auto sm:ml-0"
-        >
-          <label for="site-search" class="sr-only">Search the documentation</label>
-          <.icon
-            name="search-01"
-            class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted"
-          />
-          <input
-            id="site-search"
-            type="search"
-            name="q"
-            value={@query}
-            placeholder="Search"
-            autocomplete="off"
-            phx-debounce="80"
-            class="h-10 w-44 rounded-xl border border-line-strong bg-panel pr-14 pl-9 text-sm text-ink outline-none placeholder:text-muted focus:border-ink sm:w-56"
-          />
-          <Kbd.kbd class="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2">
-            ⌘K
-          </Kbd.kbd>
-        </form>
-
-        <Button.button
-          id="theme-toggle"
-          variant={:ghost}
-          size={:sm}
-          icon_only
-          aria-label="Switch between light and dark"
-          phx-click={JS.dispatch("phx:toggle-theme")}
-        >
-          <.icon name="moon-02" class="size-[18px] dark:hidden" />
-          <.icon name="sun-03" class="hidden size-[18px] dark:block" />
-        </Button.button>
-      </div>
-    </header>
-    """
-  end
-
-  attr :live_action, :atom, required: true
-  attr :topic, :map, default: nil
-  attr :template, :map, default: nil
-  attr :groups, :list, required: true
-
-  defp sidebar(assigns) do
-    ~H"""
-    <nav aria-label="Documentation" class="flex flex-col gap-8">
-      <ul class="m-0 flex list-none flex-col gap-1 p-0">
-        <.intro_link to="/" icon="book-02" label="Introduction" current={@live_action == :overview} />
-        <.intro_link
-          to="/installation"
-          icon="download-04"
-          label="Installation"
-          current={@live_action == :installation}
-        />
-        <.intro_link
-          to="/tokens"
-          icon="magic-wand-01"
-          label="Colors"
-          current={@live_action == :tokens}
-        />
-      </ul>
-
-      <div class="flex flex-col gap-2">
-        <h2 class="m-0 px-3 text-xs font-bold tracking-[0.04em] text-ink uppercase">Templates</h2>
-        <ul class="m-0 flex list-none flex-col border-l border-line p-0">
-          <li :for={group <- Templates.groups()}>
-            <.link
-              patch={"/templates/#{group.slug}"}
-              aria-current={(@live_action == :templates and @template.slug == group.slug) && "page"}
-              class="-ml-px block border-l border-transparent px-4 py-1.5 text-sm text-ink-2 no-underline transition-colors hover:border-line-strong hover:text-ink aria-[current=page]:border-learn aria-[current=page]:font-medium aria-[current=page]:text-learn"
-            >
-              {group.title}
-            </.link>
-          </li>
-        </ul>
-      </div>
-
-      <p :if={@groups == []} data-role="no-results" class="m-0 px-3 text-sm text-muted">
-        Nothing matches that search.
-      </p>
-
-      <div :for={{group, topics} <- @groups} class="flex flex-col gap-2">
-        <h2 class="m-0 px-3 text-xs font-bold tracking-[0.04em] text-ink uppercase">{group}</h2>
-        <ul class="m-0 flex list-none flex-col border-l border-line p-0">
-          <li :for={topic <- topics}>
-            <.link
-              patch={"/c/#{topic.slug}"}
-              aria-current={(@live_action == :topic and @topic.slug == topic.slug) && "page"}
-              class="-ml-px block border-l border-transparent px-4 py-1.5 text-sm text-ink-2 no-underline transition-colors hover:border-line-strong hover:text-ink aria-[current=page]:border-learn aria-[current=page]:font-medium aria-[current=page]:text-learn"
-            >
-              {topic.title}
-            </.link>
-          </li>
-        </ul>
-      </div>
-    </nav>
-    """
-  end
-
-  attr :to, :string, required: true
-  attr :icon, :string, required: true
-  attr :label, :string, required: true
-  attr :current, :boolean, default: false
-
-  defp intro_link(assigns) do
-    ~H"""
-    <li>
-      <.link
-        patch={@to}
-        aria-current={@current && "page"}
-        class="group flex items-center gap-3 rounded-xl px-3 py-1.5 text-sm text-ink-2 no-underline transition-colors hover:text-ink aria-[current=page]:font-medium aria-[current=page]:text-ink"
-      >
-        <span class="grid size-7 place-items-center rounded-lg border border-line bg-panel text-muted group-aria-[current=page]:text-learn">
-          <.icon name={@icon} class="size-4" />
-        </span>
-        {@label}
-      </.link>
-    </li>
-    """
-  end
-
-  attr :toc, :list, required: true
-  attr :toc_key, :string, required: true
-
-  defp on_this_page(assigns) do
-    ~H"""
-    <nav
-      :if={@toc != []}
-      id={"toc-" <> @toc_key}
-      aria-label="On this page"
-      phx-hook="SiteToc"
-      class="flex flex-col gap-3"
-    >
-      <h2 class="m-0 text-sm font-semibold text-ink">On this page</h2>
-      <ul class="m-0 flex list-none flex-col gap-0.5 p-0">
-        <li :for={{id, label, level} <- @toc}>
-          <a
-            href={"#" <> id}
-            class={[
-              "block py-1 text-sm text-muted no-underline transition-colors hover:text-ink aria-[current=location]:font-medium aria-[current=location]:text-ink",
-              level == 2 && "pl-3"
-            ]}
-          >
-            {label}
-          </a>
-        </li>
-      </ul>
-    </nav>
-    """
+    examples ++ api ++ accessibility
   end
 
   attr :title, :string, required: true
@@ -344,10 +149,12 @@ new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
 
   defp page_header(assigns) do
     ~H"""
-    <header class="flex flex-col gap-3">
+    <header class="flex flex-col gap-2.5">
       <Panel.eyebrow :if={@eyebrow}>{@eyebrow}</Panel.eyebrow>
-      <h1 class="m-0 text-[44px] leading-[1.1] font-bold tracking-[-0.04em] text-learn">{@title}</h1>
-      <p :if={@text} class="m-0 max-w-[640px] text-xl leading-relaxed text-muted">{@text}</p>
+      <h1 class="m-0 text-[40px] leading-[1.1] font-semibold tracking-[-0.03em] text-ink">
+        {@title}
+      </h1>
+      <p :if={@text} class="m-0 max-w-[680px] text-[17px] leading-[1.55] text-soft">{@text}</p>
     </header>
     """
   end
@@ -359,10 +166,10 @@ new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
 
   defp section(assigns) do
     ~H"""
-    <section id={@id} class="mt-14 flex scroll-mt-24 flex-col gap-4">
+    <section id={@id} class="mt-11 flex scroll-mt-24 flex-col gap-4">
       <div class="flex flex-col gap-1.5">
-        <h2 class="m-0 text-2xl font-semibold tracking-[-0.02em] text-ink">{@title}</h2>
-        <p :if={@text not in [nil, ""]} class="m-0 text-[15px] text-muted">{@text}</p>
+        <h2 class="m-0 text-[22px] font-semibold tracking-[-0.015em] text-ink">{@title}</h2>
+        <p :if={@text not in [nil, ""]} class="m-0 text-[15px] text-soft">{@text}</p>
       </div>
       {render_slot(@inner_block)}
     </section>
@@ -419,7 +226,7 @@ new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
               :for={topic <- topics}
               id={"card-" <> topic.slug}
               patch={"/c/#{topic.slug}"}
-              class="flex flex-col gap-2 rounded-2xl border border-line bg-panel p-4 no-underline transition-colors hover:border-line-strong hover:bg-wrap/50"
+              class="flex flex-col gap-2 rounded-2xl border border-line bg-card p-4 no-underline transition-colors hover:border-line-strong hover:bg-wrap/50"
             >
               <span class="font-semibold text-ink">{topic.title}</span>
               <span class="text-sm text-ink-2">{Catalog.summary(topic)}</span>
@@ -436,7 +243,7 @@ new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
 
   defp principle(assigns) do
     ~H"""
-    <li class="flex flex-col gap-1.5 rounded-2xl border border-line bg-panel p-4">
+    <li class="flex flex-col gap-1.5 rounded-2xl border border-line bg-card p-4">
       <span class="font-semibold text-ink">{@title}</span>
       <span class="text-sm leading-relaxed text-ink-2 [&_code]:rounded [&_code]:bg-wrap [&_code]:px-1 [&_code]:font-mono">
         {render_slot(@inner_block)}
@@ -506,7 +313,7 @@ new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
           <li
             :for={token <- tokens}
             id={"token-" <> token.name}
-            class="flex items-center gap-3 rounded-2xl border border-line bg-panel p-3"
+            class="flex items-center gap-3 rounded-2xl border border-line bg-card p-3"
           >
             <span class="flex shrink-0 overflow-hidden rounded-xl border border-line-strong">
               <span class="size-11" style={"background: " <> token.light}></span>
@@ -531,29 +338,168 @@ new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
       assign(assigns,
         group: Catalog.group_of(assigns.topic),
         neighbours: Catalog.neighbours(assigns.topic),
-        examples: TopicHTML.for_topic(assigns.topic.slug)
+        examples: TopicHTML.for_topic(assigns.topic.slug),
+        alias_line: "alias " <> inspect(hd(assigns.topic.modules)),
+        source_url: Project.source_url(hd(assigns.topic.modules)),
+        accessibility: Enum.flat_map(assigns.topic.modules, &Reference.accessibility/1)
       )
 
     ~H"""
-    <article id={"topic-" <> @topic.slug} class="flex flex-col">
-      <.page_header title={@topic.title} text={Catalog.summary(@topic)} eyebrow={@group} />
+    <article id={"topic-" <> @topic.slug} class="flex flex-col [line-height:normal]">
+      <nav aria-label="Breadcrumb">
+        <ol class="m-0 flex list-none items-center gap-2 p-0 text-[13px] text-muted">
+          <li>
+            <.link patch="/docs#components" class="text-muted no-underline hover:text-ink">
+              Components
+            </.link>
+          </li>
+          <li aria-hidden="true">/</li>
+          <li>{@group}</li>
+          <li aria-hidden="true">/</li>
+          <li aria-current="page" class="text-ink">{@topic.title}</li>
+        </ol>
+      </nav>
+
+      <div class="mt-3.5 flex flex-wrap items-center gap-3">
+        <h1 class="m-0 text-[40px] [line-height:normal] font-semibold tracking-[-0.03em] text-ink">
+          {@topic.title}
+        </h1>
+        <Tag.tag variant={:ok} class="h-[26px]! rounded-[7px]! px-2! py-0! tracking-normal!">
+          Stable
+        </Tag.tag>
+        <Tag.tag
+          variant={:neutral}
+          surface={:plain}
+          case={:normal}
+          class="h-[26px]! rounded-[7px]! border-line! px-2! py-0! text-soft!"
+        >
+          since v{Catalog.since(@topic)}
+        </Tag.tag>
+      </div>
+
+      <p class="m-0 mt-2.5 max-w-[680px] text-[17px] leading-[1.55] text-soft">
+        {Catalog.summary(@topic)}
+      </p>
+
+      <div class="mt-[18px] flex flex-wrap gap-2 text-[13px]">
+        <span class="inline-flex h-[34px] items-center gap-2 rounded-lg border border-line bg-card px-2.5 font-mono text-ink-2">
+          {@alias_line}
+          <button
+            type="button"
+            data-copy-text={@alias_line}
+            aria-label="Copy the alias"
+            class="group relative grid size-3.5 cursor-pointer place-items-center rounded text-muted after:absolute after:-inset-1.5 after:content-[''] hover:text-ink"
+          >
+            <.icon name="copy-01" class="size-3.5 group-data-[copied]:hidden" />
+            <.icon name="tick-02" class="hidden size-3.5 text-tag-ok-text group-data-[copied]:block" />
+          </button>
+        </span>
+        <a
+          href={@source_url}
+          target="_blank"
+          rel="noopener"
+          class="inline-flex h-[34px] items-center gap-2 rounded-lg border border-line bg-card px-2.5 text-ink-2 no-underline hover:text-ink"
+        >
+          <.icon name="source-code" class="size-3.5" /> Source code
+        </a>
+        <.link
+          patch="/changelog"
+          class="inline-flex h-[34px] items-center gap-2 rounded-lg border border-line bg-card px-2.5 text-ink-2 no-underline hover:text-ink"
+        >
+          <.history_icon class="size-3.5 shrink-0" /> History
+        </.link>
+      </div>
 
       <.section :for={example <- @examples} id={example.id} title={example.title} text={example.text}>
         <.example example={example} assigns={@assigns} />
       </.section>
 
-      <section id="api" class="mt-16 flex scroll-mt-24 flex-col gap-10">
-        <h2 class="m-0 border-b border-line pb-3 text-3xl font-bold tracking-[-0.03em] text-ink">
-          API reference
-        </h2>
-        <.api :for={module <- @topic.modules} module={module} />
+      <section id="api" class="mt-[52px] scroll-mt-24">
+        <h2 class="m-0 text-[22px] font-semibold tracking-[-0.015em] text-ink">API</h2>
+        <.api
+          :for={module <- @topic.modules}
+          module={module}
+          heading={length(@topic.modules) > 1}
+        />
       </section>
 
-      <footer class="mt-16 flex items-center justify-between gap-4 border-t border-line pt-6">
+      <section
+        :if={@accessibility != []}
+        id="accessibility"
+        class="mt-11 flex scroll-mt-24 flex-col gap-3.5"
+      >
+        <h2 class="m-0 text-[22px] font-semibold tracking-[-0.015em] text-ink">Accessibility</h2>
+        <ul class="m-0 grid list-none gap-3 p-0 sm:grid-cols-2">
+          <li
+            :for={note <- @accessibility}
+            class="flex gap-2.5 rounded-xl border border-line bg-card px-4 py-3.5 text-sm leading-normal text-ink-2"
+          >
+            <.icon name="checkmark-circle-02" class="mt-px size-[18px] text-tag-ok-text" />
+            <span><Doc.inline text={note} /></span>
+          </li>
+        </ul>
+      </section>
+
+      <footer class="mt-[52px] grid gap-3 sm:grid-cols-2">
         <.pager side={:previous} topic={elem(@neighbours, 0)} />
         <.pager side={:next} topic={elem(@neighbours, 1)} />
       </footer>
     </article>
+    """
+  end
+
+  defp history_cards(assigns) do
+    ~H"""
+    <div class="flex flex-col gap-4">
+      <section aria-labelledby="history-title">
+        <h2
+          id="history-title"
+          class="m-0 font-mono text-[11px] font-normal tracking-[0.08em] text-muted uppercase"
+        >
+          History
+        </h2>
+        <div class="mt-2.5 rounded-xl border border-line bg-card p-3">
+          <p class="m-0 flex items-center gap-2 text-ink-2">
+            <Tag.tag variant={:ok} size={:sm} case={:normal} class="rounded-[5px]! px-1.5!">
+              v{Project.short_version()}
+            </Tag.tag>
+            Component created
+          </p>
+          <.link patch="/changelog" class="mt-2.5 block text-soft underline hover:text-ink">
+            See in the changelog →
+          </.link>
+        </div>
+      </section>
+      <p class="m-0 rounded-xl border border-line bg-card p-3 leading-normal text-soft">
+        Found a problem?
+        <a href={Project.issues_url()} target="_blank" rel="noopener" class="text-ink underline">
+          Open an issue on GitHub
+        </a>
+      </p>
+    </div>
+    """
+  end
+
+  @history_path "M11.0065 21H9.60546C6.02021 21 4.22759 21 3.11379 19.865C2 18.7301 2 16.9034 2 13.25C2 9.59661 2 7.76992 3.11379 6.63496C4.22759 5.5 6.02021 5.5 9.60546 5.5H13.4082C16.9934 5.5 18.7861 5.5 19.8999 6.63496C20.7568 7.50819 20.9544 8.7909 21 11 M18.85 18.85L17.5 17.95V15.7M13 17.5C13 19.9853 15.0147 22 17.5 22C19.9853 22 22 19.9853 22 17.5C22 15.0147 19.9853 13 17.5 13C15.0147 13 13 15.0147 13 17.5Z M16 5.5L15.9007 5.19094C15.4056 3.65089 15.1581 2.88087 14.5689 2.44043C13.9796 2 13.197 2 11.6316 2H11.3684C9.80304 2 9.02036 2 8.43111 2.44043C7.84186 2.88087 7.59436 3.65089 7.09934 5.19094L7 5.5"
+
+  defp history_path, do: @history_path
+
+  attr :class, :string, default: nil
+
+  defp history_icon(assigns) do
+    ~H"""
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+      class={@class}
+    >
+      <path d={history_path()} />
+    </svg>
     """
   end
 
@@ -565,7 +511,10 @@ new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
     <.code_card
       id={"example-" <> @example.id}
       source={@example.source}
-      preview_class={["gap-8 p-6 sm:p-10", @example.center? && "items-center"]}
+      preview_class={[
+        "flex-col justify-center gap-8 p-6 sm:p-8",
+        @example.center? && "items-center"
+      ]}
     >
       <:preview>
         {live_render(@assigns.socket, DevactionUISite.ExampleLive,
@@ -580,72 +529,117 @@ new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
   attr :id, :string, required: true
   attr :source, :string, required: true
   attr :preview_class, :any, default: nil
+  attr :theme_switch, :boolean, default: true
   slot :preview, required: true
 
   defp code_card(assigns) do
-    assigns = assign(assigns, long?: length(String.split(assigns.source, "\n")) > 14)
-
     ~H"""
-    <div id={@id} class="overflow-hidden rounded-2xl border border-line bg-panel">
-      <div class={["flex min-h-44 flex-col justify-center", @preview_class]}>
-        {render_slot(@preview)}
-      </div>
+    <div id={@id} class="overflow-hidden rounded-2xl border border-line bg-card">
+      <div
+        role="tablist"
+        aria-label="View"
+        class="flex h-[45px] items-center gap-1 border-b border-cp-line pr-2 pl-3"
+      >
+        <button
+          id={"tab-preview-" <> @id}
+          type="button"
+          role="tab"
+          aria-selected="true"
+          aria-controls={"pv-" <> @id}
+          phx-click={show_panel(@id, :preview)}
+          class={tab_class()}
+        >
+          Preview
+        </button>
+        <button
+          id={"tab-code-" <> @id}
+          type="button"
+          role="tab"
+          aria-selected="false"
+          aria-controls={"code-" <> @id}
+          phx-click={show_panel(@id, :code)}
+          class={tab_class()}
+        >
+          HEEx
+        </button>
 
-      <div class="relative border-t border-line bg-[#11141F]">
-        <div class="flex items-center justify-between px-4 pt-3">
-          <span class="font-mono text-xs text-[#A1A1AA]">.heex</span>
+        <span class="ml-auto flex gap-1">
+          <button
+            :if={@theme_switch}
+            id={"theme-" <> @id}
+            type="button"
+            aria-pressed="false"
+            aria-label="Preview this example in the other theme"
+            phx-click={flip_preview_theme(@id)}
+            class="group/theme inline-flex h-8 cursor-pointer items-center rounded-lg border border-line bg-card px-2.5 text-[12px] text-ink-2 hover:text-ink"
+          >
+            <span class="inline-flex items-center gap-1.5 group-aria-pressed/theme:hidden">
+              <.icon name="sun-03" class="size-3.5" /> Light
+            </span>
+            <span class="hidden items-center gap-1.5 group-aria-pressed/theme:inline-flex">
+              <.icon name="moon-02" class="size-3.5" /> Dark
+            </span>
+          </button>
           <button
             type="button"
             data-copy-text={@source}
             aria-label="Copy the code"
-            class="group grid size-8 place-items-center rounded-lg text-[#A1A1AA] transition-colors hover:bg-white/10 hover:text-white"
+            class="group grid size-8 cursor-pointer place-items-center rounded-lg border border-line bg-card text-ink-2 hover:text-ink"
           >
-            <.icon name="copy-01" class="size-4 group-data-[copied]:hidden" />
-            <.icon name="tick-02" class="hidden size-4 text-[#8EF0B4] group-data-[copied]:block" />
+            <.icon name="copy-01" class="size-3.5 group-data-[copied]:hidden" />
+            <.icon name="tick-02" class="hidden size-3.5 text-tag-ok-text group-data-[copied]:block" />
           </button>
-        </div>
+        </span>
+      </div>
 
-        <div id={"code-" <> @id} class={["overflow-hidden", @long? && "max-h-56"]}>
-          <CodeBlock.code_block
-            tone={:dark}
-            lang={:heex}
-            code={@source}
-            class="rounded-none! bg-transparent! py-3"
-          />
-        </div>
+      <div
+        id={"pv-" <> @id}
+        role="tabpanel"
+        aria-labelledby={"tab-preview-" <> @id}
+        data-flip="false"
+        class={["site-pv flex min-h-[234px]", @preview_class]}
+      >
+        {render_slot(@preview)}
+      </div>
 
-        <div :if={@long?}>
-          <div
-            id={"fade-" <> @id}
-            aria-hidden="true"
-            class="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#11141F] to-transparent"
-          >
-          </div>
-          <button
-            type="button"
-            id={"more-" <> @id}
-            aria-expanded="false"
-            aria-controls={"code-" <> @id}
-            phx-click={
-              JS.toggle_class("max-h-56", to: "#code-" <> @id)
-              |> JS.toggle_class("hidden", to: "#fade-" <> @id)
-              |> JS.toggle_class("hidden", to: "#show-" <> @id)
-              |> JS.toggle_class("hidden", to: "#hide-" <> @id)
-              |> JS.toggle_attribute({"aria-expanded", "true", "false"})
-            }
-            class="relative z-10 flex w-full items-center justify-center gap-1.5 py-3 text-sm font-medium text-[#E4E4E7] hover:text-white"
-          >
-            <span id={"show-" <> @id} class="flex items-center gap-1.5">
-              Show more <.icon name="arrow-down-01" class="size-4" />
-            </span>
-            <span id={"hide-" <> @id} class="hidden items-center gap-1.5">
-              Show less <.icon name="arrow-up-02" class="size-4" />
-            </span>
-          </button>
-        </div>
+      <div
+        id={"code-" <> @id}
+        role="tabpanel"
+        aria-labelledby={"tab-code-" <> @id}
+        class="hidden max-h-[28rem] overflow-auto bg-code"
+      >
+        <CodeBlock.code_block
+          tone={:dark}
+          lang={:heex}
+          code={@source}
+          class="rounded-none! bg-transparent! px-[22px]! py-5! leading-[1.75]!"
+        />
       </div>
     </div>
     """
+  end
+
+  defp tab_class,
+    do:
+      "h-8 cursor-pointer rounded-lg border border-transparent px-2.5 text-[13px] font-medium text-muted aria-selected:border-line aria-selected:bg-wrap aria-selected:text-ink"
+
+  defp show_panel(id, :preview) do
+    JS.remove_class("hidden", to: "#pv-" <> id)
+    |> JS.add_class("hidden", to: "#code-" <> id)
+    |> JS.set_attribute({"aria-selected", "true"}, to: "#tab-preview-" <> id)
+    |> JS.set_attribute({"aria-selected", "false"}, to: "#tab-code-" <> id)
+  end
+
+  defp show_panel(id, :code) do
+    JS.add_class("hidden", to: "#pv-" <> id)
+    |> JS.remove_class("hidden", to: "#code-" <> id)
+    |> JS.set_attribute({"aria-selected", "false"}, to: "#tab-preview-" <> id)
+    |> JS.set_attribute({"aria-selected", "true"}, to: "#tab-code-" <> id)
+  end
+
+  defp flip_preview_theme(id) do
+    JS.toggle_attribute({"data-flip", "true", "false"}, to: "#pv-" <> id)
+    |> JS.toggle_attribute({"aria-pressed", "true", "false"}, to: "#theme-" <> id)
   end
 
   attr :group, :map, required: true
@@ -666,7 +660,8 @@ new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
         <.code_card
           id={"template-" <> @group.slug <> "-" <> screen.slug}
           source={ScreenHTML.source(@group.slug, screen.slug)}
-          preview_class="p-4"
+          preview_class="flex-col gap-3 p-4"
+          theme_switch={false}
         >
           <:preview>
             <div
@@ -710,15 +705,22 @@ new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
     <.link
       patch={"/c/#{@topic.slug}"}
       id={"pager-#{@side}"}
-      class={["flex flex-col gap-0.5 no-underline", @side == :next && "items-end text-right"]}
+      class={[
+        "flex flex-col gap-1 rounded-[14px] border border-line bg-card px-[18px] py-4 no-underline hover:border-line-strong",
+        @side == :next && "text-right"
+      ]}
     >
-      <span class="font-mono text-xs tracking-[0.08em] text-muted uppercase">{@side}</span>
-      <span class="font-medium text-ink">{@topic.title}</span>
+      <span class="text-[12px] text-muted">{pager_label(@side)}</span>
+      <span class="text-[15px] font-medium text-ink">{@topic.title}</span>
     </.link>
     """
   end
 
+  defp pager_label(:previous), do: "← Previous"
+  defp pager_label(:next), do: "Next →"
+
   attr :module, :atom, required: true
+  attr :heading, :boolean, default: false
 
   defp api(assigns) do
     assigns =
@@ -729,103 +731,135 @@ new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
       )
 
     ~H"""
-    <section id={"api-" <> @short} class="flex scroll-mt-24 flex-col gap-6">
-      <div class="flex flex-col gap-2">
+    <div id={"api-" <> @short} class="mt-8 scroll-mt-24 first-of-type:mt-0">
+      <div :if={@heading} class="mb-4 flex flex-col gap-2">
         <h3 class="m-0 flex flex-wrap items-baseline gap-3 text-2xl font-semibold tracking-[-0.03em] text-ink">
           {@short}
           <span class="font-mono text-sm font-normal text-muted">{inspect(@module)}</span>
         </h3>
         <Doc.markdown text={@moduledoc} />
       </div>
-
-      <div
+      <.component_reference
         :for={component <- @components}
-        id={"fn-#{String.downcase(@short)}-#{component.name}"}
-        class="flex flex-col gap-4 rounded-2xl border border-line bg-panel p-5"
+        module={@module}
+        short={@short}
+        component={component}
+      />
+    </div>
+    """
+  end
+
+  attr :module, :atom, required: true
+  attr :short, :string, required: true
+  attr :component, :map, required: true
+
+  defp component_reference(assigns) do
+    assigns =
+      assign(assigns,
+        required_slots: for(slot <- assigns.component.slots, slot.required, do: slot.name),
+        rows: api_rows(assigns.component)
+      )
+
+    ~H"""
+    <section
+      id={"fn-#{String.downcase(@short)}-#{@component.name}"}
+      class="mt-8 scroll-mt-24 first-of-type:mt-0"
+    >
+      <p
+        :for={global <- @component.globals}
+        class="m-0 mt-1.5 text-[15px] [line-height:normal] text-soft"
       >
-        <h4 class="m-0 font-mono text-base font-semibold text-ink">
-          &lt;{@short}.{component.name}&gt;
-        </h4>
-        <Doc.markdown text={component.doc} />
-        <CodeBlock.code_block
-          tone={:dark}
-          lang={:heex}
-          label="minimal"
-          code={Reference.usage(@module, component)}
-        />
-        <.attr_table :if={component.attrs != []} title="Attributes" rows={component.attrs} />
-        <.slot_table :if={component.slots != []} slots={component.slots} />
-        <p :for={global <- component.globals} class="m-0 text-sm text-ink-2">
-          Any other HTML attribute goes to the root element<span :if={global.include != []}>, including <code class="rounded bg-wrap px-1 font-mono text-[0.9em]">{Enum.join(global.include, ", ")}</code></span>.
-        </p>
+        Other HTML attributes<span :if={global.include != []}> (<code class="font-mono text-[13px]">{Enum.join(global.include, ", ")}</code>)</span>
+        pass straight to the root element.
+      </p>
+      <div class="mt-4 overflow-hidden rounded-[14px] border border-line bg-card">
+        <div class="flex items-center gap-2.5 border-b border-cp-line px-4 py-3 font-mono text-[13px]">
+          &lt;{@short}.{@component.name}&gt;
+          <span :if={@required_slots != []} class="ml-auto font-sans text-xs text-muted">
+            required slot: {Enum.join(@required_slots, ", ")}
+          </span>
+        </div>
+        <div
+          :if={@component.doc not in [nil, ""]}
+          class="border-b border-cp-line px-4 py-3 text-[14px] leading-normal text-ink-2"
+        >
+          <Doc.markdown text={@component.doc} />
+        </div>
+        <div :if={@rows != []} class="overflow-x-auto">
+          <table class="w-full min-w-[640px] table-fixed border-collapse text-left">
+            <caption class="sr-only">
+              Attributes of {@short}.{@component.name}
+            </caption>
+            <colgroup>
+              <col class="w-[156px]" />
+              <col class="w-[220px]" />
+              <col class="w-[110px]" />
+              <col />
+            </colgroup>
+            <thead>
+              <tr class="bg-cp-th font-mono text-[11px] tracking-[0.05em] text-muted uppercase">
+                <th scope="col" class="py-2.5 pl-4 text-left font-normal">Attribute</th>
+                <th scope="col" class="py-2.5 text-left font-normal">Type</th>
+                <th scope="col" class="py-2.5 text-left font-normal">Default</th>
+                <th scope="col" class="py-2.5 pr-4 text-left font-normal">Options and notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr :for={row <- @rows} class="border-t border-cp-line align-baseline text-[14px]">
+                <th
+                  scope="row"
+                  class="py-3 pl-4 text-left font-mono text-[13px] font-medium break-words text-ink"
+                >
+                  {row.name}<abbr
+                    :if={row.required}
+                    title="required"
+                    class="text-tag-risk-text no-underline"
+                  >*</abbr>
+                </th>
+                <td class="py-3 pr-2 font-mono text-xs break-words text-cp-type">{row.type}</td>
+                <td class="py-3 pr-2 font-mono text-xs break-words text-soft">{row.default}</td>
+                <td class="py-3 pr-4 leading-normal text-ink-2">
+                  <Doc.inline :if={row.doc} text={row.doc} />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
     """
   end
 
-  attr :title, :string, required: true
-  attr :rows, :list, required: true
-
-  defp attr_table(assigns) do
-    ~H"""
-    <div class="flex flex-col gap-2">
-      <Panel.eyebrow>{@title}</Panel.eyebrow>
-      <div class="overflow-x-auto rounded-xl border border-line">
-        <table class="w-full border-collapse text-left text-sm">
-          <thead>
-            <tr class="bg-wrap/60 text-xs tracking-[0.06em] text-muted uppercase">
-              <th scope="col" class="px-3 py-2 font-medium">Name</th>
-              <th scope="col" class="px-3 py-2 font-medium">Type</th>
-              <th scope="col" class="px-3 py-2 font-medium">Default</th>
-              <th scope="col" class="px-3 py-2 font-medium">Options and notes</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr :for={row <- @rows} class="border-t border-line-soft align-top">
-              <th scope="row" class="px-3 py-2.5 font-mono font-medium text-ink">
-                {row.name}
-                <Tag.tag :if={row.required} variant={:risk} size={:sm}>required</Tag.tag>
-              </th>
-              <td class="px-3 py-2.5 font-mono text-ink-2">{Reference.type_label(row.type)}</td>
-              <td class="px-3 py-2.5 font-mono text-muted">{Reference.default(row) || "-"}</td>
-              <td class="px-3 py-2.5 text-ink-2">
-                <div :if={row.values} class="flex flex-wrap gap-1.5 pb-1">
-                  <Tag.tag :for={value <- row.values} size={:sm} case={:normal}>
-                    {inspect(value)}
-                  </Tag.tag>
-                </div>
-                <Doc.inline :if={row.doc} text={row.doc} />
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    """
+  defp api_rows(component) do
+    Enum.map(component.attrs, &attr_row(&1, nil)) ++
+      Enum.flat_map(Enum.reject(component.slots, &inner_block?/1), &slot_rows/1)
   end
 
-  attr :slots, :list, required: true
+  defp inner_block?(%{name: :inner_block, required: true}), do: true
+  defp inner_block?(_slot), do: false
 
-  defp slot_table(assigns) do
-    ~H"""
-    <div class="flex flex-col gap-2">
-      <Panel.eyebrow>Slots</Panel.eyebrow>
-      <ul class="m-0 flex list-none flex-col gap-2 p-0">
-        <li
-          :for={slot <- @slots}
-          class="flex flex-col gap-1.5 rounded-xl border border-line px-3 py-2.5"
-        >
-          <span class="flex flex-wrap items-center gap-2">
-            <code class="font-mono text-sm font-medium text-ink">:{slot.name}</code>
-            <Tag.tag :if={slot.required} variant={:risk} size={:sm}>required</Tag.tag>
-          </span>
-          <span :if={slot.doc} class="text-sm text-ink-2"><Doc.inline text={slot.doc} /></span>
-          <.attr_table :if={slot.attrs != []} title="Slot attributes" rows={slot.attrs} />
-        </li>
-      </ul>
-    </div>
-    """
+  defp slot_rows(slot) do
+    [
+      %{name: ":#{slot.name}", required: slot.required, type: "slot", default: "-", doc: slot.doc}
+      | Enum.map(slot.attrs, &attr_row(&1, slot.name))
+    ]
   end
+
+  defp attr_row(attr, slot) do
+    %{
+      name: attr_name(attr.name, slot),
+      required: attr.required,
+      type: type_text(attr),
+      default: Reference.default(attr) || "-",
+      doc: attr.doc
+    }
+  end
+
+  defp attr_name(name, nil), do: to_string(name)
+  defp attr_name(name, slot), do: ":#{slot}.#{name}"
+
+  defp type_text(%{values: [_ | _] = values}), do: Enum.map_join(values, " | ", &inspect/1)
+  defp type_text(attr), do: Reference.type_label(attr.type)
 
   defp available_screens(group),
     do: Enum.filter(group.screens, &ScreenHTML.source(group.slug, &1.slug))

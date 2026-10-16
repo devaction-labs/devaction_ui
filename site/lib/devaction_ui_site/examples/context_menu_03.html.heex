@@ -1,0 +1,14 @@
+<%!-- title: Headings and disabled items | text: A heading names a group and a disabled item stays out of the arrow keys; the first letters of a name jump to it. --%>
+<ContextMenu.menu
+  id="context-menu-groups"
+  label="Report actions"
+  class="w-full max-w-md"
+  target_class="flex h-28 items-center justify-center rounded-xl border border-dashed border-line-strong text-sm text-muted"
+>
+  <:area>Right click here, or focus this area and press Shift + F10</:area>
+  <:item event="context_pick" value="export-pdf" heading="Export">Export as PDF</:item>
+  <:item event="context_pick" value="export-csv">Export as CSV</:item>
+  <:item event="context_pick" value="share" heading="Share" disabled>Share with the client</:item>
+  <:item event="context_pick" value="link">Copy public link</:item>
+  <:item event="context_pick" value="remove" separator danger>Remove report</:item>
+</ContextMenu.menu>

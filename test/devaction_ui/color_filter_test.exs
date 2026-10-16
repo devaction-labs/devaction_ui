@@ -83,6 +83,43 @@ defmodule DevactionUI.ColorFilterTest do
       assert html =~ "Pick from the screen"
     end
 
+    test "the panel shows the hex, and the eyedropper takes an icon in place of its text" do
+      html = picker()
+      assert html =~ ~r/<output[^>]*data-value-text[^>]*>#DC2626</
+
+      assigns = %{}
+
+      with_icon =
+        rendered_to_string(~H"""
+        <ColorPicker.color_picker
+          id="c"
+          name="c"
+          label="Colour"
+          toggle_label="Open"
+          area_label="Area"
+          hue_label="Hue"
+          presets_label="Presets"
+          eyedropper_label="Pick from the screen"
+        >
+          <:eyedropper_icon>DROP</:eyedropper_icon>
+        </ColorPicker.color_picker>
+        """)
+
+      assert with_icon =~ "DROP"
+      assert with_icon =~ ~s(aria-label="Pick from the screen")
+      refute with_icon =~ ">Pick from the screen<"
+    end
+
+    test "the field takes disabled and required, and the hook sits on id-picker" do
+      html = picker(%{disabled: true, required: true})
+
+      assert html =~ ~s(id="project-color-picker")
+      assert html =~ ~r/<input[^>]*data-input[^>]* disabled/
+      assert html =~ ~r/<input[^>]*data-input[^>]* required/
+      assert html =~ ~r/<button[^>]*data-toggle[^>]* disabled/
+      refute picker() =~ " required"
+    end
+
     test "an error is written under the field and tied to it" do
       html = picker(%{error: "Pick a valid colour"})
 
@@ -118,6 +155,36 @@ defmodule DevactionUI.ColorFilterTest do
       html = picker(%{area_text: "%{color}, %{saturation} per cent"})
 
       assert html =~ ~s(data-area-text="%{color}, %{saturation} per cent")
+    end
+
+    test "the shadows of the panel, the swatch and the thumbs are tokens that follow the theme" do
+      css = File.read!("assets/css/devaction_ui.css")
+
+      for token <- ~w(picker-shadow picker-shadow-sm picker-edge picker-ring) do
+        assert css =~ ~r/--#{token}: light-dark\(rgb\(/
+        assert css =~ "var(--#{token})"
+      end
+
+      assert css =~ ~r/\.color-picker-panel\s+\{[^}]*var\(--picker-shadow\)/
+      refute css =~ ~r/\.color-picker-panel\s+\{[^}]*shadow-pop/
+      assert css =~ ~r/\.color-picker-swatch\s+\{[^}]*var\(--picker-edge\)/
+      refute css =~ "rgb(24 24 27 / 0.25), 0 1px 3px"
+    end
+
+    test "the squares behind the opacity strip follow the theme too" do
+      css = File.read!("assets/css/devaction_ui.css")
+
+      assert css =~ "--picker-checker-a: light-dark(#E4E4E7"
+      assert css =~ "repeating-conic-gradient(var(--picker-checker-a)"
+      refute css =~ "repeating-conic-gradient(#e4e4e7"
+    end
+
+    test "the hue thumb is the colour of the hue and the opacity thumb the chosen colour" do
+      css = File.read!("assets/css/devaction_ui.css")
+
+      assert css =~ ~r/\.color-picker-hue::-webkit-slider-thumb\s+\{[^}]*var\(--cp-hue\)/
+      assert css =~ ~r/\.color-picker-hue::-moz-range-thumb\s+\{[^}]*var\(--cp-hue\)/
+      assert css =~ ~r/\.color-picker-field\s+\{[^}]*\bh-11\b/
     end
   end
 
@@ -233,6 +300,73 @@ defmodule DevactionUI.ColorFilterTest do
       assert html =~ "data-menu-reset"
       assert html =~ "Clear"
       assert html =~ "Apply"
+    end
+
+    defp render_menu(groups, extra \\ %{}) do
+      assigns = %{groups: groups, extra: extra}
+
+      rendered_to_string(~H"""
+      <FilterMenu.filter_menu
+        id="m"
+        label="Filter"
+        groups={@groups}
+        apply_label="Apply"
+        reset_label="Clear"
+        close_label="Close"
+        {@extra}
+      >
+        <:option_icon :let={slot}>O-{slot.group}-{slot.option.value}</:option_icon>
+      </FilterMenu.filter_menu>
+      """)
+    end
+
+    test "Clear only unticks by default and submits the form with reset_submits" do
+      assert menu() =~ ~s(data-reset="change")
+      assert render_menu(@groups) =~ ~s(data-reset="change")
+      assert render_menu(@groups, %{reset_submits: true}) =~ ~s(data-reset="submit")
+    end
+
+    test "the Apply button has a count of pending changes, hidden until there are some" do
+      html = menu()
+
+      assert html =~ ~r/data-count-pending[^>]*hidden/
+    end
+
+    test "an option can have an icon, given its group and the option" do
+      html = render_menu(@groups)
+
+      assert html =~ "O-status-progress"
+      assert html =~ "O-order-deadline"
+    end
+
+    test "the panel and the submenus take their side, and the shadow is the menu's" do
+      start = render_menu(@groups)
+      assert start =~ ~s(data-align="start")
+      assert start =~ ~s(data-align="right")
+      assert start =~ ~s(data-side="right")
+
+      far = render_menu(@groups, %{align: :end})
+      assert far =~ ~s(data-align="end")
+      assert far =~ ~s(data-align="left")
+      assert far =~ ~s(data-side="left")
+
+      css = File.read!("assets/css/devaction_ui.css")
+      assert css =~ ~r/\.menu-panel\s+\{[^}]*shadow-menu/
+      assert css =~ ~r/\.menu-sub\s+\{[^}]*shadow-menu[^}]*data-\[side=left\]/
+    end
+
+    test "the class goes to the root and the form keeps the global attributes" do
+      html = render_menu(@groups, %{class: "extra-root", "phx-change": "filter", "data-x": "1"})
+
+      assert html =~ ~r/<div id="m" class="filter-menu extra-root"/
+      assert html =~ ~r/<form[^>]*phx-change="filter"/
+      assert html =~ ~r/<form[^>]*data-x="1"/
+    end
+
+    test "a group with a type that is not checkbox or radio raises" do
+      groups = [%{key: "x", label: "X", type: :tree, options: [%{value: "a", label: "A"}]}]
+
+      assert_raise FunctionClauseError, fn -> render_menu(groups) end
     end
   end
 end

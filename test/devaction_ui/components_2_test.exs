@@ -48,7 +48,39 @@ defmodule DevactionUI.Components2Test do
       assert rendered_to_string(~H|<Button.button size={:lg}>x</Button.button>|) =~ "h-[54px]"
 
       assert rendered_to_string(~H|<Button.button icon_only aria-label="x">+</Button.button>|) =~
-               "size-[46px]"
+               "size-11"
+    end
+
+    test "round makes it a pill, or a circle for an icon" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(
+          ~H|<Button.button shape={:round} icon_only aria-label="x">+</Button.button>|
+        )
+
+      assert html =~ "rounded-full"
+      assert html =~ "size-11"
+    end
+
+    test "the padding and the weight follow the variant" do
+      assigns = %{}
+      primary = rendered_to_string(~H|<Button.button variant={:primary}>x</Button.button>|)
+      secondary = rendered_to_string(~H|<Button.button>x</Button.button>|)
+      assert primary =~ "px-[18px]"
+      assert primary =~ "font-medium"
+      assert secondary =~ "px-4"
+      assert secondary =~ "font-normal"
+    end
+
+    test "the link variant is 46px tall, without underline, and keeps no height of its own" do
+      assigns = %{}
+      html = rendered_to_string(~H|<Button.button variant={:link}>More</Button.button>|)
+      assert html =~ "h-[46px]"
+      assert html =~ "px-1.5"
+      refute html =~ "h-auto"
+      refute html =~ "underline-offset"
+      assert html =~ "no-underline"
     end
 
     test "loading disables it, marks it busy and shows a spinner that stops for reduced motion" do
@@ -57,12 +89,28 @@ defmodule DevactionUI.Components2Test do
       assert html =~ ~s(aria-busy="true")
       assert html =~ "disabled"
       assert html =~ "motion-reduce:animate-none"
+      assert html =~ "border-t-current"
+      assert html =~ "gap-2.5"
+    end
+
+    test "a loading link says it is busy" do
+      assigns = %{}
+      html = rendered_to_string(~H|<Button.button navigate="/x" loading>Go</Button.button>|)
+      assert html =~ ~s(aria-busy="true")
     end
 
     test "a disabled link is marked, not clickable" do
       assigns = %{}
       html = rendered_to_string(~H|<Button.button navigate="/x" disabled>Go</Button.button>|)
       assert html =~ ~s(aria-disabled="true")
+      assert html =~ ~s(tabindex="-1")
+    end
+
+    test "an enabled link stays in the tab order" do
+      assigns = %{}
+      html = rendered_to_string(~H|<Button.button navigate="/x">Go</Button.button>|)
+      refute html =~ "tabindex"
+      refute html =~ "aria-disabled"
     end
   end
 
@@ -154,7 +202,7 @@ defmodule DevactionUI.Components2Test do
         """)
 
       assert html =~ "Approved"
-      assert html =~ "text-missing"
+      assert html =~ "text-tag-risk-text"
       assert html =~ "+6"
       assert html =~ ~s(id="s")
     end
@@ -237,6 +285,53 @@ defmodule DevactionUI.Components2Test do
       assert html =~ "text-muted"
       assert html =~ "cursor-not-allowed"
       refute html =~ "bg-ink"
+    end
+
+    test "disabled keeps the weight and the padding of the plain button, whatever the variant" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(
+          ~H|<DevactionUI.Button.button variant={:primary} disabled>Publish</DevactionUI.Button.button>|
+        )
+
+      assert html =~ "font-normal"
+      assert html =~ "px-4"
+      refute html =~ "font-medium"
+      refute html =~ "px-[18px]"
+    end
+
+    test "disabled and loading together keep the variant and the spinner, and are busy" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(
+          ~H|<DevactionUI.Button.button variant={:primary} loading disabled>Publishing</DevactionUI.Button.button>|
+        )
+
+      assert html =~ "bg-ink"
+      assert html =~ "font-medium"
+      assert html =~ ~s(aria-busy="true")
+    end
+  end
+
+  describe "Button edge" do
+    test "a round icon button has the soft line, a square one the strong line" do
+      assigns = %{}
+
+      round =
+        rendered_to_string(
+          ~H|<DevactionUI.Button.button shape={:round} icon_only aria-label="x">+</DevactionUI.Button.button>|
+        )
+
+      square =
+        rendered_to_string(
+          ~H|<DevactionUI.Button.button icon_only aria-label="x">+</DevactionUI.Button.button>|
+        )
+
+      assert round =~ "border-line"
+      refute round =~ "border-line-strong"
+      assert square =~ "border-line-strong"
     end
   end
 end

@@ -5,14 +5,21 @@ defmodule DevactionUI.PasswordStrength do
   (`evaluate/2`) and the field sends it on `phx-change`; nothing is kept in the browser.
 
   The rules are three: at least `min_length` characters, both capitals and small letters, and a number or a
-  symbol. A password meeting all three and at least four characters longer than the minimum is `score` 4; with the
-  field empty it is 0. The words for the rules and the line are the caller's; the marks are slots.
+  symbol. The `score` is the rules met, plus one more for a password of 16 characters or more (the canvas's
+  rule); a password that meets no rule, like an empty one, is 0. The words for the rules, the line and the name of
+  the meter are the caller's; the marks are slots (the canvas draws a circle with a check and a clock, 15px, with
+  a stroke of 1.8).
+
+  The colours are the tones (`DevactionUI.Tone`): red, amber, blue and green for the scores 1 to 4, on the bars and
+  on the line under them; a rule that is met paints its whole line, mark and words, in the green of the tone `:ok`
+  and one that is not stays muted, in both themes.
   """
   use Phoenix.Component
 
   alias DevactionUI.Tone
 
   @rules [:length, :mixed_case, :digit_or_symbol]
+  @long 16
 
   @doc """
   What a password meets: `%{score: 0..4, rules: [length: boolean, mixed_case: boolean, digit_or_symbol: boolean]}`.
@@ -31,14 +38,23 @@ defmodule DevactionUI.PasswordStrength do
 
     count = Enum.count(met, fn {_rule, ok?} -> ok? end)
 
-    %{score: score(count, String.length(password) >= min_length + 4), rules: met}
+    %{score: score(count, String.length(password) >= @long), rules: met}
   end
 
-  defp score(3, true), do: 4
-  defp score(count, _long?), do: max(count, 1)
+  defp score(0, _long?), do: 0
+  defp score(count, true), do: count + 1
+  defp score(count, false), do: count
 
   attr :score, :integer, required: true, doc: "0 to 4, from `evaluate/2`"
-  attr :label, :string, required: true, doc: "the line under the bars, e.g. `Strong`"
+
+  attr :label, :string,
+    required: true,
+    doc: "the line under the bars, e.g. `Strong`; read as the meter's value"
+
+  attr :meter_label, :string,
+    required: true,
+    doc: "the name of the meter for assistive technology, e.g. `Password strength`"
+
   attr :rules, :list, required: true, doc: "`%{label: text, met: boolean}` each"
   attr :class, :any, default: nil
   attr :rest, :global
@@ -55,25 +71,23 @@ defmodule DevactionUI.PasswordStrength do
         aria-valuemin="0"
         aria-valuemax="4"
         aria-valuenow={@score}
-        aria-label={@label}
-        class="grid grid-cols-4 gap-2"
+        aria-label={@meter_label}
+        aria-valuetext={@label}
+        class="grid grid-cols-4 gap-1.5"
       >
         <span
           :for={bar <- 1..4}
-          class={["h-1 rounded-full", (bar <= @score && Tone.fill(@tone)) || "bg-line"]}
+          class={["h-[5px] rounded-full", (bar <= @score && Tone.fill(@tone)) || "bg-line"]}
         ></span>
       </div>
-      <p class="m-0 text-[13px] text-muted">{@label}</p>
+      <p aria-live="polite" class={["m-0 text-[13px]", line_color(@score, @tone)]}>{@label}</p>
       <ul class="m-0 flex list-none flex-col gap-1.5 p-0">
         <li
           :for={rule <- @rules}
           data-met={to_string(rule.met)}
-          class="flex items-center gap-2 text-[13px] text-muted data-[met=true]:text-ink-2"
+          class={["flex items-center gap-2 text-[13px]", rule_color(rule.met)]}
         >
-          <span
-            class={["grid size-4 place-items-center", rule.met && "text-ok-fg"]}
-            aria-hidden="true"
-          >
+          <span class="grid size-4 place-items-center" aria-hidden="true">
             {(rule.met && render_slot(@met_icon)) || render_slot(@unmet_icon)}
           </span>
           {rule.label}
@@ -82,6 +96,12 @@ defmodule DevactionUI.PasswordStrength do
     </div>
     """
   end
+
+  defp rule_color(true), do: Tone.text(:ok)
+  defp rule_color(false), do: "text-muted"
+
+  defp line_color(0, _tone), do: "text-muted"
+  defp line_color(_score, tone), do: Tone.text(tone)
 
   defp tone(score) when score <= 1, do: :risk
   defp tone(2), do: :warn

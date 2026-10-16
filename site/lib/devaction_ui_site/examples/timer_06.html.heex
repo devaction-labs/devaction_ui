@@ -1,0 +1,17 @@
+<%!-- title: Logged Today | text: The hours already logged on tasks today, each with its time in mono; the caller can write the time its own way. --%>
+<div class="grid max-w-md gap-6">
+  <Timer.time_log
+    id="time-log"
+    title="LOGGED TODAY"
+    entries={[
+      %{id: "a", label: "GraphQL contract routes", seconds: 4800},
+      %{id: "b", label: "SGE daily", seconds: 1500}
+    ]}
+  />
+  <Timer.time_log
+    id="time-log-words"
+    title="LOGGED TODAY"
+    entries={[%{id: "a", label: "Fix the N+1 on contributions", seconds: 2843}]}
+    duration={fn seconds -> "#{div(seconds, 3600)}h #{rem(div(seconds, 60), 60)}min" end}
+  />
+</div>

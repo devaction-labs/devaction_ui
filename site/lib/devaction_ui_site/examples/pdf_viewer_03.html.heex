@@ -1,0 +1,65 @@
+<%!-- title: Signature fields | text: Fields come in percent of the page: signed is green, "you sign here" is amber and dashed with a label, the others are neutral. --%>
+<PdfViewer.viewer
+  id="pdf-fields"
+  name="Amendment 02.pdf"
+  page={4}
+  pages={4}
+  fields={[
+    %{
+      page: 4,
+      x: 8,
+      y: 62,
+      w: 38.6,
+      h: 10.4,
+      signer: "Responsible · Church",
+      state: :signed,
+      label: "Signed"
+    },
+    %{
+      page: 4,
+      x: 53.3,
+      y: 62,
+      w: 38.6,
+      h: 10.4,
+      signer: "Alex · DevAction Labs",
+      state: :mine,
+      label: "Sign"
+    },
+    %{
+      page: 4,
+      x: 8,
+      y: 80.6,
+      w: 38.6,
+      h: 10.4,
+      signer: "Witness · Maria",
+      state: :pending,
+      label: "Waiting"
+    },
+    %{
+      page: 4,
+      x: 53.3,
+      y: 80.6,
+      w: 38.6,
+      h: 10.4,
+      signer: "Witness · Carlos",
+      state: :pending,
+      label: "Waiting"
+    }
+  ]}
+  page_event="pdf_page"
+  zoom_event="pdf_zoom"
+  mine_label="You sign here"
+  pages_label="Pages"
+  page_label="Page"
+  zoom_label="Zoom"
+  zoom_out_label="Zoom out"
+  zoom_in_label="Zoom in"
+  class="h-[600px]"
+>
+  <:sheet :let={_number}>
+    <div class="text-center font-bold tracking-[0.04em]">CLAUSE THREE · SIGNATURES</div>
+    <p class="mt-[1.2em]">
+      As agreed, the parties sign this amendment electronically.
+    </p>
+  </:sheet>
+</PdfViewer.viewer>

@@ -38,9 +38,9 @@ defmodule DevactionUI.CalendarTest do
     end
 
     test "the title is neutral for a month and a week" do
-      assert Calendar.title(~D[2026-10-15], :month) == "2026-10"
-      assert Calendar.title(~D[2026-10-15], :week) == "2026-10-11 – 2026-10-17"
-      assert Calendar.title(~D[2026-10-15], :week, :monday) == "2026-10-12 – 2026-10-18"
+      assert Calendar.title(~D[2026-10-15], :month) == "10/2026"
+      assert Calendar.title(~D[2026-10-15], :week) == "11/10 – 17/10/2026"
+      assert Calendar.title(~D[2026-10-15], :week, :monday) == "12/10 – 18/10/2026"
     end
   end
 
@@ -51,6 +51,7 @@ defmodule DevactionUI.CalendarTest do
           %{
             date: ~D[2026-10-15],
             view: :month,
+            cell_label: nil,
             selected: nil,
             today: ~D[2026-10-15],
             events: [
@@ -74,6 +75,7 @@ defmodule DevactionUI.CalendarTest do
         today={@today}
         selected={@selected}
         events={@events}
+        cell_label={@cell_label}
         weekdays={~w(S M T W T F S)}
         more_label="+%{count} more"
         prev_label="Previous"
@@ -120,9 +122,9 @@ defmodule DevactionUI.CalendarTest do
 
       assert html =~ ~r/id="c-day-2026-10-15"[^>]*aria-current="date"/s
       assert html =~ "bg-ink font-semibold"
-      assert html =~ "bg-wrap/40 text-muted"
-      assert html =~ ~s(aria-label="2026-10-15: M3, Invoice, Review, Extra")
-      assert html =~ ~s(aria-label="2026-10-03")
+      assert html =~ "bg-wrap/40 text-muted-2"
+      assert html =~ ~s(aria-label="15/10/2026: M3, Invoice, Review, Extra")
+      assert html =~ ~s(aria-label="03/10/2026")
     end
 
     test "events are chips coloured by kind, three at most with the rest counted" do
@@ -135,6 +137,22 @@ defmodule DevactionUI.CalendarTest do
       assert html =~ "tag-warn"
       assert html =~ "tag-info"
       assert html =~ "tag-risk"
+    end
+
+    test "a cell is named by the function of the caller" do
+      html = calendar(%{cell_label: fn day, events -> "#{day.day}/#{length(events)}" end})
+
+      assert html =~ ~s(aria-label="15/4")
+      assert html =~ ~s(aria-label="2/1")
+    end
+
+    test "days of the other months show no events, and the dot is nearly square" do
+      html =
+        calendar(%{events: [%{id: "x", date: ~D[2026-09-29], label: "Out", kind: :ok}]})
+
+      refute html =~ ~s(data-event="x")
+      refute html =~ "Out"
+      assert calendar() =~ "rounded-[2px]"
     end
 
     test "the week view lists every event of its days" do
@@ -179,6 +197,159 @@ defmodule DevactionUI.CalendarTest do
 
     test "the header has no empty box without it" do
       refute rendered_to_string(render_calendar(%{})) =~ "ml-2"
+    end
+  end
+
+  describe "the week with hours" do
+    defp hours_calendar(extra \\ %{}) do
+      assigns =
+        Map.merge(
+          %{
+            hours: 8..13,
+            weekend: true,
+            hour_label: nil,
+            weekdays: ~w(MON TUE WED THU FRI SAT SUN),
+            events: [
+              %{
+                id: "a",
+                date: ~D[2026-10-13],
+                label: "Daily",
+                kind: :chart_3,
+                starts_at: ~T[09:00:00],
+                ends_at: ~T[09:30:00],
+                detail: "Carlos"
+              },
+              %{
+                id: "b",
+                date: ~D[2026-10-13],
+                label: "Review",
+                kind: :info,
+                starts_at: ~T[09:15:00],
+                ends_at: ~T[10:15:00]
+              },
+              %{id: "c", date: ~D[2026-10-14], label: "Holiday", kind: :chart_1}
+            ]
+          },
+          extra
+        )
+
+      rendered_to_string(~H"""
+      <Calendar.calendar
+        id="c"
+        label="Deliveries"
+        title="Week"
+        date={~D[2026-10-15]}
+        view={:week}
+        week_start={:monday}
+        hours={@hours}
+        weekend={@weekend}
+        hour_label={@hour_label}
+        today={~D[2026-10-15]}
+        events={@events}
+        weekdays={@weekdays}
+        more_label="+%{count}"
+        prev_label="Previous"
+        next_label="Next"
+        select_event="select"
+        prev_event="prev"
+        next_event="next"
+      >
+        <:legend kind={:chart_1}>Milestone</:legend>
+        <:legend kind={:chart_3}>Meeting</:legend>
+      </Calendar.calendar>
+      """)
+    end
+
+    test "is a grid with the hours column, a header per day and a cell per day" do
+      html = hours_calendar()
+
+      assert html =~ ~s(role="grid")
+      assert html =~ "calendar-hours"
+      assert html =~ "--cal-days: 7; --cal-hours: 6"
+      assert html =~ ~s(data-columns="7")
+      assert length(Regex.scan(~r/role="columnheader"/, html)) == 7
+      assert length(Regex.scan(~r/role="gridcell"/, html)) == 7
+      assert html =~ "MON 12"
+      assert html =~ "08:00"
+      assert html =~ "13:00"
+      refute html =~ "14:00"
+    end
+
+    test "weekend false keeps the five working days" do
+      html = hours_calendar(%{weekend: false, weekdays: ~w(MON TUE WED THU FRI)})
+
+      assert html =~ "--cal-days: 5"
+      assert length(Regex.scan(~r/role="gridcell"/, html)) == 5
+      refute html =~ "2026-10-17"
+    end
+
+    test "the hours are named by the caller when it gives a function" do
+      html = hours_calendar(%{hour_label: fn hour -> "#{hour}h" end})
+
+      assert html =~ "8h"
+      refute html =~ "08:00"
+    end
+
+    test "events are placed by their time, side by side when they overlap, with a detail line" do
+      html = hours_calendar()
+
+      assert html =~
+               ~r/data-event="a"[^>]*style="top: 16.667%; height: 8.333%; left: calc\(0.0% \+ 2px\); width: calc\(50.0% - 4px\)"/s
+
+      assert html =~ ~r/data-event="b"[^>]*left: calc\(50.0% \+ 2px\)/s
+      assert html =~ "Carlos"
+      assert html =~ "border-l-chart-3!"
+      assert html =~ "bg-chart-3/10"
+      assert html =~ "border-l-learn!"
+    end
+
+    test "an event without a time sits in the all-day strip, hidden from the cells" do
+      html = hours_calendar()
+
+      assert html =~ ~r/aria-hidden="true"[^>]*>\s*<span[^>]*data-event="c"/s
+      refute hours_calendar(%{events: []}) =~ "border-b border-l border-line p-1"
+    end
+
+    test "a cell keeps the name with all its events, today, and the tab order" do
+      html = hours_calendar()
+
+      assert html =~ ~s(aria-label="13/10/2026: Daily, Review")
+      assert length(Regex.scan(~r/tabindex="0"/, html)) == 1
+      assert html =~ ~r/id="c-day-2026-10-15"[^>]*aria-current="date"/s
+    end
+
+    test "the legend names the kinds with their colour" do
+      html = hours_calendar()
+
+      assert html =~ "Milestone"
+      assert html =~ "Meeting"
+      assert html =~ "bg-chart-1"
+    end
+
+    test "without hours the week keeps its cells" do
+      refute calendar(%{view: :week}) =~ "calendar-hours"
+    end
+  end
+
+  describe "the chart kinds and the header" do
+    test "the four categories colour the chips of the month" do
+      html =
+        calendar(%{
+          events: [
+            %{id: "x", date: ~D[2026-10-02], label: "A", kind: :chart_1},
+            %{id: "y", date: ~D[2026-10-02], label: "B", kind: :chart_4}
+          ]
+        })
+
+      assert html =~ "bg-chart-1/10"
+      assert html =~ "bg-chart-4/10"
+    end
+
+    test "the arrows are 36px with a 9px radius and the title is centred between them" do
+      html = calendar()
+
+      assert html =~ "rounded-[9px] border border-line-strong"
+      assert html =~ "min-w-35 text-center text-base font-semibold"
     end
   end
 end

@@ -1,0 +1,22 @@
+<%!-- title: Status and findings | text: A letter says whether a file was added, modified or deleted; a red or amber badge counts its findings; a deleted file is muted; the header sums the lines. The legend names the letters. --%>
+<div class="flex h-[400px] w-[300px] overflow-hidden rounded-2xl border border-line bg-card">
+  <FileTree.tree
+    id="file-tree-status"
+    class="w-full"
+    label="Changed files"
+    title="Files changed"
+    search_label="Filter files"
+    findings_label="%{count} findings"
+    nodes={ReviewDemo.nodes()}
+    open={["lib", "lib/sge", "lib/sge_web", "test"]}
+    selected={ReviewDemo.milestone()}
+  >
+    <:legend status={:added} label="new" />
+    <:legend status={:modified} label="changed" />
+    <:legend status={:deleted} label="removed" />
+    <:search_icon><.icon name="search-01" class="size-3.5" /></:search_icon>
+    <:folder_icon><.icon name="folder-01" class="size-[15px]" /></:folder_icon>
+    <:file_icon><.icon name="file-01" class="size-[15px]" /></:file_icon>
+    <:chevron_icon><.icon name="arrow-right-01" class="size-3" /></:chevron_icon>
+  </FileTree.tree>
+</div>

@@ -1,0 +1,21 @@
+<%!-- title: Heading and dots | text: The pile with a heading and a dot for each notice; opened it is a panel with a card for each --%>
+<div class="h-44 max-w-[380px]">
+  <ToastGroup.toast_group
+    id="toast-group-panel"
+    label="AI review"
+    heading="AI review"
+    on_dismiss="dismiss_toast"
+    on_clear="clear_toasts"
+    expand_label="Show all"
+    collapse_label="Collapse"
+    clear_label="Clear"
+    dismiss_label="Close"
+    count_label="__COUNT__"
+  >
+    <:toast id="toast-panel-3" dot={:warn} title="Review of #142 is ready" duration={0}>
+      +2 notices
+    </:toast>
+    <:toast id="toast-panel-2" dot={:risk} title="#145 is out of scope" duration={0} />
+    <:toast id="toast-panel-1" dot={:ok} title="#87 approved by the AI" duration={0} />
+  </ToastGroup.toast_group>
+</div>

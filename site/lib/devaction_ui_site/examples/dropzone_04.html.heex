@@ -1,0 +1,35 @@
+<%!-- title: Queue | text: The same drop area with a grid and a row for every file of a LiveView upload; the progress, the size and the cancel button come from `@uploads.transcript.entries`. --%>
+<Dropzone.queue
+  id="dropzone-queue"
+  upload={@uploads.transcript}
+  title="Drop the transcript or click to choose"
+  hint=".mp3, .m4a, .txt · up to 200 MB"
+  over_title="Release to upload"
+  cancel_event="cancel_upload"
+  error_labels={
+    %{
+      too_large: "This file is too large",
+      not_accepted: "Type not accepted",
+      too_many_files: "Only one file at a time"
+    }
+  }
+  labels={
+    %{
+      sent: "Sent",
+      uploading: "uploading · %{size}",
+      queued: "Queued",
+      failed: "Connection dropped",
+      stopped: "stopped at %{percent}%",
+      rejected: "Type not accepted",
+      rejected_hint: "use .mp3, .m4a or .txt",
+      retry: "Try again",
+      cancel: "Cancel %{name}",
+      remove: "Remove %{name}"
+    }
+  }
+  class="max-w-xl"
+>
+  <:icon><.icon name="arrow-up-02" class="size-5.5" /></:icon>
+  <:cancel_icon><.icon name="cancel-01" class="size-[15px]" /></:cancel_icon>
+  <:remove_icon><.icon name="delete-02" class="size-[15px]" /></:remove_icon>
+</Dropzone.queue>

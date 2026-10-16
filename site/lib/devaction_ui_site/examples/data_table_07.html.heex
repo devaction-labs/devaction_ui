@@ -1,0 +1,48 @@
+<%!-- title: Loading, Error and Empty | text: Skeleton rows while it loads, an alert with a retry button when it fails, and a default empty text from an attribute. --%>
+<div class="flex flex-col gap-6">
+  <DataTable.data_table
+    select_all_label="Select all"
+    select_row_label="Select row"
+    selected_label="__COUNT__ selected"
+    clear_label="Clear"
+    id="data-table-loading"
+    label="Open pull requests"
+    rows={[]}
+    loading
+    loading_label="Loading pull requests"
+    loading_rows={3}
+  >
+    <:col :let={row} label="PR" class="font-mono">#{row.id}</:col>
+    <:col :let={row} label="Title">{row.title}</:col>
+    <:col :let={row} label="Author" class="text-ink-2">{row.author}</:col>
+  </DataTable.data_table>
+  <DataTable.data_table
+    select_all_label="Select all"
+    select_row_label="Select row"
+    selected_label="__COUNT__ selected"
+    clear_label="Clear"
+    id="data-table-error"
+    label="Open pull requests"
+    rows={[]}
+    error="Could not load the pull requests."
+  >
+    <:col :let={row} label="PR" class="font-mono">#{row.id}</:col>
+    <:col :let={row} label="Title">{row.title}</:col>
+    <:error_action>
+      <Button.button id="data-table-retry" type="button" variant={:secondary} size={:sm}>Try again</Button.button>
+    </:error_action>
+  </DataTable.data_table>
+  <DataTable.data_table
+    select_all_label="Select all"
+    select_row_label="Select row"
+    selected_label="__COUNT__ selected"
+    clear_label="Clear"
+    id="data-table-empty-text"
+    label="Open pull requests"
+    rows={[]}
+    empty_text="No pull requests match."
+  >
+    <:col :let={row} label="PR" class="font-mono">#{row.id}</:col>
+    <:col :let={row} label="Title">{row.title}</:col>
+  </DataTable.data_table>
+</div>

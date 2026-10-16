@@ -1,9 +1,13 @@
-import {selectionState} from "./data_table_logic.js"
+import {nextDensity, selectionState} from "./data_table_logic.js"
+import {notify} from "./dom.js"
 
 /**
  * Row selection for `DataTable`: the header checkbox ticks them all and shows a mixed state when only some
- * are, and a bulk bar with the count appears while anything is ticked. A redraw (a sort, a refresh) puts the
- * ticks back by value. Every change fires `input` on the table so a form around it hears it.
+ * are (the box is `indeterminate` and carries `data-partial`, which draws the dash), and a bulk bar with the
+ * count appears while anything is ticked; every row says `aria-selected`. A redraw (a sort, a refresh) puts the
+ * ticks back by value. Every change fires `input` on the table so a form around it hears it. The density toggle
+ * (`[data-density-toggle]`) switches `data-density` between `comfortable` and `compact` in the browser, and the
+ * choice is put back after a redraw.
  */
 export default {
   mounted() {
@@ -19,6 +23,7 @@ export default {
   updated() {
     this.rows().forEach((row) => (row.checked = this.kept.has(row.value)))
     this.sync()
+    this.density && this.setDensity(this.density)
   },
 
   rows() {
@@ -36,14 +41,26 @@ export default {
   },
 
   onClick(event) {
-    if (!event.target.closest("[data-clear]")) return
-    this.rows().forEach((row) => (row.checked = false))
-    this.changed()
+    const actions = {
+      "[data-clear]": () => {
+        this.rows().forEach((row) => (row.checked = false))
+        this.changed()
+      },
+      "[data-density-toggle]": () => this.setDensity(nextDensity(this.el.dataset.density)),
+    }
+    const selector = Object.keys(actions).find((candidate) => event.target.closest(candidate))
+    selector && actions[selector]()
+  },
+
+  setDensity(density) {
+    this.density = density
+    this.el.dataset.density = density
+    this.el.querySelector("[data-density-toggle]")?.setAttribute("aria-pressed", String(density === "compact"))
   },
 
   changed() {
     this.sync()
-    this.el.dispatchEvent(new Event("input", {bubbles: true}))
+    notify(this.el)
   },
 
   sync() {
@@ -53,6 +70,8 @@ export default {
 
     const all = this.el.querySelector("[data-select-all]")
     all && Object.assign(all, {checked: state.all, indeterminate: state.mixed})
+    all && (all.dataset.partial = String(state.mixed))
+    rows.forEach((row) => row.closest("tr").setAttribute("aria-selected", String(row.checked)))
 
     const bar = this.el.querySelector("[data-bulk]")
     bar && (bar.hidden = state.barHidden)

@@ -1,0 +1,15 @@
+<%!-- title: Syntax colour | text: With `lang={:elixir}` the code is coloured by `DevactionUI.Highlight`; the sign stays in the text, so an added or removed line is never only a colour. --%>
+<div class="flex h-[420px] overflow-hidden rounded-2xl border border-line bg-card">
+  <DiffView.diff
+    id="diff-syntax"
+    class="w-full"
+    path={ReviewDemo.milestone()}
+    hunks={ReviewDemo.milestone_hunks()}
+    lang={:elixir}
+    viewed_label="Viewed"
+    comment_label="Comment on line %{line}"
+  >
+    <:file_icon><.icon name="file-01" class="size-4" /></:file_icon>
+    <:check_icon><.icon name="tick-02" class="size-3" /></:check_icon>
+  </DiffView.diff>
+</div>

@@ -6,39 +6,90 @@ defmodule DevactionUI.CommandPalette do
 
   The server owns the search, as in `DevactionUI.Autocomplete` (whose keyboard hook it shares and whose `groups`
   it takes). The LiveView decides when it is there (`:if={@open}`); it takes the focus in and keeps it inside.
+  The library has no hook for the global ⌘K that opens it: the app listens for the key (a `phx-window-keydown`
+  or a small hook) and sets the assign. To get the focus back where it was, the opener runs `JS.push_focus()`
+  before it opens the palette; closing it runs `JS.pop_focus()`.
+
+  A group is `%{label: "Pull requests", items: [item]}` and an item is
+  `%{id: "p1", label: "Wrap tithes", to: "/pr/1", hint: "#1", tone: :risk, sub: "main", shortcut: "G P"}`.
+  A row goes where `to` (a LiveView navigation), `patch` or `href` says, or sends `event` with the item's `id`
+  (a command, such as "create a contract"). `hint` is a small mono badge colored by `tone`, `sub` is a second
+  line under the label and `shortcut` is the key cap of the item at the right (the `↵` otherwise appears on the
+  active row). The `item_icon` slot draws a 28px tile with the item's icon and gets the item. Each group is a
+  `role="group"` named by its label, and the active row has `aria-selected`; the field's `aria-expanded` is
+  false when there is no row at all. `hint_style: :plain` draws the hint as bare mono text in its tone (the
+  number of a pull request).
+
+  The `scopes` are a real `role="tablist"` of `role="tab"` buttons (the chosen one has `aria-selected` and is
+  the only one in the tab order; ← → Home End move to a scope and choose it, and the row scrolls sideways when
+  it does not fit). The first scope is the chosen one while `scope` is nil.
+
+  The palette has the states of a search: with an empty `query` the caller puts what was opened lately in a
+  group (`label: "Recent"`); `loading` shows `loading_label` (with the `loading_icon` slot) while the server
+  searches and marks the list busy; and with nothing to show, `empty` (or the `empty_state` slot, which gets the
+  query) is centered in the list.
   """
   use Phoenix.Component
 
-  import DevactionUI.Segmented
+  import DevactionUI.Kbd
 
   alias DevactionUI.Autocomplete
-  alias DevactionUI.Tone
   alias Phoenix.LiveView.JS
 
   attr :id, :string, required: true
   attr :label, :string, required: true, doc: "the name of the dialog, for assistive technology"
-  attr :query, :string, default: ""
+  attr :query, :string, default: "", doc: "the text in the field, kept by the caller"
   attr :placeholder, :string, default: nil
   attr :search_event, :string, required: true, doc: "sent with the text, debounced"
+  attr :debounce, :integer, default: 150, doc: "milliseconds the field waits before sending"
   attr :close_event, :string, required: true
 
   attr :groups, :list,
     default: [],
-    doc: "as in `Autocomplete`: `%{label, items: [%{id, label, to, hint, tone}]}`"
+    doc:
+      "`%{label, items: [%{id, label, to | patch | href | event, hint, hint_style, tone, sub, shortcut}]}`"
 
-  attr :empty, :string, required: true
-  attr :ask_label, :string, default: nil
-  attr :ask_event, :string, default: nil
+  attr :empty, :string, required: true, doc: "shown, centered, when there is no row"
+
+  attr :loading, :boolean,
+    default: false,
+    doc: "the server is searching: shows `loading_label` and marks the list busy"
+
+  attr :loading_label, :string, default: nil, doc: "what the list says while `loading`"
+  attr :ask_label, :string, default: nil, doc: "the text of the AI row; no row when nil"
+  attr :ask_event, :string, default: nil, doc: "the event the AI row sends with the text, as `q`"
+
+  attr :ask_kbd, :string,
+    default: nil,
+    doc: "the key of the AI row, as a key cap: `⌘↵`; none when nil"
+
+  attr :close_key, :string,
+    default: "Esc",
+    doc: "the key cap at the end of the field; none when nil"
+
   attr :scopes, :list, default: [], doc: "`%{value, label}` each; none draws no row"
-  attr :scope, :string, default: nil
-  attr :scope_event, :string, default: nil
-  attr :scope_label, :string, default: nil
+  attr :scope, :string, default: nil, doc: "the `value` of the chosen scope"
+  attr :scope_event, :string, default: nil, doc: "sent with the `value` of the scope pressed"
+
+  attr :scope_label, :string,
+    default: nil,
+    doc: "the name of the scopes, for assistive technology"
+
   attr :keys, :list, default: [], doc: "`{keys, what}` for the footer: `{\"↑↓\", \"move\"}`"
   slot :search_icon
+  slot :loading_icon, doc: "turning icon before `loading_label`"
+  slot :empty_state, doc: "replaces the `empty` text; gets the query"
+  slot :item_icon, doc: "the icon in the tile of an item; gets the item"
 
   attr :rest, :global
 
+  @spec palette(map()) :: Phoenix.LiveView.Rendered.t()
   def palette(assigns) do
+    assigns =
+      assigns
+      |> assign(:expanded, assigns.groups != [] or assigns.ask_label != nil)
+      |> assign(:chosen_scope, chosen_scope(assigns.scope, assigns.scopes))
+
     ~H"""
     <div
       id={@id}
@@ -79,65 +130,105 @@ defmodule DevactionUI.CommandPalette do
               name="query"
               value={@query}
               role="combobox"
-              aria-expanded="true"
+              aria-expanded={to_string(@expanded)}
               aria-controls={"#{@id}-list"}
               aria-autocomplete="list"
               placeholder={@placeholder}
-              phx-debounce="150"
+              phx-debounce={@debounce}
               class="min-w-0 flex-1 border-0 bg-transparent p-0 text-base text-ink outline-none placeholder:text-muted focus:ring-0"
             />
+            <.kbd :if={@close_key} size={:md} aria-hidden="true">{@close_key}</.kbd>
           </label>
         </form>
-        <div :if={@scopes != []} class="border-b border-line-soft px-3 py-2">
-          <.segmented
-            id={"#{@id}-scopes"}
-            label={@scope_label || @label}
-            value={@scope}
-            event={@scope_event}
-            size={:sm}
+        <div
+          :if={@scopes != []}
+          role="tablist"
+          aria-label={@scope_label || @label}
+          class="flex gap-1.5 overflow-x-auto border-b border-line-soft px-3.5 py-2.5"
+        >
+          <button
+            :for={scope <- @scopes}
+            type="button"
+            role="tab"
+            aria-selected={to_string(scope.value == @chosen_scope)}
+            aria-controls={"#{@id}-list"}
+            tabindex={(scope.value == @chosen_scope && "0") || "-1"}
+            phx-click={@scope_event}
+            phx-value-value={scope.value}
+            class="h-[30px] flex-none cursor-pointer rounded-lg border border-line bg-card px-2.5 text-[13px] text-ink-2 outline-none focus-visible:ring-4 focus-visible:ring-ink/10 aria-selected:border-ink aria-selected:bg-ink aria-selected:text-on-primary"
           >
-            <:option :for={scope <- @scopes} value={scope.value} label={scope.label} />
-          </.segmented>
+            {scope.label}
+          </button>
         </div>
         <div
           id={"#{@id}-list"}
           role="listbox"
           aria-label={@label}
-          class="max-h-[50vh] overflow-y-auto p-1.5"
+          aria-busy={@loading && "true"}
+          class="max-h-[420px] overflow-y-auto p-1.5"
         >
-          <p :if={@groups == []} class="m-0 px-2.5 py-3 text-sm text-muted">{@empty}</p>
-          <%= for group <- @groups do %>
-            <div class="cmdk-group">{group.label}</div>
-            <.link
+          <p
+            :if={@loading}
+            role="status"
+            class="m-0 flex items-center justify-center gap-2 px-2.5 py-7 text-sm text-muted"
+          >
+            <span :if={@loading_icon != []} class="size-4 shrink-0 animate-spin" aria-hidden="true">
+              {render_slot(@loading_icon)}
+            </span>
+            {@loading_label}
+          </p>
+          <div
+            :if={@groups == [] and not @loading}
+            role="status"
+            class="m-0 px-2.5 py-7 text-center text-sm text-muted"
+          >
+            {(@empty_state == [] && @empty) || render_slot(@empty_state, @query)}
+          </div>
+          <div
+            :for={{group, index} <- Enum.with_index(@groups)}
+            role="group"
+            aria-labelledby={"#{@id}-group-#{index}"}
+            class="flex flex-col"
+          >
+            <div id={"#{@id}-group-#{index}"} class="cmdk-group uppercase">{group.label}</div>
+            <Autocomplete.option
               :for={item <- group.items}
               id={"#{@id}-item-#{item.id}"}
-              role="option"
-              navigate={item.to}
-              data-option
+              item={item}
               class="cmdk-item group no-underline text-ink data-[active]:bg-wrap"
             >
               <span
-                :if={Map.get(item, :hint)}
+                :if={@item_icon != []}
                 class={[
-                  "rounded-[5px] px-1.5 py-0.5 font-mono text-[11px]",
-                  Tone.text(Map.get(item, :tone, :neutral)),
-                  tone_bg(Map.get(item, :tone, :neutral))
+                  "grid size-7 shrink-0 place-items-center rounded-lg",
+                  Autocomplete.tone_class(Map.get(item, :tone, :neutral))
                 ]}
-              >
-                {item.hint}
-              </span>
-              <span>{marked(item.label, @query)}</span>
-              <kbd
-                class="ml-auto hidden font-mono text-[11px] text-muted group-data-[active]:inline"
                 aria-hidden="true"
-              >↵</kbd>
-            </.link>
-          <% end %>
+              >
+                {render_slot(@item_icon, item)}
+              </span>
+              <span class="flex min-w-0 flex-1 flex-col">
+                <span class="truncate">{Autocomplete.marked(item.label, @query)}</span>
+                <span :if={Map.get(item, :sub)} class="truncate text-xs text-muted">{item.sub}</span>
+              </span>
+              <Autocomplete.hint item={item} />
+              <.kbd :if={Map.get(item, :shortcut)} aria-hidden="true">{item.shortcut}</.kbd>
+              <.kbd
+                :if={not Map.has_key?(item, :shortcut)}
+                tone={:bare}
+                class="hidden group-data-[active]:inline"
+                aria-hidden="true"
+              >
+                ↵
+              </.kbd>
+            </Autocomplete.option>
+          </div>
           <button
             :if={@ask_label}
             id={"#{@id}-ask"}
             type="button"
             role="option"
+            aria-selected="false"
             data-ask
             data-option
             phx-click={@ask_event}
@@ -146,14 +237,12 @@ defmodule DevactionUI.CommandPalette do
           >
             <span class="size-2.5 rounded-full bg-ai" aria-hidden="true" />
             <span>{@ask_label}</span>
-            <kbd class="ml-auto font-mono text-[11px]" aria-hidden="true">⌘↵</kbd>
+            <.kbd :if={@ask_kbd} tone={:bare} class="ml-auto" aria-hidden="true">{@ask_kbd}</.kbd>
           </button>
         </div>
         <div :if={@keys != []} class="cmdk-footer">
           <span :for={{keys, what} <- @keys} class="flex items-center gap-1.5">
-            <kbd class="rounded border border-line-strong bg-card px-1.5 font-mono text-[11px] text-ink-2">
-              {keys}
-            </kbd>
+            <.kbd>{keys}</.kbd>
             {what}
           </span>
         </div>
@@ -162,21 +251,6 @@ defmodule DevactionUI.CommandPalette do
     """
   end
 
-  defp marked(label, query) do
-    label
-    |> Autocomplete.highlight(query)
-    |> Enum.map(fn
-      {:match, text} -> ["<strong class=\"font-semibold\">", escape(text), "</strong>"]
-      {:text, text} -> escape(text)
-    end)
-    |> Phoenix.HTML.raw()
-  end
-
-  defp escape(text), do: text |> Phoenix.HTML.html_escape() |> Phoenix.HTML.safe_to_string()
-
-  defp tone_bg(:warn), do: "bg-tag-warn-bg"
-  defp tone_bg(:info), do: "bg-tag-info-bg"
-  defp tone_bg(:ok), do: "bg-tag-ok-bg"
-  defp tone_bg(:risk), do: "bg-tag-risk-bg"
-  defp tone_bg(:neutral), do: "bg-tag-neutral-bg"
+  defp chosen_scope(nil, [%{value: first} | _]), do: first
+  defp chosen_scope(scope, _scopes), do: scope
 end
