@@ -425,8 +425,10 @@ defmodule DevactionUI.ShellPiecesTest do
       assert html =~ ~s(role="dialog")
       assert html =~ ~s(aria-modal="true")
       assert html =~ ~s(phx-hook="DevactionUI.Autocomplete")
-      assert length(Regex.scan(~r/phx-hook=/, html)) == 3
-      assert html =~ ~s(phx-hook="DevactionUI.Segmented")
+      assert length(Regex.scan(~r/phx-hook=/, html)) == 2
+      assert html =~ ~s(phx-hook="Phoenix.FocusWrap")
+      refute html =~ ~s(phx-hook="DevactionUI.Segmented")
+      assert html =~ ~s(role="tablist")
       assert html =~ ~s(role="combobox")
       assert html =~ ~s(role="listbox")
       assert html =~ "Lessons"
