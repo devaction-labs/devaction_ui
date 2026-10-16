@@ -3,12 +3,12 @@ import assert from "node:assert/strict"
 import {elapsed, format, read} from "./timer_logic.js"
 
 test("format writes hours, minutes and seconds", () => {
-  assert.equal(format(0), "0:00:00")
-  assert.equal(format(59), "0:00:59")
-  assert.equal(format(3661), "1:01:01")
+  assert.equal(format(0), "00:00:00")
+  assert.equal(format(59), "00:00:59")
+  assert.equal(format(3661), "01:01:01")
   assert.equal(format(36000), "10:00:00")
-  assert.equal(format(-5), "0:00:00")
-  assert.equal(format(12.9), "0:00:12")
+  assert.equal(format(-5), "00:00:00")
+  assert.equal(format(12.9), "00:00:12")
 })
 
 test("elapsed adds the running time to the base, and only while running", () => {

@@ -4,6 +4,7 @@ defmodule DevactionUI.Timer do
   LiveView owns the truth (it is not lost on a reload): the seconds already counted (`base`) and, while it runs,
   the moment it started (`started_at`, in seconds since the epoch). The browser only draws the passing seconds
   between two updates (`DevactionUI.Timer` hook); `elapsed/3` is what the server counts when it logs.
+  The stop-and-log button stays disabled while nothing has been counted.
   """
   use Phoenix.Component
 
@@ -12,12 +13,12 @@ defmodule DevactionUI.Timer do
   def elapsed(base, nil, _now), do: base
   def elapsed(base, started_at, now), do: base + max(now - started_at, 0)
 
-  @doc "Seconds as `H:MM:SS`."
+  @doc "Seconds as `HH:MM:SS`."
   @spec format(non_neg_integer()) :: String.t()
   def format(seconds) do
     hours = div(seconds, 3600)
     minutes = seconds |> rem(3600) |> div(60)
-    "#{hours}:#{pad(minutes)}:#{pad(rem(seconds, 60))}"
+    "#{pad(hours)}:#{pad(minutes)}:#{pad(rem(seconds, 60))}"
   end
 
   defp state(true), do: "running"
@@ -110,11 +111,10 @@ defmodule DevactionUI.Timer do
           type="button"
           phx-click={@toggle_event}
           phx-target={@target}
-          aria-pressed={to_string(@running?)}
           aria-label={(@running? && @pause_label) || @start_label}
           class={[
             "grid size-13 place-items-center rounded-full text-white outline-none hover:opacity-90 focus-visible:ring-4 focus-visible:ring-ink/10",
-            (@running? && "bg-ink text-on-primary") || "bg-[#15803D]"
+            (@running? && "bg-ink text-on-primary") || "bg-ok-fg"
           ]}
         >
           {(@running? && render_slot(@pause_icon)) || render_slot(@start_icon)}

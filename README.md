@@ -114,6 +114,7 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 | `DevactionUI.Progress` | a linear progress bar |
 | `DevactionUI.ProgressToast` | a notice that fills as a job advances, with an aura, and leaves by itself when it is done |
 | `DevactionUI.Skeleton` | a shimmering placeholder |
+| `DevactionUI.Timer` | hours on a task in large mono digits (`HH:MM:SS`), start or pause and stop and log; the server owns the seconds, the browser only draws them between updates |
 | `DevactionUI.Spinner` | a spinning ring |
 
 Where an app also has its own `alert`, `badge`, `button` or `pagination`, call these qualified
