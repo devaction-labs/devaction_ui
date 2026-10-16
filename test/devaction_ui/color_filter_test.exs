@@ -83,6 +83,43 @@ defmodule DevactionUI.ColorFilterTest do
       assert html =~ "Pick from the screen"
     end
 
+    test "the panel shows the hex, and the eyedropper takes an icon in place of its text" do
+      html = picker()
+      assert html =~ ~r/<output[^>]*data-value-text[^>]*>#DC2626</
+
+      assigns = %{}
+
+      with_icon =
+        rendered_to_string(~H"""
+        <ColorPicker.color_picker
+          id="c"
+          name="c"
+          label="Colour"
+          toggle_label="Open"
+          area_label="Area"
+          hue_label="Hue"
+          presets_label="Presets"
+          eyedropper_label="Pick from the screen"
+        >
+          <:eyedropper_icon>DROP</:eyedropper_icon>
+        </ColorPicker.color_picker>
+        """)
+
+      assert with_icon =~ "DROP"
+      assert with_icon =~ ~s(aria-label="Pick from the screen")
+      refute with_icon =~ ">Pick from the screen<"
+    end
+
+    test "the field takes disabled and required, and the hook sits on id-picker" do
+      html = picker(%{disabled: true, required: true})
+
+      assert html =~ ~s(id="project-color-picker")
+      assert html =~ ~r/<input[^>]*data-input[^>]* disabled/
+      assert html =~ ~r/<input[^>]*data-input[^>]* required/
+      assert html =~ ~r/<button[^>]*data-toggle[^>]* disabled/
+      refute picker() =~ " required"
+    end
+
     test "an error is written under the field and tied to it" do
       html = picker(%{error: "Pick a valid colour"})
 

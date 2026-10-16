@@ -372,8 +372,9 @@
                  background: radial-gradient(closest-side, color-mix(in oklab, var(--ai) 16%, transparent), transparent); }
 
   .color-picker        { @apply relative w-full max-w-75; --cp-color: #2563EB; --cp-hue: #2563EB; }
-  .color-picker-field  { @apply flex h-11.5 items-center gap-2.5 rounded-xl border border-line-strong bg-card px-3 focus-within:border-ink focus-within:ring-4 focus-within:ring-ink/10 data-[invalid=true]:border-missing; }
-  .color-picker-swatch { @apply size-5.5 shrink-0 cursor-pointer rounded-md bg-(--cp-color) shadow-[inset_0_0_0_1px_rgb(0_0_0/0.12)]; }
+  .color-picker-field  { @apply flex h-11 items-center gap-2.5 rounded-xl border border-line-strong bg-card px-3 focus-within:border-ink focus-within:ring-4 focus-within:ring-ink/10 data-[invalid=true]:border-missing has-disabled:border-dashed has-disabled:bg-wrap has-disabled:text-muted; }
+  .color-picker-row    { @apply flex h-9.5 items-center rounded-[10px] bg-wrap px-2.5; }
+  .color-picker-swatch { @apply size-5.5 shrink-0 cursor-pointer disabled:cursor-not-allowed rounded-md bg-(--cp-color) shadow-[inset_0_0_0_1px_rgb(0_0_0/0.12)]; }
   .color-picker-input  { @apply h-full min-w-0 flex-1 bg-transparent font-mono text-sm uppercase outline-none; }
   .color-picker-panel  { @apply absolute top-full left-0 z-50 mt-2 flex w-76 flex-col gap-3 rounded-[14px] border border-line bg-card p-3 shadow-pop; }
   .color-picker-area   { @apply relative h-42 cursor-crosshair touch-none rounded-[10px] outline-none focus-visible:ring-4 focus-visible:ring-ink/15;
@@ -564,4 +565,12 @@
   border-radius: 9999px;
   border: 3px solid #fff;
   background: var(--cp-color);
+}
+
+.color-picker-hue::-webkit-slider-thumb {
+  background: var(--cp-hue);
+}
+
+.color-picker-hue::-moz-range-thumb {
+  background: var(--cp-hue);
 }

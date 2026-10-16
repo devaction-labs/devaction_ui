@@ -95,6 +95,7 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 | `DevactionUI.Accordion` | `<details>` sections, exclusive through a shared `name`, no JavaScript |
 | `DevactionUI.Tooltip` | a hint on hover and focus, CSS only |
 | `DevactionUI.Pillbox` | removable pills in a field; Enter or comma adds, Backspace removes |
+| `DevactionUI.ColorPicker` | a hex field with a panel: saturation and brightness square, hue and opacity strips, presets, the eyedropper where the browser has one |
 | `DevactionUI.Combobox` | a select with a search field, accent-insensitive filtering and the ARIA combobox keys |
 | `DevactionUI.DataTable` | sticky header, sortable columns (`aria-sort`, the server sorts), row selection with a tri-state header checkbox and a bulk bar that shows while something is ticked, two densities |
 | `DevactionUI.Kanban` | columns with WIP limits and cards that move by drag or Alt + arrows, announced to screen readers; the LiveView gets one `move_card` event |
