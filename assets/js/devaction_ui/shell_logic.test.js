@@ -1,6 +1,6 @@
 import assert from "node:assert/strict"
 import test from "node:test"
-import {expanded, isToggleKey, otherState, parseGroups, stateCookie, stateOf, toggleLabel, withGroup} from "./shell_logic.js"
+import {expanded, isToggleKey, otherState, pageInert, parseGroups, stateCookie, stateOf, toggleLabel, trapStep, withGroup} from "./shell_logic.js"
 
 test("toggling goes from open to rail and back", () => {
   assert.equal(otherState("open"), "rail")
@@ -56,4 +56,10 @@ test("the groups memory survives garbage", () => {
 test("setting a group keeps the others", () => {
   assert.deepEqual(withGroup({a: true}, "b", false), {a: true, b: false})
   assert.deepEqual(withGroup({a: true}, "a", false), {a: false})
+})
+
+test("the page behind is inert only while the drawer of a small screen is open", () => {
+  assert.equal(pageInert({mobile: true, drawerOpen: true}), true)
+  assert.equal(pageInert({mobile: true, drawerOpen: false}), false)
+  assert.equal(pageInert({mobile: false, drawerOpen: true}), false)
 })

@@ -90,8 +90,15 @@ defmodule DevactionUISite.Changelog do
         "The Blade version of the kit for Laravel and Livewire projects, starting with the color picker, the slider and the filter menu."
     },
     %{
-      version: "v0.3.2",
+      version: "v0.3.3",
       status: "current",
+      tag: "v0.3.3",
+      summary:
+        "The audit of the layout theme: keyboard and focus fixes in the shell, tabs, pagination, composer and tables, a breadcrumb that closes, readable text in the light and dark themes, and an editor that no longer needs TipTap to build."
+    },
+    %{
+      version: "v0.3.2",
+      status: "archived",
       tag: "v0.3.2",
       summary:
         "Variations of the data table (minimal, striped, expandable, grouped, phone cards, a row action cell), a pagination that shows the range, the new Projects template and a README without contradictions."
@@ -161,6 +168,22 @@ defmodule DevactionUISite.Changelog do
   ]
 
   @patches %{
+    "v0.3.3" => [
+      {"fixed", "Fixes", "editor_build",
+       "A host app builds without the `@tiptap/*` packages unless an editor is rendered."},
+      {"fixed", "Fixes", "shell_focus",
+       "Below 1024px the closed drawer leaves the tab order and the open one keeps focus inside and gives it back to the opener."},
+      {"fixed", "Fixes", "composer_a11y",
+       "The file button answers Enter and Space, the field says `aria-invalid` over its limit, and the attachment preview is allowed by the CSP."},
+      {"fixed", "Fixes", "table_a11y",
+       "The scrolling box of the data table is a named, focusable region and the bulk bar keeps its light text."},
+      {"improved", "Improvements", "tabs_pagination",
+       "Line tabs select with weight 500, the chip count is the artboard one, pagination cells have a border and `size={:sm}` draws the 30px footer."},
+      {"improved", "Improvements", "breadcrumb",
+       "A collapsed breadcrumb closes on Esc and on a press outside."},
+      {"improved", "Improvements", "contrast",
+       "Text of the shell, the sidebar, the composer and seven dark-theme cases reach 4.5:1."}
+    ],
     "v0.3.2" => [
       {"improved", "Improvements", "data_table_variants",
        "`variant={:minimal}`, `striped`, an `expanded` slot, `group_by` with totals, `stack` for phone cards, an `action` slot for the row menu, `align` and `mono` on a column, and Shift+click to tick a range."},

@@ -30,12 +30,14 @@ export default {
     const {createEditor} = await import("./editor_tiptap.js")
     if (!this.el.isConnected) return
 
-    this.editor = createEditor({
+    const editor = await createEditor({
       el: this.el,
       onUpdate: () => this.save(),
       onTransaction: () => this.refresh(),
       onSend: () => this.send(),
     })
+    if (!this.el.isConnected) return editor.destroy()
+    this.editor = editor
 
     this.on("click", "[data-command]", (button) => this.run(button.dataset.command))
     this.on("change", "[data-style]", (select) => styles[select.value]?.(this.editor.chain().focus()).run())

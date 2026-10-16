@@ -6,12 +6,18 @@ defmodule DevactionUI.Breadcrumb do
   The `separator` is text (`"/"` by default) or `:chevron`, a 14px chevron that mirrors itself when the page
   is right-to-left (`dir="rtl"`); the row itself already runs from the right there. A long trail can be
   shortened with `max`: it keeps the first item and the last `max - 1`, and the ones between become a `…` that
-  opens a list of them (a native `<details>`, so it needs no JavaScript). Name that `…` with `collapsed_label`.
+  opens a list of them (a native `<details>` that Esc and a press outside close). Name that `…` with `collapsed_label`.
 
   `home` puts a link to the start of the app before the first item, drawn by the `home_icon` slot and named by
   `home_label`, which it needs (without one it raises).
   """
   use Phoenix.Component
+
+  alias Phoenix.LiveView.JS
+
+  attr :id, :string,
+    default: nil,
+    doc: "names the hook of the collapsed list; set it when two trails on a page share a `label`"
 
   attr :label, :string,
     required: true,
@@ -59,16 +65,20 @@ defmodule DevactionUI.Breadcrumb do
     do: raise(ArgumentError, "breadcrumb: `home` needs a `home_label`")
 
   def breadcrumb(assigns) do
-    assigns = assign(assigns, :entries, entries(assigns.items, assigns.max, assigns.home))
+    assigns =
+      assigns
+      |> assign(:entries, entries(assigns.items, assigns.max, assigns.home))
+      |> assign(:more_id, "#{assigns.id || "breadcrumb-#{:erlang.phash2(assigns.label)}"}-more")
 
     ~H"""
-    <nav aria-label={@label} class={["text-sm text-muted", @class]} {@rest}>
+    <nav id={@id} aria-label={@label} class={["text-sm text-muted", @class]} {@rest}>
       <ol class="m-0 flex list-none flex-wrap items-center gap-2.5 p-0">
         <li :for={{entry, index} <- Enum.with_index(@entries)} class="flex items-center gap-2.5">
           <.separator :if={index > 0} separator={@separator} />
           <.entry
             entry={entry}
             collapsed_label={@collapsed_label}
+            more_id={@more_id}
             home_label={@home_label}
             home_icon={@home_icon}
             underline={@underline}
@@ -125,6 +135,7 @@ defmodule DevactionUI.Breadcrumb do
 
   attr :entry, :any, required: true
   attr :collapsed_label, :string, required: true
+  attr :more_id, :string, required: true
   attr :home_label, :string, required: true
   attr :home_icon, :list, required: true
   attr :underline, :boolean, required: true
@@ -157,7 +168,12 @@ defmodule DevactionUI.Breadcrumb do
     assigns = assign(assigns, :hidden, hidden)
 
     ~H"""
-    <details class="group relative">
+    <details
+      id={@more_id}
+      class="group relative"
+      phx-hook="DevactionUI.Breadcrumb"
+      phx-mounted={JS.ignore_attributes(["open"])}
+    >
       <summary
         aria-label={@collapsed_label}
         class="flex h-6 min-w-6 cursor-pointer list-none items-center justify-center rounded-sm outline-none marker:hidden hover:text-ink focus-visible:ring-4 focus-visible:ring-ink/10 [&::-webkit-details-marker]:hidden"

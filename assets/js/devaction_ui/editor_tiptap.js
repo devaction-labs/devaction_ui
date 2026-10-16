@@ -1,19 +1,49 @@
-import {Editor, Extension} from "@tiptap/core"
-import StarterKit from "@tiptap/starter-kit"
-import {TaskList, TaskItem} from "@tiptap/extension-list"
-import Placeholder from "@tiptap/extension-placeholder"
-import CharacterCount from "@tiptap/extension-character-count"
-import TextAlign from "@tiptap/extension-text-align"
-import Mention from "@tiptap/extension-mention"
-import Suggestion from "@tiptap/suggestion"
-import Image from "@tiptap/extension-image"
-import {Markdown} from "@tiptap/markdown"
 import {blocks, filterItems, sends} from "./editor_logic.js"
 import {popup} from "./suggest.js"
 
+const absent = () => null
+
+/**
+ * The packages of TipTap, by `import()` with a `.catch`, so a bundler (esbuild) that cannot find them downgrades
+ * the error to a warning and an app that never renders an editor builds without installing them. A missing one
+ * fails here, with its own message, when an editor is mounted.
+ */
+async function load() {
+  const [core, starter, extensionList, placeholder, characterCount, textAlign, mention, suggestion, image, markdown] =
+    await Promise.all([
+      import("@tiptap/core").catch(absent),
+      import("@tiptap/starter-kit").catch(absent),
+      import("@tiptap/extension-list").catch(absent),
+      import("@tiptap/extension-placeholder").catch(absent),
+      import("@tiptap/extension-character-count").catch(absent),
+      import("@tiptap/extension-text-align").catch(absent),
+      import("@tiptap/extension-mention").catch(absent),
+      import("@tiptap/suggestion").catch(absent),
+      import("@tiptap/extension-image").catch(absent),
+      import("@tiptap/markdown").catch(absent),
+    ])
+  const loaded = {core, starter, extensionList, placeholder, characterCount, textAlign, mention, suggestion, image, markdown}
+  const missing = Object.entries(loaded).filter(([, module]) => module === null).map(([name]) => name)
+  if (missing.length > 0) throw new Error(`DevactionUI.Editor needs the @tiptap/* packages of assets/package.json (missing: ${missing.join(", ")})`)
+  return {
+    Editor: core.Editor,
+    Extension: core.Extension,
+    StarterKit: starter.default,
+    TaskList: extensionList.TaskList,
+    TaskItem: extensionList.TaskItem,
+    Placeholder: placeholder.default,
+    CharacterCount: characterCount.default,
+    TextAlign: textAlign.default,
+    Mention: mention.default,
+    Suggestion: suggestion.default,
+    Image: image.default,
+    Markdown: markdown.Markdown,
+  }
+}
+
 const list = (el, name) => JSON.parse(el.dataset[name] ?? "[]")
 
-const slashMenu = (items) =>
+const slashMenu = ({Extension, Suggestion}, items) =>
   Extension.create({
     name: "slashMenu",
     addProseMirrorPlugins() {
@@ -30,11 +60,11 @@ const slashMenu = (items) =>
     },
   })
 
-const suggestions = (el) => {
+const suggestions = (tiptap, el) => {
   const slash = list(el, "slash")
   const mentions = list(el, "mentions")
   const id = el.id
-  const mention = Mention.extend({
+  const mention = tiptap.Mention.extend({
     renderMarkdown: (node) => `@[${node.attrs.label}](mention:${node.attrs.id})`,
   }).configure({
     HTMLAttributes: {class: "rounded bg-info-bg px-1 text-info-fg"},
@@ -44,14 +74,16 @@ const suggestions = (el) => {
       render: () => popup(`${id}-mention`),
     },
   })
-  return [...(slash.length ? [slashMenu(slash)] : []), ...(mentions.length ? [mention] : [])]
+  return [...(slash.length ? [slashMenu(tiptap, slash)] : []), ...(mentions.length ? [mention] : [])]
 }
 
 /**
  * The TipTap editor of the hook. It lives apart from `editor.js` so the packages of TipTap are loaded (by a
  * dynamic `import()`) only on a page that has an editor.
  */
-export function createEditor({el, onUpdate, onTransaction, onSend}) {
+export async function createEditor({el, onUpdate, onTransaction, onSend}) {
+  const tiptap = await load()
+  const {Editor, StarterKit, TaskList, TaskItem, TextAlign, Placeholder, CharacterCount, Image, Markdown} = tiptap
   return new Editor({
     element: el.querySelector("[data-editor-content]"),
     content: el.querySelector("[data-html]").value,
@@ -65,7 +97,7 @@ export function createEditor({el, onUpdate, onTransaction, onSend}) {
       CharacterCount,
       Image.configure({inline: false}),
       Markdown,
-      ...suggestions(el),
+      ...suggestions(tiptap, el),
     ],
     editorProps: {
       attributes: {class: "editor-content", role: "textbox", "aria-multiline": "true"},

@@ -57,7 +57,8 @@ Requirements: Elixir 1.20 or newer, Phoenix 1.8, Phoenix LiveView 1.2, Tailwind 
 2. JS: `import {hooks as devactionUI} from "../../deps/devaction_ui/assets/js/devaction_ui"` and merge into
    the LiveSocket `hooks`.
 3. Optional npm packages, loaded with a dynamic `import()` only when the component is mounted, so an app that
-   renders none of them can skip this step. Copy the ones you use from the `dependencies` of
+   renders none of them can skip this step (each package is imported with a `.catch`, so esbuild builds without
+   it; an editor mounted without TipTap says which package is missing). Copy the ones you use from the `dependencies` of
    `deps/devaction_ui/assets/package.json` into the app's `package.json` and run `npm install`:
    - `DevactionUI.Editor` needs TipTap (the `@tiptap/*` packages, pinned to 3.32.0).
    - `DevactionUI.PdfViewer` needs `pdfjs-dist` (pinned to 5.4.149). pdf.js runs its work in a worker: serve
@@ -70,6 +71,10 @@ Requirements: Elixir 1.20 or newer, Phoenix 1.8, Phoenix LiveView 1.2, Tailwind 
    and drop the link.
 5. Theme: the stylesheet sets `:root { color-scheme: light dark }`, so the page follows the system theme.
    To pin one, set `data-theme="light"` or `data-theme="dark"` (or the `.light` / `.dark` class) on `<html>`.
+6. Use it: each component is a module with its own function component, so `alias DevactionUI.Tabs` (or add the
+   alias to `html_helpers` of the web module) and write `<Tabs.tabs id="sections" label="Sections">`. A new Phoenix
+   app already carries daisyUI and Heroicons; the library does not use them, and daisyUI defines classes with some of
+   the same names (`checkbox`, `switch`, `modal`), so if a component looks off, take the daisyUI plugin out of `app.css`.
 
 ## The rules that keep it extractable
 

@@ -181,7 +181,7 @@ defmodule DevactionUI.CodeBlock do
   defp kind_class(kind, :dark), do: dark_class(kind)
   defp kind_class(kind, _tone), do: tinted_class(kind)
 
-  defp dark_class(:punct), do: "text-[#6B7280]"
+  defp dark_class(:punct), do: "text-[#8B93A1]"
   defp dark_class(:html), do: "text-[#7AA2F7]"
   defp dark_class(:component), do: "text-[#7AA2F7]"
   defp dark_class(:slot), do: "text-[#A3B35A]"
@@ -189,7 +189,7 @@ defmodule DevactionUI.CodeBlock do
   defp dark_class(:directive), do: "text-[#C4A7E7]"
   defp dark_class(:string), do: "text-[#E4E4E7]"
   defp dark_class(:expr), do: "text-[#E3A72F]"
-  defp dark_class(:comment), do: "text-[#6B7280] italic"
+  defp dark_class(:comment), do: "text-[#8B93A1] italic"
   defp dark_class(:keyword), do: "text-[#C4A7E7]"
   defp dark_class(:atom), do: "text-[#E3A72F]"
   defp dark_class(:number), do: "text-[#E3A72F]"

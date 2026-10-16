@@ -71,7 +71,8 @@
   --ink: light-dark(#18181B, #EDEDF2);
   --ink-2: light-dark(#3F3F46, #C9C9D6);
   --muted: light-dark(#71717A, #9B9BAE);
-  --muted-2: light-dark(#A1A1AA, #6C6C80);
+  --muted-chrome: light-dark(#696973, #9B9BAE);
+  --muted-2: light-dark(#A1A1AA, #8A8AA0);
   --on-primary: light-dark(#FFFFFF, #15151C);
   --ai: light-dark(#D29A1E, #E3A72F);
   --missing: light-dark(#C62828, #FF5A47);
@@ -459,7 +460,7 @@
   .segmented-sm > .segment { @apply h-7 rounded-md px-2.5 text-[13px]; }
   .segmented-full { @apply flex w-full [&>.segment]:flex-1; }
   .app-shell   { @apply flex min-h-dvh flex-wrap gap-4 bg-frame p-4; }
-  .sidebar     { @apply flex w-59 shrink-0 flex-col gap-[18px] px-0.5 py-2 transition-[width] data-[collapsed=true]:w-16 data-[responsive=true]:max-md:hidden; }
+  .sidebar     { @apply [--muted:var(--muted-chrome)] flex w-59 shrink-0 flex-col gap-[18px] px-0.5 py-2 transition-[width] data-[collapsed=true]:w-16 data-[responsive=true]:max-md:hidden; }
   .sidebar-link { @apply flex h-[42px] items-center gap-3 rounded-[10px] border border-transparent px-2.5 text-ink-2 group-data-[collapsed=true]/sidebar:justify-center
                          aria-[current=page]:border-line aria-[current=page]:bg-card aria-[current=page]:font-medium aria-[current=page]:text-ink; }
   .app-main    { @apply min-w-0 flex-[999_1_45rem] rounded-panel bg-panel px-9 pt-7 pb-10 shadow-sm max-sm:px-5; }
@@ -839,7 +840,7 @@
 }
 
 .pdf-field .pdf-field-who {
-  color: #71717a;
+  color: #63636b;
 }
 
 .pdf-field[data-state="signed"] {
@@ -858,7 +859,7 @@
 
 .pdf-field .pdf-field-mark {
   background: #d29a1e;
-  color: #fff;
+  color: #2a1b02;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -1101,6 +1102,7 @@
     --sidebar-w-rail: 60px;
     --header-h: 52px;
     --panel-radius: 14px;
+    --muted: var(--muted-chrome);
     display: flex;
     gap: var(--shell-gap);
     min-height: var(--shell-h, 100dvh);
@@ -1239,10 +1241,11 @@
     border-radius: 4px;
     background: var(--ai);
   }
-  .shell[data-sidebar="rail"] .sidebar-item[data-tip]:hover::before {
+  .shell[data-sidebar="rail"] .sidebar-item[data-tip]:is(:hover, :focus-visible)::before {
     content: attr(data-tip);
     position: fixed;
-    margin-left: 52px;
+    margin-left: 76px;
+    translate: 50% 0;
     padding: 5px 8px;
     border-radius: 7px;
     z-index: 70;
@@ -1300,9 +1303,9 @@
   .shell-list, .shell-toc { display: none; }
 
   @media (min-width: 1024px) {
-    .shell[data-variant="topbar"] { flex-direction: column; }
-    .shell[data-variant="topbar"] .shell-sidebar,
-    .shell[data-variant="topbar"][data-sidebar="rail"] .shell-sidebar {
+    .shell:is([data-variant="topbar"], [data-variant="centered"]) { flex-direction: column; }
+    .shell:is([data-variant="topbar"], [data-variant="centered"]) .shell-sidebar,
+    .shell:is([data-variant="topbar"], [data-variant="centered"])[data-sidebar="rail"] .shell-sidebar {
       position: static;
       width: auto;
       height: var(--header-h);
@@ -1311,15 +1314,15 @@
       overflow: visible;
       padding: 0 6px;
     }
-    .shell[data-variant="topbar"] .sidebar-nav { flex-direction: row; align-items: center; overflow-x: auto; overflow-y: hidden; padding: 0 10px; }
-    .shell[data-variant="topbar"] .sidebar-group { flex-direction: row; align-items: center; margin-top: 0; padding-top: 0; border-top: 0; }
-    .shell[data-variant="topbar"] .sidebar-group-toggle { display: none; }
-    .shell[data-variant="topbar"] .sidebar-group-body,
-    .shell[data-variant="topbar"] .sidebar-group-body[hidden] { display: flex; flex-direction: row; }
-    .shell[data-variant="topbar"] .sidebar-foot { flex-direction: row; align-items: center; border-top: 0; padding: 0 4px; }
-    .shell[data-variant="topbar"] :is(.sidebar-label, .sidebar-head-text) { display: revert; }
-    .shell[data-variant="topbar"] .sidebar-item { width: auto; padding: 0 10px; justify-content: flex-start; }
-    .shell[data-variant="topbar"] :is([data-sidebar-toggle], .shell-divider) { display: none; }
+    .shell:is([data-variant="topbar"], [data-variant="centered"]) .sidebar-nav { flex-direction: row; align-items: center; overflow-x: auto; overflow-y: hidden; padding: 0 10px; }
+    .shell:is([data-variant="topbar"], [data-variant="centered"]) .sidebar-group { flex-direction: row; align-items: center; margin-top: 0; padding-top: 0; border-top: 0; }
+    .shell:is([data-variant="topbar"], [data-variant="centered"]) .sidebar-group-toggle { display: none; }
+    .shell:is([data-variant="topbar"], [data-variant="centered"]) .sidebar-group-body,
+    .shell:is([data-variant="topbar"], [data-variant="centered"]) .sidebar-group-body[hidden] { display: flex; flex-direction: row; }
+    .shell:is([data-variant="topbar"], [data-variant="centered"]) .sidebar-foot { flex-direction: row; align-items: center; border-top: 0; padding: 0 4px; }
+    .shell:is([data-variant="topbar"], [data-variant="centered"]) :is(.sidebar-label, .sidebar-head-text) { display: revert; }
+    .shell:is([data-variant="topbar"], [data-variant="centered"]) .sidebar-item { width: auto; padding: 0 10px; justify-content: flex-start; }
+    .shell:is([data-variant="topbar"], [data-variant="centered"]) :is([data-sidebar-toggle], .shell-divider) { display: none; }
 
     .shell[data-variant="split"] .shell-list {
       display: flex;
@@ -1351,8 +1354,6 @@
     }
   }
 
-  .shell[data-variant="centered"] .shell-panel { border-color: transparent; background: transparent; box-shadow: none; }
-  .shell[data-variant="centered"] .shell-header { background: transparent; border-bottom-color: transparent; }
   .shell[data-variant="centered"] .shell-content { width: 100%; max-width: 720px; margin-inline: auto; box-sizing: border-box; }
   .shell[data-variant="docs"] .shell-content { width: 100%; max-width: 760px; margin-inline: auto; box-sizing: border-box; }
 
@@ -1371,17 +1372,18 @@
       padding: 6px 0;
       background: var(--frame);
       translate: -100% 0;
-      transition: translate 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+      visibility: hidden;
+      transition: translate 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0s linear 0.25s;
       box-shadow: 0 0 40px color-mix(in srgb, var(--ink) 25%, transparent);
     }
-    .shell[data-mobile-open] .shell-sidebar { translate: 0 0; }
+    .shell[data-mobile-open] .shell-sidebar { translate: 0 0; visibility: visible; transition-delay: 0s; }
     .shell[data-sidebar="rail"] :is(.sidebar-label, .sidebar-item-badge, .sidebar-sub, .sidebar-head-text, .sidebar-head-menu, .sidebar-search, .sidebar-user-text, .sidebar-user-icon) { display: revert; }
     .shell[data-sidebar="rail"] .sidebar-user { justify-content: flex-start; padding: 6px 8px; }
     .shell[data-sidebar="rail"] .sidebar-item { justify-content: flex-start; padding: 0 10px; width: auto; }
     .shell[data-sidebar="rail"] .sidebar-group-toggle { display: flex; }
     .shell[data-sidebar="rail"] .sidebar-group { margin-top: 14px; padding-top: 0; border-top: 0; }
     .shell[data-sidebar="rail"] .sidebar-group-body[hidden] { display: none; }
-    .shell[data-sidebar="rail"] .sidebar-item[data-tip]:hover::before { content: none; }
+    .shell[data-sidebar="rail"] .sidebar-item[data-tip]:is(:hover, :focus-visible)::before { content: none; }
     .shell-backdrop {
       display: block;
       position: fixed;
@@ -1458,7 +1460,7 @@
   .composer-file    { @apply relative box-border flex h-13 items-center gap-2 rounded-xl border border-line bg-wrap p-1.25 text-[13px]; }
   .composer-file img { @apply h-10 w-13 rounded-lg object-cover; }
   .composer-file-remove { @apply absolute -top-1.75 -right-1.75 grid size-5 cursor-pointer place-items-center rounded-full border-2 border-card bg-ink p-0 text-on-primary; }
-  .composer-input   { @apply box-border block min-h-7.5 w-full resize-none overflow-y-hidden border-0 bg-transparent px-4 pt-3.5 pb-1.5 text-[15px] leading-[1.55] text-ink outline-none placeholder:text-muted placeholder:opacity-80
+  .composer-input   { @apply box-border block min-h-7.5 w-full resize-none overflow-y-hidden border-0 bg-transparent px-4 pt-3.5 pb-1.5 text-[15px] leading-[1.55] text-ink outline-none placeholder:text-muted
                              [.composer[data-busy=true]_&]:text-muted;
                       scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
   .composer-actions { @apply flex items-center gap-0.5 px-2.5 pt-2 pb-2.5; }

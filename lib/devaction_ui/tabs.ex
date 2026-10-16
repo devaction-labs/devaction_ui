@@ -84,7 +84,7 @@ defmodule DevactionUI.Tabs do
           tabindex={tab_index(tab.id, @selected_id)}
           data-tab={tab.id}
           class={[
-            "inline-flex items-center gap-2 outline-none focus-visible:ring-4 focus-visible:ring-ink/10",
+            "inline-flex shrink-0 items-center gap-2 whitespace-nowrap outline-none hover:text-ink focus-visible:ring-4 focus-visible:ring-ink/10",
             @full && "flex-1 justify-center",
             @orientation == :vertical && "justify-start",
             tab_class(@variant, @orientation, @size)
@@ -116,12 +116,15 @@ defmodule DevactionUI.Tabs do
 
   defp list_class(:boxed, orientation, full) do
     [
-      "flex max-w-full gap-0.5 rounded-xl border border-line bg-wrap p-1",
+      "flex max-w-full gap-0.5 overflow-x-auto rounded-xl border border-line bg-wrap p-1 [scrollbar-width:none]",
       (orientation == :vertical && "flex-col") || (full && "w-full") || "w-fit"
     ]
   end
 
-  defp list_class(:line, :horizontal, _full), do: "flex gap-1 border-b border-line"
+  defp list_class(:line, :horizontal, _full),
+    do:
+      "flex max-w-full gap-1 overflow-x-auto overflow-y-hidden shadow-[inset_0_-1px_0_var(--line)] [scrollbar-width:none]"
+
   defp list_class(:line, :vertical, _full), do: "flex flex-col gap-1 border-s border-line"
 
   defp tab_class(:boxed, _orientation, _size) do
@@ -130,13 +133,13 @@ defmodule DevactionUI.Tabs do
 
   defp tab_class(:line, :horizontal, size) do
     [
-      "-mb-px border-b-2 border-transparent px-3.5 text-muted aria-selected:border-ink aria-selected:font-semibold aria-selected:text-ink",
+      "border-b-2 border-transparent px-3.5 text-muted focus-visible:ring-inset aria-selected:border-ink aria-selected:font-medium aria-selected:text-ink",
       line_size(size)
     ]
   end
 
   defp tab_class(:line, :vertical, _size) do
-    "-ms-px h-11 border-s-2 border-transparent px-3.5 text-muted aria-selected:border-ink aria-selected:font-semibold aria-selected:text-ink"
+    "-ms-px h-11 border-s-2 border-transparent px-3.5 text-muted aria-selected:border-ink aria-selected:font-medium aria-selected:text-ink"
   end
 
   defp line_size(:md), do: "h-11"
