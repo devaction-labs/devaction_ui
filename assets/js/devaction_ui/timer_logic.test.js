@@ -1,6 +1,14 @@
 import test from "node:test"
 import assert from "node:assert/strict"
-import {elapsed, format, read} from "./timer_logic.js"
+import {elapsed, format, formatShort, formats, read} from "./timer_logic.js"
+
+test("formatShort drops the seconds and formats say which writer each data-format picks", () => {
+  assert.equal(formatShort(2843), "00:47")
+  assert.equal(formatShort(3725), "01:02")
+  assert.equal(formatShort(-1), "00:00")
+  assert.equal(formats.short(3725), "01:02")
+  assert.equal(formats.full(3725), "01:02:05")
+})
 
 test("format writes hours, minutes and seconds", () => {
   assert.equal(format(0), "00:00:00")

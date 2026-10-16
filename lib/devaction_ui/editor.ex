@@ -17,7 +17,13 @@ defmodule DevactionUI.Editor do
   Each `slash` and `mentions` entry may also carry an `icon` (a glyph) and a `hint` (what is written at the end
   of the row, such as `#`). `compact` is the comment form: a short surface, usually without a toolbar, and with
   `send_on_enter` the command (or control) and Enter submit the form the editor is in; its `footer` slot is for
-  the buttons under the surface.
+  the buttons under the surface. With `toolbar_position={:bottom}` the toolbar goes under the surface, in one bar
+  with the `footer` (tools on the left, the send button on the right), as the canvas draws a comment box.
+
+  The hook is tied to the host by names the caller can change: the image is sent with the CSRF token of the
+  `<meta>` called `csrf_meta` in the header `csrf_header`, and the `ai` tool sends the event `improve_event` and
+  listens for `replace_event` and `failed_event` (the defaults are Phoenix's `csrf-token` and `x-csrf-token`, and
+  `improve`, `editor:replace` and `editor:failed`).
 
   The field has a visible label (`show_label`), a `hint` slot beside the word count, an `error` and a `disabled`
   state. The label and the error sit outside the ignored root and the flags are `data-*` attributes, so they
@@ -78,6 +84,32 @@ defmodule DevactionUI.Editor do
       "texts of the `ai` tool: `working`, `done` and `failed`; the tool sends `improve` with the Markdown to the component the editor is in"
 
   attr :compact, :boolean, default: false, doc: "the short comment form"
+
+  attr :toolbar_position, :atom,
+    values: [:top, :bottom],
+    default: :top,
+    doc: "`:bottom` puts the toolbar under the surface, in one bar with the `footer`"
+
+  attr :csrf_meta, :string,
+    default: "csrf-token",
+    doc: "the name of the `<meta>` that holds the CSRF token sent with an image"
+
+  attr :csrf_header, :string,
+    default: "x-csrf-token",
+    doc: "the header that carries the token with an image"
+
+  attr :improve_event, :string,
+    default: "improve",
+    doc: "the event the `ai` tool sends, with the Markdown"
+
+  attr :replace_event, :string,
+    default: "editor:replace",
+    doc: "the event the server answers `improve_event` with: `%{id, markdown}`"
+
+  attr :failed_event, :string,
+    default: "editor:failed",
+    doc: "the event the server answers with when it could not improve the text: `%{id}`"
+
   attr :send_on_enter, :boolean, default: false, doc: "⌘↵ or Ctrl↵ submits the form"
   attr :link_label, :string, required: true
   attr :class, :any, default: nil
@@ -96,7 +128,11 @@ defmodule DevactionUI.Editor do
   end
 
   def editor(assigns) do
-    assigns = assign(assigns, :described_by, described_by(assigns))
+    assigns =
+      assign(assigns,
+        described_by: described_by(assigns),
+        bar?: assigns.tool != [] or assigns.styles != []
+      )
 
     ~H"""
     <div id={"#{@id}-field"} class={["flex flex-col gap-1.5", @class]}>
@@ -118,40 +154,24 @@ defmodule DevactionUI.Editor do
         data-upload-url={@upload_url}
         data-upload-max={@upload_max}
         data-upload-errors={Jason.encode!(@upload_errors)}
+        data-csrf-meta={@csrf_meta}
+        data-csrf-header={@csrf_header}
+        data-improve-event={@improve_event}
+        data-replace-event={@replace_event}
+        data-failed-event={@failed_event}
         class="editor-root flex flex-col"
         {@rest}
       >
         <div class={["editor", @compact && "editor-compact"]}>
-          <div
-            :if={@tool != [] or @styles != []}
-            role="toolbar"
-            aria-label={@toolbar_label}
+          <.toolbar
+            :if={@bar? and @toolbar_position == :top}
+            id={@id}
+            label={@toolbar_label}
+            style_label={@style_label}
+            styles={@styles}
+            tool={@tool}
             class="editor-toolbar"
-          >
-            <select
-              :if={@styles != []}
-              id={"#{@id}-style"}
-              data-style
-              aria-label={@style_label}
-              class="h-8.5 rounded-lg border border-line bg-card px-2 text-sm text-ink outline-none focus-visible:ring-4 focus-visible:ring-ink/10"
-            >
-              <option :for={{label, value} <- @styles} value={value}>{label}</option>
-            </select>
-            <%= for tool <- @tool do %>
-              <span :if={tool[:separator]} class="editor-sep" aria-hidden="true" />
-              <button
-                type="button"
-                id={"#{@id}-tool-#{tool.name}"}
-                aria-label={tool.label}
-                title={tool.label}
-                aria-pressed="false"
-                {tool_data(tool.name)}
-                class="editor-btn outline-none focus-visible:ring-4 focus-visible:ring-ink/10"
-              >
-                {render_slot(tool)}
-              </button>
-            <% end %>
-          </div>
+          />
           <div
             id={"#{@id}-link-bar"}
             data-link-bar
@@ -187,7 +207,26 @@ defmodule DevactionUI.Editor do
           <div id={"#{@id}-content"} data-editor-content class="editor-content-host"></div>
           <input type="hidden" name={"#{@name}[html]"} data-html value={@value} />
           <input type="hidden" name={"#{@name}[markdown]"} data-markdown value="" />
-          <div :if={@footer != []} class="editor-footer">{render_slot(@footer)}</div>
+          <div :if={@toolbar_position == :top and @footer != []} class="editor-footer">
+            {render_slot(@footer)}
+          </div>
+          <div
+            :if={@toolbar_position == :bottom and (@bar? or @footer != [])}
+            class="editor-bar"
+          >
+            <.toolbar
+              :if={@bar?}
+              id={@id}
+              label={@toolbar_label}
+              style_label={@style_label}
+              styles={@styles}
+              tool={@tool}
+              class="editor-toolbar-inline"
+            />
+            <div :if={@footer != []} class="ml-auto flex items-center gap-2">
+              {render_slot(@footer)}
+            </div>
+          </div>
         </div>
         <p class="editor-meta">
           <span :if={@hint != []} id={"#{@id}-hint"}>{render_slot(@hint)}</span>
@@ -195,6 +234,43 @@ defmodule DevactionUI.Editor do
         </p>
       </div>
       <p :if={@error} id={"#{@id}-error"} class="m-0 text-sm text-tag-risk-text">{@error}</p>
+    </div>
+    """
+  end
+
+  attr :id, :string, required: true
+  attr :label, :string, required: true
+  attr :style_label, :string, required: true
+  attr :styles, :list, required: true
+  attr :tool, :list, required: true
+  attr :class, :string, required: true
+
+  defp toolbar(assigns) do
+    ~H"""
+    <div role="toolbar" aria-label={@label} class={@class}>
+      <select
+        :if={@styles != []}
+        id={"#{@id}-style"}
+        data-style
+        aria-label={@style_label}
+        class="h-8.5 rounded-lg border border-line bg-card px-2 text-sm text-ink outline-none focus-visible:ring-4 focus-visible:ring-ink/10"
+      >
+        <option :for={{label, value} <- @styles} value={value}>{label}</option>
+      </select>
+      <%= for tool <- @tool do %>
+        <span :if={tool[:separator]} class="editor-sep" aria-hidden="true" />
+        <button
+          type="button"
+          id={"#{@id}-tool-#{tool.name}"}
+          aria-label={tool.label}
+          title={tool.label}
+          aria-pressed="false"
+          {tool_data(tool.name)}
+          class="editor-btn outline-none focus-visible:ring-4 focus-visible:ring-ink/10"
+        >
+          {render_slot(tool)}
+        </button>
+      <% end %>
     </div>
     """
   end

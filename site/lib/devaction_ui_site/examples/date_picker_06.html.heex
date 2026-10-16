@@ -1,0 +1,23 @@
+<%!-- title: Date Field | text: A text field with a mask (dd/mm/yyyy) and a calendar in a popover; the form gets the ISO date. The text on the right is computed by the server. --%>
+<div class="w-full max-w-sm">
+  <DatePicker.date_input
+    id="date-input"
+    name="task[due]"
+    label="Due date"
+    value="2026-10-17"
+    today="2026-10-14"
+    min="2026-10-10"
+    placeholder="dd/mm/yyyy"
+    description="Type the date or open the calendar."
+    relative="in 3 days"
+    calendar_label="Choose a date"
+    previous_label="Previous month"
+    next_label="Next month"
+  >
+    <:icon><.icon name="calendar-03" class="size-full" /></:icon>
+    <:prev_icon><.icon name="arrow-down-01" class="size-3 rotate-90" /></:prev_icon>
+    <:next_icon><.icon name="arrow-down-01" class="size-3 -rotate-90" /></:next_icon>
+    <:shortcut date="2026-10-14">Today</:shortcut>
+    <:shortcut date="2026-10-16">Friday</:shortcut>
+  </DatePicker.date_input>
+</div>

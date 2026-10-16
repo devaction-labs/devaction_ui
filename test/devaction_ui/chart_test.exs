@@ -115,7 +115,7 @@ defmodule DevactionUI.ChartTest do
       """)
     end
 
-    test "is a group with a summary, a legend, the axis, the area and two lines, the second dashed" do
+    test "is a group with a summary, a legend, the axis, the area and two solid lines" do
       html = line()
 
       assert html =~ ~s(<svg viewBox="0 0 820 280" role="group")
@@ -125,18 +125,61 @@ defmodule DevactionUI.ChartTest do
       assert html =~ "Done" and html =~ "Forecast"
       assert html =~ "chart-area"
       assert length(Regex.scan(~r/chart-line/, html)) == 2
-      assert length(Regex.scan(~r/stroke-dasharray="6 5"/, html)) == 1
+      refute html =~ "stroke-dasharray"
+      refute html =~ "mask-image"
       assert html =~ "stroke-chart-1" and html =~ "stroke-chart-2"
       assert html =~ "40k"
       assert html =~ ">Mar<"
     end
 
-    test "the axis of the days is sans, the last value of each line is bold" do
+    test "a series can be dashed, with a dashed key in the legend" do
+      html =
+        line(%{
+          series: [
+            %{label: "Done", values: [10, 20, 30]},
+            %{label: "Forecast", values: [12, 18, 33], dashed: true}
+          ]
+        })
+
+      assert length(Regex.scan(~r/stroke-dasharray="6 5"/, html)) == 1
+
+      assert html =~
+               ~r/stroke-dasharray="6 5"[^>]*stroke-chart-2|stroke-chart-2[^>]*stroke-dasharray/s
+
+      assert length(Regex.scan(~r/mask-image/, html)) == 1
+    end
+
+    test "the grid and the line follow the canvas: grid from 44 to 800, points from 64 to 760" do
+      html = line()
+
+      assert html =~ ~s(x1="44" x2="800")
+      assert html =~ ~s(x="36")
+      assert html =~ ~s(<text x="64" y="270")
+      assert html =~ ~s(<text x="760" y="270")
+      assert html =~ ~s(<circle cx="760")
+      assert html =~ ~s(<text x="770")
+    end
+
+    test "the axis of the days is sans, only the last value of the first line is bold" do
       html = line()
 
       assert html =~ ~r/class="chart-axis-x">\s*Mar/
-      assert html =~ "text-xs font-semibold fill-ink"
-      assert html =~ "text-xs font-semibold fill-ink-2"
+      assert html =~ "fill-ink text-xs font-semibold"
+      assert html =~ ~s(class="fill-ink-2 text-xs")
+    end
+
+    test "the hover layer is hidden from assistive technology, the column group names it" do
+      html = line()
+
+      assert html =~ ~r/aria-hidden="true"[^>]*class="opacity-0 transition-opacity/
+      assert html =~ ~s(aria-label="Mar: Done 10k, Forecast 12k")
+    end
+
+    test "a chart with nothing to draw still shows its axes" do
+      html = line(%{labels: [], series: []})
+
+      assert html =~ "chart-grid"
+      refute html =~ "chart-line"
     end
 
     test "each column can be reached with the keyboard and says its values" do
@@ -219,6 +262,32 @@ defmodule DevactionUI.ChartTest do
       assert html =~ "group-has-[[data-item]:focus-visible]/dim:not-focus-visible:opacity-40"
     end
 
+    test "bars, columns and ring with nothing to draw show no part and do not break" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Chart.bar_chart id="b" summary="S" items={[]} />
+        <Chart.column_chart id="c" summary="S" items={[]} />
+        <Chart.donut_chart id="d" summary="S" items={[]} />
+        """)
+
+      refute html =~ "data-item"
+      refute html =~ ~r/<li[ >]/
+      assert html =~ "chart-grid"
+    end
+
+    test "columns follow the canvas: a 220 high box, grid from 40 to 800, columns from 80 to 780" do
+      assigns = %{items: [%{label: "W1", value: 4}, %{label: "W2", value: 9}]}
+      html = rendered_to_string(~H|<Chart.column_chart id="c" summary="PRs" items={@items} />|)
+
+      assert html =~ ~s(viewBox="0 0 820 220")
+      assert html =~ ~s(x1="40" x2="800")
+      assert html =~ ~s(<text x="80" y="210")
+      assert html =~ ~s(<text x="780" y="210")
+      assert html =~ "text-xs font-semibold opacity-0"
+    end
+
     test "the ring has a slice per value, a legend with the figures and the percentage, and the total in the hole" do
       assigns = %{
         items: [
@@ -242,6 +311,7 @@ defmodule DevactionUI.ChartTest do
       assert html =~ "aria-label=\"Approved: 18 (69%)\""
       assert length(Regex.scan(~r/tabindex="0"/, html)) == 2
       assert html =~ "rounded-[3px]"
+      assert html =~ "group-has-[[data-item]:hover]/dim:not-hover:opacity-35"
       assert html =~ "69%" and html =~ "31%" and html =~ "0%"
       assert html =~ "Approved"
       assert html =~ ~r/>\s*26\s*</

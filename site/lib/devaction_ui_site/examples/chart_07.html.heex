@@ -1,0 +1,12 @@
+<%!-- title: Dashed series | text: Lines are solid; a series with dashed: true is drawn dashed, with a dashed key in the legend, so the shape also tells a forecast from a result. --%>
+<Chart.line_chart
+  id="chart-line-dashed"
+  summary="Revenue, done and forecast (dashed), from March to October"
+  first_column="MONTH"
+  labels={~w(Mar Apr May Jun Jul Aug Sep Oct)}
+  series={[
+    %{label: "Done", values: [48, 62, 55, 71, 80, 76, 92, 104]},
+    %{label: "Forecast", values: [50, 58, 60, 68, 78, 82, 95, 110], dashed: true}
+  ]}
+  format={&"#{&1}k"}
+/>

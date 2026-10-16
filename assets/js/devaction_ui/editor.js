@@ -8,6 +8,8 @@ import {
   uploadError,
   toolbarTarget,
   textboxAttributes,
+  hostNames,
+  uploadHeaders,
 } from "./editor_logic.js"
 
 /**
@@ -18,7 +20,9 @@ import {
  *
  * TipTap is loaded by `import("./editor_tiptap.js")` when the hook mounts, so a host that never renders an
  * editor does not need the TipTap packages installed. `data-invalid`, `data-disabled`, `data-labelledby` and
- * `data-described-by` are read on mount and on every update.
+ * `data-described-by` are read on mount and on every update. `data-csrf-meta`, `data-csrf-header`,
+ * `data-improve-event`, `data-replace-event` and `data-failed-event` name what the hook shares with its host
+ * (the defaults are Phoenix's).
  */
 export default {
   async mounted() {
@@ -35,8 +39,9 @@ export default {
     this.on("click", "[data-command]", (button) => this.run(button.dataset.command))
     this.on("change", "[data-style]", (select) => styles[select.value]?.(this.editor.chain().focus()).run())
     this.on("click", "[data-link]", () => this.openLink())
-    this.handleEvent("editor:replace", (payload) => this.replace(payload))
-    this.handleEvent("editor:failed", (payload) => payload.id === this.el.id && this.settle("failed"))
+    const names = hostNames(this.el.dataset)
+    this.handleEvent(names.replace, (payload) => this.replace(payload))
+    this.handleEvent(names.failed, (payload) => payload.id === this.el.id && this.settle("failed"))
     this.on("click", "[data-ai]", (button) => this.improve(button))
     this.on("click", "[data-image]", () => this.el.querySelector("[data-image-input]")?.click())
     this.on("change", "[data-image-input]", (input) => this.upload(input))
@@ -137,7 +142,7 @@ export default {
     button.disabled = true
     this.status(null)
     this.note("working")
-    this.pushEventTo(`#${this.el.id}`, "improve", {markdown})
+    this.pushEventTo(`#${this.el.id}`, hostNames(this.el.dataset).improve, {markdown})
   },
 
   replace({id, markdown}) {
@@ -167,13 +172,14 @@ export default {
     if (problem) return this.status(problem)
 
     this.status(null)
-    const token = document.querySelector("meta[name='csrf-token']")?.getAttribute("content")
+    const names = hostNames(this.el.dataset)
+    const token = document.querySelector(`meta[name='${names.csrfMeta}']`)?.getAttribute("content")
 
     const target = new URL(this.el.dataset.uploadUrl, location.href)
     if (target.origin !== location.origin) return this.status("failed")
 
     try {
-      const response = await fetch(target, {method: "POST", body: file, headers: {"x-csrf-token": token ?? "", "content-type": file.type}})
+      const response = await fetch(target, {method: "POST", body: file, headers: uploadHeaders({token, csrfHeader: names.csrfHeader, type: file.type})})
       const answer = await response.json().catch(() => null)
       if (!response.ok) return this.status(uploadError(answer))
       this.editor.chain().focus().setImage({src: answer.url, alt: file.name.replace(/\.[^.]+$/, "")}).run()

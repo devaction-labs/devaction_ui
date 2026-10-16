@@ -341,8 +341,11 @@
   .editor-root[data-disabled="true"] .editor { @apply bg-wrap opacity-60; }
   .editor-btn[data-ai] { @apply w-auto gap-1.5 border border-tag-warn-line bg-tag-warn-bg px-2.5 text-tag-warn-text hover:bg-tag-warn-bg hover:opacity-80 aria-pressed:bg-tag-warn-bg aria-pressed:text-tag-warn-text; }
   .editor-footer   { @apply flex items-center justify-between gap-2 rounded-b-xl border-t border-line bg-wrap/60 px-3 py-2; }
+  .editor-bar      { @apply flex flex-wrap items-center gap-2 rounded-b-xl border-t border-line bg-wrap/60 px-2 py-1.5; }
+  .editor-toolbar-inline { @apply flex flex-wrap items-center gap-0.5; }
+  .editor-bar .editor-btn:not([data-ai]) { @apply size-7.5; }
   .editor-sep      { @apply mx-1 h-4.5 w-px bg-line; }
-  .editor-btn      { @apply grid size-8.5 place-items-center rounded-lg text-ink-2 hover:bg-wrap aria-pressed:bg-line aria-pressed:text-ink; }
+  .editor-btn      { @apply grid size-8.5 place-items-center rounded-lg text-ink-2 hover:bg-wrap aria-pressed:bg-line-strong aria-pressed:text-ink; }
   .editor-content  { @apply min-h-40 px-5 py-4 leading-relaxed text-ink-2 outline-none
                             [&_h2]:mb-2 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:text-ink [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-ink
                             [&_ul]:mb-3 [&_ul]:list-disc [&_ul]:pl-5.5 [&_ol]:mb-3 [&_ol]:list-decimal [&_ol]:pl-5.5 [&_p]:mb-3
@@ -472,6 +475,13 @@
   .calendar      { @apply grid grid-cols-7 overflow-hidden rounded-xl border-t border-l border-line; }
   .calendar-cell { @apply flex min-h-23 flex-col gap-1 border-r border-b border-line px-2 py-1.5 text-left aria-selected:bg-wrap/70; }
   .calendar-event{ @apply flex items-center gap-1.5 truncate rounded-md px-1.5 py-0.5 text-[11px]; }
+  .calendar-hours { @apply grid overflow-hidden rounded-xl border border-line; grid-template-columns: 52px repeat(var(--cal-days), minmax(0, 1fr)); }
+  .calendar-hours-corner { @apply border-b border-line bg-wrap/60; }
+  .calendar-hours-head { @apply truncate border-b border-l border-line bg-wrap/60 px-2.5 py-2 text-[13px]; }
+  .calendar-hours-times { @apply flex flex-col; }
+  .calendar-hours-time { @apply h-14 pt-1 pr-2 text-right font-mono text-[11px] text-muted; }
+  .calendar-hours-day { @apply relative cursor-pointer border-l border-line outline-none focus-visible:z-10 focus-visible:ring-4 focus-visible:ring-ink/10 aria-selected:bg-wrap/40; height: calc(var(--cal-hours) * 56px); background-image: linear-gradient(var(--line-soft) 1px, transparent 1px); background-size: 100% 56px; }
+  .calendar-hours-event { @apply absolute box-border overflow-hidden rounded-lg border-l-[3px] px-2 py-1.5 text-xs leading-snug; }
   .timer         { @apply flex flex-col items-center gap-1.5 rounded-card border border-line bg-wrap/60 p-4.5 data-[running=true]:border-ok-line data-[running=true]:bg-ok-bg/50; }
   .timer-time    { @apply font-mono text-[44px] font-medium tracking-tight tabular-nums; }
   .signature-pad { @apply aspect-[360/170] w-full touch-none rounded-xl border border-dashed border-muted/60 bg-wrap/60; }
@@ -570,7 +580,7 @@
 .chart-tip-box {
   fill: var(--card);
   stroke: var(--line);
-  filter: drop-shadow(0 10px 30px rgb(24 24 27 / 0.12));
+  filter: drop-shadow(0 10px 30px light-dark(rgb(24 24 27 / 0.12), rgb(0 0 0 / 0.5)));
 }
 
 .range {

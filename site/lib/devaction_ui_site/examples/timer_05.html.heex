@@ -1,0 +1,10 @@
+<%!-- title: Mini Timer | text: The clock for the bar of the app: a dot (green while it runs) and hours and minutes, drawn by the same hook as the full timer. --%>
+<div class="flex flex-wrap items-center gap-6">
+  <Timer.timer_mini
+    id="timer-mini-running"
+    base={2843}
+    started_at={System.os_time(:second) - 30}
+    label="Timer running on DIA-142"
+  />
+  <Timer.timer_mini id="timer-mini-paused" base={2843} label="Timer paused on DIA-142" />
+</div>

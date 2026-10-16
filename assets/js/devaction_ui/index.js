@@ -19,6 +19,7 @@ import Dropzone from "./dropzone.js"
 import MoneyMask from "./money_mask.js"
 import NumberInput from "./number_input.js"
 import DataTable from "./data_table.js"
+import DateInput from "./date_input.js"
 import DatePicker from "./date_picker.js"
 import FilterMenu from "./filter_menu.js"
 import Indeterminate from "./indeterminate.js"
@@ -44,6 +45,7 @@ export const hooks = {
   "DevactionUI.CodeCopy": CodeCopy,
   "DevactionUI.Combobox": Combobox,
   "DevactionUI.DataTable": DataTable,
+  "DevactionUI.DateInput": DateInput,
   "DevactionUI.DatePicker": DatePicker,
   "DevactionUI.Dropdown": Dropdown,
   "DevactionUI.Dropzone": Dropzone,

@@ -2,7 +2,8 @@ defmodule DevactionUI.DataTable do
   @moduledoc """
   A table for lists that are worked on: sticky header, sortable columns (`aria-sort`, the server sorts and
   the table only draws the arrows), optional row selection with a tri-state header checkbox and a bulk
-  bar that appears while something is selected, two densities and an empty state.
+  bar that appears while something is selected, two densities, and the states of a list: loading, error and
+  empty.
 
   `rows` is a list, or a stream (`stream(socket, :rows, rows)`) when the table is long: then the body is a
   `phx-update="stream"` and the empty state shows on its own when the stream is empty.
@@ -17,10 +18,22 @@ defmodule DevactionUI.DataTable do
   `sort_none_icon` slots (a typographic arrow when empty).
 
   Texts (`select_all_label`, `select_row_label`, `selected_label` with `__COUNT__`, `clear_label`) come
-  from the caller, so the library carries no language of its own. There is no toolbar, density switch or
-  footer: the page puts a search and a `DevactionUI.Pagination` around the table.
+  from the caller, so the library carries no language of its own.
+
+  Around the rows: the `toolbar` slot sits above the table (a search, filter chips, the columns menu) and the
+  `footer` slot below it, for the range of the page ("1-6 of 33") and a `DevactionUI.Pagination`. With
+  `density_label` the toolbar ends with a toggle that switches between the two densities in the browser (`density`
+  is where it starts; the choice is kept across redraws), its icon the `density_icon` slot. `max_height` is a class
+  written in full, so the Tailwind of the app finds it through the `@source` of this package.
+
+  `loading` draws `loading_rows` rows of skeletons in place of the rows (named once for assistive technology by
+  `loading_label`, which it needs) and `error` draws its message, with the `error_action` slot for a retry button,
+  as an alert; the empty state is the `empty` slot, or the text `empty_text`. In a stream the rows stay in the page
+  while one of these shows, hidden.
   """
   use Phoenix.Component
+
+  import DevactionUI.Skeleton, only: [skeleton: 1]
 
   attr :id, :string, required: true
   attr :label, :string, required: true, doc: "what the table lists, for assistive technology"
@@ -38,7 +51,25 @@ defmodule DevactionUI.DataTable do
 
   attr :selectable, :boolean, default: false
   attr :name, :string, default: "selected", doc: "the field name of the row checkboxes (`name[]`)"
-  attr :density, :atom, values: [:comfortable, :compact], default: :comfortable
+
+  attr :density, :atom,
+    values: [:comfortable, :compact],
+    default: :comfortable,
+    doc: "the density the table starts in"
+
+  attr :density_label, :string,
+    default: nil,
+    doc: "names the density toggle at the end of the toolbar; without it there is no toggle"
+
+  attr :loading, :boolean, default: false, doc: "draws skeleton rows instead of the rows"
+  attr :loading_rows, :integer, default: 5, doc: "how many skeleton rows"
+
+  attr :loading_label, :string,
+    default: nil,
+    doc: "what is loading, read once by screen readers; required when `loading`"
+
+  attr :error, :string, default: nil, doc: "a message that replaces the rows, drawn as an alert"
+  attr :empty_text, :string, default: nil, doc: "what the empty state says when it has no slot"
   attr :selected, :list, default: [], doc: "the ids of the rows ticked at the first draw"
 
   attr :max_height, :string,
@@ -65,12 +96,19 @@ defmodule DevactionUI.DataTable do
 
   slot :bulk, doc: "the actions of the bulk bar"
   slot :empty, doc: "shown when there are no rows"
+  slot :toolbar, doc: "above the table: a search, filter chips, a menu of columns"
+  slot :footer, doc: "below the table: the range of the page and a pagination"
+  slot :density_icon, doc: "the icon of the density toggle"
+  slot :error_action, doc: "under the error: a retry button"
 
   attr :target, :any,
     default: nil,
     doc: "a `phx-target` (a `@myself`) when used inside a LiveComponent"
 
   attr :rest, :global
+
+  def data_table(%{loading: true, loading_label: nil}),
+    do: raise(ArgumentError, "data_table/1 needs a loading_label while it is loading")
 
   def data_table(assigns) do
     assigns =
@@ -85,9 +123,24 @@ defmodule DevactionUI.DataTable do
       id={@id}
       phx-hook="DevactionUI.DataTable"
       data-selected-label={@selected_label}
-      class={["flex flex-col gap-2", @class]}
+      data-density={@density}
+      class={["group/dt flex flex-col gap-2", @class]}
       {@rest}
     >
+      <div :if={@toolbar != [] or @density_label} class="flex flex-wrap items-center gap-2">
+        {render_slot(@toolbar)}
+        <button
+          :if={@density_label}
+          type="button"
+          data-density-toggle
+          aria-label={@density_label}
+          aria-pressed={to_string(@density == :compact)}
+          class="ml-auto grid size-9 place-items-center rounded-[10px] border border-line-strong bg-card text-ink-2 outline-none hover:bg-wrap focus-visible:ring-4 focus-visible:ring-ink/10 aria-pressed:bg-wrap aria-pressed:text-ink"
+        >
+          {(@density_icon != [] && render_slot(@density_icon)) || "≡"}
+        </button>
+      </div>
+      <p :if={@loading} role="status" class="sr-only">{@loading_label}</p>
       <div
         :if={@selectable}
         data-bulk
@@ -110,7 +163,7 @@ defmodule DevactionUI.DataTable do
       </div>
 
       <div class={["overflow-auto rounded-xl border border-line bg-card", @max_height]}>
-        <table class="w-full border-collapse text-left text-sm">
+        <table class="w-full border-collapse text-left text-sm" aria-busy={@loading && "true"}>
           <caption class="sr-only">{@label}</caption>
           <thead>
             <tr>
@@ -158,14 +211,18 @@ defmodule DevactionUI.DataTable do
               </th>
             </tr>
           </thead>
-          <tbody id={"#{@id}-body"} phx-update={@streaming && "stream"}>
+          <tbody
+            id={"#{@id}-body"}
+            phx-update={@streaming && "stream"}
+            hidden={@loading or @error != nil}
+          >
             <tr
               :for={{dom_id, row} <- @entries}
               id={dom_id}
               aria-selected={@selectable && to_string(selected?(@ticked, @row_id.(row)))}
               class="group/row hover:bg-wrap has-[input:checked]:bg-ink/[.03]"
             >
-              <td :if={@selectable} class={[td(@density), "w-10"]}>
+              <td :if={@selectable} class={[td(), "w-10"]}>
                 <input
                   type="checkbox"
                   data-select-row
@@ -176,7 +233,7 @@ defmodule DevactionUI.DataTable do
                   class="checkbox"
                 />
               </td>
-              <td :for={col <- @col} class={[td(@density), Map.get(col, :class)]}>
+              <td :for={col <- @col} class={[td(), Map.get(col, :class)]}>
                 {render_slot(col, row)}
               </td>
             </tr>
@@ -189,11 +246,37 @@ defmodule DevactionUI.DataTable do
                 colspan={columns(@col, @selectable)}
                 class="px-4 py-8 text-center text-muted"
               >
-                {render_slot(@empty)}
+                {(@empty != [] && render_slot(@empty)) || @empty_text}
+              </td>
+            </tr>
+          </tbody>
+          <tbody :if={@loading} aria-hidden="true">
+            <tr :for={row <- 1..max(@loading_rows, 1)//1}>
+              <td :if={@selectable} class={[td(), "w-10"]}>
+                <.skeleton class="size-5 rounded-md" />
+              </td>
+              <td :for={{_col, at} <- Enum.with_index(@col)} class={td()}>
+                <.skeleton class={bar_width(row + at)} />
+              </td>
+            </tr>
+          </tbody>
+          <tbody :if={@error && !@loading}>
+            <tr>
+              <td colspan={columns(@col, @selectable)} class="px-4 py-8 text-center">
+                <div role="alert" class="flex flex-col items-center gap-3">
+                  <span class="text-missing">{@error}</span>
+                  {render_slot(@error_action)}
+                </div>
               </td>
             </tr>
           </tbody>
         </table>
+      </div>
+      <div
+        :if={@footer != []}
+        class="flex flex-wrap items-center justify-between gap-3 text-[13px] text-muted"
+      >
+        {render_slot(@footer)}
       </div>
     </div>
     """
@@ -206,8 +289,10 @@ defmodule DevactionUI.DataTable do
     do:
       "sticky top-0 z-10 border-b border-line bg-card px-3 py-2.5 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-muted"
 
-  defp td(:comfortable), do: "border-b border-line-soft px-3 py-3 align-middle"
-  defp td(:compact), do: "border-b border-line-soft px-3 py-1.5 align-middle"
+  defp td,
+    do: "border-b border-line-soft px-3 py-3 align-middle group-data-[density=compact]/dt:py-1.5"
+
+  defp bar_width(index), do: Enum.at(["w-full", "w-3/4", "w-1/2"], rem(index, 3))
 
   defp columns(cols, true), do: length(cols) + 1
   defp columns(cols, false), do: length(cols)
