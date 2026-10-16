@@ -19,6 +19,7 @@ import MoneyMask from "./money_mask.js"
 import DataTable from "./data_table.js"
 import DatePicker from "./date_picker.js"
 import FilterMenu from "./filter_menu.js"
+import Indeterminate from "./indeterminate.js"
 import Kanban from "./kanban.js"
 import Pillbox from "./pillbox.js"
 import Popover from "./popover.js"
@@ -41,6 +42,7 @@ export const hooks = {
   "DevactionUI.Editor": Editor,
   "DevactionUI.MoneyMask": MoneyMask,
   "DevactionUI.FilterMenu": FilterMenu,
+  "DevactionUI.Indeterminate": Indeterminate,
   "DevactionUI.Kanban": Kanban,
   "DevactionUI.Pillbox": Pillbox,
   "DevactionUI.Popover": Popover,

@@ -220,7 +220,7 @@
                      disabled:border-line disabled:bg-wrap focus-visible:ring-4 focus-visible:ring-ink/10; }
   .radio    { @apply size-5 shrink-0 appearance-none rounded-full border-[1.5px] border-muted/70 bg-card
                      checked:border-[6px] checked:border-ink disabled:border-line disabled:bg-wrap focus-visible:ring-4 focus-visible:ring-ink/10; }
-  .choice-label { @apply flex min-h-11 cursor-pointer items-start gap-3 py-2 text-[15px]; }
+  .choice-label { @apply flex min-h-11 cursor-pointer items-start gap-3 py-2 text-[15px] text-ink has-disabled:cursor-not-allowed has-disabled:text-muted-2; }
   .choice-desc  { @apply text-[13px] text-muted; }
   .choice-card  { @apply flex cursor-pointer flex-col gap-2 rounded-[14px] border-[1.5px] border-line bg-card p-3.5 transition
                          hover:border-line-strong has-checked:border-ink has-checked:bg-wrap/70 has-focus-visible:ring-4 has-focus-visible:ring-ink/10; }
