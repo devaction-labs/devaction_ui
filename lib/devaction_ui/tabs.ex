@@ -133,13 +133,13 @@ defmodule DevactionUI.Tabs do
 
   defp tab_class(:line, :horizontal, size) do
     [
-      "border-b-2 border-transparent px-3.5 text-muted focus-visible:ring-inset aria-selected:border-ink aria-selected:font-semibold aria-selected:text-ink",
+      "border-b-2 border-transparent px-3.5 text-muted focus-visible:ring-inset aria-selected:border-ink aria-selected:font-medium aria-selected:text-ink",
       line_size(size)
     ]
   end
 
   defp tab_class(:line, :vertical, _size) do
-    "-ms-px h-11 border-s-2 border-transparent px-3.5 text-muted aria-selected:border-ink aria-selected:font-semibold aria-selected:text-ink"
+    "-ms-px h-11 border-s-2 border-transparent px-3.5 text-muted aria-selected:border-ink aria-selected:font-medium aria-selected:text-ink"
   end
 
   defp line_size(:md), do: "h-11"

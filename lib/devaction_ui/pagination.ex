@@ -137,7 +137,8 @@ defmodule DevactionUI.Pagination do
           aria-current={entry == @page && "page"}
           class={[
             cell(@size),
-            (entry == @page && "bg-ink text-on-primary") || "text-ink-2 hover:bg-wrap"
+            (entry == @page && "border border-ink bg-ink text-on-primary") ||
+              "border border-line bg-card text-ink hover:bg-wrap"
           ]}
         >
           {entry}
@@ -170,7 +171,7 @@ defmodule DevactionUI.Pagination do
       role="link"
       aria-disabled="true"
       aria-label={@label}
-      class={[cell(@size), "border border-line-strong bg-card text-ink opacity-40"]}
+      class={[cell(@size), "border border-line bg-card text-ink opacity-40"]}
     >
       <span aria-hidden="true">{@icon}</span>
     </span>
@@ -182,7 +183,7 @@ defmodule DevactionUI.Pagination do
     <.link
       {link_attrs(@kind, @path.(@target))}
       aria-label={@label}
-      class={[cell(@size), "border border-line-strong bg-card text-ink"]}
+      class={[cell(@size), "border border-line bg-card text-ink hover:bg-wrap"]}
     >
       <span aria-hidden="true">{@icon}</span>
     </.link>
