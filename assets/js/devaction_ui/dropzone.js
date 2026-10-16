@@ -8,7 +8,7 @@ import {depthAfter, isOver, overText} from "./dropzone_logic.js"
 export default {
   mounted() {
     this.depth = 0
-    this.area = this.el.querySelector("[phx-drop-target]")
+    this.area = this.el.querySelector("[phx-drop-target]") ?? this.el.querySelector("[data-drop-area]")
     this.status = this.el.querySelector("[data-over-status]")
     ;["dragenter", "dragleave", "drop"].forEach((type) => this.el.addEventListener(type, () => this.track(type)))
   },

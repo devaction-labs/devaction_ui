@@ -1,0 +1,27 @@
+<%!-- title: A file over the area | text: While a file is dragged over the area it turns amber and says what it will do; `dragging` draws that state for a page that shows it. --%>
+<Dropzone.queue
+  id="dropzone-over"
+  title="Drop files or click to choose"
+  hint="PDF, PNG or JPG · up to 25 MB each · at most 10"
+  over_title="Release to upload"
+  over_hint="3 files · 4.2 MB"
+  dragging
+  entries={[]}
+  labels={
+    %{
+      sent: "Sent",
+      uploading: "uploading · %{size}",
+      queued: "Queued",
+      failed: "Connection dropped",
+      stopped: "stopped at %{percent}%",
+      rejected: "Type not accepted",
+      rejected_hint: "use PDF, PNG or JPG",
+      retry: "Try again",
+      cancel: "Cancel %{name}",
+      remove: "Remove %{name}"
+    }
+  }
+  class="max-w-xl"
+>
+  <:icon><.icon name="arrow-up-02" class="size-5.5" /></:icon>
+</Dropzone.queue>

@@ -1,0 +1,32 @@
+<%!-- title: States | text: Empty, typing, wrong and right: the border of the boxes, the colour of the digits and the helper (an alert when wrong) follow `status`. | layout: center --%>
+<div class="flex flex-col items-center gap-5">
+  <Segmented.segmented
+    id="otp-states"
+    label="State"
+    value={@otp.state}
+    event="otp_state"
+    size={:sm}
+  >
+    <:option value="empty" label="Empty" />
+    <:option value="typing" label="Typing" />
+    <:option value="error" label="Wrong" />
+    <:option value="ok" label="Right" />
+  </Segmented.segmented>
+  <OtpInput.input
+    id="otp-states-code"
+    name="otp_states"
+    label="Verification code"
+    box_label="Digit %{n} of %{total}"
+    value={@otp.value}
+    status={@otp.status}
+    separator_after={3}
+    helper={@otp.helper}
+  >
+    <:resend>
+      Didn't arrive?
+      <span class={["font-medium", (@otp.state == "error" && "text-ink") || "text-muted-2"]}>
+        {(@otp.state == "error" && "Resend code") || "Resend in 0:24"}
+      </span>
+    </:resend>
+  </OtpInput.input>
+</div>

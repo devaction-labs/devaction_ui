@@ -115,6 +115,7 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 | `DevactionUI.Editor` | a TipTap toolbar and surface that sends HTML and Markdown in hidden inputs; `/` blocks, `@` mentions, image upload, an AI tool, a compact comment form, visible label, error and disabled; `toolbar_position` for a compact editor with the toolbar at the bottom, and attrs for the CSRF header and the event names of uploads |
 | `DevactionUI.Autocomplete` | a field with grouped suggestions (the server searches), the match in bold, ↑ ↓ Enter, ⌘↵ for an "ask the AI" row |
 | `DevactionUI.DatePicker` | a month calendar for one day or a range, keyboard grid, shortcuts, dates as ISO in hidden inputs; plus `due_chip/1` (late, today, later); `date_input/1` (a masked field with the calendar in a popover) and `date_range/1` (two linked fields) |
+| `DevactionUI.DateRange` | a trigger that shows a range and a popover with ready-made ranges, two months with the band and a hover preview, the days picked and Cancel / Apply; ISO dates in two hidden inputs, and an optional column for a `TimeField` |
 | `DevactionUI.Calendar` | a month or a week of days with coloured event chips, a keyboard grid (arrows, Home, End, Page keys); `title` and `cell_label` come from the caller; the week view has an hours grid (`hours` range, `weekend`, events with `starts_at`/`ends_at`), a `legend` slot and the `:chart_1` to `:chart_4` kinds |
 | `DevactionUI.Popover` | a panel with an arrow anchored to a button; Esc and outside click close it, focus goes in and comes back |
 | `DevactionUI.ToastGroup` | notices stacked into layers with a count, opened into a list, auto-dismissing and pausing on hover |
@@ -129,7 +130,7 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 | `DevactionUI.MoneyInput` | a field masked as `R$ 1.234,56` (`DevactionUI.MoneyMask` hook); `parse/1` returns the cents |
 | `DevactionUI.Dropdown` | a button with a menu of actions or choices (radio items with a check), ↑ ↓ Home End Esc |
 | `DevactionUI.ConfirmDialog` | the modal that asks before something that cannot be taken back; focus trapped, Esc closes |
-| `DevactionUI.Dropzone` | the dashed area over a LiveView upload; lights up (and announces it) while a file is over it, writes the limits from the upload config, lists each file with a progress bar and a remove button |
+| `DevactionUI.Dropzone` | the dashed area over a LiveView upload; lights up (and announces it) while a file is over it, writes the limits from the upload config, lists each file with a progress bar and a remove button; `queue/1` adds the gridded area and a row per file (sent, uploading, stopped with Try again, queued, refused), the summary and Clear finished |
 | `DevactionUI.Choice` | checkbox (with the partial state and a task style), radio, choice card, and the `checkbox_group/1` and `radio_group/1` fieldsets with help and error |
 | `DevactionUI.Switch` | a `role="switch"` button for what takes effect at once; `name` makes it a form field through a hidden input; row, card and the `saved_note/1` live region |
 | `DevactionUI.Segmented` | a pill of toggle buttons (`aria-pressed`) with a roving tabindex and arrow keys, counts, disabled options and `patch`/`navigate` |
@@ -142,6 +143,8 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 | `DevactionUI.ProgressToast` | a notice that fills as a job advances, with an aura, and leaves by itself when it is done |
 | `DevactionUI.Skeleton` | a shimmering placeholder |
 | `DevactionUI.Timer` | hours on a task in large mono digits (`HH:MM:SS`), start or pause and stop and log; the server owns the seconds, the browser only draws them between updates; `timer_mini/1` (a dot and `HH:MM` for the app bar) and `time_log/1` (the list of what was logged today) |
+| `DevactionUI.TimeField` | a start and an end time as `HH:MM` text with the suggestions around the one in focus (each with its length), the chosen one inverted, the duration and a note; arrows, Enter and a mask |
+| `DevactionUI.OtpInput` | the boxes of a one-time code: paste fills them all, Backspace steps back, `autocomplete="one-time-code"`, the joined code in one hidden input; idle, error and ok states, a helper line and a resend slot |
 | `DevactionUI.Spinner` | a spinning ring |
 | `DevactionUI.Field` | the label (required `*`, an `optional` word), hint, error with icon and `182 / 200` counter around any input; hands the ids (`aria-describedby`, `aria-invalid`, `aria-required`) to the input through `:let={field}` |
 | `DevactionUI.DescriptionList` | term and value rows in a real `dl`, hairlines between them; an item can be a link, a tone or monospace; `:inline` or `:stacked` |

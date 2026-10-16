@@ -1,0 +1,20 @@
+<%!-- title: Another step | text: `step` is the minutes between two suggestions and between two presses of the arrows. --%>
+<div class="max-w-[300px]">
+  <TimeField.input
+    id="time-field-step"
+    start_name="step_start"
+    end_name="step_end"
+    start_value="14:00"
+    end_value="15:30"
+    start_label="Start"
+    end_label="End"
+    list_label="Times"
+    duration_label="Duration"
+    hours_label="%{count} h"
+    minutes_label="%{count} min"
+    step={30}
+    note="30 min steps"
+  >
+    <:icon><.icon name="clock-01" class="size-[15px]" /></:icon>
+  </TimeField.input>
+</div>

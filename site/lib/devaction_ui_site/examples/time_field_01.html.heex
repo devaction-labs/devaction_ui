@@ -1,0 +1,19 @@
+<%!-- title: Basic | text: A start and an end with the suggestions around the one in focus, the length of each from the start, the chosen one inverted, and the duration. Type digits (930 becomes 09:30) or use the arrows. --%>
+<div class="max-w-[300px]">
+  <TimeField.input
+    id="time-field-basic"
+    start_name="basic_start"
+    end_name="basic_end"
+    start_value="09:00"
+    end_value="11:15"
+    start_label="Start"
+    end_label="End"
+    list_label="Times"
+    duration_label="Duration"
+    hours_label="%{count} h"
+    minutes_label="%{count} min"
+    note="Zone: America/Bahia (UTC−3) · 15 min steps"
+  >
+    <:icon><.icon name="clock-01" class="size-[15px]" /></:icon>
+  </TimeField.input>
+</div>

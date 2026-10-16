@@ -1,0 +1,31 @@
+<%!-- title: Aligned to the end, week from Monday | text: `align` lines the panel up with the right edge of the trigger, `week_start` and `locale` follow the language of the page. --%>
+<div class="flex justify-end pb-4">
+  <DateRange.picker
+    id="date-range-end"
+    name="report"
+    label="Choose the period"
+    value={{"2026-10-05", "2026-10-11"}}
+    today="2026-10-15"
+    locale="en-GB"
+    week_start={1}
+    align={:end}
+    portal
+    placeholder="Choose the period"
+    previous_label="Previous month"
+    next_label="Next month"
+    presets_label="Ready-made ranges"
+    count_label="%{count} days selected"
+    one_label="1 day selected"
+    pending_label="Pick the end date"
+    cancel_label="Cancel"
+    apply_label="Apply"
+  >
+    <:icon><.icon name="calendar-03" class="size-4" /></:icon>
+    <:prev_icon><.icon name="arrow-left-01" class="size-3.5" /></:prev_icon>
+    <:next_icon><.icon name="arrow-right-01" class="size-3.5" /></:next_icon>
+    <:preset from="2026-10-12" to="2026-10-18">Next week</:preset>
+    <:preset from="2026-10-05" to="2026-10-11">This week</:preset>
+    <:preset from="2026-09-28" to="2026-10-04">Last week</:preset>
+    <:preset>Custom</:preset>
+  </DateRange.picker>
+</div>
