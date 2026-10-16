@@ -298,7 +298,7 @@ defmodule DevactionUI.Composer do
     <span :if={@kind != ""} class="composer-file-kind" aria-hidden="true">{@kind}</span>
     <span class="flex min-w-0 flex-col pr-2">
       <span class="truncate font-medium">{@entry.client_name}</span>
-      <span class="text-[11px] text-muted">{@detail}</span>
+      <span class="text-[11px] text-ink-2">{@detail}</span>
     </span>
     """
   end

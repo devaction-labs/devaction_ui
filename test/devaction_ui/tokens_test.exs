@@ -44,6 +44,12 @@ defmodule DevactionUI.TokensTest do
     end
   end
 
+  for scheme <- [:light, :dark], background <- ["frame", "wrap"] do
+    test "muted-chrome reads on the #{background} in the #{scheme} theme" do
+      assert ratio("muted-chrome", unquote(background), unquote(scheme)) >= 4.5
+    end
+  end
+
   test "every tone has the four tag tokens" do
     for tone <- @tones, part <- ["line", "bg", "text", "strong"] do
       assert Map.has_key?(@tokens, "tag-#{tone}-#{part}")
