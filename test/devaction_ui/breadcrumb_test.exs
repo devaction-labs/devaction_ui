@@ -109,6 +109,14 @@ defmodule DevactionUI.BreadcrumbTest do
     assert length(Regex.scan(~r/aria-current="page"/, html)) == 1
   end
 
+  test "the collapsed list has a hook that leaves its open state to the browser" do
+    html = render_long(3)
+
+    assert html =~ ~r/<details[^>]*id="breadcrumb-\d+-more"/
+    assert html =~ ~s(phx-hook="DevactionUI.Breadcrumb")
+    assert html =~ "ignore_attrs"
+  end
+
   test "a trail that fits in max is not collapsed, and without max never is" do
     refute render_long(6) =~ "<details"
     refute render_long(nil) =~ "<details"

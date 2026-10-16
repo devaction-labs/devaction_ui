@@ -9,6 +9,7 @@
  * `text.js`, with a test beside it (`npm test`, which is Node's own runner and installs nothing).
  */
 import Autocomplete from "./autocomplete.js"
+import Breadcrumb from "./breadcrumb.js"
 import Calendar from "./calendar.js"
 import ColorPicker from "./color_picker.js"
 import CodeCopy from "./code_copy.js"
@@ -48,6 +49,7 @@ import Tooltip from "./tooltip.js"
 
 export const hooks = {
   "DevactionUI.Autocomplete": Autocomplete,
+  "DevactionUI.Breadcrumb": Breadcrumb,
   "DevactionUI.Calendar": Calendar,
   "DevactionUI.ColorPicker": ColorPicker,
   "DevactionUI.CodeCopy": CodeCopy,
