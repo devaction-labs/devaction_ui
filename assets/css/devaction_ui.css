@@ -398,7 +398,7 @@
   .timer         { @apply flex flex-col items-center gap-1.5 rounded-card border border-line bg-wrap/60 p-4.5 data-[running=true]:border-ok-line data-[running=true]:bg-ok-bg/50; }
   .timer-time    { @apply font-mono text-[44px] font-medium tracking-tight tabular-nums; }
   .signature-pad { @apply aspect-[360/170] w-full touch-none rounded-xl border border-dashed border-muted/60 bg-wrap/60; }
-  .signature-typed { @apply font-['Caveat',cursive] text-4xl text-ink; }
+  .signature-typed { @apply text-[40px] font-medium text-ink; font-family: var(--signature-font, 'Caveat', cursive); }
 
   :root {
     --auth-bg: light-dark(var(--frame), #0C0C12);

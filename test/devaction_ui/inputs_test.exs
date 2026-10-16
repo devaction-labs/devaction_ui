@@ -648,6 +648,90 @@ defmodule DevactionUI.InputsTest do
       assert html =~ ~r/<button[^>]* disabled/
     end
 
+    defp signed(extra) do
+      assigns = %{extra: extra}
+
+      rendered_to_string(~H"""
+      <SignatureField.signature_field
+        id="sig"
+        name="signature"
+        mode={@extra[:mode] || :draw}
+        typed="Maria"
+        label="Sign"
+        mode_event="mode"
+        draw_label="Draw"
+        type_label="Type"
+        clear_label="Clear"
+        guide_label={@extra[:guide_label]}
+        typed_label={@extra[:typed_label]}
+        font={@extra[:font]}
+        required={@extra[:required] || false}
+        error={@extra[:error]}
+        disabled={@extra[:disabled] || false}
+      />
+      """)
+    end
+
+    test "the guide line carries its text only when given" do
+      assert signed(%{guide_label: "Sign above the line"}) =~
+               ~r/<text[^>]*x="24"[^>]*y="148"[^>]*>\s*Sign above the line/
+
+      refute signed(%{}) =~ "<text"
+    end
+
+    test "the name field has a visible label of its own, or is named by the field's label" do
+      labelled = signed(%{mode: :type, typed_label: "Full name"})
+      assert labelled =~ ~r/<label[^>]*for="sig-typed"[^>]*>\s*Full name/
+      refute labelled =~ ~r/<input[^>]*id="sig-typed"[^>]*aria-label/
+
+      plain = signed(%{mode: :type})
+      refute plain =~ "<label"
+      assert plain =~ ~r/<input[^>]*id="sig-typed"[^>]*aria-label="Sign"/
+    end
+
+    test "required reaches the name field and an error marks it invalid and tied to the message" do
+      assert signed(%{mode: :type, required: true}) =~ ~r/<input[^>]*id="sig-typed"[^>]* required/
+      refute signed(%{mode: :type}) =~ ~r/<input[^>]*id="sig-typed"[^>]* required/
+
+      html = signed(%{mode: :type, error: "Name it"})
+      assert html =~ ~r/<input[^>]*id="sig-typed"[^>]*aria-invalid="true"/
+      assert html =~ ~r/<input[^>]*id="sig-typed"[^>]*aria-describedby="sig-error"/
+      assert html =~ ~r/<p[^>]*id="sig-error"[^>]*role="alert"/
+    end
+
+    test "an error on the pad marks it for the border" do
+      assert signed(%{error: "Sign here"}) =~ ~s(data-invalid="true")
+      refute signed(%{}) =~ "data-invalid"
+    end
+
+    test "a disabled field is inert, dimmed, and its buttons and name field are disabled" do
+      draw = signed(%{disabled: true})
+      assert draw =~ ~r/<div[^>]* inert/
+      assert draw =~ "opacity-50"
+      assert length(Regex.scan(~r/<button[^>]* disabled/, draw)) == 2
+
+      assert signed(%{mode: :type, disabled: true}) =~
+               ~r/<input[^>]*id="sig-typed"[^>]* disabled/
+
+      refute signed(%{}) =~ "inert"
+    end
+
+    test "the font of the typed name is a hook point, and only a plain font-family is taken" do
+      assert signed(%{mode: :type, font: "'Dancing Script', cursive"}) =~
+               ~s(style="--signature-font: &#39;Dancing Script&#39;, cursive")
+
+      refute signed(%{mode: :type}) =~ "--signature-font"
+      refute signed(%{mode: :type, font: "x; background: url(//evil)"}) =~ "--signature-font"
+      refute signed(%{mode: :type, font: ~s(a"><script>)}) =~ "--signature-font"
+    end
+
+    test "the stylesheet sets the typed name in 40px Caveat unless the font is given" do
+      css = File.read!("assets/css/devaction_ui.css")
+
+      assert css =~ ~r/\.signature-typed\s+\{[^}]*text-\[40px\]/
+      assert css =~ ~r/\.signature-typed\s+\{[^}]*var\(--signature-font, 'Caveat', cursive\)/
+    end
+
     test "typing: the name field and its look, with no pad" do
       html = field(:type)
 
