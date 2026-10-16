@@ -351,8 +351,15 @@
   .signature-pad { @apply h-42 touch-none rounded-xl border border-dashed border-muted/60 bg-wrap/60; }
   .signature-typed { @apply font-['Caveat',cursive] text-4xl text-ink; }
 
-  .auth-page   { @apply flex min-h-screen p-4 text-ink; background: light-dark(var(--frame), #0C0C12); }
-  .auth-frame  { @apply flex flex-1 flex-col gap-7 rounded-[22px] border px-8 py-12; border-color: light-dark(var(--line), #24242E); background: light-dark(var(--panel), #101016); }
+  :root {
+    --auth-bg: light-dark(var(--frame), #0C0C12);
+    --auth-frame: light-dark(var(--panel), #101016);
+    --auth-frame-line: light-dark(var(--line), #24242E);
+    --brand-tile: #060C1F;
+    --brand-tile-line: #383D4B;
+  }
+  .auth-page   { @apply flex min-h-screen p-4 text-ink; background: var(--auth-bg); }
+  .auth-frame  { @apply flex flex-1 flex-col gap-7 rounded-[22px] border px-8 py-12; border-color: var(--auth-frame-line); background: var(--auth-frame); }
   .auth-card   { @apply relative overflow-hidden rounded-[18px] border border-line-strong bg-panel; box-shadow: 0 30px 80px light-dark(rgb(24 24 27 / 0.12), rgb(0 0 0 / 0.45)); }
   .auth-icon   { @apply grid size-14 place-items-center rounded-2xl border border-line-strong bg-card text-ink; box-shadow: 0 10px 30px color-mix(in oklab, var(--ai) 18%, transparent); }
   .auth-grid   { @apply pointer-events-none absolute inset-x-0 top-0 h-60;

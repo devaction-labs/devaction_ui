@@ -14,6 +14,7 @@ defmodule DevactionUI.AuthTest do
       rendered_to_string(~H"""
       <AuthLayout.auth_layout
         about_label="About the product"
+        nav_label="Legal"
         headline="Contracts, code and learning in one place."
         copyright="© 2026 DevAction Labs"
       >
@@ -45,6 +46,33 @@ defmodule DevactionUI.AuthTest do
       assert html =~ "© 2026 DevAction Labs"
       assert html =~ ~s(href="/terms")
       assert html =~ ~s(href="/privacy")
+    end
+
+    test "the columns are the main landmark and the footer links a named nav" do
+      html = layout()
+
+      assert html =~ ~r/<main id="main"[^>]*>.*the-card.*<\/main>/s
+      assert html =~ ~r/<footer.*<nav aria-label="Legal".*href="\/terms".*<\/footer>/s
+    end
+
+    test "the id of main is the host's, for its skip link" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <AuthLayout.auth_layout
+          about_label="A"
+          nav_label="N"
+          main_id="content"
+          headline="H"
+          copyright="C"
+        >
+          <:brand>B</:brand>
+          x
+        </AuthLayout.auth_layout>
+        """)
+
+      assert html =~ ~s(<main id="content")
     end
 
     test "the icons of the reasons are hidden from assistive technology" do
@@ -89,6 +117,46 @@ defmodule DevactionUI.AuthTest do
       assert html =~ "<strong>alex@devaction.com.br</strong>"
     end
 
+    test "the heading is an h2 when the card is not the page" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H|<AuthCard.auth_card title="T" heading={:h2}>x</AuthCard.auth_card>|)
+
+      assert html =~ ~r/<h2 class="[^"]*">T<\/h2>/
+      refute html =~ "<h1"
+    end
+
+    test "the brand tone puts the icon on the product's tile, through tokens" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <AuthCard.auth_card title="T" icon_tone={:brand}>
+          <:icon>I</:icon>
+          x
+        </AuthCard.auth_card>
+        """)
+
+      assert html =~ "bg-(--brand-tile)"
+      assert html =~ "border-(--brand-tile-line)"
+      refute html =~ "#060C1F"
+    end
+
+    test "the footer strip is px-7 py-[18px] on a line" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <AuthCard.auth_card title="T">
+          x
+          <:footer>F</:footer>
+        </AuthCard.auth_card>
+        """)
+
+      assert html =~ "border-t border-line bg-wrap px-7 py-[18px]"
+    end
+
     test "without an icon or a footer neither is drawn" do
       assigns = %{}
 
@@ -119,7 +187,7 @@ defmodule DevactionUI.AuthTest do
 
       assert_raise ArgumentError, fn ->
         rendered_to_string(~H"""
-        <AuthLayout.auth_layout about_label="A" headline="H" copyright="C">
+        <AuthLayout.auth_layout about_label="A" nav_label="N" headline="H" copyright="C">
           <:brand>B</:brand>
           <:link href="javascript:alert(1)">Bad</:link>
           x
