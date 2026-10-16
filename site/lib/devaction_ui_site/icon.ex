@@ -6,6 +6,8 @@ defmodule DevactionUISite.Icon do
   """
   use Phoenix.Component
 
+  alias DevactionUISite.Endpoint
+
   attr :name, :string, required: true
   attr :class, :string, default: nil
   attr :label, :string, default: nil
@@ -20,7 +22,7 @@ defmodule DevactionUISite.Icon do
       aria-hidden={is_nil(@label) && "true"}
       {@rest}
     >
-      <use href={"/images/hugeicons.svg#hi-" <> @name} />
+      <use href={Endpoint.static_path("/images/hugeicons.svg") <> "#hi-" <> @name} />
     </svg>
     """
   end

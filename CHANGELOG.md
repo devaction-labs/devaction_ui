@@ -2,6 +2,12 @@
 
 Every release lists new components, improvements, fixes and breaking changes. While the version is 0.x a minor release may break compatibility, and every break is listed with the step to follow.
 
+## 0.2.1
+
+### Fixed
+
+- The documentation site serves its scripts, styles and icons under digested names, so a cache in front of it can no longer hand a page an older script, and its content security policy allows the Cloudflare analytics script.
+
 ## 0.2.0
 
 ### New

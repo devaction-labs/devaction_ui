@@ -2,6 +2,8 @@ defmodule DevactionUISite.Layouts do
   @moduledoc "The document around every page: styles, the theme script and the LiveView script."
   use Phoenix.Component
 
+  alias DevactionUISite.Endpoint
+
   def root(assigns) do
     ~H"""
     <!DOCTYPE html>
@@ -11,11 +13,11 @@ defmodule DevactionUISite.Layouts do
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="csrf-token" content={Plug.CSRFProtection.get_csrf_token()} />
         <.live_title default="DevactionUI">{assigns[:page_title]}</.live_title>
-        <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
-        <link rel="stylesheet" href="/assets/css/site.css" />
-        <script src="/assets/js/theme.js">
+        <link rel="icon" type="image/svg+xml" href={Endpoint.static_path("/images/favicon.svg")} />
+        <link rel="stylesheet" href={Endpoint.static_path("/assets/css/site.css")} />
+        <script src={Endpoint.static_path("/assets/js/theme.js")}>
         </script>
-        <script defer src="/assets/js/app.js">
+        <script defer src={Endpoint.static_path("/assets/js/app.js")}>
         </script>
       </head>
       <body class="bg-frame text-ink antialiased">
