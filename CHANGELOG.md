@@ -2,6 +2,16 @@
 
 Every release lists new components, improvements, fixes and breaking changes. While the version is 0.x a minor release may break compatibility, and every break is listed with the step to follow.
 
+## 0.2.4
+
+### Fixed
+
+- The documentation's example cards no longer cut off a floating panel (combobox, dropdown, popover, date picker) that opens inside them.
+
+### Improved
+
+- The site's changelog lists every release of the series with what it fixed or broke, and the site footer carries the dedication.
+
 ## 0.2.3
 
 ### Breaking changes

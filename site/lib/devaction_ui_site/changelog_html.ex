@@ -140,6 +140,10 @@ defmodule DevactionUISite.ChangelogHTML do
             </div>
           </div>
         </div>
+
+        <p class="m-0 mx-auto max-w-[1200px] px-5 pb-12 pt-4 text-center text-[13px] text-(--cl-ink-2)">
+          Toda honra e glória ao Senhor Jesus.
+        </p>
       </main>
     </div>
     """

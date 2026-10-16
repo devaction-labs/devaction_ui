@@ -80,6 +80,9 @@ defmodule DevactionUISite.Shell do
         <main id="main" class="min-w-0 px-5 pt-9 pb-16 sm:px-12">
           <div class="mx-auto max-w-[900px]">
             {render_slot(@inner_block)}
+            <p class="m-0 mt-16 border-t border-line pt-6 text-center text-[13px] text-muted">
+              Toda honra e glória ao Senhor Jesus.
+            </p>
           </div>
         </main>
 

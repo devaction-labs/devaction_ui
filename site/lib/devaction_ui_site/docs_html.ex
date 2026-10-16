@@ -534,11 +534,11 @@ new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
 
   defp code_card(assigns) do
     ~H"""
-    <div id={@id} class="overflow-hidden rounded-2xl border border-line bg-card">
+    <div id={@id} class="rounded-2xl border border-line bg-card [overflow-x:clip]">
       <div
         role="tablist"
         aria-label="View"
-        class="flex h-[45px] items-center gap-1 border-b border-cp-line pr-2 pl-3"
+        class="flex h-[45px] items-center gap-1 rounded-t-2xl border-b border-cp-line pr-2 pl-3"
       >
         <button
           id={"tab-preview-" <> @id}
@@ -597,7 +597,7 @@ new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
         role="tabpanel"
         aria-labelledby={"tab-preview-" <> @id}
         data-flip="false"
-        class={["site-pv flex min-h-[234px]", @preview_class]}
+        class={["site-pv flex min-h-[234px] rounded-b-2xl", @preview_class]}
       >
         {render_slot(@preview)}
       </div>
@@ -606,7 +606,7 @@ new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
         id={"code-" <> @id}
         role="tabpanel"
         aria-labelledby={"tab-code-" <> @id}
-        class="hidden max-h-[28rem] overflow-auto bg-code"
+        class="hidden max-h-[28rem] overflow-auto rounded-b-2xl bg-code"
       >
         <CodeBlock.code_block
           tone={:dark}

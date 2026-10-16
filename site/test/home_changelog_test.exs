@@ -82,7 +82,7 @@ defmodule DevactionUISite.HomeChangelogTest do
   end
 
   describe "changelog" do
-    test "renders the header, the filters with their counts and the three versions" do
+    test "renders the header, the filters with their counts and every version" do
       {:ok, view, _html} = live(build_conn(), "/changelog")
       counts = Changelog.counts(Changelog.versions())
 
@@ -91,33 +91,39 @@ defmodule DevactionUISite.HomeChangelogTest do
       assert has_element?(view, "[data-filter=planned]", "1")
       assert has_element?(view, "[data-filter=breaking]", "#{counts["breaking"]}")
       assert has_element?(view, "#v03[data-release]", "no date")
-      assert has_element?(view, "#v02[data-release]", "tag v0.2.0")
-      assert has_element?(view, "#v01[data-release]", "tag v0.1.0")
+      assert has_element?(view, "#v024[data-release]", "tag v0.2.4")
+      assert has_element?(view, "#v023[data-release]", "tag v0.2.3")
+      assert has_element?(view, "#v022[data-release]", "tag v0.2.2")
+      assert has_element?(view, "#v021[data-release]", "tag v0.2.1")
+      assert has_element?(view, "#v020[data-release]", "tag v0.2.0")
+      assert has_element?(view, "#v010[data-release]", "tag v0.1.0")
     end
 
-    test "v0.2 has the install line and a table per group listing what is new" do
+    test "the current version has the install line, and v0.2.0 a table per group listing what is new" do
       {:ok, view, html} = live(build_conn(), "/changelog")
 
-      assert html =~ "tag: &quot;v0.2.0&quot;"
-      assert has_element?(view, "#v02 [data-copy-text*='v0.2.0']")
+      assert html =~ "tag: &quot;v0.2.4&quot;"
+      assert has_element?(view, "#v024 [data-copy-text*='v0.2.4']")
 
       for group <- ~w(Base Overlay Form Data) do
-        assert has_element?(view, "#v02-#{String.downcase(group)}[data-group]", group)
+        assert has_element?(view, "#v020-#{String.downcase(group)}[data-group]", group)
       end
 
       for topic <- Catalog.all(), Catalog.since(topic) == "0.2" do
-        assert has_element?(view, "#v02 li[data-kind=new] a[href='/c/#{topic.slug}']")
+        assert has_element?(view, "#v020 li[data-kind=new] a[href='/c/#{topic.slug}']")
       end
 
-      assert has_element?(view, "#v02 li[data-kind=breaking]", "confirm_dialog")
-      assert has_element?(view, "#v02 li[data-kind=improved]", "toast_group")
+      assert has_element?(view, "#v020 li[data-kind=breaking]", "confirm_dialog")
+      assert has_element?(view, "#v020 li[data-kind=improved]", "toast_group")
+      assert has_element?(view, "#v023 li[data-kind=breaking]", "toast_group")
+      assert has_element?(view, "#v021 li[data-kind=fixed]", "site_assets")
     end
 
-    test "v0.1 lists the components it came with" do
+    test "v0.1.0 lists the components it came with" do
       {:ok, view, _html} = live(build_conn(), "/changelog")
 
       for topic <- Catalog.all(), Catalog.since(topic) == "0.1" do
-        assert has_element?(view, "#v01 li[data-kind=new] a[href='/c/#{topic.slug}']")
+        assert has_element?(view, "#v010 li[data-kind=new] a[href='/c/#{topic.slug}']")
       end
     end
 
@@ -135,7 +141,7 @@ defmodule DevactionUISite.HomeChangelogTest do
       {:ok, view, _html} = live(build_conn(), "/changelog")
       {:ok, tabs} = Catalog.fetch("tabs")
 
-      assert has_element?(view, "#v01-base li", Catalog.summary(tabs))
+      assert has_element?(view, "#v010-base li", Catalog.summary(tabs))
     end
   end
 end
