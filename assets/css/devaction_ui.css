@@ -333,7 +333,7 @@
   .accordion-chevron    { @apply size-4.5 text-muted transition-transform duration-200 [details[open]>summary_&]:rotate-180; }
   .accordion-panel      { @apply pr-8 pb-4.5 text-sm leading-relaxed text-ink-2; }
   .accordion-card       { @apply overflow-hidden rounded-[14px] border border-line bg-card open:border-line-strong [&[open]>summary]:bg-wrap/60; }
-  .accordion-card > .accordion-panel { @apply border-t border-line-soft px-3.5 pt-1 pl-14; }
+  .accordion-card > .accordion-panel { @apply border-t border-line-soft px-3.5 pt-1 pb-3.5 pl-14; }
   .accordion-panel .accordion { @apply ml-7 border-l border-line; }
   @media (prefers-reduced-motion: reduce) { .accordion-chevron, .switch, .switch > * { transition: none; } }
 

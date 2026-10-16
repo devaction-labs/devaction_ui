@@ -165,4 +165,47 @@ defmodule DevactionUI.AccordionTest do
 
     assert html =~ ~s(data-x="1")
   end
+
+  test "the tag of a card is the 10px one" do
+    assigns = %{}
+
+    html =
+      rendered_to_string(~H"""
+      <Accordion.accordion id="t" variant={:card}>
+        <:item title="M1" tag="Late" tone={:risk}>Body</:item>
+      </Accordion.accordion>
+      """)
+
+    assert html =~ "text-[10px]"
+    assert html =~ "px-[7px] py-[3px]"
+    refute html =~ "text-[11px]"
+  end
+
+  test "a plain accordion keeps its chevron at the end unless asked to start with it" do
+    assigns = %{}
+
+    default =
+      rendered_to_string(~H"""
+      <Accordion.accordion id="p" variant={:plain}>
+        <:item title="A">a</:item>
+      </Accordion.accordion>
+      """)
+
+    start =
+      rendered_to_string(~H"""
+      <Accordion.accordion id="p" variant={:plain} chevron={:start}>
+        <:item title="A">a</:item>
+      </Accordion.accordion>
+      """)
+
+    assert default =~ "accordion-chevron"
+    refute start =~ "accordion-chevron"
+    assert start =~ ~r/<summary[^>]*>\s*<svg[^>]*group-open:rotate-90/
+  end
+
+  test "the panel of a card has the canvas padding" do
+    css = File.read!(Path.expand("../../assets/css/devaction_ui.css", __DIR__))
+
+    assert css =~ ~r/\.accordion-card > \.accordion-panel \{[^}]*pb-3\.5 pl-14/
+  end
 end

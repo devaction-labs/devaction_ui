@@ -6,7 +6,7 @@ defmodule DevactionUI.Accordion do
 
   Variants: `:group` is a bordered block with dividers and a chevron at the start; `:flush` is bare rows with a
   line under each and a plus that stays a plus; `:plain` is the canvas's default accordion, dividers and a
-  chevron at the end that turns; `:card` gives each section its own card, with a chevron, a lead (an icon, a
+  chevron at the end that turns (`chevron: :start` moves it to the start, as in the nested accordion of the canvas); `:card` gives each section its own card, with a chevron, a lead (an icon, a
   score), a sub line, a tag and actions in the header. The actions of a `:card` sit beside the header, not
   inside the `<summary>`, so pressing them does not open or close the section.
 
@@ -31,6 +31,12 @@ defmodule DevactionUI.Accordion do
   attr :exclusive, :boolean,
     default: true,
     doc: "opening a section closes the others; `false` lets several stay open"
+
+  attr :chevron, :atom,
+    values: [:default, :start],
+    default: :default,
+    doc:
+      "`:start` puts the chevron of a `:plain` accordion before the title; the others already do"
 
   attr :heading_level, :integer,
     values: [nil, 2, 3, 4, 5, 6],
@@ -69,6 +75,7 @@ defmodule DevactionUI.Accordion do
         id={@id}
         variant={@variant}
         exclusive={@exclusive}
+        chevron={@chevron}
         heading_level={@heading_level}
         lead={@lead}
         actions={@actions}
@@ -82,6 +89,7 @@ defmodule DevactionUI.Accordion do
   attr :id, :string, required: true
   attr :variant, :atom, required: true
   attr :exclusive, :boolean, required: true
+  attr :chevron, :atom, required: true
   attr :heading_level, :integer, required: true
   attr :lead, :list, required: true
   attr :actions, :list, required: true
@@ -95,6 +103,7 @@ defmodule DevactionUI.Accordion do
             item={@item}
             index={@index}
             variant={@variant}
+            chevron={@chevron}
             heading_level={@heading_level}
             lead={@lead}
           />
@@ -119,6 +128,7 @@ defmodule DevactionUI.Accordion do
             item={@item}
             index={@index}
             variant={@variant}
+            chevron={@chevron}
             heading_level={@heading_level}
             lead={@lead}
           />
@@ -138,12 +148,15 @@ defmodule DevactionUI.Accordion do
   attr :item, :map, required: true
   attr :index, :integer, required: true
   attr :variant, :atom, required: true
+  attr :chevron, :atom, required: true
   attr :heading_level, :integer, required: true
   attr :lead, :list, required: true
 
   defp header(assigns) do
+    assigns = assign(assigns, :marker, marker(assigns.variant, assigns.chevron))
+
     ~H"""
-    <.start_chevron :if={@variant in [:group, :card]} variant={@variant} />
+    <.start_chevron :if={@marker == :start} variant={@variant} />
     <span :if={@variant == :card and @lead != []} class="flex-none">
       {render_slot(@lead, %{index: @index, title: @item.title})}
     </span>
@@ -164,12 +177,16 @@ defmodule DevactionUI.Accordion do
         {@item.subtitle}
       </span>
     </span>
-    <Tag.tag :if={Map.get(@item, :tag)} size={:sm} variant={Map.get(@item, :tone, :neutral)}>
+    <Tag.tag :if={Map.get(@item, :tag)} size={:xs} variant={Map.get(@item, :tone, :neutral)}>
       {@item.tag}
     </Tag.tag>
-    <.end_marker :if={@variant in [:plain, :flush]} variant={@variant} />
+    <.end_marker :if={@marker == :end} variant={@variant} />
     """
   end
+
+  defp marker(:plain, :start), do: :start
+  defp marker(variant, _chevron) when variant in [:group, :card], do: :start
+  defp marker(_variant, _chevron), do: :end
 
   attr :level, :integer, required: true
   slot :inner_block, required: true
@@ -202,7 +219,7 @@ defmodule DevactionUI.Accordion do
       aria-hidden="true"
       class={[
         "shrink-0 text-muted transition-transform duration-200 group-open:rotate-90 motion-reduce:transition-none",
-        (@variant == :card && "size-4") || "size-3.5"
+        (@variant in [:card, :plain] && "size-4") || "size-3.5"
       ]}
     >
       <path d="m9 6 6 6-6 6" />
