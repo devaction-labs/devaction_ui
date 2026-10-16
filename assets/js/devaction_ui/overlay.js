@@ -1,6 +1,5 @@
 import {runKey} from "./keys.js"
-import {exempt, isTop, lockStyle, release, retain, stackWith, stackWithout} from "./overlay_logic.js"
-import {dragOffset, dragStyle, settleStyle, shouldClose, speed} from "./sheet_logic.js"
+import {dragOffset, dragStyle, exempt, isTop, lockStyle, release, retain, settleStyle, shouldClose, speed, stackWith, stackWithout} from "./overlay_logic.js"
 
 let stack = []
 let inert = new Map()

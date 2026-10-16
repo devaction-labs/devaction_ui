@@ -1,4 +1,4 @@
-import {formatIso, mask, read} from "./date_input_logic.js"
+import {formatIso, maskDate, readDate} from "./dates.js"
 
 const SET_EVENT = "devaction:date-picker-set"
 const PICKER_INPUTS = "[data-from-input], [data-to-input]"
@@ -48,8 +48,8 @@ export default {
   typed(side, event) {
     event.stopPropagation()
     const field = this.fields[side]
-    const text = mask(field.text.value, this.format)
-    const {iso, status} = read(text, this.format, this.minFor(side))
+    const text = maskDate(field.text.value, this.format)
+    const {iso, status} = readDate(text, this.format, this.minFor(side))
 
     field.text.value = text
     this.flag(field.text, status === "invalid")

@@ -1,5 +1,5 @@
 import {runKey, wrap} from "./keys.js"
-import {closesOnSelect, extendBuffer, isTypeahead, matchIndex} from "./dropdown_logic.js"
+import {closesOnSelect, extendBuffer, isTypeahead, matchIndex} from "./menu_logic.js"
 import {chooseSide, screenSize} from "./placement.js"
 
 const ITEM = '[role^="menuitem"]:not([aria-disabled="true"])'

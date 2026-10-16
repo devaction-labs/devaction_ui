@@ -1,4 +1,4 @@
-import {isExpanded, selectedStates} from "./autocomplete_logic.js"
+import {isExpanded, selectedStates} from "./menu_logic.js"
 import {keyName, nextTab, runKey, wrap} from "./keys.js"
 
 /**

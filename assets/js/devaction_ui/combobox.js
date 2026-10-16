@@ -1,4 +1,4 @@
-import {buttonView} from "./combobox_logic.js"
+import {buttonView} from "./menu_logic.js"
 import {runKey, wrap} from "./keys.js"
 import {matches} from "./text.js"
 

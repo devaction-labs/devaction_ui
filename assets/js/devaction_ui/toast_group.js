@@ -1,5 +1,5 @@
 import {runKey} from "./keys.js"
-import {countText, escapeStep, planLayout, stackPadding, styleFor} from "./toast_layout.js"
+import {countText, escapeStep, planLayout, stackPadding, styleFor} from "./toast_logic.js"
 
 /**
  * Notices that pile up without covering the screen: a toast with two solid blocks behind it and a count badge

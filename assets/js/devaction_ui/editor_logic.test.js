@@ -1,6 +1,6 @@
 import test from "node:test"
 import assert from "node:assert/strict"
-import {commands, styles, currentStyle, names, rowParts, safeHref, textboxAttributes, wordCount} from "./editor_logic.js"
+import {blocks, commands, currentStyle, filterItems, imageProblem, names, nextIndex, rowParts, safeHref, sends, styles, textboxAttributes, uploadError, wordCount} from "./editor_logic.js"
 
 const chain = () => {
   const calls = []
@@ -50,7 +50,6 @@ test("the words are counted by their spaces", () => {
   assert.equal(wordCount(null), 0)
 })
 
-import {blocks, filterItems, nextIndex, sends, imageProblem, uploadError} from "./editor_logic.js"
 
 test("every block of the slash menu runs one command", () => {
   for (const [name, run] of Object.entries(blocks)) {

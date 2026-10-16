@@ -1,4 +1,4 @@
-import {counts, pendingCount, resetAction} from "./filter_logic.js"
+import {counts, pendingCount, resetAction} from "./menu_logic.js"
 import {runKey, wrap} from "./keys.js"
 import {roomAround, screenSize, submenuSide} from "./placement.js"
 
