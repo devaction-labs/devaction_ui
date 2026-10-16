@@ -26,21 +26,36 @@ defmodule DevactionUI.StepperTest do
     assert Stepper.states(4, 2, 2) == [:done, :error, :todo, :todo]
   end
 
-  test "the dot of a failed step keeps its number and the label turns red" do
-    for orientation <- [:horizontal, :vertical] do
-      html = render_stepper(orientation)
+  test "the horizontal dot of a failed step keeps its number and the label turns red" do
+    html = render_stepper(:horizontal)
 
-      refute html =~ ">!<"
-      assert html =~ ~r/step-dot[^>]*>\s*2\s*</
-      assert html =~ "text-tag-risk-text"
-    end
+    refute html =~ ">!<"
+    assert html =~ ~r/step-dot[^>]*>\s*2\s*</
+    assert html =~ "text-tag-risk-text"
+  end
+
+  test "the vertical dot holds a check when done and no number otherwise" do
+    html = render_stepper(:vertical)
+
+    assert length(Regex.scan(~r/step-dot/, html)) == 4
+    assert length(Regex.scan(~r/✓/, html)) == 1
+    refute html =~ ~r/step-dot[^>]*>\s*[1-4]\s*</
+    assert html =~ "text-tag-risk-text"
+    assert html =~ ~s(data-state="error")
+  end
+
+  test "the vertical failed dot carries the red ring through its state" do
+    css = File.read!(Path.expand("../../assets/css/devaction_ui.css", __DIR__))
+
+    assert css =~ "[[data-state=error]_&]:border-missing"
   end
 
   test "the error_icon slot replaces the number of a failed step" do
-    html = render_stepper(:vertical, true)
+    html = render_stepper(:horizontal, true)
 
     assert html =~ "ERR"
     refute html =~ ~r/step-dot[^>]*>\s*2\s*</
+    assert render_stepper(:vertical, true) =~ "ERR"
   end
 
   test "vertical: 24px dot, 2px rail, 13px text and the label by state" do

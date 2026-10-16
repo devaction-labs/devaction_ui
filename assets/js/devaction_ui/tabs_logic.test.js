@@ -20,6 +20,37 @@ test("a key that does not move the selection, or an empty list, gives null", () 
   assert.equal(nextTab("ArrowRight", 0, 0), null)
 })
 
+test("a vertical list moves with up and down and ignores left and right", () => {
+  const vertical = {orientation: "vertical"}
+  assert.equal(nextTab("ArrowDown", 0, 3, vertical), 1)
+  assert.equal(nextTab("ArrowDown", 2, 3, vertical), 0)
+  assert.equal(nextTab("ArrowUp", 0, 3, vertical), 2)
+  assert.equal(nextTab("Home", 2, 3, vertical), 0)
+  assert.equal(nextTab("End", 0, 3, vertical), 2)
+  assert.equal(nextTab("ArrowRight", 0, 3, vertical), null)
+  assert.equal(nextTab("ArrowLeft", 1, 3, vertical), null)
+})
+
+test("a horizontal list ignores up and down", () => {
+  assert.equal(nextTab("ArrowDown", 0, 3), null)
+  assert.equal(nextTab("ArrowUp", 1, 3, {orientation: "horizontal"}), null)
+})
+
+test("on a right-to-left page the horizontal arrows are swapped", () => {
+  const rtl = {rtl: true}
+  assert.equal(nextTab("ArrowLeft", 0, 3, rtl), 1)
+  assert.equal(nextTab("ArrowRight", 0, 3, rtl), 2)
+  assert.equal(nextTab("Home", 2, 3, rtl), 0)
+})
+
+test("right-to-left does not change a vertical list", () => {
+  assert.equal(nextTab("ArrowDown", 0, 3, {orientation: "vertical", rtl: true}), 1)
+})
+
+test("an unknown orientation moves nowhere", () => {
+  assert.equal(nextTab("ArrowDown", 0, 3, {orientation: "diagonal"}), null)
+})
+
 const ids = ["a", "b", "c"]
 
 test("the tab the person chose survives a patch that leaves the server's selection alone", () => {

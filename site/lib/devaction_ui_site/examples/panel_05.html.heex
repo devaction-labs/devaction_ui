@@ -1,0 +1,14 @@
+<%!-- title: Sizes | text: size sets the padding and the gap of the card: sm for dense lists, md by default, lg for roomy forms. --%>
+<div class="flex flex-col gap-4">
+  <.panel
+    :for={size <- [:sm, :md, :lg]}
+    id={"panel-size-#{size}"}
+    label={"Size #{size}"}
+    size={size}
+  >
+    <.eyebrow>Size {size}</.eyebrow>
+    <p class="m-0 text-sm text-ink-2">
+      The padding and the gap follow the density of the content.
+    </p>
+  </.panel>
+</div>

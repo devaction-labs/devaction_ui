@@ -55,4 +55,32 @@ defmodule DevactionUI.ChatBubbleTest do
     assert html =~ "bg-ink"
     refute html =~ "bg-tag-warn-bg"
   end
+
+  test "a highlighted AI message uses the strong text of the warn tone" do
+    assigns = %{}
+
+    html =
+      rendered_to_string(
+        ~H|<ChatBubble.chat_bubble from={:ai} highlight>Done</ChatBubble.chat_bubble>|
+      )
+
+    assert html =~ "border-tag-warn-line bg-tag-warn-bg text-tag-warn-strong"
+    refute html =~ "text-tag-warn-text"
+  end
+
+  test "the mark of the AI sits in a 28px rounded box" do
+    assigns = %{}
+
+    html =
+      rendered_to_string(~H"""
+      <ChatBubble.chat_bubble from={:ai}>
+        <:avatar>MARK</:avatar>Hi
+      </ChatBubble.chat_bubble>
+      """)
+
+    assert html =~ ~r/<span[^>]*size-7[^>]*rounded-lg[^>]*bg-bubble-mark[^>]*>\s*MARK/
+
+    refute rendered_to_string(~H|<ChatBubble.chat_bubble from={:ai}>Hi</ChatBubble.chat_bubble>|) =~
+             "bg-bubble-mark"
+  end
 end

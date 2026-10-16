@@ -122,6 +122,15 @@
   --toast-layer-1: light-dark(#27272A, #C9C9D6);
   --toast-layer-2: light-dark(#3F3F46, #A3A3B8);
   --line-dashed: light-dark(#C9C9CF, #4A4A58);
+  --avatar-indigo-bg: light-dark(#EEF2FF, #1D2142);
+  --avatar-indigo-fg: light-dark(#3730A3, #C3CAFF);
+  --avatar-green-bg: light-dark(#ECFDF5, #12281E);
+  --avatar-green-fg: light-dark(#047857, #86E8B3);
+  --avatar-red-bg: light-dark(#FEF2F2, #2A1B1A);
+  --avatar-red-fg: light-dark(#B91C1C, #FFB4AA);
+  --avatar-gray-bg: light-dark(#F4F4F5, #2A2A36);
+  --avatar-gray-fg: light-dark(#3F3F46, #C9C9D6);
+  --bubble-mark: light-dark(#060C1F, #0B1230);
   --kbd-inverse: light-dark(#3F3F46, #C9C9D6);
   --kbd-inverse-fg: light-dark(#E4E4E7, #2C2C38);
 }
@@ -135,6 +144,15 @@
   --color-line-soft: var(--line-soft);
   --color-line-strong: var(--line-strong);
   --color-line-dashed: var(--line-dashed);
+  --color-avatar-indigo-bg: var(--avatar-indigo-bg);
+  --color-avatar-indigo-fg: var(--avatar-indigo-fg);
+  --color-avatar-green-bg: var(--avatar-green-bg);
+  --color-avatar-green-fg: var(--avatar-green-fg);
+  --color-avatar-red-bg: var(--avatar-red-bg);
+  --color-avatar-red-fg: var(--avatar-red-fg);
+  --color-avatar-gray-bg: var(--avatar-gray-bg);
+  --color-avatar-gray-fg: var(--avatar-gray-fg);
+  --color-bubble-mark: var(--bubble-mark);
   --color-ink: var(--ink);
   --color-ink-2: var(--ink-2);
   --color-muted: var(--muted);
@@ -354,7 +372,7 @@
   .accordion-chevron    { @apply size-4.5 text-muted transition-transform duration-200 [details[open]>summary_&]:rotate-180; }
   .accordion-panel      { @apply pr-8 pb-4.5 text-sm leading-relaxed text-ink-2; }
   .accordion-card       { @apply overflow-hidden rounded-[14px] border border-line bg-card open:border-line-strong [&[open]>summary]:bg-wrap/60; }
-  .accordion-card > .accordion-panel { @apply border-t border-line-soft px-3.5 pt-1 pl-14; }
+  .accordion-card > .accordion-panel { @apply border-t border-line-soft px-3.5 pt-1 pb-3.5 pl-14; }
   .accordion-panel .accordion { @apply ml-7 border-l border-line; }
   @media (prefers-reduced-motion: reduce) { .accordion-chevron, .switch, .switch > * { transition: none; } }
 
@@ -413,7 +431,7 @@
   .stepper { @apply grid list-none grid-cols-[repeat(auto-fit,minmax(0,1fr))] gap-2 p-0; }
   .step    { @apply flex flex-col gap-2.5 before:h-1 before:rounded-full before:bg-line
                     data-[state=done]:before:bg-ink data-[state=current]:before:bg-ai data-[state=error]:before:bg-missing; }
-  .step-dot { @apply grid size-7 shrink-0 place-items-center rounded-full border-[1.5px] border-line-strong font-mono text-xs text-muted
+  .step-dot { @apply grid size-7 shrink-0 place-items-center rounded-full border-[1.5px] border-done-cell font-mono text-xs text-muted
                      [[data-state=done]_&]:border-ink [[data-state=done]_&]:bg-ink [[data-state=done]_&]:text-on-ink
                      [[data-state=current]_&]:border-2 [[data-state=current]_&]:border-ink [[data-state=current]_&]:text-ink
                      [[data-state=error]_&]:border-2 [[data-state=error]_&]:border-missing [[data-state=error]_&]:text-missing; }

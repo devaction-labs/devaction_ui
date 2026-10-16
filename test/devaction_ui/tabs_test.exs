@@ -44,4 +44,50 @@ defmodule DevactionUI.TabsTest do
     refute html =~ ~r/phx-mounted="[^"]*tabindex/
     refute html =~ ~r/phx-mounted="[^"]*hidden/
   end
+
+  defp render_vertical(variant) do
+    assigns = %{variant: variant}
+
+    rendered_to_string(~H"""
+    <Tabs.tabs id="t" label="Settings" variant={@variant} orientation={:vertical}>
+      <:tab id="a" label="A">first</:tab>
+      <:tab id="b" label="B">second</:tab>
+    </Tabs.tabs>
+    """)
+  end
+
+  test "horizontal is the default and says so to assistive technology" do
+    html = render_tabs(:boxed)
+
+    assert html =~ ~s(aria-orientation="horizontal")
+    refute html =~ "flex-col"
+  end
+
+  test "a vertical boxed list is a column beside the panels" do
+    html = render_vertical(:boxed)
+
+    assert html =~ ~s(aria-orientation="vertical")
+    assert html =~ "flex items-start gap-6"
+    assert html =~ "flex-col"
+    assert html =~ "min-w-0 flex-1"
+    assert html =~ "justify-start"
+    refute html =~ "pt-4"
+  end
+
+  test "a vertical line list underlines with a rule at the start of the row" do
+    html = render_vertical(:line)
+
+    assert html =~ "border-s border-line"
+    assert html =~ "border-s-2 border-transparent"
+    refute html =~ "border-b-2"
+  end
+
+  test "a vertical list keeps the roles and the roving tabindex" do
+    html = render_vertical(:boxed)
+
+    assert html =~ ~s(role="tablist")
+    assert length(Regex.scan(~r/role="tab"/, html)) == 2
+    assert html =~ ~s(tabindex="-1")
+    assert html =~ ~s(aria-selected="true")
+  end
 end

@@ -56,4 +56,70 @@ defmodule DevactionUI.BreadcrumbTest do
     assert html =~ ~s(aria-label="You are here")
     assert html =~ ~s(id="bc")
   end
+
+  test "the separator is text by default and any text through the attribute" do
+    items = [%{label: "A", to: "/a"}, %{label: "B"}]
+
+    assert render_trail(items) =~ ~s(<span aria-hidden="true">/</span>)
+
+    assigns = %{items: items}
+    html = rendered_to_string(~H|<.breadcrumb label="Here" separator=">" items={@items} />|)
+
+    assert html =~ ~s(<span aria-hidden="true">&gt;</span>)
+    refute html =~ ">/<"
+  end
+
+  test "the chevron separator mirrors itself in a right-to-left page" do
+    assigns = %{items: [%{label: "A", to: "/a"}, %{label: "B"}]}
+
+    html =
+      rendered_to_string(~H|<.breadcrumb label="Here" separator={:chevron} items={@items} />|)
+
+    assert html =~ "rtl:-scale-x-100"
+    assert html =~ ~s(aria-hidden="true")
+    assert html =~ "<svg"
+  end
+
+  defp render_long(max) do
+    assigns = %{max: max}
+
+    items =
+      for n <- 1..6, do: %{label: "L#{n}", to: "/#{n}"}
+
+    assigns = Map.put(assigns, :items, items)
+
+    rendered_to_string(~H"""
+    <.breadcrumb label="Here" items={@items} max={@max} collapsed_label="Show hidden pages" />
+    """)
+  end
+
+  test "a long trail keeps the first item and the last ones and collapses the middle" do
+    html = render_long(3)
+
+    assert html =~ ~r/>\s*L1\s*</
+    assert html =~ ~r/>\s*L5\s*</
+    assert html =~ ~r/>\s*L6\s*</
+    assert html =~ ~s(aria-label="Show hidden pages")
+    assert html =~ "<details"
+
+    [details] = Regex.run(~r/<details.*<\/details>/s, html)
+    assert details =~ ~r/>\s*L2\s*</
+    assert details =~ ~r/>\s*L4\s*</
+    refute details =~ ~r/>\s*L5\s*</
+    assert length(Regex.scan(~r/aria-current="page"/, html)) == 1
+  end
+
+  test "a trail that fits in max is not collapsed, and without max never is" do
+    refute render_long(6) =~ "<details"
+    refute render_long(nil) =~ "<details"
+    refute render_trail([%{label: "A"}, %{label: "B"}]) =~ "<details"
+  end
+
+  test "max below 2 still keeps the first and the current item" do
+    html = render_long(1)
+
+    assert html =~ ~r/>\s*L1\s*</
+    assert html =~ ~r/>\s*L6\s*</
+    assert html =~ ~r/<details/
+  end
 end
