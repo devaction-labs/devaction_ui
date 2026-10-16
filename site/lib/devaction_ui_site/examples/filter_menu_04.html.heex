@@ -1,0 +1,29 @@
+<%!-- title: Clear that submits | text: With reset_submits, Clear unticks everything and sends the form, so the empty filters are applied at once and the count on the button drops --%>
+<div class="min-h-[18rem]">
+  <FilterMenu.filter_menu
+    id="clear-filters"
+    label="Filter"
+    apply_label="Apply"
+    reset_label="Clear"
+    close_label="Close"
+    reset_submits
+    phx-submit="overlay_close"
+    groups={[
+      %{
+        key: "status",
+        label: "Status",
+        type: :checkbox,
+        options: [
+          %{value: "progress", label: "In progress", checked: true},
+          %{value: "review", label: "In review", checked: true},
+          %{value: "done", label: "Done"}
+        ]
+      }
+    ]}
+  >
+    <:trigger_icon><.icon name="filter" class="size-4" /></:trigger_icon>
+    <:chevron_icon><.icon name="arrow-right-01" class="size-3.5 text-muted" /></:chevron_icon>
+    <:check_icon><.icon name="tick-02" class="size-4" /></:check_icon>
+    <:close_icon><.icon name="cancel-01" class="size-3.5" /></:close_icon>
+  </FilterMenu.filter_menu>
+</div>

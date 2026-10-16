@@ -1,6 +1,6 @@
 import test from "node:test"
 import assert from "node:assert/strict"
-import {counts, pendingCount, submenuSide} from "./filter_logic.js"
+import {counts, pendingCount, resetAction, submenuSide} from "./filter_logic.js"
 
 const option = (group, checked, isDefault = false) => ({group, checked, isDefault})
 
@@ -58,4 +58,10 @@ test("a submenu goes to the other side when it does not fit and the other has mo
 
 test("a submenu stays when neither side has room", () => {
   assert.equal(submenuSide("right", {panel: 236, left: 50, right: 100}), "right")
+})
+
+test("Clear submits only when the menu says so, otherwise it tells the form it changed", () => {
+  assert.equal(resetAction("submit"), "submit")
+  assert.equal(resetAction("change"), "change")
+  assert.equal(resetAction(undefined), "change")
 })

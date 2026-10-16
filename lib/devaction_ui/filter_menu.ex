@@ -17,6 +17,11 @@ defmodule DevactionUI.FilterMenu do
   focus leaves it. Arrows move, → opens a submenu, ← and Esc go back, Enter and Space tick. Words are
   attributes and icons are slots.
 
+  Clear (`reset_label`) unticks every option, back to the `default` ones. With `reset_submits` it then submits
+  the form, so the server hears the empty filters at once; without it, it only unticks, and Apply (or
+  `phx-change`) sends them. The count on the button is only for what was applied, so it drops when Clear
+  submits.
+
   `align` is the side of the button the panel lines up with; the submenus open to the right of the panel for
   `:start` and to the left for `:end`, and turn to the other side when there is no room on the screen. `class`
   goes to the root; `phx-submit`, `phx-change`, `phx-target` and the other global attributes go to the form.
@@ -32,6 +37,12 @@ defmodule DevactionUI.FilterMenu do
   attr :reset_label, :string, required: true
   attr :close_label, :string, required: true
   attr :align, :atom, values: [:start, :end], default: :start
+
+  attr :reset_submits, :boolean,
+    default: false,
+    doc:
+      "Clear also submits the form, which sends the empty filters and applies them; false only unticks (and sends `phx-change`, if the form has it)"
+
   attr :class, :any, default: nil
   attr :rest, :global, include: ~w(phx-submit phx-change phx-target)
   slot :trigger_icon, doc: "the icon of the button"
@@ -47,7 +58,12 @@ defmodule DevactionUI.FilterMenu do
 
   def filter_menu(assigns) do
     ~H"""
-    <div id={@id} class={["filter-menu", @class]} phx-hook="DevactionUI.FilterMenu">
+    <div
+      id={@id}
+      class={["filter-menu", @class]}
+      phx-hook="DevactionUI.FilterMenu"
+      data-reset={(@reset_submits && "submit") || "change"}
+    >
       <button
         type="button"
         class="menu-trigger"

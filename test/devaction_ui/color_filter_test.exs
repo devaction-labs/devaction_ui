@@ -290,6 +290,12 @@ defmodule DevactionUI.ColorFilterTest do
       """)
     end
 
+    test "Clear only unticks by default and submits the form with reset_submits" do
+      assert menu() =~ ~s(data-reset="change")
+      assert render_menu(@groups) =~ ~s(data-reset="change")
+      assert render_menu(@groups, %{reset_submits: true}) =~ ~s(data-reset="submit")
+    end
+
     test "the Apply button has a count of pending changes, hidden until there are some" do
       html = menu()
 
