@@ -48,7 +48,8 @@ defmodule DevactionUI.MixProject do
     [
       licenses: ["MIT"],
       links: %{"GitHub" => @source_url},
-      files: ~w(lib assets/css assets/js README.md mix.exs)
+      files: ~w(lib assets/css assets/js README.md LICENSE mix.exs),
+      exclude_patterns: [~r/\.test\.js$/]
     ]
   end
 
