@@ -429,3 +429,32 @@
   background: radial-gradient(ellipse at center, rgb(210 154 30 / 0.16), rgb(210 154 30 / 0) 62%);
 }
 /* ==== end changelog ==== */
+/* ==== component page (pixel pass) ==== */
+:root {
+  --cp-line: light-dark(#EFEFF1, #262630);
+  --cp-th: light-dark(#F7F7F8, #1C1C25);
+  --cp-type: light-dark(#1E40AF, #A9C3FF);
+}
+
+@theme inline {
+  --color-cp-line: var(--cp-line);
+  --color-cp-th: var(--cp-th);
+  --color-cp-type: var(--cp-type);
+}
+
+:root[data-theme] .site-pv[data-flip="false"] {
+  color-scheme: light;
+}
+
+:root[data-theme] .site-pv[data-flip="true"] {
+  color-scheme: dark;
+}
+
+#main ~ aside {
+  line-height: normal;
+}
+
+#main ~ aside > div {
+  top: calc(4rem + 24px);
+}
+/* ==== end component page ==== */
