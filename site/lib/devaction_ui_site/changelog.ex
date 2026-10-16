@@ -18,6 +18,15 @@ defmodule DevactionUISite.Changelog do
      "Blade package for Laravel and Livewire, starting with color picker, slider and filter menu."}
   ]
 
+  @improved_next [
+    {"data_table",
+     "`sticky={:start}` and `sticky={:end}` pin the first column and the actions while the table scrolls sideways, with a shadow only on the side that has content behind it."},
+    {"breadcrumb",
+     "`home`, `home_label` and a `home_icon` slot put a link to the start of the app before the first item."},
+    {"page_header",
+     "`toolbar` and `toolbar_end` slots: a row under the tabs for the search, the filters and the count of results."}
+  ]
+
   @improved [
     {"toast_group",
      "Rebuilt: toasts are pushed from the server with `put_toast/4`, `update_toast/3`, `dismiss_toast/2` and `clear_toasts/1`; the pile shows the front toast with two peeking behind and opens into a list on hover or focus."},
@@ -68,15 +77,22 @@ defmodule DevactionUISite.Changelog do
 
   @releases [
     %{
-      version: "v0.3",
+      version: "v0.4",
       status: "next",
       tag: nil,
       summary:
         "The Blade version of the kit for Laravel and Livewire projects, starting with the color picker, the slider and the filter menu."
     },
     %{
-      version: "v0.2.6",
+      version: "v0.3.0",
       status: "current",
+      tag: "v0.3.0",
+      summary:
+        "The layout theme: a shell with a collapsing sidebar and six layouts, a scroll area, the composer and the row menu, with a pinned first column and actions in the data table."
+    },
+    %{
+      version: "v0.2.6",
+      status: "archived",
       tag: "v0.2.6",
       summary:
         "The site shows the full version in its chips, and the footer dedication is in English with a glow that passes between the letters."
@@ -266,7 +282,7 @@ defmodule DevactionUISite.Changelog do
     total = length(Catalog.all())
     added = Enum.count(Catalog.all(), &(Catalog.since(&1) == "0.2"))
 
-    Repo.delete_all(from(version in Version, where: version.version in ["v0.1", "v0.2"]))
+    Repo.delete_all(from(version in Version, where: version.version in ["v0.1", "v0.2", "v0.3"]))
 
     versions =
       for {release, index} <- Enum.with_index(@releases, 1) do
@@ -307,7 +323,7 @@ defmodule DevactionUISite.Changelog do
   defp code_entries(ids, now) do
     planned =
       for {{name, summary}, index} <- Enum.with_index(@planned, 1),
-          do: row(ids["v0.3"], "planned", "Planned", name, summary, index, now)
+          do: row(ids["v0.4"], "planned", "Planned", name, summary, index, now)
 
     components =
       for {category, topics} <- Catalog.groups(), topic <- topics do
@@ -320,7 +336,7 @@ defmodule DevactionUISite.Changelog do
     released =
       for {since, rows} <- Enum.group_by(components ++ templates, &elem(&1, 0)),
           {{_since, group, name, summary}, index} <- Enum.with_index(rows, 1),
-          do: row(ids["v#{since}.0"], "new", group, name, summary, index, now)
+          do: row(ids[release_key(since)], "new", group, name, summary, index, now)
 
     improved =
       for {{name, summary}, index} <- Enum.with_index(@improved, 1),
@@ -335,8 +351,15 @@ defmodule DevactionUISite.Changelog do
           {{kind, group, name, summary}, index} <- Enum.with_index(rows, 1),
           do: row(ids[version], kind, group, name, summary, 3000 + index, now)
 
-    planned ++ released ++ improved ++ breaking ++ patches
+    improved_next =
+      for {{name, summary}, index} <- Enum.with_index(@improved_next, 1),
+          do: row(ids["v0.3.0"], "improved", "Improvements", name, summary, 1000 + index, now)
+
+    planned ++ released ++ improved_next ++ improved ++ breaking ++ patches
   end
+
+  defp release_key("0.3"), do: "v0.3.0"
+  defp release_key(since), do: "v#{since}.0"
 
   defp row(version_id, kind, group, name, summary, position, now) do
     %{

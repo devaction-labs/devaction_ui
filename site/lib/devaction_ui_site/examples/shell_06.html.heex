@@ -1,0 +1,45 @@
+<%!-- title: Documentation | text: `variant="docs"` adds a `toc` column at the end for the index of the page, with the page at reading width. --%>
+<div class="overflow-hidden rounded-2xl">
+  <Shell.shell
+    id="shell-docs"
+    variant="docs"
+    style="--shell-h: 420px"
+    sidebar_label="Sections"
+    open_label="Open the menu"
+    close_label="Collapse the menu"
+  >
+    <:toggle_icon><.icon name="menu-01" class="size-[18px]" /></:toggle_icon>
+    <:sidebar>
+      <Shell.sidebar_head name="Docs">
+        <:logo>
+          <span class="grid size-full place-items-center bg-ink text-xs font-semibold text-on-ink">D</span>
+        </:logo>
+      </Shell.sidebar_head>
+      <Shell.sidebar_nav>
+        <Shell.sidebar_group id="shell-docs-start" label="Getting started">
+          <:icon><.icon name="arrow-down-01" class="size-full" /></:icon>
+          <Shell.sidebar_item tip="Install" href="#install" current>Install</Shell.sidebar_item>
+          <Shell.sidebar_item tip="Tokens" href="#tokens">Tokens</Shell.sidebar_item>
+        </Shell.sidebar_group>
+      </Shell.sidebar_nav>
+    </:sidebar>
+    <:toc>
+      <p class="m-0 mb-2 font-mono text-[11px] tracking-[0.08em] uppercase">On this page</p>
+      <ul class="m-0 flex list-none flex-col gap-1.5 p-0">
+        <li class="text-ink">Add the dependency</li>
+        <li>Load the hooks</li>
+        <li>Load the styles</li>
+      </ul>
+    </:toc>
+    <:header>
+      <Breadcrumb.breadcrumb
+        label="You are here"
+        items={[%{label: "Getting started"}, %{label: "Install"}]}
+      />
+    </:header>
+    <PageHeader.page_header id="shell-docs-head">
+      <:title>Install</:title>
+      <:subtitle>Three steps to your first component</:subtitle>
+    </PageHeader.page_header>
+  </Shell.shell>
+</div>

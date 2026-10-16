@@ -11,14 +11,20 @@ defmodule DevactionUISite.ChangelogTest do
 
   defp new_names(version), do: for(%{kind: "new"} = entry <- version.entries, do: entry.name)
 
+  defp release_of(topic), do: release_name(Catalog.since(topic))
+
+  defp release_name("0.3"), do: "v0.3.0"
+  defp release_name(since), do: "v#{since}.0"
+
   defp by_version, do: Map.new(Changelog.versions(), &{&1.version, &1})
 
   test "the current version is the newest release, and every patch has its own entry" do
     versions = Changelog.versions()
 
     assert Enum.map(versions, &{&1.version, &1.status}) == [
-             {"v0.3", "next"},
-             {"v0.2.6", "current"},
+             {"v0.4", "next"},
+             {"v0.3.0", "current"},
+             {"v0.2.6", "archived"},
              {"v0.2.5", "archived"},
              {"v0.2.4", "archived"},
              {"v0.2.3", "archived"},
@@ -28,15 +34,15 @@ defmodule DevactionUISite.ChangelogTest do
              {"v0.1.0", "archived"}
            ]
 
-    assert Changelog.current().version == "v0.2.6"
-    assert Changelog.current().tag == "v0.2.6"
+    assert Changelog.current().version == "v0.3.0"
+    assert Changelog.current().tag == "v0.3.0"
   end
 
   test "sync writes every component of the catalog as a new entry of the release it came with" do
     versions = by_version()
 
     for topic <- Catalog.all() do
-      assert topic.slug in new_names(versions["v#{Catalog.since(topic)}.0"])
+      assert topic.slug in new_names(versions[Catalog.release(topic)])
     end
 
     assert "auth" in new_names(versions["v0.1.0"])
@@ -61,10 +67,20 @@ defmodule DevactionUISite.ChangelogTest do
   end
 
   test "the next version plans only what is truly missing" do
-    next = by_version()["v0.3"]
+    next = by_version()["v0.4"]
 
-    assert Enum.map(next.entries, & &1.name) == ["x-ui.*"]
-    assert Enum.all?(next.entries, &(&1.kind == "planned"))
+    assert Enum.map(Enum.filter(next.entries, &(&1.kind == "planned")), & &1.name) == ["x-ui.*"]
+  end
+
+  test "v0.3.0 lists the new components and the improvements of the layout theme" do
+    next = by_version()["v0.3.0"]
+    new = for %{kind: "new", name: name} <- next.entries, do: name
+    improved = for %{kind: "improved", name: name} <- next.entries, do: name
+
+    assert Enum.sort(new) == ["composer", "row_menu", "scroll_area", "shell"]
+    assert Enum.sort(improved) == ["breadcrumb", "data_table", "page_header"]
+    assert Catalog.release(%{module: DevactionUI.Shell}) == "v0.3.0"
+    assert Catalog.release(%{module: DevactionUI.Tabs}) == "v0.1.0"
   end
 
   test "the old two-part versions are removed when sync runs" do
@@ -106,7 +122,7 @@ defmodule DevactionUISite.ChangelogTest do
   end
 
   test "highlights read the latest release with new components" do
-    assert Changelog.latest_release(Changelog.versions()).version == "v0.2.0"
+    assert Changelog.latest_release(Changelog.versions()).version == "v0.3.0"
 
     assert [_ | _] =
              highlights = Changelog.highlights(Changelog.latest_release(Changelog.versions()))

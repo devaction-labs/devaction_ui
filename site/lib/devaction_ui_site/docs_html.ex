@@ -463,7 +463,7 @@ new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
         <div class="mt-2.5 rounded-xl border border-line bg-card p-3">
           <p class="m-0 flex items-center gap-2 text-ink-2">
             <Tag.tag variant={:ok} size={:sm} case={:normal} class="rounded-[5px]! px-1.5!">
-              v{Catalog.since(@topic)}.0
+              {Catalog.release(@topic)}
             </Tag.tag>
             Component created
           </p>

@@ -1,0 +1,14 @@
+<%!-- title: Small | text: `size={:sm}` is a one-line field with its send button at the end, for a comment under a task. --%>
+<Composer.composer
+  id="composer-small"
+  event="composer_change"
+  label="Comment"
+  send_label="Send"
+  stop_label="Stop"
+  placeholder="Add a comment..."
+  size={:sm}
+  class="w-full max-w-md"
+>
+  <:icon><.icon name="arrow-up-02" class="size-4" /></:icon>
+  <:stop><.icon name="stop" class="size-4" /></:stop>
+</Composer.composer>

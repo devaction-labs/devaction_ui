@@ -1,0 +1,15 @@
+<%!-- title: Limit | text: With `max_length` the counter shows from 80% of the limit, the card turns red over it and the send button stays off. --%>
+<Composer.composer
+  id="composer-limit"
+  event="composer_change"
+  label="Comment"
+  send_label="Send"
+  stop_label="Stop"
+  placeholder="Up to 120 characters..."
+  max_length={120}
+  value="The review found two blocking issues in the billing flow, and one of them silently loses a refund."
+  class="w-full max-w-xl"
+>
+  <:icon><.icon name="arrow-up-02" class="size-4" /></:icon>
+  <:stop><.icon name="stop" class="size-4" /></:stop>
+</Composer.composer>

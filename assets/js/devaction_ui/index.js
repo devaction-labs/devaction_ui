@@ -13,6 +13,7 @@ import Calendar from "./calendar.js"
 import ColorPicker from "./color_picker.js"
 import CodeCopy from "./code_copy.js"
 import Combobox from "./combobox.js"
+import Composer from "./composer.js"
 import ContextMenu from "./context_menu.js"
 import Dropdown from "./dropdown.js"
 import Editor from "./editor.js"
@@ -35,6 +36,8 @@ import Pillbox from "./pillbox.js"
 import Popover from "./popover.js"
 import ProgressToast from "./progress_toast.js"
 import Resizable from "./resizable.js"
+import ScrollArea from "./scroll_area.js"
+import Shell from "./shell.js"
 import Signature from "./signature.js"
 import Sortable from "./sortable.js"
 import Tabs from "./tabs.js"
@@ -49,6 +52,7 @@ export const hooks = {
   "DevactionUI.ColorPicker": ColorPicker,
   "DevactionUI.CodeCopy": CodeCopy,
   "DevactionUI.Combobox": Combobox,
+  "DevactionUI.Composer": Composer,
   "DevactionUI.CopyField": CodeCopy,
   "DevactionUI.CookieConsent": CookieConsent,
   "DevactionUI.ContextMenu": ContextMenu,
@@ -76,6 +80,8 @@ export const hooks = {
   "DevactionUI.RangePair": RangePair,
   "DevactionUI.Resizable": Resizable,
   "DevactionUI.ProgressToast": ProgressToast,
+  "DevactionUI.ScrollArea": ScrollArea,
+  "DevactionUI.Shell": Shell,
   "DevactionUI.Signature": Signature,
   "DevactionUI.Segmented": Segmented,
   "DevactionUI.SortableList": Sortable,

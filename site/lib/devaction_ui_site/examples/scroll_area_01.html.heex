@@ -1,0 +1,59 @@
+<%!-- title: Both directions | text: A thin bar, and a shadow only on the edge that still has content: none at the start, then the left one once you scroll right. The first column and the actions stay pinned (`edge_right` is the width of the pinned actions, so the shadow starts after it). --%>
+<ScrollArea.scroll_area
+  id="scroll-area-table"
+  max_h="260px"
+  label="Pull requests"
+  edge_left="64px"
+  edge_right="64px"
+>
+  <table class="w-max min-w-full border-separate border-spacing-0 text-sm">
+    <thead>
+      <tr>
+        <th
+          data-sticky="start"
+          class="sticky top-0 z-20 h-10 border-b border-line bg-card px-3.5 text-left font-mono text-[11px] font-medium uppercase text-muted"
+        >
+          PR
+        </th>
+        <th
+          :for={name <- ~w(Title Author Branch Changes Reviewers Updated)}
+          class="sticky top-0 z-10 h-10 min-w-40 border-b border-line bg-card px-3.5 text-left font-mono text-[11px] font-medium uppercase text-muted"
+        >
+          {name}
+        </th>
+        <th
+          data-sticky="end"
+          class="sticky top-0 z-20 h-10 w-16 border-b border-line bg-card px-3.5"
+        >
+          <span class="sr-only">Actions</span>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr :for={n <- 1..10}>
+        <td data-sticky="start" class="h-12 border-b border-line-soft px-3.5 font-mono">
+          #{140 + n}
+        </td>
+        <td class="h-12 border-b border-line-soft px-3.5 whitespace-nowrap">
+          Tithe in transaction {n}
+        </td>
+        <td class="h-12 border-b border-line-soft px-3.5 whitespace-nowrap text-ink-2">
+          Ana Souza
+        </td>
+        <td class="h-12 border-b border-line-soft px-3.5 font-mono whitespace-nowrap">
+          feat/tithe-{n}
+        </td>
+        <td class="h-12 border-b border-line-soft px-3.5 font-mono">+{n * 12} -{n * 3}</td>
+        <td class="h-12 border-b border-line-soft px-3.5 whitespace-nowrap text-ink-2">
+          2 approvals
+        </td>
+        <td class="h-12 border-b border-line-soft px-3.5 whitespace-nowrap text-muted">
+          {n}h ago
+        </td>
+        <td data-sticky="end" class="h-12 border-b border-line-soft px-3.5 text-center text-muted">
+          ⋯
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</ScrollArea.scroll_area>
