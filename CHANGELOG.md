@@ -4,7 +4,15 @@ Every release lists new components, improvements, fixes and breaking changes. Wh
 
 ## Unreleased
 
-Found by the audit of the 0.3.x components against the artboards (issue 74).
+Found by the audit of the 0.3.x components against the artboards (issues 74 to 80).
+
+### Improved
+
+- `Shell` `variant="centered"` follows the LayoutTemas artboard: it keeps the panel frame and, with a `sidebar`, draws it as a bar on top like `topbar`.
+- `Tabs` `:line` selects with weight 500 and the `counts: :chip` count is the 20px mono chip of the artboard; `Pagination` cells have the 1px border of the artboard.
+- `Breadcrumb` with `max` closes the collapsed list on Esc (focus goes back to its summary) and on a press outside; it takes an optional `id`.
+- `Shell` below 1024px keeps focus inside the open drawer (Tab and Shift+Tab wrap) and gives it back to the opener when it closes.
+- Light theme: `--muted-chrome` keeps the text of the shell and the sidebar at 4.5:1 on the frame, the Composer placeholder and file size are readable, and the attachment preview is allowed by the site CSP (`blob:`).
 
 ### Fixed
 
@@ -20,7 +28,6 @@ Found by the audit of the 0.3.x components against the artboards (issue 74).
 
 ### Improved
 
-- `Shell` `variant="centered"` follows the LayoutTemas artboard: it keeps the panel frame and, with a `sidebar`, draws it as a bar on top like `topbar`.
 - `DataTable` variations that add up: `variant={:minimal}` (no border, a transparent head in sentence case, for tables inside cards), `striped`, an `expanded` slot (a chevron with `aria-expanded` opens a detail row; the browser toggles it and a redraw keeps it), `group_by` with a `group` slot, a `tfoot` slot for totals, `stack` with `primary` columns (each row becomes a card under 640px, the cell captions come from the column label), an `action` slot for the `⋯` cell with no box, `sticky_actions`, and `align` and `mono` on a column. Shift+click on a row checkbox ticks the range. `action_label` and `expand_label` are required with their slots.
 - `Pagination`: `total`, `per_page`, `noun` and `summary_label` (`__FROM__`, `__TO__`, `__TOTAL__`, `__NOUN__`) draw the range of the page before the links.
 - The "App" template (Projects) is the new artboard: owner with avatar, hours with a bar, `updated` as relative time, a light head and the row menu in the `action` slot; the table fits the panel without a sideways scroll.
