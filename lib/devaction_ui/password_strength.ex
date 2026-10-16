@@ -7,7 +7,12 @@ defmodule DevactionUI.PasswordStrength do
   The rules are three: at least `min_length` characters, both capitals and small letters, and a number or a
   symbol. The `score` is the rules met, plus one more for a password of 16 characters or more (the canvas's
   rule); a password that meets no rule, like an empty one, is 0. The words for the rules, the line and the name of
-  the meter are the caller's; the marks are slots (the canvas draws a circle with a check and a clock).
+  the meter are the caller's; the marks are slots (the canvas draws a circle with a check and a clock, 15px, with
+  a stroke of 1.8).
+
+  The colours are the tones (`DevactionUI.Tone`): red, amber, blue and green for the scores 1 to 4, on the bars and
+  on the line under them; a rule that is met paints its whole line, mark and words, in the green of the tone `:ok`
+  and one that is not stays muted, in both themes.
   """
   use Phoenix.Component
 
@@ -80,12 +85,9 @@ defmodule DevactionUI.PasswordStrength do
         <li
           :for={rule <- @rules}
           data-met={to_string(rule.met)}
-          class="flex items-center gap-2 text-[13px] text-muted data-[met=true]:text-ok-fg"
+          class={["flex items-center gap-2 text-[13px]", rule_color(rule.met)]}
         >
-          <span
-            class={["grid size-4 place-items-center", rule.met && "text-ok-fg"]}
-            aria-hidden="true"
-          >
+          <span class="grid size-4 place-items-center" aria-hidden="true">
             {(rule.met && render_slot(@met_icon)) || render_slot(@unmet_icon)}
           </span>
           {rule.label}
@@ -94,6 +96,9 @@ defmodule DevactionUI.PasswordStrength do
     </div>
     """
   end
+
+  defp rule_color(true), do: Tone.text(:ok)
+  defp rule_color(false), do: "text-muted"
 
   defp line_color(0, _tone), do: "text-muted"
   defp line_color(_score, tone), do: Tone.text(tone)
