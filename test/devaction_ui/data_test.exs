@@ -134,13 +134,15 @@ defmodule DevactionUI.DataTest do
           drop_label="Drop here"
           full_label="Limit reached"
           moved_label="Moved to __COLUMN__"
+          hint_label="Alt and the arrows move the card"
           id="k"
           label="Tasks"
         >
-          <:column id="todo" title="To do" count={1}>
+          <:column id="todo" title="To do" count={1} tone={:info}>
             <Kanban.card id="a">First</Kanban.card>
           </:column>
           <:column id="doing" title="Doing" wip={2} count={0} />
+          <:footer column="todo"><button>New task</button></:footer>
         </Kanban.kanban>
         """)
 
@@ -153,6 +155,40 @@ defmodule DevactionUI.DataTest do
       assert html =~ "First"
     end
 
+    test "the keyboard hint is read after each card, the columns are lists and the dot and the footer are the column's" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Kanban.kanban
+          drop_label="Drop here"
+          full_label="Limit reached"
+          moved_label="Moved to __COLUMN__"
+          hint_label="Alt and the arrows move the card"
+          id="k"
+          label="Tasks"
+        >
+          <:column id="todo" title="To do" count={1} tone={:info}>
+            <Kanban.card id="a">First</Kanban.card>
+          </:column>
+          <:column id="doing" title="Doing" />
+          <:footer column="todo"><button>New task</button></:footer>
+        </Kanban.kanban>
+        """)
+
+      assert html =~
+               ~r/<p id="k-hint" class="sr-only">\s*Alt and the arrows move the card\s*<\/p>/
+
+      assert html =~ ~s(data-hint-id="k-hint")
+      assert length(Regex.scan(~r/role="list"/, html)) == 2
+      assert html =~ ~s(role="listitem")
+      assert length(Regex.scan(~r/size-2 shrink-0 rounded-full/, html)) == 1
+      assert html =~ "bg-learn"
+      assert length(Regex.scan(~r/New task/, html)) == 1
+      assert html =~ "text-xs"
+      assert html =~ "border-muted-2"
+    end
+
     test "a card is draggable, focusable and carries the id the event reports" do
       assigns = %{}
       html = rendered_to_string(~H|<Kanban.card id="card-9">Do it</Kanban.card>|)
@@ -160,6 +196,9 @@ defmodule DevactionUI.DataTest do
       assert html =~ ~s(tabindex="0")
       assert html =~ ~s(data-card-id="card-9")
       assert html =~ ~s(id="card-9")
+      assert html =~ "data-[dragging]:shadow-pop"
+      assert html =~ "data-[dragging]:opacity-60"
+      refute html =~ "rgba"
     end
 
     test "the texts and the event come from the caller, and the live region survives redraws" do
@@ -174,6 +213,7 @@ defmodule DevactionUI.DataTest do
           event="mover"
           drop_label="Solte aqui"
           moved_label="Movido para __COLUMN__"
+          hint_label="Alt e as setas movem o cartão"
         >
           <:column id="a" title="A" />
         </Kanban.kanban>
