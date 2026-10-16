@@ -1,14 +1,15 @@
 # DevactionUI
 
 The component library of DevAction: Phoenix function components, LiveView hooks and a token stylesheet.
-It depends on Phoenix and LiveView only, so every DevAction project (and any other) takes the same pieces.
+The core needs Phoenix and LiveView only, so every DevAction project (and any other) takes the same pieces;
+three parts need an npm package or a font of their own (the editor, the PDF viewer and the typed signature), listed under "Using it in a project".
 
 ## Repository layout
 
     devaction_ui/        the package: lib/ (components), assets/js (hooks), assets/css (tokens), test/
     devaction_ui/site/   the documentation site: a Phoenix app that depends on the package by path
 
-The package is what goes to Hex and into every project; it needs Phoenix and LiveView only. The site is a
+The package is what goes to Hex and into every project; its core needs Phoenix and LiveView only. The site is a
 consumer of the package like any other, with its own `mix.exs`, release and Dockerfile, so it deploys on its
 own and nothing of it ships with the package.
 
@@ -46,6 +47,8 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 
 ## Using it in a project
 
+Requirements: Elixir 1.20 or newer, Phoenix 1.8, Phoenix LiveView 1.2, Tailwind CSS v4 (the stylesheet uses `@source`, `@theme` and `light-dark()`), and Node with npm only for the optional packages below.
+
     {:devaction_ui, "~> 0.3.0"}
 
 1. CSS: `@import "../../deps/devaction_ui/assets/css/devaction_ui.css";` in the app's Tailwind entry. The
@@ -53,12 +56,18 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
    so there is no `@source` to add.
 2. JS: `import {hooks as devactionUI} from "../../deps/devaction_ui/assets/js/devaction_ui"` and merge into
    the LiveSocket `hooks`.
-3. Editor only: `DevactionUI.Editor` needs TipTap. Copy the `dependencies` of `deps/devaction_ui/assets/package.json`
-   (the `@tiptap/*` packages, pinned to 3.32.0) into the app's `package.json` and `npm install`. The hook loads
-   TipTap with a dynamic `import()` when an editor is mounted, so an app that renders none can skip this.
+3. Optional npm packages, loaded with a dynamic `import()` only when the component is mounted, so an app that
+   renders none of them can skip this step. Copy the ones you use from the `dependencies` of
+   `deps/devaction_ui/assets/package.json` into the app's `package.json` and run `npm install`:
+   - `DevactionUI.Editor` needs TipTap (the `@tiptap/*` packages, pinned to 3.32.0).
+   - `DevactionUI.PdfViewer` needs `pdfjs-dist` (pinned to 5.4.149). pdf.js runs its work in a worker: serve
+     `pdf.worker.min.mjs` from the app's static files and pass its URL as `worker_src`; without pdf.js the viewer
+     draws the pages of its server-rendered `page` slot.
 4. Fonts: Geist and Geist Mono are named in the tokens; the host app serves them. The minimum is the
-   canvas's own link: `https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap`.
-   The typed name of `SignatureField` uses Caveat (weight 500), which the host app serves too.
+   design's own link: `https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Caveat:wght@500&display=swap`
+   (Caveat, weight 500, is only for the typed name of `SignatureField`). To serve them yourself, download the
+   families from Google Fonts or the `geist` npm package, declare them with `@font-face` in the app's stylesheet
+   and drop the link.
 5. Theme: the stylesheet sets `:root { color-scheme: light dark }`, so the page follows the system theme.
    To pin one, set `data-theme="light"` or `data-theme="dark"` (or the `.light` / `.dark` class) on `<html>`.
 
@@ -69,9 +78,10 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 - **100% independent: no Fluxon, no daisyUI, no Heroicons.** Everything here is `Phoenix.Component` plus
   Tailwind. Icons come in as slots; the documentation site fills them with Hugeicons.
 - **Classes live in the components, not in a stylesheet.** A component carries its Tailwind utilities in its
-  template; `@apply` in `@layer components` is allowed for the classes the canvas names. The only CSS the
-  library needs is the tokens (`:root` variables and `@theme`) and the `shimmer`, `aura-spin`, `aura-glow` and `toast-out` keyframes, in `assets/css/app.css`
-  today. A host app makes Tailwind read the components with `@source "../../deps/devaction_ui/lib"`.
+  template; `@apply` in `@layer components` is allowed for the classes the design names. The only CSS the
+  library needs is the tokens (`:root` variables and `@theme`) and the `shimmer`, `aura-spin`, `aura-glow` and `toast-out` keyframes, all in
+  `assets/css/devaction_ui.css`. That file already tells Tailwind to read the components and the hooks, so the
+  host app imports it and adds no `@source` of its own.
 - **Tokens, never a hex in a template.** `bg-card`, `text-muted`, `border-tag-risk-line`. The tokens flip
   with the theme through `light-dark()`, so a component never has a `dark:` variant of its own. The theme is
   `data-theme="dark"` or the `.dark` class on `<html>`.
@@ -84,12 +94,12 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 
 | Module | What it is |
 | --- | --- |
-| `DevactionUI.Tone` | the five tones (`risk`, `warn`, `ok`, `info`, `neutral`) as class strings, and the canvas's kinds (`note`, `ai`, `tip`, `warning`, `decision`) mapped to them |
+| `DevactionUI.Tone` | the five tones (`risk`, `warn`, `ok`, `info`, `neutral`) as class strings, and the design's kinds (`note`, `ai`, `tip`, `warning`, `decision`) mapped to them |
 | `DevactionUI.Tag` | the mono label; `variant`, `size: :md \| :sm`, `surface: :tinted \| :plain` |
 | `DevactionUI.Callout` | a tinted block with title, icon, body and actions |
 | `DevactionUI.CodeBlock` | code in mono: the dark suggestion block and the tinted "your code" / "idiomatic" ones; a `label` makes it a focusable region, `copy_label` adds a copy button; `lang: :heex` or `:elixir` colours it; `line_numbers`, `highlight_lines` and `diff` work on its lines |
 | `DevactionUI.Kbd` | a key cap |
-| `DevactionUI.Panel` | the canvas card (a soft wrap around a bordered panel), `eyebrow/1` and `empty/1` |
+| `DevactionUI.Panel` | the design card (a soft wrap around a bordered panel), `eyebrow/1` and `empty/1` |
 | `DevactionUI.Button` | button or link, `variant` (primary, secondary, ghost, ai, danger, info, link), `size` sm/md/lg, `loading` |
 | `DevactionUI.Alert` | a short message with an icon and a title |
 | `DevactionUI.Breadcrumb` | where the page is |
@@ -99,6 +109,18 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 | `DevactionUI.Badge` | `count/1` bubble and `dot/1` status dot, optionally pulsing |
 | `DevactionUI.Steps` | steps with connectors: done, current, pending |
 | `DevactionUI.Timeline` | things that happened, in order, on a thin line |
+| `DevactionUI.CommandPalette` | the ⌘K palette: a dialog with a large field, scopes, results in groups with their hints and an "ask the AI" action |
+| `DevactionUI.DangerDialog` | the dialog before something that cannot be undone; the red button stays locked until the person types the name of the thing |
+| `DevactionUI.Divider` | a thin line, or a line with a short word in the middle |
+| `DevactionUI.Drawer` | a panel at the side of the screen to edit without leaving it: floating, docked, from the left, wide, stacked or a bottom sheet |
+| `DevactionUI.FilterMenu` | a button that opens filter groups with submenus of ticks; sends on Apply or on every tick |
+| `DevactionUI.InputGroup` | a text field with an icon, an action at the end and add-ons on either side, with one focus ring on the frame |
+| `DevactionUI.Modal` | a dialog for a decision that interrupts: confirm, tell that something worked, fill a short form |
+| `DevactionUI.NumberInput` | a number field with a minus and a plus; a `spinbutton` that says its value and its limits |
+| `DevactionUI.PageHeader` | the head of a screen: the breadcrumb, the title with its status tag and actions, a line of text and the tabs |
+| `DevactionUI.PasswordStrength` | the meter under a new-password field, with a line saying how strong it is and the rules with a mark each |
+| `DevactionUI.Stepper` | the steps of an onboarding or a wizard with the state of each (`:done`, `:current`, `:error`, `:todo`) |
+| `DevactionUI.Textarea` | a text area that grows with its text, with a footer for actions and a counter that turns red near the limit |
 | `DevactionUI.Tabs` | boxed or underlined tabs, switched on the client with ← → Home End |
 | `DevactionUI.Accordion` | `<details>` sections, exclusive through a shared `name`, no JavaScript |
 | `DevactionUI.Tooltip` | a hint on hover and focus, CSS only |
@@ -117,8 +139,8 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 | `DevactionUI.Editor` | a TipTap toolbar and surface that sends HTML and Markdown in hidden inputs; `/` blocks, `@` mentions, image upload, an AI tool, a compact comment form, visible label, error and disabled; `toolbar_position` for a compact editor with the toolbar at the bottom, and attrs for the CSRF header and the event names of uploads |
 | `DevactionUI.Editor.suggest/1` | the popup of the `@` and `/` menus as a component: a group label, rows with a mark, title and hint, and the active row with its Enter key cap |
 | `DevactionUI.Autocomplete` | a field with grouped suggestions (the server searches), the match in bold, ↑ ↓ Enter, ⌘↵ for an "ask the AI" row |
-| `DevactionUI.DatePicker` | a month calendar for one day or a range, keyboard grid, shortcuts, dates as ISO in hidden inputs; plus `due_chip/1` (late, today, later); `date_input/1` (a masked field with the calendar in a popover) and `date_range/1` (two linked fields) |
-| `DevactionUI.DateRange` | a trigger that shows a range and a popover with ready-made ranges, two months with the band and a hover preview, the days picked and Cancel / Apply; ISO dates in two hidden inputs, and an optional column for a `TimeField` |
+| `DevactionUI.DatePicker` | a month calendar for one day or a range, keyboard grid, shortcuts, dates as ISO in hidden inputs; plus `due_chip/1` (late, today, later); `date_input/1` (a masked field with the calendar in a popover) and `date_range/1` (two linked fields in a form; use `DevactionUI.DateRange` for a filter with ready-made ranges) |
+| `DevactionUI.DateRange` | for a filter bar (not a form field): a trigger that shows a range and a popover with ready-made ranges, two months with the band and a hover preview, the days picked and Cancel / Apply; ISO dates in two hidden inputs, and an optional column for a `TimeField` |
 | `DevactionUI.Calendar` | a month or a week of days with coloured event chips, a keyboard grid (arrows, Home, End, Page keys); `title` and `cell_label` come from the caller; the week view has an hours grid (`hours` range, `weekend`, events with `starts_at`/`ends_at`), a `legend` slot and the `:chart_1` to `:chart_4` kinds |
 | `DevactionUI.Popover` | a panel with an arrow anchored to a button; Esc and outside click close it, focus goes in and comes back |
 | `DevactionUI.ToastGroup` | toasts pushed from the server (`put_toast`, `update_toast`), piled behind the front one and opened into a list on hover or focus, with timers that pause, Alt+T, swipe and a loading variant |
