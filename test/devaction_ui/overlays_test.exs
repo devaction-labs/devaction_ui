@@ -337,26 +337,35 @@ defmodule DevactionUI.OverlaysTest do
   end
 
   describe "Tooltip" do
-    test "is described by its text and shows on all four sides" do
-      assigns = %{}
+    test "is described by its text and starts on each of the four sides" do
+      for side <- [:top, :bottom, :left, :right] do
+        assigns = %{side: side}
 
-      for {side, expected} <- [
-            top: "bottom-full",
-            bottom: "top-full",
-            left: "right-full",
-            right: "left-full"
-          ] do
         html =
           rendered_to_string(~H"""
-          <Tooltip.tooltip id="t" text="Search" placement={side}><button>S</button></Tooltip.tooltip>
+          <Tooltip.tooltip id="t" text="Search" placement={@side}><button>S</button></Tooltip.tooltip>
           """)
 
         assert html =~ ~s(role="tooltip")
         assert html =~ ~s(data-tip="t-tip")
         assert html =~ ~s(id="t-tip")
-        assert html =~ expected
         assert html =~ ~s(data-side="#{side}")
+        assert html =~ ~s(data-placement="#{side}")
       end
+    end
+
+    test "can be hovered and dismissed: it takes the pointer only while shown" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Tooltip.tooltip id="t" text="Search"><button>S</button></Tooltip.tooltip>
+        """)
+
+      assert html =~ "group-hover/tip:pointer-events-auto"
+      assert html =~ "group-focus-within/tip:pointer-events-auto"
+      assert html =~ "group-data-[dismissed]/tip:!pointer-events-none"
+      assert html =~ "pointer-events-none"
     end
 
     test "waits before showing, shows the shortcut and the rich variant has a heading" do
@@ -387,22 +396,17 @@ defmodule DevactionUI.OverlaysTest do
       refute rich =~ "<kbd"
     end
 
-    test "draws an arrow on the side of the trigger" do
-      for {side, arrow} <- [
-            top: "border-t-ink",
-            bottom: "border-b-ink",
-            left: "border-l-ink",
-            right: "border-r-ink"
-          ] do
-        assigns = %{side: side}
+    test "draws an arrow that the hook and the CSS turn to the side of the trigger" do
+      assigns = %{}
 
-        html =
-          rendered_to_string(~H"""
-          <Tooltip.tooltip id="t" text="Search" placement={@side}><button>S</button></Tooltip.tooltip>
-          """)
+      html =
+        rendered_to_string(~H"""
+        <Tooltip.tooltip id="t" text="Search"><button>S</button></Tooltip.tooltip>
+        """)
 
-        assert html =~ arrow
-      end
+      assert html =~ ~s(class="tip-arrow")
+      assert html =~ ~s(aria-hidden="true")
+      assert html =~ "tip "
     end
   end
 end

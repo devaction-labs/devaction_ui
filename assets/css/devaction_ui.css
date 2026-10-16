@@ -388,6 +388,23 @@
   .modal-icon   { @apply grid size-11 shrink-0 place-items-center rounded-xl border; }
   .btn-danger-solid { @apply bg-risk-fg text-white hover:bg-risk-fg/90 aria-disabled:cursor-not-allowed aria-disabled:opacity-40; }
 
+  /* Tooltip: o lado vem de data-side (o hook inverte e desloca na borda da tela); a ponte do ::before deixa o ponteiro chegar a dica */
+  .tip { --tip-gap: 8px; }
+  .tip::before { content: ""; @apply absolute; }
+  .tip[data-side=top]    { @apply bottom-full left-1/2 -translate-x-1/2; margin-bottom: var(--tip-gap); margin-left: var(--tip-shift, 0px); }
+  .tip[data-side=bottom] { @apply top-full left-1/2 -translate-x-1/2; margin-top: var(--tip-gap); margin-left: var(--tip-shift, 0px); }
+  .tip[data-side=left]   { --tip-gap: 6px; @apply right-full top-1/2 -translate-y-1/2; margin-right: var(--tip-gap); margin-top: var(--tip-shift, 0px); }
+  .tip[data-side=right]  { --tip-gap: 6px; @apply left-full top-1/2 -translate-y-1/2; margin-left: var(--tip-gap); margin-top: var(--tip-shift, 0px); }
+  .tip[data-side=top]::before    { @apply inset-x-0 top-full; height: var(--tip-gap); }
+  .tip[data-side=bottom]::before { @apply inset-x-0 bottom-full; height: var(--tip-gap); }
+  .tip[data-side=left]::before   { @apply inset-y-0 left-full; width: var(--tip-gap); }
+  .tip[data-side=right]::before  { @apply inset-y-0 right-full; width: var(--tip-gap); }
+  .tip-arrow { @apply absolute size-0 border-[5px] border-transparent; }
+  .tip[data-side=top] > .tip-arrow    { @apply top-full left-1/2 border-t-ink; margin-left: calc(-5px + var(--tip-arrow, 0px)); }
+  .tip[data-side=bottom] > .tip-arrow { @apply bottom-full left-1/2 border-b-ink; margin-left: calc(-5px + var(--tip-arrow, 0px)); }
+  .tip[data-side=left] > .tip-arrow   { @apply left-full top-1/2 border-l-ink; margin-top: calc(-5px + var(--tip-arrow, 0px)); }
+  .tip[data-side=right] > .tip-arrow  { @apply right-full top-1/2 border-r-ink; margin-top: calc(-5px + var(--tip-arrow, 0px)); }
+
   /* ---------- Vazios, stepper e progresso (prancha 16) ---------- */
   .empty        { @apply relative flex flex-col items-center gap-3 overflow-hidden rounded-card border border-line bg-card px-7 pt-10 pb-8 text-center; }
   .empty-grid   { @apply pointer-events-none absolute inset-x-0 top-0 h-45 bg-[linear-gradient(var(--line-soft)_1px,transparent_1px),linear-gradient(90deg,var(--line-soft)_1px,transparent_1px)] bg-size-[24px_24px] [mask-image:radial-gradient(ellipse_50%_90%_at_50%_0%,#000_20%,transparent_75%)]; }

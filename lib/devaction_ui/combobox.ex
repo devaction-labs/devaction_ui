@@ -15,6 +15,10 @@ defmodule DevactionUI.Combobox do
   kept across a patch; the chosen value is the caller's, as in any LiveView field, so a form that re-renders
   should hold `value` (with `phx-change`).
 
+  `label` is the accessible name and is hidden; `show_label` draws it above the field (13px, weight 500), as the
+  other fields of a form, and `help` is a line of explanation under the field. Both are read with the field
+  (`aria-labelledby`, `aria-describedby`), together with the `error`.
+
   `disabled` locks it (and keeps the value out of the form), `required` marks it for assistive technology
   (a hidden input cannot be validated by the browser, so check it on the server) and `error` is the message
   that goes under it and marks it invalid. With `clear_label` there is a button that empties the choice.
@@ -39,6 +43,12 @@ defmodule DevactionUI.Combobox do
   attr :empty, :string, required: true, doc: "shown when the search finds nothing"
   attr :disabled, :boolean, default: false
   attr :required, :boolean, default: false
+
+  attr :show_label, :boolean,
+    default: false,
+    doc: "draws `label` above the field instead of leaving it for assistive technology only"
+
+  attr :help, :string, default: nil, doc: "a line of explanation under the field"
   attr :error, :string, default: nil, doc: "the message under the field; also marks it invalid"
 
   attr :clear_label, :string,
@@ -67,49 +77,55 @@ defmodule DevactionUI.Combobox do
       {@rest}
     >
       <input type="hidden" name={@name} value={@value} disabled={@disabled} />
-      <span id={"#{@id}-label"} class="sr-only">{@label}</span>
-      <button
-        type="button"
-        data-trigger
-        aria-haspopup="listbox"
-        aria-expanded="false"
-        aria-labelledby={"#{@id}-label #{@id}-current"}
-        aria-describedby={@error && "#{@id}-error"}
-        aria-invalid={@error && "true"}
-        aria-required={@required && "true"}
-        disabled={@disabled}
-        phx-mounted={JS.ignore_attributes(["aria-expanded"])}
-        class={[
-          "group/trigger flex h-11 w-full items-center justify-between gap-2 rounded-xl border bg-card px-3.5 text-left text-[15px] text-ink outline-none focus-visible:border-ink focus-visible:ring-4 focus-visible:ring-ink/10 aria-expanded:border-ink aria-expanded:ring-4 aria-expanded:ring-ink/10 disabled:cursor-not-allowed disabled:opacity-50",
-          (@error && "border-risk-fg") || "border-line-strong",
-          @clear_label && "pr-10"
-        ]}
+      <label
+        id={"#{@id}-label"}
+        for={"#{@id}-trigger"}
+        class={(@show_label && "mb-1.5 block text-[13px] font-medium text-ink") || "sr-only"}
       >
-        <span id={"#{@id}-current"} data-current class={[!@current && "text-muted"]}>
-          {(@current && @current.label) || @placeholder}
-        </span>
-        <span
-          class="text-muted group-aria-expanded/trigger:rotate-180"
-          aria-hidden="true"
+        {@label}
+      </label>
+      <div class="relative">
+        <button
+          type="button"
+          id={"#{@id}-trigger"}
+          data-trigger
+          aria-haspopup="listbox"
+          aria-expanded="false"
+          aria-labelledby={"#{@id}-label #{@id}-current"}
+          aria-describedby={described_by(@id, @help, @error)}
+          aria-invalid={@error && "true"}
+          aria-required={@required && "true"}
+          disabled={@disabled}
+          phx-mounted={JS.ignore_attributes(["aria-expanded"])}
+          class={[
+            "group/trigger flex h-11 w-full items-center justify-between gap-2 rounded-xl border bg-card px-3.5 text-left text-[15px] text-ink outline-none focus-visible:border-ink focus-visible:ring-4 focus-visible:ring-ink/10 aria-expanded:border-ink aria-expanded:ring-4 aria-expanded:ring-ink/10 disabled:cursor-not-allowed disabled:opacity-50",
+            (@error && "border-risk-fg") || "border-line-strong",
+            @clear_label && "pr-10"
+          ]}
         >
-          {render_slot(@chevron_icon)}<span :if={@chevron_icon == []}>⌄</span>
-        </span>
-      </button>
-      <button
-        :if={@clear_label}
-        type="button"
-        data-clear
-        aria-label={@clear_label}
-        hidden={is_nil(@current)}
-        disabled={@disabled}
-        phx-mounted={JS.ignore_attributes(["hidden"])}
-        class="absolute top-1.5 right-9 grid size-8 place-items-center rounded-lg text-muted outline-none hover:bg-wrap hover:text-ink focus-visible:ring-4 focus-visible:ring-ink/10"
-      >
-        {render_slot(@clear_icon)}
-      </button>
-      <p :if={@error} id={"#{@id}-error"} role="alert" class="m-0 mt-1.5 text-[13px] text-risk-fg">
-        {@error}
-      </p>
+          <span id={"#{@id}-current"} data-current class={[!@current && "text-muted"]}>
+            {(@current && @current.label) || @placeholder}
+          </span>
+          <span
+            class="text-muted group-aria-expanded/trigger:rotate-180"
+            aria-hidden="true"
+          >
+            {render_slot(@chevron_icon)}<span :if={@chevron_icon == []}>⌄</span>
+          </span>
+        </button>
+        <button
+          :if={@clear_label}
+          type="button"
+          data-clear
+          aria-label={@clear_label}
+          hidden={is_nil(@current)}
+          disabled={@disabled}
+          phx-mounted={JS.ignore_attributes(["hidden"])}
+          class="absolute top-1.5 right-9 grid size-8 place-items-center rounded-lg text-muted outline-none hover:bg-wrap hover:text-ink focus-visible:ring-4 focus-visible:ring-ink/10"
+        >
+          {render_slot(@clear_icon)}
+        </button>
+      </div>
       <div
         data-panel
         hidden
@@ -165,7 +181,18 @@ defmodule DevactionUI.Combobox do
           </li>
         </ul>
       </div>
+      <p :if={@help} id={"#{@id}-help"} class="m-0 mt-1.5 text-[13px] text-muted">{@help}</p>
+      <p :if={@error} id={"#{@id}-error"} role="alert" class="m-0 mt-1.5 text-[13px] text-risk-fg">
+        {@error}
+      </p>
     </div>
     """
+  end
+
+  defp described_by(id, help, error) do
+    case Enum.reject([help && "#{id}-help", error && "#{id}-error"], &is_nil/1) do
+      [] -> nil
+      ids -> Enum.join(ids, " ")
+    end
   end
 end

@@ -9,9 +9,16 @@ defmodule DevactionUI.Autocomplete do
 
   A group is `%{label: "Lessons", items: [%{id: ..., label: ..., to: path, hint: "30", tone: :warn}]}`; each
   group is a `role="group"` named by its label. A row goes where `to` (a LiveView navigation), `patch` or
-  `href` says; `hint` is a small mono badge, `tone` colors it. The AI row sends `ask_event` with the typed text
+  `href` says (or sends `event` with its `id`); `hint` is a small mono badge, `tone` colors it, and
+  `hint_style: :plain` draws it as bare mono text in the tone, with no background (the number of a pull request
+  or an issue: `#142`). The AI row sends `ask_event` with the typed text
   in the `q` parameter (`phx-value-q`). `highlight/2` splits a label around the query, ignoring case and
   accents, for the bold part.
+
+  While the server searches, `loading` shows `loading_label` (with the `loading_icon` slot, if any) instead of the
+  "nothing found" text, keeps the rows it has, and sets `aria-busy` on the list. What a query that finds nothing
+  says is `empty`, or the `empty_state` slot when it needs more than text (a link to create the thing); the slot
+  gets the query.
 
   The field tells assistive technology the list is open only when there is a row in it: not for a query that
   found nothing and has no AI row. Icons are slots (`search_icon`, with a `⌕` when there is none) and the
@@ -38,6 +45,12 @@ defmodule DevactionUI.Autocomplete do
 
   attr :empty, :string, required: true, doc: "shown when a query finds nothing"
 
+  attr :loading, :boolean,
+    default: false,
+    doc: "the server is searching: shows `loading_label` and marks the list busy"
+
+  attr :loading_label, :string, default: nil, doc: "what the list says while `loading`"
+
   attr :ask_label, :string,
     default: nil,
     doc: "the text of the AI row, e.g. `Ask the AI about \"ecto\"`; no row when nil"
@@ -52,6 +65,8 @@ defmodule DevactionUI.Autocomplete do
 
   attr :rest, :global
   slot :search_icon, doc: "the magnifier in the field"
+  slot :loading_icon, doc: "turning icon before `loading_label`"
+  slot :empty_state, doc: "replaces the `empty` text; gets the query"
 
   @spec autocomplete(map()) :: Phoenix.LiveView.Rendered.t()
   def autocomplete(assigns) do
@@ -90,9 +105,26 @@ defmodule DevactionUI.Autocomplete do
         id={"#{@id}-list"}
         role="listbox"
         aria-label={@label}
+        aria-busy={@loading && "true"}
         class="absolute z-40 mt-1.5 flex w-full flex-col rounded-[14px] border border-line bg-card p-1.5 shadow-pop"
       >
-        <p :if={@groups == []} class="m-0 px-2.5 py-3 text-sm text-muted">{@empty}</p>
+        <p
+          :if={@loading}
+          role="status"
+          class="m-0 flex items-center gap-2 px-2.5 py-3 text-sm text-muted"
+        >
+          <span :if={@loading_icon != []} class="size-4 shrink-0 animate-spin" aria-hidden="true">
+            {render_slot(@loading_icon)}
+          </span>
+          {@loading_label}
+        </p>
+        <div
+          :if={@groups == [] and not @loading}
+          role="status"
+          class="m-0 px-2.5 py-3 text-sm text-muted"
+        >
+          {(@empty_state == [] && @empty) || render_slot(@empty_state, @value)}
+        </div>
         <div
           :for={{group, index} <- Enum.with_index(@groups)}
           role="group"
@@ -111,15 +143,7 @@ defmodule DevactionUI.Autocomplete do
             item={item}
             class="group flex min-h-10 items-center gap-2.5 rounded-[9px] px-2.5 text-sm text-ink no-underline data-[active]:bg-wrap"
           >
-            <span
-              :if={Map.get(item, :hint)}
-              class={[
-                "rounded-[5px] px-1.5 py-0.5 font-mono text-[11px]",
-                tone_class(Map.get(item, :tone, :neutral))
-              ]}
-            >
-              {item.hint}
-            </span>
+            <.hint item={item} />
             <span>{marked(item.label, @value)}</span>
             <.kbd tone={:bare} class="ml-auto hidden group-data-[active]:inline" aria-hidden="true">
               ↵
@@ -192,6 +216,30 @@ defmodule DevactionUI.Autocomplete do
     </.link>
     """
   end
+
+  attr :item, :map,
+    required: true,
+    doc: "`%{hint, tone, hint_style}`; `hint_style` is `:badge` (default) or `:plain`"
+
+  attr :rest, :global
+
+  @doc false
+  def hint(assigns) do
+    ~H"""
+    <span
+      :if={Map.get(@item, :hint)}
+      class={hint_class(Map.get(@item, :hint_style, :badge), Map.get(@item, :tone, :neutral))}
+      {@rest}
+    >
+      {@item.hint}
+    </span>
+    """
+  end
+
+  defp hint_class(:badge, tone),
+    do: ["rounded-[5px] px-1.5 py-0.5 font-mono text-[11px]", tone_class(tone)]
+
+  defp hint_class(:plain, tone), do: ["font-mono text-xs", Tone.text(tone)]
 
   attr :id, :string, required: true
   attr :label, :string, required: true

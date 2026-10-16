@@ -273,6 +273,39 @@ defmodule DevactionUI.CompositesTest do
       assert html =~ ~s(data-phx-link="patch")
       assert html =~ ~s(href="https://example.com")
     end
+
+    test "an item sends its value as choice and every entry of values as a phx-value" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Dropdown.dropdown id="d" label="Menu">
+          <:trigger>Menu</:trigger>
+          <:item event="pick" value="a" values={%{id: 7, kind: "task"}}>A</:item>
+          <:item event="pick" values={%{id: 8}}>B</:item>
+          <:item event="pick" value="c">C</:item>
+          <:item patch="/p" value="d" values={%{id: 9}}>D</:item>
+        </Dropdown.dropdown>
+        """)
+
+      assert html =~ ~s(phx-value-choice="a")
+      assert html =~ ~s(phx-value-id="7")
+      assert html =~ ~s(phx-value-kind="task")
+      assert html =~ ~s(phx-value-id="8")
+      assert html =~ ~s(phx-value-choice="c")
+      assert html =~ ~s(phx-value-choice="d")
+      assert html =~ ~s(phx-value-id="9")
+      assert length(Regex.scan(~r/phx-value-choice/, html)) == 3
+    end
+
+    test "closes on select unless close_on_select is false" do
+      assert render_dropdown([]) =~ ~s(data-close-on-select="true")
+      assert render_dropdown(close_on_select: false) =~ ~s(data-close-on-select="false")
+    end
+
+    test "an item that starts with an icon lines it up with the text", %{html: html} do
+      assert html =~ ~s(class="flex flex-1 items-center gap-2.5")
+    end
   end
 
   describe "confirm_dialog/1" do

@@ -169,6 +169,72 @@ defmodule DevactionUI.MoreTest do
       assert html =~ "⌕"
     end
 
+    test "a plain hint is bare mono text in its tone (a PR number); a badge has a background" do
+      assigns = %{
+        value: "fix",
+        groups: [
+          %{
+            label: "PRs",
+            items: [
+              %{id: "1", label: "Fix", to: "/1", hint: "#142", tone: :risk, hint_style: :plain},
+              %{id: "2", label: "Fix too", to: "/2", hint: "30", tone: :warn}
+            ]
+          }
+        ],
+        ask: nil
+      }
+
+      html = rendered_to_string(~H|<.ac value={@value} groups={@groups} ask={@ask} />|)
+
+      assert html =~ ~r/class="font-mono text-xs text-tag-risk-text"[^>]*>\s*#142/
+      assert html =~ ~r/class="rounded-\[5px\] [^"]*bg-tag-warn-bg[^"]*"[^>]*>\s*30/
+    end
+
+    test "loading shows its label and icon, marks the list busy and keeps the empty text away" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Autocomplete.autocomplete
+          id="ac"
+          label="Search"
+          event="search"
+          value="ecto"
+          empty="Nothing"
+          loading
+          loading_label="Searching"
+        >
+          <:loading_icon>SPIN</:loading_icon>
+        </Autocomplete.autocomplete>
+        """)
+
+      assert html =~ ~s(aria-busy="true")
+      assert html =~ ~r/role="status"[^>]*>\s*<span[^>]*animate-spin[^>]*>\s*SPIN/
+      assert html =~ "Searching"
+      refute html =~ "Nothing"
+    end
+
+    test "the empty state can be a slot that gets the query" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Autocomplete.autocomplete
+          id="ac"
+          label="Search"
+          event="search"
+          value="zzz"
+          empty="Nothing"
+        >
+          <:empty_state :let={query}>No match for {query}. <a href="/new">Create it</a></:empty_state>
+        </Autocomplete.autocomplete>
+        """)
+
+      assert html =~ ~s(No match for zzz. <a href="/new">Create it</a>)
+      refute html =~ "Nothing"
+      refute rendered_to_string(~H|<.ac value="ecto" groups={[]} ask={nil} />|) =~ "aria-busy"
+    end
+
     test "escapes what it highlights" do
       assigns = %{
         value: "a",

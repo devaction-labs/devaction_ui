@@ -1,0 +1,13 @@
+<%!-- title: Near the edge | text: A hint that would leave the screen flips to the other side or slides along the trigger; hover the hint to see it stay open | layout: center --%>
+<div class="flex w-full items-center justify-between gap-6 px-2 py-10">
+  <Tooltip.tooltip
+    id="tooltip-edge-left"
+    text="Opens on the right: no room on the left"
+    placement={:left}
+  >
+    <Button.button variant={:secondary} size={:sm}>Left edge</Button.button>
+  </Tooltip.tooltip>
+  <Tooltip.tooltip id="tooltip-edge-right" text="Slides back inside the screen" placement={:top}>
+    <Button.button variant={:secondary} size={:sm}>Right edge</Button.button>
+  </Tooltip.tooltip>
+</div>

@@ -8,7 +8,13 @@ defmodule DevactionUI.Dropdown do
   `role="menuitemradio"` with a 16px ring before the label, filled on the chosen one). It sends `event` with
   `choice`, or goes to `navigate`, `patch` or `href`. A `separator` puts a rule above the item, a `heading`
   puts a small caption above it (the name of a group of choices), `danger` colors it as destructive and
-  `disabled` leaves it out of the keys and the clicks.
+  `disabled` leaves it out of the keys and the clicks. Type a letter (or the first letters of a name) and the focus
+  jumps to the next item that starts with it. An item may begin with an icon: it takes the color of the text,
+  so a `danger` item has a red icon too.
+
+  An item sends `value` as `choice`, and `values`, a map, as one `phx-value-*` each (`values={%{id: 7, kind:
+  "task"}}` arrives as `"id"` and `"kind"`). The menu closes when an item is chosen and gives the focus back
+  to the button; `close_on_select={false}` keeps it open (a menu of toggles).
 
   The button is a bordered box by default (`variant: :outline`). `variant: :ghost` drops the border and
   `variant: :icon` is a square with only an icon (the "more" menu of a row): give it a `trigger_label`, which is
@@ -31,12 +37,18 @@ defmodule DevactionUI.Dropdown do
     doc: "the accessible name of the button, for one that shows only an icon"
 
   attr :trigger_class, :any, default: nil, doc: "more classes for the button"
+
+  attr :close_on_select, :boolean,
+    default: true,
+    doc: "false keeps the menu open after an item is chosen"
+
   attr :class, :any, default: nil
   slot :trigger, required: true, doc: "what the button shows"
 
   slot :item, required: true do
     attr :event, :string
-    attr :value, :string
+    attr :value, :string, doc: "sent as `choice`"
+    attr :values, :map, doc: "one `phx-value-*` each, besides `choice`"
     attr :navigate, :string
     attr :patch, :string
     attr :href, :string
@@ -57,7 +69,13 @@ defmodule DevactionUI.Dropdown do
   @spec dropdown(map()) :: Phoenix.LiveView.Rendered.t()
   def dropdown(assigns) do
     ~H"""
-    <div id={@id} phx-hook="DevactionUI.Dropdown" class={["relative inline-block", @class]} {@rest}>
+    <div
+      id={@id}
+      phx-hook="DevactionUI.Dropdown"
+      data-close-on-select={to_string(@close_on_select)}
+      class={["relative inline-block", @class]}
+      {@rest}
+    >
       <button
         type="button"
         data-trigger
@@ -112,7 +130,10 @@ defmodule DevactionUI.Dropdown do
   attr :target, :any, default: nil
 
   defp menu_item(assigns) do
-    assigns = assign(assigns, :checked, Map.get(assigns.item, :checked))
+    assigns =
+      assigns
+      |> assign(:checked, Map.get(assigns.item, :checked))
+      |> assign(:values, value_attrs(assigns.item))
 
     ~H"""
     <.link
@@ -122,12 +143,12 @@ defmodule DevactionUI.Dropdown do
       href={Map.get(@item, :href)}
       phx-click={Map.get(@item, :event)}
       phx-target={@target}
-      phx-value-choice={Map.get(@item, :value)}
       role="menuitem"
       tabindex="-1"
       class={item_class(@item)}
+      {@values}
     >
-      {render_slot(@item)}
+      <span class="flex flex-1 items-center gap-2.5">{render_slot(@item)}</span>
       <.kbd_hint item={@item} />
     </.link>
     <button
@@ -140,15 +161,15 @@ defmodule DevactionUI.Dropdown do
       tabindex="-1"
       phx-click={Map.get(@item, :event)}
       phx-target={@target}
-      phx-value-choice={Map.get(@item, :value)}
       class={[item_class(@item), "group/item", @checked && "bg-wrap"]}
+      {@values}
     >
       <span
         :if={not is_nil(@checked)}
         aria-hidden="true"
         class="size-4 shrink-0 rounded-full border border-line-strong group-aria-checked/item:border-[5px] group-aria-checked/item:border-ink"
       />
-      <span class="flex-1">{render_slot(@item)}</span>
+      <span class="flex flex-1 items-center gap-2.5">{render_slot(@item)}</span>
       <.kbd_hint item={@item} />
     </button>
     """
@@ -161,6 +182,16 @@ defmodule DevactionUI.Dropdown do
     <.kbd :if={Map.get(@item, :shortcut)} tone={:bare}>{@item.shortcut}</.kbd>
     """
   end
+
+  defp value_attrs(item) do
+    item
+    |> Map.get(:values, %{})
+    |> Map.new(fn {key, value} -> {"phx-value-#{key}", value} end)
+    |> put_choice(Map.get(item, :value))
+  end
+
+  defp put_choice(attrs, nil), do: attrs
+  defp put_choice(attrs, value), do: Map.put(attrs, "phx-value-choice", value)
 
   defp link?(%{disabled: true}), do: false
   defp link?(item), do: Enum.any?([:navigate, :patch, :href], &Map.has_key?(item, &1))

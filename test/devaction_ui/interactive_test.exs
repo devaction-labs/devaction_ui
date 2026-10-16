@@ -221,7 +221,7 @@ defmodule DevactionUI.InteractiveTest do
 
       assert html =~ ~s(aria-labelledby="cb-label cb-current")
       assert html =~ ~s(id="cb-current")
-      assert html =~ ~r/id="cb-label"[^>]*>Project</
+      assert html =~ ~r/id="cb-label"[^>]*>\s*Project\s*</
       refute html =~ ~r/data-trigger[^>]*aria-label=/
     end
 
@@ -238,6 +238,38 @@ defmodule DevactionUI.InteractiveTest do
       assert html =~ "shadow-pop"
       assert html =~ "h-11"
       assert html =~ ~s(data-placeholder="Choose")
+    end
+
+    test "the label is hidden unless show_label draws it above the field, tied to the button" do
+      hidden = render_combobox([])
+      assert hidden =~ ~r/<label id="cb-label" for="cb-trigger" class="sr-only"/
+      assert hidden =~ ~s(id="cb-trigger")
+
+      shown = render_combobox(show_label: true)
+
+      assert shown =~
+               ~r/<label id="cb-label" for="cb-trigger" class="mb-1.5 block text-\[13px\] font-medium/
+
+      refute shown =~ ~r/id="cb-label"[^>]*sr-only/
+    end
+
+    test "the help sits under the field and is read with it, together with the error" do
+      plain = render_combobox([])
+      refute plain =~ "cb-help"
+      refute plain =~ "aria-describedby"
+
+      help = render_combobox(help: "Where the PR is merged")
+      assert help =~ ~s(aria-describedby="cb-help")
+      assert help =~ ~r/id="cb-help"[^>]*>Where the PR is merged</
+
+      both = render_combobox(help: "Where", error: "Pick one")
+      assert both =~ ~s(aria-describedby="cb-help cb-error")
+    end
+
+    test "the clear button stays on the field, not on the label above it" do
+      html = render_combobox(show_label: true, clear_label: "Clear", value: "a")
+      assert html =~ ~r/<div class="relative">\s*<button[^>]*data-trigger/
+      assert html =~ ~r/data-trigger.*data-clear/s
     end
 
     test "the list is not frozen: the options follow the patch" do

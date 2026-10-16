@@ -1,4 +1,4 @@
-import {counts, pendingCount, submenuSide} from "./filter_logic.js"
+import {counts, pendingCount, resetAction, submenuSide} from "./filter_logic.js"
 import {runKey, wrap} from "./keys.js"
 
 /**
@@ -8,7 +8,8 @@ import {runKey, wrap} from "./keys.js"
  * the form sent last, or every tick when the form has `phx-change`), and Apply shows how many changes it
  * would send. ↑ ↓ Home End move, → opens a submenu (on the other side when there is no room), ← and Esc go
  * back, Enter and Space tick. Applying gives the focus back to the button, and the menu closes when the
- * focus leaves it. Everything is delegated from the root, so a LiveView patch cannot orphan a listener.
+ * focus leaves it. Clear unticks everything and then either tells the form it changed or, with
+ * `data-reset="submit"`, submits it, which sends the empty filters and applies them. Everything is delegated from the root, so a LiveView patch cannot orphan a listener.
  */
 export default {
   mounted() {
@@ -136,7 +137,12 @@ export default {
   reset() {
     this.el.querySelectorAll("input[data-group]").forEach((input) => (input.checked = input.hasAttribute("data-default")))
     this.count()
-    this.el.querySelector("form")?.dispatchEvent(new Event("change", {bubbles: true}))
+    const form = this.el.querySelector("form")
+    const actions = {
+      submit: () => form.requestSubmit(),
+      change: () => form.dispatchEvent(new Event("change", {bubbles: true})),
+    }
+    actions[resetAction(this.el.dataset.reset)]()
   },
 
   count() {

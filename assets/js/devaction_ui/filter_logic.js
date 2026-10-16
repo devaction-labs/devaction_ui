@@ -43,3 +43,12 @@ export const submenuSide = (wanted, {panel, left, right}) => {
   }
   return rules[wanted]
 }
+
+/**
+ * What Clear does after it unticks everything: `"submit"` sends the form (the empty filters are applied), and
+ * anything else only tells the form it changed, as a tick does.
+ *
+ * @param {string | undefined} mode the `data-reset` of the menu
+ * @returns {"submit" | "change"}
+ */
+export const resetAction = (mode) => (mode === "submit" ? "submit" : "change")

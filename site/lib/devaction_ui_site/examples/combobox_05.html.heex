@@ -1,0 +1,38 @@
+<%!-- title: Label, Help and Error | text: show_label draws the label above the field, help sits under it and error replaces the border and adds its message --%>
+<div class="grid max-w-sm gap-6">
+  <Combobox.combobox
+    id="combobox-labelled"
+    name="project_labelled"
+    label="Project"
+    show_label
+    help="The repository the pull request is merged into"
+    placeholder="Choose a project"
+    search_placeholder="Search projects"
+    empty="No project found"
+    options={[
+      %{value: "sge", label: "SGE · Igreja Central", hint: "elixir"},
+      %{value: "hub", label: "Hub Comércio", hint: "laravel"}
+    ]}
+  >
+    <:chevron_icon><.icon name="arrow-down-01" class="size-3.5" /></:chevron_icon>
+    <:search_icon><.icon name="search-01" class="size-3.5" /></:search_icon>
+  </Combobox.combobox>
+  <Combobox.combobox
+    id="combobox-invalid"
+    name="project_invalid"
+    label="Project"
+    show_label
+    required
+    error="Choose a project to continue"
+    placeholder="Choose a project"
+    search_placeholder="Search projects"
+    empty="No project found"
+    options={[
+      %{value: "sge", label: "SGE · Igreja Central", hint: "elixir"},
+      %{value: "hub", label: "Hub Comércio", hint: "laravel"}
+    ]}
+  >
+    <:chevron_icon><.icon name="arrow-down-01" class="size-3.5" /></:chevron_icon>
+    <:search_icon><.icon name="search-01" class="size-3.5" /></:search_icon>
+  </Combobox.combobox>
+</div>
