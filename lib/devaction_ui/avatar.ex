@@ -1,8 +1,10 @@
 defmodule DevactionUI.Avatar do
   @moduledoc """
   A person as two letters in a circle, and the stack of them overlapping by 8px. The letters come from the
-  name (`initials/1`); the tone only tells people apart, it never carries meaning. A circle with no name is
-  decoration, so a stack names its people for assistive technology once, as a group.
+  name (`initials/1`); the tone only tells people apart, it never carries meaning, and `tone: :auto` picks one
+  of four colours (indigo, green, red, gray) from a stable hash of the name, so the same person always has the
+  same colour. A circle with no name is decoration, so a stack names its people for assistive technology
+  once, as a group.
 
   Around it: five sizes (`:xs` to `:xl`), a square shape for what is not a person (a workspace, a repository, a
   client), a status dot (online, away, busy, offline), the AI agent (`agent/1`, amber, with its own mark) and
@@ -26,7 +28,10 @@ defmodule DevactionUI.Avatar do
     required: true,
     doc: "the person (or the workspace); the letters come from it"
 
-  attr :tone, :atom, values: [:ok, :warn, :risk, :info, :neutral], default: :neutral
+  attr :tone, :atom,
+    values: [:auto, :ok, :warn, :risk, :info, :neutral],
+    default: :neutral,
+    doc: "`:auto` takes one of four colours from a stable hash of the name"
 
   attr :size, :atom,
     values: [:xs, :sm, :md, :lg, :xl],
@@ -61,13 +66,13 @@ defmodule DevactionUI.Avatar do
         "relative inline-flex shrink-0 items-center justify-center",
         shape_class(@shape, @size),
         size_class(@size),
-        edge_class(@ring, @tone),
-        Tone.text(@tone),
+        edge_class(@ring, @tone, @name),
+        text_class(@tone, @name),
         @class
       ]}
       {@rest}
     >
-      <span :if={@icon != []} aria-hidden="true" class="size-1/2 [&>*]:size-full">
+      <span :if={@icon != []} aria-hidden="true" class="size-[45%] [&>*]:size-full">
         {render_slot(@icon)}
       </span>
       <span :if={@icon == []} aria-hidden="true">{initials(@name)}</span><span class="sr-only">{@name}</span>
@@ -95,7 +100,7 @@ defmodule DevactionUI.Avatar do
       ]}
       {@rest}
     >
-      <span aria-hidden="true" class="size-1/2 [&>*]:size-full">{render_slot(@inner_block)}</span>
+      <span aria-hidden="true" class="size-[45%] [&>*]:size-full">{render_slot(@inner_block)}</span>
       <span class="sr-only">{@name}</span>
     </span>
     """
@@ -115,13 +120,13 @@ defmodule DevactionUI.Avatar do
       type="button"
       aria-label={@label}
       class={[
-        "inline-flex shrink-0 items-center justify-center rounded-full border-2 border-dashed border-line-strong bg-card text-muted outline-none hover:border-ink hover:text-ink focus-visible:ring-4 focus-visible:ring-ink/10",
+        "inline-flex shrink-0 items-center justify-center rounded-full border-[1.5px] border-dashed border-muted-2 text-muted outline-none hover:border-ink hover:text-ink focus-visible:ring-4 focus-visible:ring-ink/10",
         size_class(@size),
         @class
       ]}
       {@rest}
     >
-      <span class="size-1/2 [&>*]:size-full" aria-hidden="true">{render_slot(@inner_block)}</span>
+      <span class="size-[45%] [&>*]:size-full" aria-hidden="true">{render_slot(@inner_block)}</span>
     </button>
     """
   end
@@ -152,7 +157,7 @@ defmodule DevactionUI.Avatar do
   defp dot_color(:online), do: "bg-tag-ok-text"
   defp dot_color(:away), do: "bg-ai"
   defp dot_color(:busy), do: "bg-missing"
-  defp dot_color(:offline), do: "bg-done-cell"
+  defp dot_color(:offline), do: "bg-muted-2"
 
   defp shape_class(:round, _size), do: "rounded-full font-mono"
 
@@ -162,14 +167,33 @@ defmodule DevactionUI.Avatar do
   defp shape_class(:square, :md), do: "rounded-[11px] font-sans font-semibold"
   defp shape_class(:square, _large), do: "rounded-[14px] font-sans font-semibold"
 
-  defp edge_class(true, tone), do: ["border-2 border-card", tint(tone)]
-  defp edge_class(false, tone), do: ["border", Tone.surface(tone)]
+  defp edge_class(true, tone, name), do: ["border-2 border-card", tint(tone, name)]
+  defp edge_class(false, tone, name), do: ["border", surface(tone, name)]
 
-  defp tint(:risk), do: "bg-tag-risk-bg"
-  defp tint(:warn), do: "bg-tag-warn-bg"
-  defp tint(:ok), do: "bg-tag-ok-bg"
-  defp tint(:info), do: "bg-tag-info-bg"
-  defp tint(:neutral), do: "bg-tag-neutral-bg"
+  defp surface(:auto, name), do: ["border-transparent", tint(:auto, name)]
+  defp surface(tone, _name), do: Tone.surface(tone)
+
+  defp text_class(:auto, name), do: name |> bucket() |> palette_text()
+  defp text_class(tone, _name), do: Tone.text(tone)
+
+  defp tint(:auto, name), do: name |> bucket() |> palette_fill()
+  defp tint(:risk, _name), do: "bg-tag-risk-bg"
+  defp tint(:warn, _name), do: "bg-tag-warn-bg"
+  defp tint(:ok, _name), do: "bg-tag-ok-bg"
+  defp tint(:info, _name), do: "bg-tag-info-bg"
+  defp tint(:neutral, _name), do: "bg-tag-neutral-bg"
+
+  defp bucket(name), do: :erlang.phash2(name, 4)
+
+  defp palette_fill(0), do: "bg-avatar-indigo-bg"
+  defp palette_fill(1), do: "bg-avatar-green-bg"
+  defp palette_fill(2), do: "bg-avatar-red-bg"
+  defp palette_fill(3), do: "bg-avatar-gray-bg"
+
+  defp palette_text(0), do: "text-avatar-indigo-fg"
+  defp palette_text(1), do: "text-avatar-green-fg"
+  defp palette_text(2), do: "text-avatar-red-fg"
+  defp palette_text(3), do: "text-avatar-gray-fg"
 
   defp size_class(:xs), do: "size-[22px] text-[9px]"
   defp size_class(:sm), do: "size-8 text-[11px]"
@@ -177,7 +201,10 @@ defmodule DevactionUI.Avatar do
   defp size_class(:lg), do: "size-14 text-base"
   defp size_class(:xl), do: "size-[72px] text-xl"
 
-  attr :people, :list, required: true, doc: "`%{name: ..., tone: ...}` each, the first on top"
+  attr :people, :list,
+    required: true,
+    doc: "`%{name: ..., tone: ...}` each (`tone` may be `:auto`), the first on top"
+
   attr :label, :string, required: true, doc: "what the group is, e.g. `Reviewers`"
   attr :max, :integer, default: nil, doc: "how many are drawn; the rest become a `+N` chip"
   attr :size, :atom, values: [:xs, :sm, :md, :lg, :xl], default: :sm

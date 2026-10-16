@@ -103,6 +103,14 @@
   --tag-neutral-text: light-dark(#3F3F46, #C9C9D6);
   --tag-neutral-strong: light-dark(#18181B, #EDEDF2);
   --line-dashed: light-dark(#C9C9CF, #4A4A58);
+  --avatar-indigo-bg: light-dark(#EEF2FF, #1D2142);
+  --avatar-indigo-fg: light-dark(#3730A3, #C3CAFF);
+  --avatar-green-bg: light-dark(#ECFDF5, #12281E);
+  --avatar-green-fg: light-dark(#047857, #86E8B3);
+  --avatar-red-bg: light-dark(#FEF2F2, #2A1B1A);
+  --avatar-red-fg: light-dark(#B91C1C, #FFB4AA);
+  --avatar-gray-bg: light-dark(#F4F4F5, #2A2A36);
+  --avatar-gray-fg: light-dark(#3F3F46, #C9C9D6);
   --kbd-inverse: light-dark(#3F3F46, #C9C9D6);
   --kbd-inverse-fg: light-dark(#E4E4E7, #2C2C38);
 }
@@ -116,6 +124,14 @@
   --color-line-soft: var(--line-soft);
   --color-line-strong: var(--line-strong);
   --color-line-dashed: var(--line-dashed);
+  --color-avatar-indigo-bg: var(--avatar-indigo-bg);
+  --color-avatar-indigo-fg: var(--avatar-indigo-fg);
+  --color-avatar-green-bg: var(--avatar-green-bg);
+  --color-avatar-green-fg: var(--avatar-green-fg);
+  --color-avatar-red-bg: var(--avatar-red-bg);
+  --color-avatar-red-fg: var(--avatar-red-fg);
+  --color-avatar-gray-bg: var(--avatar-gray-bg);
+  --color-avatar-gray-fg: var(--avatar-gray-fg);
   --color-ink: var(--ink);
   --color-ink-2: var(--ink-2);
   --color-muted: var(--muted);

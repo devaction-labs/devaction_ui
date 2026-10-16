@@ -54,7 +54,7 @@ defmodule DevactionUI.AvatarTest do
           online: "bg-tag-ok-text",
           away: "bg-ai",
           busy: "bg-missing",
-          offline: "bg-done-cell"
+          offline: "bg-muted-2"
         ] do
       html =
         rendered_to_string(~H|<Avatar.avatar name="A B" status={status} status_label="Here" />|)
@@ -83,6 +83,7 @@ defmodule DevactionUI.AvatarTest do
     assert html =~ "MARK"
     assert html =~ "DevAction IA"
     assert html =~ "size-14"
+    assert html =~ "size-[45%]"
   end
 
   test "the invite slot is a button with a name" do
@@ -94,7 +95,10 @@ defmodule DevactionUI.AvatarTest do
       )
 
     assert html =~ ~s(aria-label="Invite")
-    assert html =~ "border-dashed"
+    assert html =~ "border-[1.5px] border-dashed border-muted-2"
+    assert html =~ "text-muted"
+    refute html =~ "bg-card"
+    assert html =~ "size-[45%]"
     assert html =~ ~s(type="button")
     assert html =~ ~s(phx-click="x")
   end
@@ -187,5 +191,38 @@ defmodule DevactionUI.AvatarTest do
 
     assert html =~ ~s(role="img")
     assert html =~ ~s(aria-label="Online")
+  end
+
+  test "the auto tone gives the same name the same palette colour every time" do
+    assigns = %{}
+    first = rendered_to_string(~H|<Avatar.avatar name="Carlos André" tone={:auto} />|)
+    again = rendered_to_string(~H|<Avatar.avatar name="Carlos André" tone={:auto} />|)
+
+    assert first == again
+    assert first =~ ~r/bg-avatar-(indigo|green|red|gray)-bg/
+    assert first =~ ~r/text-avatar-(indigo|green|red|gray)-fg/
+    assert first =~ "border-transparent"
+    refute first =~ "bg-tag-"
+  end
+
+  test "the auto tone uses all four colours across different names" do
+    colors =
+      for name <- ~w(Ana Bruno Carla Diego Elisa Fabio Gina Hugo Iris Joao Kátia Luis Maria Nuno),
+          into: MapSet.new() do
+        assigns = %{name: name}
+        html = rendered_to_string(~H|<Avatar.avatar name={@name} tone={:auto} />|)
+        [_all, color] = Regex.run(~r/bg-avatar-(\w+)-bg/, html)
+        color
+      end
+
+    assert colors == MapSet.new(~w(indigo green red gray))
+  end
+
+  test "the auto tone also works in a stack, with the card ring" do
+    assigns = %{people: [%{name: "Ana Lima", tone: :auto}]}
+    html = rendered_to_string(~H|<Avatar.avatar_stack label="M" people={@people} />|)
+
+    assert html =~ "border-2 border-card"
+    assert html =~ ~r/bg-avatar-\w+-bg/
   end
 end
