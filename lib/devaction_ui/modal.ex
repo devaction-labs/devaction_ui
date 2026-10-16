@@ -6,11 +6,24 @@ defmodule DevactionUI.Modal do
 
   The LiveView decides when it is there (`:if={@open}`). It takes the focus in, keeps it inside, closes with Esc
   and, unless it is `dismissible={false}`, with a click outside; the focus goes back to the button that opened it
-  when that button used `DevactionUI.Drawer.open/1`. Sizes: `:sm` 400, `:md` 520 (default), `:lg` 720.
+  when that button used `open/1`. Sizes: `:sm` 400, `:md` 520 (default), `:lg` 720. A tall body scrolls inside
+  the panel, between the header and the footer. The page behind is not locked from scrolling and the rest of
+  the page is not made inert: only the focus is kept inside.
   """
   use Phoenix.Component
 
   alias Phoenix.LiveView.JS
+
+  @doc """
+  The command for the button that opens a modal: it remembers the focus, then pushes `event`. Closing puts the
+  focus back there. The same as `DevactionUI.Drawer.open/1`.
+  """
+  defdelegate open(event_or_js), to: DevactionUI.Drawer
+
+  @doc "The command that closes: gives the focus back, then runs `on_close` (an event name or a `JS` command)."
+  @spec close(String.t() | JS.t()) :: JS.t()
+  def close(%JS{} = js), do: JS.pop_focus(js)
+  def close(event) when is_binary(event), do: JS.pop_focus() |> JS.push(event)
 
   attr :id, :string, required: true
   attr :size, :atom, values: [:sm, :md, :lg], default: :md
@@ -68,6 +81,7 @@ defmodule DevactionUI.Modal do
         role="dialog"
         aria-modal="true"
         aria-labelledby={"#{@id}-title"}
+        aria-describedby={@subtitle != [] && "#{@id}-subtitle"}
         class={["modal relative z-50", size_class(@size), @class]}
       >
         <div class={["modal-header", @centered && "flex-col items-center text-center"]}>
@@ -75,24 +89,35 @@ defmodule DevactionUI.Modal do
             {render_slot(@icon)}
           </span>
           <div class="flex min-w-0 flex-1 flex-col gap-1.5">
-            <h2 id={"#{@id}-title"} class="m-0 text-xl font-semibold tracking-[-0.02em] text-ink">
+            <h2
+              id={"#{@id}-title"}
+              class={[
+                "m-0 font-semibold text-ink",
+                @centered && "text-xl",
+                not @centered && "text-lg"
+              ]}
+            >
               {render_slot(@title)}
             </h2>
-            <p :if={@subtitle != []} class="m-0 text-sm leading-normal text-ink-2">
+            <div
+              :if={@subtitle != []}
+              id={"#{@id}-subtitle"}
+              class="m-0 text-sm leading-[1.55] text-ink-2"
+            >
               {render_slot(@subtitle)}
-            </p>
+            </div>
           </div>
           <button
             :if={@close_label}
             type="button"
             aria-label={@close_label}
             phx-click={close(@on_close)}
-            class="flex size-9 flex-none items-center justify-center rounded-[10px] border border-line bg-card text-ink-2 outline-none hover:bg-wrap focus-visible:ring-4 focus-visible:ring-ink/10"
+            class="-mt-1.5 -mr-2 flex size-9.5 flex-none items-center justify-center rounded-[10px] bg-transparent text-muted outline-none hover:bg-wrap focus-visible:ring-4 focus-visible:ring-ink/10"
           >
             {render_slot(@close_icon)}
           </button>
         </div>
-        <div :if={@inner_block != []} class="px-6.5 pb-5">{render_slot(@inner_block)}</div>
+        <div :if={@inner_block != []} class="modal-body">{render_slot(@inner_block)}</div>
         <div :if={@footer != []} class={["modal-footer", @centered && "justify-center"]}>
           {render_slot(@footer)}
         </div>
@@ -113,7 +138,4 @@ defmodule DevactionUI.Modal do
   defp tone_class(:ok), do: "border-tag-ok-line bg-tag-ok-bg text-tag-ok-text"
   defp tone_class(:warn), do: "border-tag-warn-line bg-tag-warn-bg text-tag-warn-text"
   defp tone_class(:risk), do: "border-tag-risk-line bg-tag-risk-bg text-tag-risk-text"
-
-  defp close(%JS{} = js), do: JS.pop_focus(js)
-  defp close(event) when is_binary(event), do: JS.pop_focus() |> JS.push(event)
 end

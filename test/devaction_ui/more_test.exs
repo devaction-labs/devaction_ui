@@ -196,6 +196,23 @@ defmodule DevactionUI.MoreTest do
     assert html =~ "Body"
   end
 
+  test "Popover keeps its default width when the caller adds classes, and sits 6 px from the trigger" do
+    assigns = %{}
+
+    html =
+      rendered_to_string(~H"""
+      <Popover.popover id="p" label="Details" panel_class="p-6">
+        <:trigger><a href="#">Open</a></:trigger>
+        Body
+      </Popover.popover>
+      """)
+
+    assert html =~ "[:where(&amp;)]:w-80"
+    assert html =~ "p-6"
+    assert html =~ "mt-1.5"
+    assert html =~ "mb-1.5"
+  end
+
   describe "ToastGroup" do
     defp group(assigns) do
       ~H"""
