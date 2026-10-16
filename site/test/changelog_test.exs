@@ -18,7 +18,8 @@ defmodule DevactionUISite.ChangelogTest do
 
     assert Enum.map(versions, &{&1.version, &1.status}) == [
              {"v0.3", "next"},
-             {"v0.2.4", "current"},
+             {"v0.2.5", "current"},
+             {"v0.2.4", "archived"},
              {"v0.2.3", "archived"},
              {"v0.2.2", "archived"},
              {"v0.2.1", "archived"},
@@ -26,8 +27,8 @@ defmodule DevactionUISite.ChangelogTest do
              {"v0.1.0", "archived"}
            ]
 
-    assert Changelog.current().version == "v0.2.4"
-    assert Changelog.current().tag == "v0.2.4"
+    assert Changelog.current().version == "v0.2.5"
+    assert Changelog.current().tag == "v0.2.5"
   end
 
   test "sync writes every component of the catalog as a new entry of the release it came with" do
@@ -79,7 +80,7 @@ defmodule DevactionUISite.ChangelogTest do
   end
 
   test "sync is idempotent and leaves entries added by hand alone" do
-    {:ok, %Entry{}} = Changelog.add_entry("v0.2.4", "fixed", "Form", "slider-step", "A fix.")
+    {:ok, %Entry{}} = Changelog.add_entry("v0.2.5", "fixed", "Form", "slider-step", "A fix.")
     before = Changelog.counts(Changelog.versions())
 
     Changelog.sync!()
@@ -114,6 +115,6 @@ defmodule DevactionUISite.ChangelogTest do
 
   test "an entry for an unknown version or kind is refused" do
     assert {:error, :unknown_version} = Changelog.add_entry("v9", "new", "Base", "x", "s")
-    assert {:error, :unknown_kind} = Changelog.add_entry("v0.2.4", "other", "Base", "x", "s")
+    assert {:error, :unknown_kind} = Changelog.add_entry("v0.2.5", "other", "Base", "x", "s")
   end
 end

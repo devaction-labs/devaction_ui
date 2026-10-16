@@ -46,7 +46,7 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 
 ## Using it in a project
 
-    {:devaction_ui, github: "devaction-labs/devaction_ui"}
+    {:devaction_ui, "~> 0.2.0"}
 
 1. CSS: `@import "../../deps/devaction_ui/assets/css/devaction_ui.css";` in the app's Tailwind entry. The
    stylesheet itself tells Tailwind to read the components and the hooks (some classes live in the JS),

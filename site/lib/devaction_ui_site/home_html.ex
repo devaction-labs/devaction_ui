@@ -9,11 +9,11 @@ defmodule DevactionUISite.HomeHTML do
 
   import DevactionUISite.Icon
 
-  alias DevactionUISite.{Catalog, Changelog, Templates}
+  alias DevactionUISite.{Catalog, Changelog, Project, Templates}
 
   @github "https://github.com/devaction-labs/devaction_ui"
 
-  @mix_install ~S|{:devaction_ui, github: "devaction-labs/devaction_ui"}|
+  @mix_install ~s|{:devaction_ui, "~> #{Project.short_version()}.0"}|
   @css_install ~S|@import "../../deps/devaction_ui/assets/css/devaction_ui.css";|
   @js_install_import ~S|import {hooks as devactionUI} from "../../deps/devaction_ui/assets/js/devaction_ui"|
   @js_install_socket ~S|new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
