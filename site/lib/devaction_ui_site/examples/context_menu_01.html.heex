@@ -1,0 +1,49 @@
+<%!-- title: Right click | text: A right click, or Shift + F10 with the focus on a row, opens the menu at the pointer. Icons, shortcuts, a separator and a danger item. --%>
+<div class="flex flex-col gap-3">
+  <div class="overflow-hidden rounded-xl border border-line text-sm">
+    <ContextMenu.menu
+      :for={
+        {id, title, pr} <- [
+          {"a", "Adjust the financial report", nil},
+          {"b", "Migrate old milestones with due_on", "PR #214"},
+          {"c", "Review treasurer permissions", nil}
+        ]
+      }
+      id={"context-menu-row-#{id}"}
+      label="Task actions"
+      class="border-b border-line-soft last:border-b-0"
+      target_class="flex h-11 items-center gap-2.5 px-3.5"
+    >
+      <:area>
+        <span class="size-4 rounded border border-line-strong"></span>
+        {title}
+        <span :if={pr} class="ml-auto text-xs text-muted">{pr}</span>
+      </:area>
+      <:item event="context_pick" value="open" shortcut="↵">
+        <.icon name="view" class="size-4" /> Open
+      </:item>
+      <:item event="context_pick" value="pr">
+        <.icon name="git-pull-request" class="size-4" /> See PR #214
+      </:item>
+      <:item event="context_pick" value="review" shortcut="⌘R">
+        <.icon name="sparkles" class="size-4" /> Review with AI
+      </:item>
+      <:item event="context_pick" value="assign" shortcut="A" separator>
+        <.icon name="user" class="size-4" /> Assign to…
+      </:item>
+      <:item event="context_pick" value="deadline" shortcut="D">
+        <.icon name="calendar-03" class="size-4" /> Change deadline
+      </:item>
+      <:item event="context_pick" value="copy" shortcut="⌘C">
+        <.icon name="copy-01" class="size-4" /> Copy link
+      </:item>
+      <:item event="context_pick" value="delete" shortcut="⌫" separator danger>
+        <.icon name="delete-02" class="size-4" /> Delete task
+      </:item>
+    </ContextMenu.menu>
+  </div>
+  <p class="m-0 text-sm text-muted" aria-live="polite">
+    {(@menus.picked && "Chose: #{@menus.picked}") ||
+      "Right click a row, or focus it and press Shift + F10."}
+  </p>
+</div>

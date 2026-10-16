@@ -126,10 +126,14 @@ defmodule DevactionUI.Dropdown do
     """
   end
 
-  attr :item, :map, required: true
+  attr :item, :map, required: true, doc: "the slot entry of an item, with its attrs"
   attr :target, :any, default: nil
+  attr :compact, :boolean, default: false, doc: "the 34px rows of the context menu"
+  attr :rest, :global
 
-  defp menu_item(assigns) do
+  @doc "One item of a menu: what `dropdown/1` and `DevactionUI.ContextMenu` draw for each `:item` slot."
+  @spec menu_item(map()) :: Phoenix.LiveView.Rendered.t()
+  def menu_item(assigns) do
     assigns =
       assigns
       |> assign(:checked, Map.get(assigns.item, :checked))
@@ -145,8 +149,9 @@ defmodule DevactionUI.Dropdown do
       phx-target={@target}
       role="menuitem"
       tabindex="-1"
-      class={item_class(@item)}
+      class={item_class(@item, @compact)}
       {@values}
+      {@rest}
     >
       <span class="flex flex-1 items-center gap-2.5">{render_slot(@item)}</span>
       <.kbd_hint item={@item} />
@@ -161,8 +166,9 @@ defmodule DevactionUI.Dropdown do
       tabindex="-1"
       phx-click={Map.get(@item, :event)}
       phx-target={@target}
-      class={[item_class(@item), "group/item", @checked && "bg-wrap"]}
+      class={[item_class(@item, @compact), "group/item", @checked && "bg-wrap"]}
       {@values}
+      {@rest}
     >
       <span
         :if={not is_nil(@checked)}
@@ -184,8 +190,9 @@ defmodule DevactionUI.Dropdown do
   end
 
   defp value_attrs(item) do
-    item
-    |> Map.get(:values, %{})
+    values = Map.get(item, :values) || %{}
+
+    values
     |> Map.new(fn {key, value} -> {"phx-value-#{key}", value} end)
     |> put_choice(Map.get(item, :value))
   end
@@ -194,7 +201,7 @@ defmodule DevactionUI.Dropdown do
   defp put_choice(attrs, value), do: Map.put(attrs, "phx-value-choice", value)
 
   defp link?(%{disabled: true}), do: false
-  defp link?(item), do: Enum.any?([:navigate, :patch, :href], &Map.has_key?(item, &1))
+  defp link?(item), do: Enum.any?([:navigate, :patch, :href], &(not is_nil(Map.get(item, &1))))
 
   defp trigger_class(:outline, :sm),
     do: "inline-flex h-[38px] rounded-[10px] border border-line-strong px-3 text-sm"
@@ -207,9 +214,10 @@ defmodule DevactionUI.Dropdown do
   defp trigger_class(:icon, :sm), do: "grid size-[38px] place-items-center rounded-[10px]"
   defp trigger_class(:icon, :md), do: "grid size-[42px] place-items-center rounded-[11px]"
 
-  defp item_class(item) do
+  defp item_class(item, compact) do
     [
-      "flex h-[38px] w-full items-center justify-between gap-3 rounded-[9px] border-0 bg-transparent px-2.5 text-left text-sm no-underline outline-none hover:bg-wrap focus-visible:bg-wrap disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent",
+      (compact && "h-[34px] rounded-lg") || "h-[38px] rounded-[9px]",
+      "flex w-full items-center justify-between gap-3 border-0 bg-transparent px-2.5 text-left text-sm no-underline outline-none hover:bg-wrap focus-visible:bg-wrap disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent",
       (Map.get(item, :danger) && "text-tag-risk-text") || "text-ink"
     ]
   end

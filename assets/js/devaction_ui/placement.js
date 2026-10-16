@@ -133,3 +133,21 @@ export const placeTip = (wanted, {tip, trigger, viewport}) => {
   const reach = Math.max(half - ARROW_INSET, 0)
   return {side, shift, arrow: clamp(0 - shift, -reach, reach)}
 }
+
+/** The edge of a panel that opens at a point: it stays where the pointer is, unless that crosses `limit`; then it ends there instead. */
+const flipAt = (at, size, limit) => (at + size + EDGE <= limit ? at : Math.max(EDGE, at - size))
+
+/**
+ * The corner of a panel with `position: fixed` that opens at a point (the pointer of a context menu): its top
+ * left corner is at the point, or the panel opens to the left and/or upwards of it when it would leave the
+ * screen, and it never leaves the screen at all.
+ *
+ * @param {{x: number, y: number}} point
+ * @param {{width: number, height: number}} panel
+ * @param {{width: number, height: number}} screen
+ * @returns {{left: number, top: number}}
+ */
+export const placeAtPoint = (point, panel, screen) => ({
+  left: Math.max(EDGE, flipAt(point.x, panel.width, screen.width)),
+  top: Math.max(EDGE, flipAt(point.y, panel.height, screen.height)),
+})

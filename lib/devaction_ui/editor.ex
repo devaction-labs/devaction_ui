@@ -37,8 +37,15 @@ defmodule DevactionUI.Editor do
   `alignRight`, `undo`, `redo`, `link`, `image` (which sends a file to `upload_url`) or `ai` (which sends the Markdown as the event
   `improve` to the component the editor is in, and takes back the text it answers with in `editor:replace`)), its label and its icon as the body. A tool with `separator` is
   preceded by a divider. The library holds no icons and no language: the caller gives both.
+
+  `suggest/1` is the popup of those two menus as a component of its own, for a page that draws it itself (a
+  mock, a server-rendered mention list, the docs): a listbox with a group label (`PEOPLE`, `COMMANDS`), rows of
+  a 26px mark (the initials of a person, or an icon), a title and a hint, the active row highlighted and
+  carrying the Enter key cap.
   """
   use Phoenix.Component
+
+  alias DevactionUI.Tone
 
   attr :id, :string, required: true
 
@@ -282,4 +289,90 @@ defmodule DevactionUI.Editor do
   defp tool_data("image"), do: %{"data-image": true}
   defp tool_data("ai"), do: %{"data-ai": true}
   defp tool_data(name), do: %{"data-command": name}
+
+  attr :id, :string, required: true
+  attr :label, :string, required: true, doc: "the name of the list, for assistive technology"
+  attr :heading, :string, default: nil, doc: "the label of the group: `PEOPLE`, `COMMANDS`"
+  attr :active, :integer, default: 0, doc: "the index of the highlighted row; -1 for none"
+  attr :enter, :string, default: "↵", doc: "the key cap at the end of the active row"
+  attr :class, :any, default: nil
+
+  attr :target, :any,
+    default: nil,
+    doc: "a `phx-target` (a `@myself`) when used inside a LiveComponent"
+
+  slot :option,
+    required: true,
+    doc: "a row; its body is the mark before the title: initials or an icon" do
+    attr :title, :string, required: true
+
+    attr :hint, :string,
+      doc: "the second line, such as the role of a person or what a command does"
+
+    attr :tone, :atom, doc: "`:ink` (the default) or a `DevactionUI.Tone`: the colour of the mark"
+    attr :event, :string, doc: "sent when the row is chosen, with its `value`"
+    attr :value, :string, doc: "sent as `choice`"
+  end
+
+  attr :rest, :global
+
+  @doc "The popup of the `@` and `/` menus: a listbox with a group label and rows of a mark, a title and a hint."
+  @spec suggest(map()) :: Phoenix.LiveView.Rendered.t()
+  def suggest(assigns) do
+    ~H"""
+    <div
+      id={@id}
+      role="listbox"
+      aria-label={@label}
+      class={[
+        "flex w-[330px] max-w-full flex-col rounded-xl border border-line bg-card p-1.5 text-sm text-ink shadow-menu",
+        @class
+      ]}
+      {@rest}
+    >
+      <span
+        :if={@heading}
+        role="presentation"
+        class="px-2 pt-1 pb-1.5 font-mono text-[10px] tracking-[0.08em] text-muted"
+      >
+        {@heading}
+      </span>
+      <div
+        :for={{option, index} <- Enum.with_index(@option)}
+        id={"#{@id}-option-#{index}"}
+        role="option"
+        aria-selected={to_string(index == @active)}
+        phx-click={Map.get(option, :event)}
+        phx-target={@target}
+        phx-value-choice={Map.get(option, :value)}
+        class={[
+          "flex h-10 items-center gap-2.5 rounded-lg px-2",
+          index == @active && "bg-wrap",
+          Map.get(option, :event) && "cursor-pointer hover:bg-wrap"
+        ]}
+      >
+        <span
+          aria-hidden="true"
+          class={[
+            "flex size-6.5 shrink-0 items-center justify-center rounded-lg text-[11px] font-semibold",
+            mark_class(Map.get(option, :tone))
+          ]}
+        >
+          {render_slot(option)}
+        </span>
+        <span class="min-w-0">
+          <span class="block truncate font-medium">{option.title}</span>
+          <span :if={Map.get(option, :hint)} class="block truncate text-xs text-muted">
+            {option.hint}
+          </span>
+        </span>
+        <kbd :if={index == @active} class="ml-auto font-mono text-[11px] text-muted">{@enter}</kbd>
+      </div>
+    </div>
+    """
+  end
+
+  defp mark_class(nil), do: "bg-ink text-on-primary"
+  defp mark_class(:ink), do: "bg-ink text-on-primary"
+  defp mark_class(tone), do: [Tone.bg(tone), Tone.text(tone)]
 end

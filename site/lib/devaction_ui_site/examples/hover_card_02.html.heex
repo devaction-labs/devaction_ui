@@ -1,0 +1,25 @@
+<%!-- title: Pull request | text: The trigger can be set in mono, like a PR number. The card shows what blocks it. | layout: center --%>
+<div class="pb-36">
+  <p class="m-0 text-[15px] leading-[1.7]">
+    Alex asked for a review of
+    <HoverCard.card
+      id="hover-card-pr"
+      label="Pull request 214"
+      trigger_class="font-mono text-sm"
+      card_class="w-80 p-3.5"
+    >
+      <:trigger>#214</:trigger>
+      <span class="flex items-center gap-2">
+        <.icon name="git-pull-request" class="size-4 text-dot-ok" />
+        <span class="font-mono text-xs text-muted">sge-api #214</span>
+        <.tag variant={:risk} size={:sm} case={:normal} class="ml-auto">2 blockers</.tag>
+      </span>
+      <span class="mt-2 block font-semibold">Migrate old milestones with due_on</span>
+      <span class="mt-1.5 block text-[13px] text-ink-2">
+        7 files · <span class="text-tag-ok-text">+166</span>
+        <span class="text-tag-risk-text">−68</span> · M3
+      </span>
+    </HoverCard.card>
+    in the SGE project.
+  </p>
+</div>

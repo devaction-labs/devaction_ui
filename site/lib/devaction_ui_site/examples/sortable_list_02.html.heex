@@ -1,0 +1,25 @@
+<%!-- title: What the server receives | text: Every move sends one event with the whole new order, the row that moved and where it went. --%>
+<div class="flex max-w-xl flex-col gap-3">
+  <SortableList.list
+    id="sortable-event"
+    label="Priorities"
+    event="reorder"
+    handle_label="Reorder"
+    up_label="Move up"
+    down_label="Move down"
+    hint_label="Press Space to pick up, the arrow keys to move, Space or Enter to drop, Escape to cancel"
+    picked_label="__ITEM__ picked up, position __POS__ of __TOTAL__"
+    moved_label="__ITEM__ moved to position __POS__ of __TOTAL__"
+    dropped_label="__ITEM__ dropped at position __POS__ of __TOTAL__"
+    cancelled_label="__ITEM__ moved back, position __POS__ of __TOTAL__"
+  >
+    <:handle_icon><.icon name="drag-drop-vertical" class="size-4" /></:handle_icon>
+    <:up_icon><.icon name="arrow-down-01" class="size-3.5 rotate-180" /></:up_icon>
+    <:down_icon><.icon name="arrow-down-01" class="size-3.5" /></:down_icon>
+    <:row :for={id <- @sortable.order} id={id} label={elem(@sortable.items[id], 1)} />
+  </SortableList.list>
+  <p class="m-0 font-mono text-xs text-muted" aria-live="polite">
+    order: {Enum.join(@sortable.order, ", ")}
+    <span :if={@sortable.last}>· moved {@sortable.last.id} from {@sortable.last.from} to {@sortable.last.to}</span>
+  </p>
+</div>

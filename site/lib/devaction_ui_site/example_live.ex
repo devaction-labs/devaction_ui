@@ -126,6 +126,15 @@ defmodule DevactionUISite.ExampleLive do
     },
     "ok" => %{state: "ok", value: "482913", status: :ok, helper: "Verified. Signing in…"}
   }
+  @milestones %{
+    "m1" => {"M1", "Member registry", "delivered"},
+    "m2" => {"M2", "Tithes and offerings", "delivered"},
+    "m3" => {"M3", "Financial reports", "Oct 16"},
+    "m4" => {"M4", "Schedules and shifts", "Nov 20"},
+    "m5" => {"M5", "Members app", "Dec 18"}
+  }
+  @milestone_order ~w(m1 m2 m3 m4 m5)
+  @panes %{"nav" => 20.0, "main" => 55.0, "side" => 25.0}
 
   @impl true
   def mount(_params, %{"example" => example}, socket) do
@@ -217,6 +226,10 @@ defmodule DevactionUISite.ExampleLive do
        overlays: %{kind: nil, typed: "", done: false, nested: false},
        secret_revealed: false,
        banners_dismissed: [],
+       menus: %{picked: nil},
+       suggest: %{mode: "mention", active: 0},
+       sortable: %{items: @milestones, order: @milestone_order, last: nil},
+       resizable: %{sizes: @panes},
        switches: %{on: ["auto_review", "card_ai", "repo-sge-api"], saving: nil, saved: false},
        confirming: false,
        published: false,
@@ -607,6 +620,57 @@ defmodule DevactionUISite.ExampleLive do
 
   def handle_event("time_change", %{"entry" => %{"start" => start, "end" => stop}}, socket),
     do: {:noreply, assign(socket, :times, %{start: start, stop: stop})}
+
+  def handle_event("context_pick", %{"choice" => choice}, socket),
+    do: {:noreply, update(socket, :menus, &%{&1 | picked: choice})}
+
+  def handle_event("suggest_mode", %{"value" => mode}, socket) when mode in ["mention", "slash"],
+    do: {:noreply, update(socket, :suggest, &%{&1 | mode: mode})}
+
+  def handle_event("suggest_pick", %{"choice" => choice}, socket) do
+    case Integer.parse(choice) do
+      {index, ""} when index in 0..3 ->
+        {:noreply, update(socket, :suggest, &%{&1 | active: index})}
+
+      _other ->
+        {:noreply, socket}
+    end
+  end
+
+  def handle_event(
+        "reorder",
+        %{"order" => order} = params,
+        %{assigns: %{sortable: sortable}} = socket
+      )
+      when is_list(order) do
+    case Enum.sort(order) == Enum.sort(sortable.order) do
+      true ->
+        last = %{id: params["id"], from: params["from"], to: params["to"]}
+        {:noreply, assign(socket, :sortable, %{sortable | order: order, last: last})}
+
+      false ->
+        {:noreply, socket}
+    end
+  end
+
+  def handle_event("sortable_sort", _params, socket),
+    do: {:noreply, update(socket, :sortable, &%{&1 | order: @milestone_order, last: nil})}
+
+  def handle_event("sortable_reverse", _params, socket),
+    do: {:noreply, update(socket, :sortable, &%{&1 | order: Enum.reverse(&1.order), last: nil})}
+
+  def handle_event("resize", %{"sizes" => sizes}, socket) when is_map(sizes) do
+    known = Map.take(sizes, Map.keys(@panes))
+
+    case Enum.all?(known, fn {_id, size} -> is_number(size) end) and
+           map_size(known) == map_size(@panes) do
+      true -> {:noreply, update(socket, :resizable, &%{&1 | sizes: known})}
+      false -> {:noreply, socket}
+    end
+  end
+
+  def handle_event("resizable_reset", _params, socket),
+    do: {:noreply, update(socket, :resizable, &%{&1 | sizes: @panes})}
 
   def handle_event(_event, _params, socket), do: {:noreply, socket}
 

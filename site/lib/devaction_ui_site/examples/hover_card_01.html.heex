@@ -1,0 +1,28 @@
+<%!-- title: Person | text: Opens after 400 ms of pointer on the name, or when the keyboard focus reaches it. A few figures about the person. | layout: center --%>
+<div class="pb-36">
+  <p class="m-0 text-[15px] leading-[1.7]">
+    <HoverCard.card id="hover-card-person" label="Alex" card_class="w-[300px] p-4">
+      <:trigger>Alex</:trigger>
+      <span class="flex items-center gap-3">
+        <span class="grid size-[42px] shrink-0 place-items-center rounded-xl bg-ink font-semibold text-on-primary">
+          AN
+        </span>
+        <span>
+          <span class="block font-semibold">Alex</span>
+          <span class="block text-[13px] text-muted">Dev · DevAction Labs</span>
+        </span>
+        <span class="ml-auto size-2 rounded-full bg-dot-ok" title="online"></span>
+      </span>
+      <span class="mt-3 grid grid-cols-3 gap-2 text-center">
+        <span
+          :for={{value, caption} <- [{"4", "open PRs"}, {"32 h", "this week"}, {"2", "projects"}]}
+          class="block rounded-lg bg-wrap p-2"
+        >
+          <span class="block font-semibold">{value}</span>
+          <span class="block text-[11px] text-muted">{caption}</span>
+        </span>
+      </span>
+    </HoverCard.card>
+    asked for a review of PR #214 in the SGE project.
+  </p>
+</div>
