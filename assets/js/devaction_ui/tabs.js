@@ -2,7 +2,7 @@ import {keyName} from "./keys.js"
 import {nextTab, resolveSelection} from "./tabs_logic.js"
 
 /**
- * Tabs that switch panels on the client. ← → move the selection round the list, Home and End jump to the
+ * Tabs that switch panels on the client. ← → (↑ ↓ in a vertical list) move the selection round the list, Home and End jump to the
  * ends, and only the selected tab is in the tab order (roving tabindex).
  *
  * The server renders the selection (`data-server-selected`). What the person picks in the browser lives in
@@ -43,9 +43,17 @@ export default {
     if (!event.target.closest('[role="tablist"]')) return
     const tabs = this.tabs()
     const current = tabs.findIndex((tab) => tab.getAttribute("aria-selected") === "true")
-    const target = tabs[nextTab(keyName(event), current, tabs.length)]
+    const target = tabs[nextTab(keyName(event), current, tabs.length, this.layout(event))]
 
     target && this.go(event, target)
+  },
+
+  layout(event) {
+    const list = event.target.closest('[role="tablist"]')
+    return {
+      orientation: list.getAttribute("aria-orientation") ?? "horizontal",
+      rtl: getComputedStyle(list).direction === "rtl",
+    }
   },
 
   go(event, target) {
