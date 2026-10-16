@@ -1,11 +1,12 @@
 {
   "name": "devaction-ui-assets",
   "private": true,
-  "description": "The libraries the editor hook needs, and the tests of the hooks' logic (`npm test`, Node's own runner).",
+  "description": "The libraries the editor and PDF viewer hooks need, and the tests of the hooks' logic (`npm test`, Node's own runner).",
   "scripts": {
     "test": "node --test \"js/**/*.test.js\""
   },
   "dependencies": {
+    "pdfjs-dist": "5.4.149",
     "@tiptap/core": "3.32.0",
     "@tiptap/extension-character-count": "3.32.0",
     "@tiptap/extension-image": "3.32.0",

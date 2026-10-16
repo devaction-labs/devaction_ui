@@ -94,6 +94,7 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 | `DevactionUI.Alert` | a short message with an icon and a title |
 | `DevactionUI.Breadcrumb` | where the page is |
 | `DevactionUI.Pagination` | page links with a window and gaps |
+| `DevactionUI.PdfViewer` | a PDF viewer with a thumbnail rail, a toolbar, signature fields in percent of the page and a panel of signers; pdf.js draws the page in the hook (`pdfjs-dist`, loaded by `import()`, the worker URL from `worker_src`), and a server-rendered page slot is the fallback |
 | `DevactionUI.Stat` | a number with its caption, a trend and an inverted `highlight` |
 | `DevactionUI.Badge` | `count/1` bubble and `dot/1` status dot, optionally pulsing |
 | `DevactionUI.Steps` | steps with connectors: done, current, pending |

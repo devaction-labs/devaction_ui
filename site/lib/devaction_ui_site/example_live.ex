@@ -58,6 +58,7 @@ defmodule DevactionUISite.ExampleLive do
        toast_seq: 0,
        job: nil,
        order: "deadline",
+       pdf: pdf_state(pdf_start(example), 100, false),
        editor: %{
          markdown: "",
          sent: nil,
@@ -403,6 +404,20 @@ defmodule DevactionUISite.ExampleLive do
   def handle_event("cancel_upload", %{"ref" => ref}, socket),
     do: {:noreply, cancel_upload(socket, :transcript, ref)}
 
+  def handle_event("pdf_page", %{"page" => page}, %{assigns: %{pdf: pdf}} = socket),
+    do: {:noreply, assign(socket, :pdf, pdf_state(whole(page, pdf.page), pdf.zoom, pdf.signed))}
+
+  def handle_event("pdf_zoom", %{"zoom" => zoom}, %{assigns: %{pdf: pdf}} = socket),
+    do: {:noreply, assign(socket, :pdf, pdf_state(pdf.page, whole(zoom, pdf.zoom), pdf.signed))}
+
+  def handle_event("pdf_jump", _params, %{assigns: %{pdf: pdf}} = socket),
+    do: {:noreply, assign(socket, :pdf, pdf_state(4, pdf.zoom, pdf.signed))}
+
+  def handle_event("pdf_sign", %{"signer" => "Alex" <> _rest}, %{assigns: %{pdf: pdf}} = socket),
+    do: {:noreply, assign(socket, :pdf, pdf_state(pdf.page, pdf.zoom, true))}
+
+  def handle_event("pdf_sign", _params, socket), do: {:noreply, socket}
+
   def handle_event(_event, _params, socket), do: {:noreply, socket}
 
   @lessons [
@@ -415,6 +430,71 @@ defmodule DevactionUISite.ExampleLive do
     {"61", "Multi no checkout"},
     {"145", "Estornos de dízimo"}
   ]
+
+  defp pdf_start("pdf_viewer_05"), do: 1
+  defp pdf_start(_example), do: 4
+
+  defp whole(value, fallback) do
+    case Integer.parse(to_string(value)) do
+      {number, ""} -> number
+      _other -> fallback
+    end
+  end
+
+  defp pdf_state(page, zoom, signed) do
+    %{
+      page: DevactionUI.PdfViewer.clamp_page(page, 4),
+      zoom: zoom |> max(50) |> min(300),
+      signed: signed,
+      fields: [
+        %{
+          page: 4,
+          x: 8,
+          y: 80.6,
+          w: 38.6,
+          h: 10.4,
+          signer: "Responsible · Campo Limpo Church",
+          state: :signed,
+          label: "Signed"
+        },
+        %{
+          page: 4,
+          x: 53.3,
+          y: 80.6,
+          w: 38.6,
+          h: 10.4,
+          signer: "Alex · DevAction Labs",
+          state: pdf_mine(signed),
+          label: pdf_mine_label(signed)
+        }
+      ],
+      signers: [
+        %{
+          name: "Church Admin",
+          role: "Campo Limpo Church",
+          status: :signed,
+          status_label: "Signed",
+          tone: :red
+        },
+        %{
+          name: "Alex",
+          role: "DevAction Labs",
+          status: pdf_status(signed),
+          status_label: pdf_status_label(signed),
+          mine: true
+        }
+      ]
+    }
+  end
+
+  defp pdf_mine(true), do: :signed
+  defp pdf_mine(false), do: :mine
+  defp pdf_mine_label(true), do: "Signed"
+  defp pdf_mine_label(false), do: "Sign"
+  defp pdf_status(true), do: :signed
+  defp pdf_status(false), do: :pending
+  defp pdf_status_label(true), do: "Signed"
+  defp pdf_status_label(false), do: "Pending"
 
   defp search(""), do: []
 

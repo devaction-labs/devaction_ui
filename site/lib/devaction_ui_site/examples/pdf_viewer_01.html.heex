@@ -1,0 +1,35 @@
+<%!-- title: Basic | text: A rail of thumbnails, a toolbar and the page. Without a `src` the server-rendered page is shown, so it works without pdf.js. --%>
+<PdfViewer.viewer
+  id="pdf-basic"
+  name="Contract SGE · Amendment 02.pdf"
+  page={@pdf.page}
+  pages={4}
+  zoom={@pdf.zoom}
+  page_event="pdf_page"
+  zoom_event="pdf_zoom"
+  pages_label="Pages"
+  page_label="Page"
+  zoom_label="Zoom"
+  zoom_out_label="Zoom out"
+  zoom_in_label="Zoom in"
+  class="h-[560px]"
+>
+  <:sheet :let={number}>
+    <div class="text-center font-bold tracking-[0.04em]">CLAUSE {number} · TERMS</div>
+    <p class="mt-[1.2em]">
+      As agreed, the parties sign this amendment electronically, in the presence of the witnesses named below.
+    </p>
+    <p class="mt-[0.8em]">
+      The remaining clauses of the original contract stay unchanged.
+    </p>
+  </:sheet>
+  <:actions>
+    <button
+      type="button"
+      aria-label="Download"
+      class="inline-flex size-[30px] items-center justify-center rounded-lg border border-line bg-card text-ink-2"
+    >
+      <.icon name="download-04" class="size-4" />
+    </button>
+  </:actions>
+</PdfViewer.viewer>

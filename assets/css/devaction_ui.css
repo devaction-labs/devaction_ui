@@ -799,3 +799,74 @@
 .color-picker-hue::-moz-range-thumb {
   background: var(--cp-hue);
 }
+
+/* PdfViewer: the rail and the stage take their own tones, and the paper stays white in both themes, so the
+   signature fields on it keep light colours of their own. */
+:root {
+  --pdf-rail: light-dark(#F7F7F8, #1C1C25);
+  --pdf-stage: light-dark(#E9E9EC, #17171E);
+}
+
+.pdf-rail {
+  background: var(--pdf-rail);
+}
+
+.pdf-stage {
+  background: var(--pdf-stage);
+}
+
+.pdf-paper {
+  background: #fff;
+  color: #27272a;
+  box-shadow: 0 8px 30px -8px rgb(24 24 27 / 0.3);
+}
+
+.pdf-fallback {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  padding: calc(40px * var(--pdf-zoom, 1));
+  font-family: Georgia, serif;
+  font-size: calc(11px * var(--pdf-zoom, 1));
+  line-height: 1.6;
+}
+
+.pdf-fallback[hidden] {
+  display: none;
+}
+
+.pdf-field {
+  background: #f4f4f5;
+  border-color: #d4d4d8;
+  border-style: dashed;
+  color: #3f3f46;
+}
+
+.pdf-field .pdf-field-who {
+  color: #71717a;
+}
+
+.pdf-field[data-state="signed"] {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  border-style: solid;
+  color: #15803d;
+}
+
+.pdf-field[data-state="mine"] {
+  background: #fef9ec;
+  border-color: #d29a1e;
+  border-style: dashed;
+  color: #854d0e;
+}
+
+.pdf-field .pdf-field-mark {
+  background: #d29a1e;
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pdf-field {
+    transition: box-shadow 0.15s;
+  }
+}

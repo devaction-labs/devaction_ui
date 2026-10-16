@@ -1,0 +1,26 @@
+<%!-- title: Zoom | text: The server owns the zoom: the page is sized by it and the buttons stop at 50% and 300%. Keys: + - 0. --%>
+<div class="grid gap-4">
+  <PdfViewer.viewer
+    :for={zoom <- [50, 150]}
+    id={"pdf-zoom-#{zoom}"}
+    name="Amendment 02.pdf"
+    page={1}
+    pages={4}
+    zoom={zoom}
+    page_event="pdf_page"
+    zoom_event="pdf_zoom"
+    pages_label="Pages"
+    page_label="Page"
+    zoom_label="Zoom"
+    zoom_out_label="Zoom out"
+    zoom_in_label="Zoom in"
+    class="h-[420px]"
+  >
+    <:sheet :let={number}>
+      <div class="text-center font-bold tracking-[0.04em]">AMENDMENT No {number}</div>
+      <p class="mt-[1.2em]">
+        Service agreement for the development of the Church Management System.
+      </p>
+    </:sheet>
+  </PdfViewer.viewer>
+</div>
