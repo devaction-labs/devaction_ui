@@ -1,0 +1,10 @@
+<%!-- title: With a home link | text: `home` puts a link to the start of the app before the first item; the icon is a slot and `home_label` names the link. --%>
+<Breadcrumb.breadcrumb
+  label="You are here"
+  home="/"
+  home_label="Home"
+  separator={:chevron}
+  items={[%{label: "Work", to: "/work"}, %{label: "Projects"}]}
+>
+  <:home_icon><.icon name="home-01" class="size-4" /></:home_icon>
+</Breadcrumb.breadcrumb>

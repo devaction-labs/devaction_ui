@@ -1,0 +1,24 @@
+<%!-- title: Pinned columns | text: `sticky={:start}` keeps the first column and `sticky={:end}` the actions in view while the table scrolls sideways; the shadow shows only on the side that has content behind it. --%>
+<DataTable.data_table
+  select_all_label="Select all"
+  select_row_label="Select row"
+  selected_label="__COUNT__ selected"
+  clear_label="Clear"
+  id="data-table-pinned"
+  label="Pull requests"
+  rows={@rows}
+  selectable
+>
+  <:col :let={row} label="PR" sticky={:start} class="font-mono whitespace-nowrap">#{row.id}</:col>
+  <:col :let={row} label="Title" class="min-w-72 whitespace-nowrap">{row.title}</:col>
+  <:col :let={row} label="Author" class="min-w-48 whitespace-nowrap text-ink-2">
+    {row.author}
+  </:col>
+  <:col :let={row} label="Changes" class="min-w-48 font-mono whitespace-nowrap">
+    {row.changes}
+  </:col>
+  <:col :let={row} label="Status" class="min-w-48">
+    <.tag size={:sm} variant={(row.status == "merged" && :ok) || :info}>{row.status}</.tag>
+  </:col>
+  <:col label="Actions" hide_label sticky={:end}><span class="text-muted">⋯</span></:col>
+</DataTable.data_table>

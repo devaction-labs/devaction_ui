@@ -1,0 +1,19 @@
+<%!-- title: Small | text: `size={:sm}` is a one-line field with its actions at the end, for a comment on a PR; the send button is gray until there is text. --%>
+<Composer.composer
+  id="composer-small"
+  event="composer_change"
+  label="Comment"
+  send_label="Send"
+  stop_label="Stop"
+  placeholder="Add a comment..."
+  size={:sm}
+  class="w-full max-w-md"
+>
+  <:trailing>
+    <Composer.button label="Attach a file">
+      <:icon><.icon name="attachment-01" /></:icon>
+    </Composer.button>
+  </:trailing>
+  <:icon><.icon name="arrow-up-02" class="size-4" /></:icon>
+  <:stop><.icon name="stop" class="size-4" /></:stop>
+</Composer.composer>

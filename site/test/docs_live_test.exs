@@ -222,6 +222,15 @@ defmodule DevactionUISite.DocsLiveTest do
       assert Catalog.since("Button") == "0.1"
     end
 
+    test "a component added in v0.3 says so and its history names the next release" do
+      {:ok, view, _html} = live(build_conn(), "/c/shell")
+
+      assert has_element?(view, "#topic-shell", "since v0.3")
+      assert has_element?(view, "#topic-shell", "v0.3")
+      refute has_element?(view, "#topic-shell", "v0.3.0")
+      assert Catalog.since("ScrollArea") == "0.3"
+    end
+
     test "has the breadcrumb, the status, the links and the history of the component" do
       {:ok, view, _html} = live(build_conn(), "/c/button")
 

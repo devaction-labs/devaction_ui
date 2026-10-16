@@ -2,6 +2,7 @@
  * What the menus and lists decide without a DOM: the letters typed ahead in a dropdown, the counts of the filter
  * menu, what the combobox button shows and the ARIA state of the autocomplete list.
  */
+import {chooseSide, fixedCorner} from "./placement.js"
 
 /** How long a pause ends the letters typed so far, in milliseconds. */
 const PAUSE = 500
@@ -112,3 +113,20 @@ export const asksForContextMenu = (event) => event.key === "ContextMenu" || (eve
  * @param {{left: number, top: number, width: number, height: number}} rect the focused element
  */
 export const keyboardAnchor = (rect) => ({x: rect.left + Math.min(rect.width / 2, 32), y: rect.top + rect.height - 4})
+
+/**
+ * Where a menu with `position: fixed` goes under (or over) its button: the side that has room, the corner
+ * aligned to the start or the end of the button, kept inside the screen. This is what lets a menu in a table or a
+ * scroll area open without being cut by the `overflow` of its parents.
+ *
+ * @param {"start" | "end"} align
+ * @param {DOMRect} anchor the button
+ * @param {{width: number, height: number}} panel the menu
+ * @param {{width: number, height: number}} screen
+ * @returns {{side: "top" | "bottom", top: number, left: number}}
+ */
+export const placeFixed = (align, anchor, panel, screen) => {
+  const side = chooseSide("bottom", {panel: panel.height, above: anchor.top, below: screen.height - anchor.bottom})
+  const {top, left} = fixedCorner({side, align, anchor, panel, screen})
+  return {side, top: Math.round(top), left: Math.round(left)}
+}

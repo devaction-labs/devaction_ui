@@ -18,6 +18,21 @@ defmodule DevactionUISite.Changelog do
      "Blade package for Laravel and Livewire, starting with color picker, slider and filter menu."}
   ]
 
+  @improved_next [
+    {"data_table",
+     "`sticky={:start}` and `sticky={:end}` pin the first column and the actions while the table scrolls sideways, with a shadow only on the side that has content behind it. Variations that add up: `variant={:minimal}`, `striped`, `expanded` detail rows, `group_by`, a `tfoot` for totals, `stack` (cards under 640px), an `action` slot for the row menu with `sticky_actions`, `align` and `mono` on a column, and Shift+click range selection. `Pagination` draws the range of the page with `total`, `per_page`, `noun` and `summary_label`."},
+    {"breadcrumb",
+     "`home`, `home_label` and a `home_icon` slot put a link to the start of the app before the first item; `underline={false}` quiets the links of the trail in a shell header."},
+    {"page_header",
+     "`toolbar` and `toolbar_end` slots: a row under the tabs for the search, the filters and the count of results; `size={:md}` is the 28px title of a page inside an app shell."},
+    {"shell",
+     "`sidebar_search/1` for a search field under the head and `sidebar_user/1` for the account card at the foot; both collapse with the rail."},
+    {"tabs",
+     "An `icon` slot, `counts={:chip}` for the count in a small box, `size={:sm}` for the 14px line tab of an app, and a tab with no content gets an empty panel."},
+    {"avatar",
+     "`initials` overrides the letters and the `:ink` tone is the solid avatar of the signed-in person."}
+  ]
+
   @improved [
     {"toast_group",
      "Rebuilt: toasts are pushed from the server with `put_toast/4`, `update_toast/3`, `dismiss_toast/2` and `clear_toasts/1`; the pile shows the front toast with two peeking behind and opens into a list on hover or focus."},
@@ -68,15 +83,36 @@ defmodule DevactionUISite.Changelog do
 
   @releases [
     %{
-      version: "v0.3",
+      version: "v0.4",
       status: "next",
       tag: nil,
       summary:
         "The Blade version of the kit for Laravel and Livewire projects, starting with the color picker, the slider and the filter menu."
     },
     %{
-      version: "v0.2.6",
+      version: "v0.3.2",
       status: "current",
+      tag: "v0.3.2",
+      summary:
+        "Variations of the data table (minimal, striped, expandable, grouped, phone cards, a row action cell), a pagination that shows the range, the new Projects template and a README without contradictions."
+    },
+    %{
+      version: "v0.3.1",
+      status: "archived",
+      tag: "v0.3.1",
+      summary:
+        "Fixes the stylesheet of 0.3.0, which left a block open, and completes the layout theme: the App template, the new table, and a Composer with commands, mentions and a mode picker."
+    },
+    %{
+      version: "v0.3.0",
+      status: "archived",
+      tag: "v0.3.0",
+      summary:
+        "The layout theme: a shell with a collapsing sidebar and six layouts, a scroll area, the composer and the row menu, with a pinned first column and actions in the data table."
+    },
+    %{
+      version: "v0.2.6",
+      status: "archived",
       tag: "v0.2.6",
       summary:
         "The site shows the full version in its chips, and the footer dedication is in English with a glow that passes between the letters."
@@ -125,6 +161,26 @@ defmodule DevactionUISite.Changelog do
   ]
 
   @patches %{
+    "v0.3.2" => [
+      {"improved", "Improvements", "data_table_variants",
+       "`variant={:minimal}`, `striped`, an `expanded` slot, `group_by` with totals, `stack` for phone cards, an `action` slot for the row menu, `align` and `mono` on a column, and Shift+click to tick a range."},
+      {"improved", "Improvements", "pagination",
+       "`total`, `per_page`, `noun` and `summary_label` draw the range of the page before the links."},
+      {"improved", "Improvements", "app_template",
+       "The Projects template follows the new artboard: an owner column with avatar, hours with a bar, relative updates and the row menu in the action slot."},
+      {"improved", "Improvements", "readme",
+       "One rule for `@source` and the keyframes, `pdfjs-dist` and `worker_src` explained, the requirements and the fonts listed, and a row for every component."}
+    ],
+    "v0.3.1" => [
+      {"fixed", "Fixes", "stylesheet",
+       "0.3.0 shipped a stylesheet with a block left open, which stops Tailwind in the host app; every block is closed now and a test counts the braces."},
+      {"fixed", "Fixes", "example_cards",
+       "An open drawer, modal or palette in an example card stays over the page rail."},
+      {"improved", "Improvements", "composer",
+       "Commands with `/` and mentions with `@` through `suggest_event` and a `suggestions` slot, `edit_last_event` for the up arrow, a mode picker chip and file chips with a kind and a detail."},
+      {"improved", "Improvements", "shell",
+       "`sidebar_search/1` and `sidebar_user/1`; `Tabs` takes an icon slot, chip counts and a small size."}
+    ],
     "v0.2.6" => [
       {"improved", "Improvements", "site_version",
        "The header chips and the component history show the full version, and the footer dedication has a soft glow."}
@@ -266,7 +322,7 @@ defmodule DevactionUISite.Changelog do
     total = length(Catalog.all())
     added = Enum.count(Catalog.all(), &(Catalog.since(&1) == "0.2"))
 
-    Repo.delete_all(from(version in Version, where: version.version in ["v0.1", "v0.2"]))
+    Repo.delete_all(from(version in Version, where: version.version in ["v0.1", "v0.2", "v0.3"]))
 
     versions =
       for {release, index} <- Enum.with_index(@releases, 1) do
@@ -307,7 +363,7 @@ defmodule DevactionUISite.Changelog do
   defp code_entries(ids, now) do
     planned =
       for {{name, summary}, index} <- Enum.with_index(@planned, 1),
-          do: row(ids["v0.3"], "planned", "Planned", name, summary, index, now)
+          do: row(ids["v0.4"], "planned", "Planned", name, summary, index, now)
 
     components =
       for {category, topics} <- Catalog.groups(), topic <- topics do
@@ -315,12 +371,12 @@ defmodule DevactionUISite.Changelog do
       end
 
     templates =
-      for group <- Templates.groups(), do: {"0.1", "Templates", group.slug, group.summary}
+      for group <- Templates.groups(), do: {group.since, "Templates", group.slug, group.summary}
 
     released =
       for {since, rows} <- Enum.group_by(components ++ templates, &elem(&1, 0)),
           {{_since, group, name, summary}, index} <- Enum.with_index(rows, 1),
-          do: row(ids["v#{since}.0"], "new", group, name, summary, index, now)
+          do: row(ids[release_key(since)], "new", group, name, summary, index, now)
 
     improved =
       for {{name, summary}, index} <- Enum.with_index(@improved, 1),
@@ -335,8 +391,15 @@ defmodule DevactionUISite.Changelog do
           {{kind, group, name, summary}, index} <- Enum.with_index(rows, 1),
           do: row(ids[version], kind, group, name, summary, 3000 + index, now)
 
-    planned ++ released ++ improved ++ breaking ++ patches
+    improved_next =
+      for {{name, summary}, index} <- Enum.with_index(@improved_next, 1),
+          do: row(ids["v0.3.0"], "improved", "Improvements", name, summary, 1000 + index, now)
+
+    planned ++ released ++ improved_next ++ improved ++ breaking ++ patches
   end
+
+  defp release_key("0.3"), do: "v0.3.0"
+  defp release_key(since), do: "v#{since}.0"
 
   defp row(version_id, kind, group, name, summary, position, now) do
     %{

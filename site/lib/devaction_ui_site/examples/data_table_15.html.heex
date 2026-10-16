@@ -1,0 +1,51 @@
+<%!-- title: Footer with pagination | text: The `footer` slot holds the range of the page and `Pagination`, which draws the window of pages with an ellipsis. --%>
+<DataTable.data_table
+  select_all_label="Select all"
+  select_row_label="Select row"
+  selected_label="__COUNT__ selected"
+  clear_label="Clear"
+  id="data-table-pages"
+  label="Pull requests"
+  rows={[
+    %{
+      id: "142",
+      title: "Tithe in transaction",
+      author: "carlos-andre",
+      changes: 187,
+      status: "open"
+    },
+    %{
+      id: "145",
+      title: "Refunds and CSV export",
+      author: "carlos-andre",
+      changes: 120,
+      status: "open"
+    },
+    %{
+      id: "63",
+      title: "Search with filters",
+      author: "alex-nogueira",
+      changes: 33,
+      status: "merged"
+    },
+    %{id: "58", title: "Webhook retries", author: "alex-nogueira", changes: 74, status: "merged"}
+  ]}
+>
+  <:col :let={row} label="PR" mono>#{row.id}</:col>
+  <:col :let={row} label="Title">{row.title}</:col>
+  <:col :let={row} label="Changes" align={:end} mono>{row.changes}</:col>
+  <:footer>
+    <Pagination.pagination
+      page={4}
+      pages={12}
+      total={143}
+      per_page={12}
+      noun="pull requests"
+      summary_label="__FROM__–__TO__ of __TOTAL__ __NOUN__"
+      path={&"/c/data_table?page=#{&1}"}
+      label="Pages"
+      previous="Previous"
+      next="Next"
+    />
+  </:footer>
+</DataTable.data_table>

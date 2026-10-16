@@ -1,0 +1,84 @@
+<%!-- title: Complete | text: Everything together: attachment chips in the header, attach, `/` and `@` buttons, the mode chip, a dictate button and the send button. --%>
+<div class="flex w-full max-w-xl flex-col gap-3 pt-48">
+  <Composer.composer
+    id="composer-full"
+    event="composer_send"
+    change_event="composer_change"
+    suggest_event="composer_suggest"
+    edit_last_event="composer_edit_last"
+    label="Message"
+    send_label="Send"
+    stop_label="Stop"
+    placeholder="Ask about the project..."
+    max_length={4000}
+    upload={@uploads.attachments}
+  >
+    <:header :if={@uploads.attachments.entries != []}>
+      <Composer.file
+        :for={entry <- @uploads.attachments.entries}
+        entry={entry}
+        detail={"#{Float.round(entry.client_size / 1000, 1)} KB"}
+        remove_label={"Remove #{entry.client_name}"}
+        cancel_event="composer_cancel"
+      >
+        <:icon><.icon name="cancel-01" class="size-2.5" /></:icon>
+      </Composer.file>
+    </:header>
+    <:suggestions :if={@composer.options != []}>
+      <Editor.suggest id="composer-full-list" label="Suggestions" heading={@composer.heading}>
+        <:option
+          :for={option <- @composer.options}
+          title={option.title}
+          hint={option.hint}
+          insert={option.insert}
+          tone={option.tone}
+        >
+          {option.mark}
+        </:option>
+      </Editor.suggest>
+    </:suggestions>
+    <:leading>
+      <Composer.button label="Attach a file" upload={@uploads.attachments}>
+        <:icon><.icon name="attachment-01" /></:icon>
+      </Composer.button>
+      <Composer.button
+        label="Commands"
+        phx-click="composer_trigger"
+        phx-value-id="composer-full"
+        phx-value-sign="/"
+      >
+        <:icon><span class="text-base leading-none">/</span></:icon>
+      </Composer.button>
+      <Composer.button
+        label="Mention"
+        phx-click="composer_trigger"
+        phx-value-id="composer-full"
+        phx-value-sign="@"
+      >
+        <:icon><span class="text-base leading-none">@</span></:icon>
+      </Composer.button>
+      <Dropdown.dropdown id="composer-full-mode" label="Mode" variant={:chip} fixed class="ml-1.5">
+        <:trigger>
+          <.icon name="sparkles" class="size-3.5" />
+          {@composer.modes[@composer.mode]}
+          <.icon name="arrow-down-01" class="size-3.5" />
+        </:trigger>
+        <:item
+          :for={{mode, label} <- Enum.sort(@composer.modes)}
+          event="composer_mode"
+          value={mode}
+          checked={@composer.mode == mode}
+        >
+          {label}
+        </:item>
+      </Dropdown.dropdown>
+    </:leading>
+    <:trailing>
+      <Composer.button label="Dictate" variant={:filled}>
+        <:icon><.icon name="mic-01" /></:icon>
+      </Composer.button>
+    </:trailing>
+    <:icon><.icon name="arrow-up-02" class="size-4" /></:icon>
+    <:stop><.icon name="stop" class="size-4" /></:stop>
+  </Composer.composer>
+</div>

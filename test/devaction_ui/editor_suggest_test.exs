@@ -38,20 +38,20 @@ defmodule DevactionUI.EditorSuggestTest do
     assert html =~ "Carlos André"
   end
 
-  test "only the active row is selected and carries the Enter key cap" do
+  test "only the active row is selected, and the key cap shows on whichever row is" do
     html = people(%{active: 1})
 
     assert html =~ ~r/id="mentions-option-1"[^>]*aria-selected="true"/s
     assert html =~ ~r/id="mentions-option-0"[^>]*aria-selected="false"/s
-    assert length(Regex.scan(~r/<kbd/, html)) == 1
+    assert length(Regex.scan(~r/aria-selected="true"/, html)) == 1
+    assert length(Regex.scan(~r/<kbd[^>]*group-aria-selected:block/, html)) == 3
     assert html =~ "↵"
   end
 
-  test "with no active row none is selected and there is no key cap" do
+  test "with no active row none is selected" do
     html = people(%{active: -1})
 
     refute html =~ ~s(aria-selected="true")
-    refute html =~ "<kbd"
   end
 
   test "the mark is ink by default and takes a tone's colours" do

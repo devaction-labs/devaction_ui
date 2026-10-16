@@ -8,6 +8,7 @@ defmodule DevactionUISite.Templates do
   @groups [
     %{
       slug: "auth",
+      since: "0.1",
       title: "Auth",
       summary:
         "The sign-in screens of a product: one for each way in and for each step, in the library's own components.",
@@ -56,6 +57,22 @@ defmodule DevactionUISite.Templates do
           text:
             "Inside the app: e-mail, password, the ways to sign in and the connected devices.",
           height: 1240
+        }
+      ]
+    },
+    %{
+      slug: "app",
+      since: "0.3",
+      title: "App",
+      summary:
+        "The frame of a working product: the sidebar, the header and the page of a list with its table.",
+      screens: [
+        %{
+          slug: "projects",
+          title: "Projects",
+          text:
+            "A workspace switcher and a search in the sidebar, the page head with its tabs and filters, and a table with the first column and the actions pinned, a progress cell and a menu on each row.",
+          height: 900
         }
       ]
     }

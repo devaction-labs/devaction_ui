@@ -1,0 +1,31 @@
+<%!-- title: Top bar | text: `variant="topbar"` lays the same sidebar out as a bar across the top, for apps with few sections. --%>
+<div class="overflow-hidden rounded-2xl">
+  <Shell.shell
+    id="shell-topbar"
+    variant="topbar"
+    style="--shell-h: 360px"
+    sidebar_label="Main"
+    open_label="Open the menu"
+    close_label="Collapse the menu"
+  >
+    <:sidebar>
+      <Shell.sidebar_head name="DevAction IA">
+        <:logo>
+          <span class="grid size-full place-items-center bg-ink text-xs font-semibold text-on-ink">DA</span>
+        </:logo>
+      </Shell.sidebar_head>
+      <Shell.sidebar_nav>
+        <Shell.sidebar_item tip="Today" href="#today" current>Today</Shell.sidebar_item>
+        <Shell.sidebar_item tip="Projects" href="#projects">Projects</Shell.sidebar_item>
+        <Shell.sidebar_item tip="Reviews" href="#reviews" badge={3}>Reviews</Shell.sidebar_item>
+      </Shell.sidebar_nav>
+      <Shell.sidebar_foot>
+        <Shell.sidebar_item tip="Settings" href="#settings">Settings</Shell.sidebar_item>
+      </Shell.sidebar_foot>
+    </:sidebar>
+    <:header>
+      <Breadcrumb.breadcrumb label="You are here" items={[%{label: "Today"}]} />
+    </:header>
+    The page.
+  </Shell.shell>
+</div>

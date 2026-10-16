@@ -312,6 +312,10 @@ defmodule DevactionUI.Editor do
     attr :tone, :atom, doc: "`:ink` (the default) or a `DevactionUI.Tone`: the colour of the mark"
     attr :event, :string, doc: "sent when the row is chosen, with its `value`"
     attr :value, :string, doc: "sent as `choice`"
+
+    attr :insert, :string,
+      doc:
+        "the text a `DevactionUI.Composer` puts in place of what was typed when the row is chosen"
   end
 
   attr :rest, :global
@@ -345,9 +349,9 @@ defmodule DevactionUI.Editor do
         phx-click={Map.get(option, :event)}
         phx-target={@target}
         phx-value-choice={Map.get(option, :value)}
+        data-insert={Map.get(option, :insert)}
         class={[
-          "flex h-10 items-center gap-2.5 rounded-lg px-2",
-          index == @active && "bg-wrap",
+          "group flex h-10 items-center gap-2.5 rounded-lg px-2 aria-selected:bg-wrap",
           Map.get(option, :event) && "cursor-pointer hover:bg-wrap"
         ]}
       >
@@ -366,7 +370,9 @@ defmodule DevactionUI.Editor do
             {option.hint}
           </span>
         </span>
-        <kbd :if={index == @active} class="ml-auto font-mono text-[11px] text-muted">{@enter}</kbd>
+        <kbd class="ml-auto hidden font-mono text-[11px] text-muted group-aria-selected:block">
+          {@enter}
+        </kbd>
       </div>
     </div>
     """

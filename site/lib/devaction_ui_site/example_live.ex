@@ -12,6 +12,54 @@ defmodule DevactionUISite.ExampleLive do
   alias DevactionUISite.{ReviewDemo, TopicHTML}
 
   @forms_repos ~w(sge-api ayram-web hub-api)
+  @composer_ids ~w(composer-basic composer-stream composer-files composer-menus composer-modes composer-edit composer-full)
+
+  @composer_menus %{
+    "@" =>
+      {"PEOPLE",
+       [
+         %{title: "Alex", hint: "Dev · online now", insert: "@alex", mark: "AN", tone: :neutral},
+         %{title: "Carlos André", hint: "Dev · SGE", insert: "@carlos", mark: "CA", tone: :info},
+         %{
+           title: "DevAction Reviewer",
+           hint: "AI · answers on the PR",
+           insert: "@reviewer",
+           mark: "AI",
+           tone: :warn
+         }
+       ]},
+    "/" =>
+      {"COMMANDS",
+       [
+         %{
+           title: "/review",
+           hint: "Review the open pull request",
+           insert: "/review",
+           mark: "R",
+           tone: :warn
+         },
+         %{
+           title: "/summarize",
+           hint: "Summarize the thread",
+           insert: "/summarize",
+           mark: "S",
+           tone: :neutral
+         },
+         %{
+           title: "/task",
+           hint: "Turn this into a task",
+           insert: "/task",
+           mark: "T",
+           tone: :info
+         }
+       ]}
+  }
+
+  @composer_modes %{
+    "strict" => "Reviewer · strict",
+    "fast" => "Reviewer · fast",
+    "free" => "Assistant"
+  }
   @overlays ~w(drawer_floating drawer_docked drawer_left drawer_wide modal_confirm modal_form modal_success modal_tall danger drawer_sheet drawer_stack confirm_locked)
 
   @rows [
@@ -246,6 +294,14 @@ defmodule DevactionUISite.ExampleLive do
        secret_revealed: false,
        banners_dismissed: [],
        menus: %{picked: nil},
+       composer: %{
+         sent: [],
+         busy: false,
+         options: [],
+         heading: nil,
+         mode: "strict",
+         modes: @composer_modes
+       },
        suggest: %{mode: "mention", active: 0},
        sortable: %{items: @milestones, order: @milestone_order, last: nil},
        resizable: %{sizes: @panes},
@@ -258,6 +314,12 @@ defmodule DevactionUISite.ExampleLive do
        accept: ~w(audio/* .txt),
        max_entries: 1,
        max_file_size: 200_000_000
+     )
+     |> allow_upload(:attachments,
+       accept: :any,
+       max_entries: 4,
+       max_file_size: 5_000_000,
+       auto_upload: true
      )}
   end
 
@@ -690,6 +752,53 @@ defmodule DevactionUISite.ExampleLive do
   def handle_event("time_change", %{"entry" => %{"start" => start, "end" => stop}}, socket),
     do: {:noreply, assign(socket, :times, %{start: start, stop: stop})}
 
+  def handle_event("composer_change", _params, socket), do: {:noreply, socket}
+
+  def handle_event("composer_cancel", %{"ref" => ref}, socket),
+    do: {:noreply, cancel_upload(socket, :attachments, ref)}
+
+  def handle_event("composer_send", %{"prompt" => text}, socket) do
+    entries = socket.assigns.uploads.attachments.entries
+    files = Enum.map(entries, & &1.client_name)
+
+    socket =
+      Enum.reduce(entries, socket, fn entry, acc ->
+        cancel_upload(acc, :attachments, entry.ref)
+      end)
+
+    {:noreply,
+     socket
+     |> update(:composer, &%{&1 | sent: &1.sent ++ [%{text: text, files: files}]})
+     |> push_clear()}
+  end
+
+  def handle_event("composer_ask", %{"prompt" => text}, socket) do
+    Process.send_after(self(), :composer_done, 3000)
+
+    {:noreply,
+     socket
+     |> update(:composer, &%{&1 | busy: true, sent: &1.sent ++ [%{text: text, files: []}]})
+     |> push_clear()}
+  end
+
+  def handle_event("composer_suggest", %{"trigger" => trigger, "query" => query}, socket)
+      when trigger in [nil, "/", "@"],
+      do: {:noreply, update(socket, :composer, &Map.merge(&1, composer_menu(trigger, query)))}
+
+  def handle_event("composer_mode", %{"choice" => mode}, socket)
+      when is_map_key(@composer_modes, mode),
+      do: {:noreply, update(socket, :composer, &%{&1 | mode: mode})}
+
+  def handle_event("composer_edit_last", _params, %{assigns: %{composer: composer}} = socket),
+    do: {:noreply, fill_last(socket, List.last(composer.sent))}
+
+  def handle_event("composer_trigger", %{"id" => id, "sign" => sign}, socket)
+      when sign in ["/", "@"],
+      do: {:noreply, push_event(socket, "composer:fill", %{id: id, text: sign})}
+
+  def handle_event("composer_stop", _params, socket),
+    do: {:noreply, update(socket, :composer, &%{&1 | busy: false})}
+
   def handle_event("context_pick", %{"choice" => choice}, socket),
     do: {:noreply, update(socket, :menus, &%{&1 | picked: choice})}
 
@@ -840,6 +949,27 @@ defmodule DevactionUISite.ExampleLive do
     )
   end
 
+  defp composer_menu(nil, _query), do: %{options: [], heading: nil}
+
+  defp composer_menu(trigger, query) do
+    {heading, options} = Map.fetch!(@composer_menus, trigger)
+    needle = fold(query)
+
+    %{
+      heading: heading,
+      options: Enum.filter(options, &String.contains?(fold(&1.title), needle))
+    }
+  end
+
+  defp fill_last(socket, nil), do: socket
+
+  defp fill_last(socket, %{text: text}),
+    do: push_event(socket, "composer:fill", %{id: "composer-edit", text: text})
+
+  defp push_clear(socket) do
+    Enum.reduce(@composer_ids, socket, &push_event(&2, "composer:clear", %{id: &1}))
+  end
+
   defp fold(text),
     do: text |> String.normalize(:nfd) |> String.replace(~r/\p{Mn}/u, "") |> String.downcase()
 
@@ -851,6 +981,9 @@ defmodule DevactionUISite.ExampleLive do
   end
 
   def handle_info(:job_tick, socket), do: {:noreply, socket}
+
+  def handle_info(:composer_done, socket),
+    do: {:noreply, update(socket, :composer, &%{&1 | busy: false})}
 
   def handle_info({:toast_report, id, :ok}, socket),
     do:

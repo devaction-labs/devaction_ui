@@ -16,9 +16,14 @@ defmodule DevactionUI.Dropdown do
   "task"}}` arrives as `"id"` and `"kind"`). The menu closes when an item is chosen and gives the focus back
   to the button; `close_on_select={false}` keeps it open (a menu of toggles).
 
-  The button is a bordered box by default (`variant: :outline`). `variant: :ghost` drops the border and
+  The button is a bordered box by default (`variant: :outline`). `variant: :ghost` drops the border,
+  `variant: :chip` is the amber pill of the mode or model of a `DevactionUI.Composer` and
   `variant: :icon` is a square with only an icon (the "more" menu of a row): give it a `trigger_label`, which is
   its accessible name. `trigger_class` adds classes to the button.
+
+  `fixed` opens the menu with `position: fixed`, placed from the rectangle of the button (above it when there is
+  no room below, kept inside the window), so the `overflow` of a table or a scroll area never cuts it; it closes
+  when anything scrolls or the window is resized. `DevactionUI.RowMenu` is this, made for the "..." of a row.
   """
   use Phoenix.Component
 
@@ -30,7 +35,7 @@ defmodule DevactionUI.Dropdown do
   attr :label, :string, required: true, doc: "the name of the menu, for assistive technology"
   attr :align, :atom, values: [:start, :end], default: :start
   attr :size, :atom, values: [:sm, :md], default: :md, doc: "the height of the button: 38 or 42px"
-  attr :variant, :atom, values: [:outline, :ghost, :icon], default: :outline
+  attr :variant, :atom, values: [:outline, :ghost, :icon, :chip], default: :outline
 
   attr :trigger_label, :string,
     default: nil,
@@ -41,6 +46,11 @@ defmodule DevactionUI.Dropdown do
   attr :close_on_select, :boolean,
     default: true,
     doc: "false keeps the menu open after an item is chosen"
+
+  attr :fixed, :boolean,
+    default: false,
+    doc:
+      "opens the menu fixed to the window instead of inside the parent, so no `overflow` cuts it"
 
   attr :class, :any, default: nil
   slot :trigger, required: true, doc: "what the button shows"
@@ -73,6 +83,8 @@ defmodule DevactionUI.Dropdown do
       id={@id}
       phx-hook="DevactionUI.Dropdown"
       data-close-on-select={to_string(@close_on_select)}
+      data-fixed={to_string(@fixed)}
+      data-align={@align}
       class={["relative inline-block", @class]}
       {@rest}
     >
@@ -99,11 +111,10 @@ defmodule DevactionUI.Dropdown do
         role="menu"
         aria-label={@label}
         hidden
-        phx-mounted={JS.ignore_attributes(["hidden", "data-side"])}
+        phx-mounted={JS.ignore_attributes(["hidden", "data-side", "style"])}
         class={[
-          "absolute z-40 flex w-55 flex-col rounded-[14px] border border-line bg-card p-1.5 shadow-menu",
-          "data-[side=bottom]:top-full data-[side=bottom]:mt-2 data-[side=top]:bottom-full data-[side=top]:mb-2",
-          (@align == :end && "right-0") || "left-0"
+          "flex w-55 flex-col rounded-[14px] border border-line bg-card p-1.5 shadow-menu",
+          menu_position(@fixed, @align)
         ]}
       >
         <%= for item <- @item do %>
@@ -189,6 +200,18 @@ defmodule DevactionUI.Dropdown do
     """
   end
 
+  defp menu_position(true, _align), do: "fixed top-0 left-0 z-50"
+
+  defp menu_position(false, align) do
+    [
+      "absolute z-40 data-[side=bottom]:top-full data-[side=bottom]:mt-2 data-[side=top]:bottom-full data-[side=top]:mb-2",
+      align_class(align)
+    ]
+  end
+
+  defp align_class(:end), do: "right-0"
+  defp align_class(:start), do: "left-0"
+
   defp value_attrs(item) do
     values = Map.get(item, :values) || %{}
 
@@ -211,6 +234,10 @@ defmodule DevactionUI.Dropdown do
 
   defp trigger_class(:ghost, :sm), do: "inline-flex h-[38px] rounded-[10px] px-3 text-sm"
   defp trigger_class(:ghost, :md), do: "inline-flex h-[42px] rounded-[11px] px-3.5"
+
+  defp trigger_class(:chip, _size),
+    do: "composer-picker inline-flex h-8.5 rounded-[10px] border px-2.5 text-[13px] font-medium"
+
   defp trigger_class(:icon, :sm), do: "grid size-[38px] place-items-center rounded-[10px]"
   defp trigger_class(:icon, :md), do: "grid size-[42px] place-items-center rounded-[11px]"
 

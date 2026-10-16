@@ -1,0 +1,18 @@
+<%!-- title: Edit the last message | text: The up arrow in an empty field sends `edit_last_event`; the server answers with `push_event("composer:fill", %{id: id, text: text})`. Send something, then press it. --%>
+<div class="flex w-full max-w-xl flex-col gap-3">
+  <Composer.composer
+    id="composer-edit"
+    event="composer_send"
+    edit_last_event="composer_edit_last"
+    label="Message"
+    send_label="Send"
+    stop_label="Stop"
+    placeholder="Send a message, then press the up arrow..."
+  >
+    <:icon><.icon name="arrow-up-02" class="size-4" /></:icon>
+    <:stop><.icon name="stop" class="size-4" /></:stop>
+  </Composer.composer>
+  <ul class="m-0 flex list-none flex-col gap-1.5 p-0 text-sm text-ink-2" aria-live="polite">
+    <li :for={message <- @composer.sent} class="whitespace-pre-wrap">{message.text}</li>
+  </ul>
+</div>
