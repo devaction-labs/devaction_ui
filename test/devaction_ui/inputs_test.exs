@@ -339,9 +339,16 @@ defmodule DevactionUI.InputsTest do
 
     test "the SVG is the drawing and nothing for an unsafe stroke" do
       svg = SignatureField.to_svg("M1 2 L3 4")
-      assert svg =~ ~s(viewBox="0 0 400 160")
+      assert svg =~ ~s(viewBox="0 0 360 170")
       assert svg =~ ~s(d="M1 2 L3 4")
+      assert svg =~ ~s(stroke="#18181B" stroke-width="2.2")
       assert SignatureField.to_svg("<bad>") == nil
+    end
+
+    test "the SVG takes the colour of the caller, as a hex or currentColor and nothing else" do
+      assert SignatureField.to_svg("M1 2 L3 4", "#FFFFFF") =~ ~s(stroke="#FFFFFF")
+      assert SignatureField.to_svg("M1 2 L3 4", "currentColor") =~ ~s(stroke="currentColor")
+      assert SignatureField.to_svg("M1 2 L3 4", ~s(red" onload="x)) == nil
     end
 
     defp field(mode) do
@@ -372,7 +379,57 @@ defmodule DevactionUI.InputsTest do
       assert html =~ ~s(name="signature[method]" value="draw")
       assert html =~ ~s(aria-pressed="true")
       assert html =~ "Use the mouse"
+      assert html =~ ~s(<line)
+      assert html =~ ~s(stroke-width="2.2")
       refute html =~ ~s(name="signature[typed]")
+      refute html =~ ~s(role="img")
+      assert html =~ ~s(aria-hidden="true")
+    end
+
+    test "the pad stays mounted, only hidden, when the mode is typing" do
+      draw = field(:draw)
+      type = field(:type)
+
+      refute draw =~ ~r/<div[^>]* hidden[^>]*>\s*<div id="sig-pad"/
+
+      assert type =~
+               ~r/<div[^>]* hidden[^>]*>\s*<div id="sig-pad"[^>]*phx-hook="DevactionUI.Signature"/s
+
+      assert type =~ ~s(name="signature[path]")
+    end
+
+    test "the pad has a name, a status, a clear icon, an error and a disabled state when asked for" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <SignatureField.signature_field
+          id="sig"
+          name="signature"
+          label="Sign"
+          mode_event="mode"
+          draw_label="Draw"
+          type_label="Type"
+          clear_label="Clear"
+          pad_label="Signature area"
+          empty_label="Empty"
+          ready_label="Ready"
+          error="Sign here"
+          disabled
+        >
+          <:clear_icon>ERASER</:clear_icon>
+        </SignatureField.signature_field>
+        """)
+
+      assert html =~ ~s(role="img")
+      assert html =~ ~s(aria-label="Signature area")
+      assert html =~ "ERASER"
+      assert html =~ ~s(data-empty="Empty")
+      assert html =~ ~s(data-ready="Ready")
+      assert html =~ ~s(role="alert")
+      assert html =~ "Sign here"
+      assert html =~ "pointer-events-none"
+      assert html =~ ~r/<button[^>]* disabled/
     end
 
     test "typing: the name field and its look, with no pad" do
@@ -382,7 +439,7 @@ defmodule DevactionUI.InputsTest do
       assert html =~ ~s(value="Maria")
       assert html =~ "signature-typed"
       assert html =~ ~s(name="signature[method]" value="type")
-      refute html =~ "DevactionUI.Signature"
+      assert html =~ "h-[110px]"
     end
   end
 end

@@ -53,7 +53,7 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
    so there is no `@source` to add.
 2. JS: `import {hooks as devactionUI} from "../../deps/devaction_ui/assets/js/devaction_ui"` and merge into
    the LiveSocket `hooks`.
-3. Fonts: Geist and Geist Mono are named in the tokens; the host app serves them.
+3. Fonts: Geist and Geist Mono are named in the tokens; the host app serves them. The typed name of `SignatureField` uses Caveat (weight 500), which the host app serves too.
 
 ## The rules that keep it extractable
 
@@ -96,6 +96,8 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 | `DevactionUI.Tooltip` | a hint on hover and focus, CSS only |
 | `DevactionUI.Pillbox` | removable pills in a field; Enter or comma adds, Backspace removes |
 | `DevactionUI.ColorPicker` | a hex field with a panel: saturation and brightness square, hue and opacity strips, presets, the eyedropper where the browser has one |
+| `DevactionUI.Slider` | a native range input and a two-thumb range slider whose thumbs never cross, with the fill and the value following the drag |
+| `DevactionUI.SignatureField` | draw or type a signature; the pad stays mounted when the mode changes, and the SVG of the stroke is safe to keep. The typed name is set in the Caveat font (weight 500), which you load yourself |
 | `DevactionUI.Combobox` | a select with a search field, accent-insensitive filtering and the ARIA combobox keys |
 | `DevactionUI.DataTable` | sticky header, sortable columns (`aria-sort`, the server sorts), row selection with a tri-state header checkbox and a bulk bar that shows while something is ticked, two densities |
 | `DevactionUI.Kanban` | columns with WIP limits and cards that move by drag or Alt + arrows, announced to screen readers; the LiveView gets one `move_card` event |
