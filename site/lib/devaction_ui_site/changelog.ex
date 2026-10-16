@@ -20,7 +20,7 @@ defmodule DevactionUISite.Changelog do
 
   @improved [
     {"toast_group",
-     "The notices pile up as soon as there are two, with layers peeking out above the newest; the pile opens on hover or focus."},
+     "The notices pile up as soon as there are two, each a little behind the one in front; the pile opens with a glide on hover or focus and each notice slides to its place in the list."},
     {"data_table",
      "Takes a stream, with toolbar and footer slots, a density toggle, loading and error states and sort arrows through slots."},
     {"dropzone", "`queue/1`: a file queue with progress, errors, retry and cancel."},

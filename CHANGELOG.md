@@ -2,6 +2,12 @@
 
 Every release lists new components, improvements, fixes and breaking changes. While the version is 0.x a minor release may break compatibility, and every break is listed with the step to follow.
 
+## 0.2.2
+
+### Fixed
+
+- `toast_group`: the pile is the toasts themselves, each a little behind and smaller than the one in front, and it opens and closes with a glide: the front toast stays where it is and the others slide to their place in the list. The group no longer forces `relative`, so `fixed bottom-4` anchors it.
+
 ## 0.2.1
 
 ### Fixed
