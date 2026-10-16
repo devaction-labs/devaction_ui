@@ -82,3 +82,22 @@ export const parseGroups = (raw) => {
  * @param {boolean} open
  */
 export const withGroup = (groups, id, open) => ({...groups, [id]: open})
+
+/**
+ * Where Tab goes in the open drawer, so the focus cycles inside it: the index to focus, or `null` when the
+ * browser's own move stays inside. From outside the drawer (`at` is -1) it goes to the first control, or the
+ * last one with Shift; from the last control it wraps to the first, and from the first with Shift to the last.
+ *
+ * @param {{at: number, count: number, shift: boolean}} view `at` is the index of the focused control
+ * @returns {number | null}
+ */
+export const trapStep = ({at, count, shift}) => {
+  const last = count - 1
+  const wraps = [
+    [count === 0, null],
+    [at === -1, shift ? last : 0],
+    [shift && at === 0, last],
+    [!shift && at === last, 0],
+  ]
+  return wraps.find(([applies]) => applies)?.[1] ?? null
+}

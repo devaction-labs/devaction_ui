@@ -1,4 +1,6 @@
-import {GROUPS_KEY, MOBILE_BELOW, expanded, isToggleKey, otherState, parseGroups, stateCookie, stateOf, toggleLabel, withGroup} from "./shell_logic.js"
+import {GROUPS_KEY, MOBILE_BELOW, expanded, isToggleKey, otherState, parseGroups, stateCookie, stateOf, toggleLabel, trapStep, withGroup} from "./shell_logic.js"
+
+const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
 const readGroups = () => {
   try {
@@ -33,8 +35,10 @@ export default {
     this.onClick = (event) => this.click(event)
     this.onKey = (event) => this.key(event)
     this.onQuery = () => this.mobile() || this.closeDrawer(false)
+    this.onFocusIn = (event) => this.keepFocus(event)
 
     this.el.addEventListener("click", this.onClick)
+    document.addEventListener("focusin", this.onFocusIn)
     document.addEventListener("keydown", this.onKey)
     this.query.addEventListener("change", this.onQuery)
 
@@ -51,6 +55,7 @@ export default {
 
   destroyed() {
     this.el.removeEventListener("click", this.onClick)
+    document.removeEventListener("focusin", this.onFocusIn)
     document.removeEventListener("keydown", this.onKey)
     this.query.removeEventListener("change", this.onQuery)
   },
@@ -79,6 +84,24 @@ export default {
   key(event) {
     isToggleKey(event, event.target) && this.toggle(event)
     event.key === "Escape" && this.drawerOpen() && this.closeDrawer(true)
+    event.key === "Tab" && this.mobile() && this.drawerOpen() && this.trap(event)
+  },
+
+  controls() {
+    return [...this.el.querySelectorAll(`.shell-sidebar ${FOCUSABLE}`)].filter((control) => control.getClientRects().length > 0)
+  },
+
+  trap(event) {
+    const controls = this.controls()
+    const target = trapStep({at: controls.indexOf(document.activeElement), count: controls.length, shift: event.shiftKey})
+    const stays = target === null && controls.length > 0
+    stays || event.preventDefault()
+    controls[target]?.focus()
+  },
+
+  keepFocus(event) {
+    const outside = this.mobile() && this.drawerOpen() && !event.target.closest(".shell-sidebar")
+    outside && this.controls()[0]?.focus()
   },
 
   toggle(event) {
@@ -97,7 +120,7 @@ export default {
     this.opener = document.activeElement
     this.el.setAttribute("data-mobile-open", "")
     this.sync()
-    requestAnimationFrame(() => this.el.querySelector(".shell-sidebar a[href], .shell-sidebar button")?.focus())
+    requestAnimationFrame(() => this.controls()[0]?.focus())
   },
 
   closeDrawer(restore) {

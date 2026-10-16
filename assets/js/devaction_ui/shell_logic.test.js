@@ -1,6 +1,6 @@
 import assert from "node:assert/strict"
 import test from "node:test"
-import {expanded, isToggleKey, otherState, parseGroups, stateCookie, stateOf, toggleLabel, withGroup} from "./shell_logic.js"
+import {expanded, isToggleKey, otherState, parseGroups, stateCookie, stateOf, toggleLabel, trapStep, withGroup} from "./shell_logic.js"
 
 test("toggling goes from open to rail and back", () => {
   assert.equal(otherState("open"), "rail")
