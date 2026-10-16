@@ -1,0 +1,9 @@
+<%!-- title: Round, Link And Busy | text: A round icon button, the link variant at 46px, and a link that is busy or disabled | layout: center --%>
+<div class="flex flex-wrap items-center gap-2.5">
+  <Button.button shape={:round} icon_only aria-label="Notifications">
+    <.icon name="notification-03" class="size-[18px]" />
+  </Button.button>
+  <Button.button variant={:link}>More about the contract</Button.button>
+  <Button.button navigate="/dev/ui" variant={:primary} loading>Opening</Button.button>
+  <Button.button navigate="/dev/ui" disabled>Not available</Button.button>
+</div>

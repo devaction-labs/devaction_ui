@@ -239,11 +239,25 @@ defmodule DevactionUI.AuthTest do
       assert PasswordStrength.evaluate("Ação").rules[:mixed_case]
     end
 
-    test "the score is the rules met, at least 1 for any text, and 4 only when long as well" do
-      assert PasswordStrength.evaluate("a").score == 1
+    test "the score is the rules met, plus one for 16 characters, and 0 when no rule is met" do
+      assert PasswordStrength.evaluate("a").score == 0
       assert PasswordStrength.evaluate("Ab1").score == 2
       assert PasswordStrength.evaluate("Abcdefghijk1").score == 3
       assert PasswordStrength.evaluate("Abcdefghijklmnop1").score == 4
+    end
+
+    test "two rules and 16 characters make 3, and no rule stays 0 however long" do
+      assert PasswordStrength.evaluate("abcdefghijklmnop", 20).score == 0
+      assert PasswordStrength.evaluate("abcdefghijklmnop").score == 2
+      assert PasswordStrength.evaluate("abcdefghijklmno1").score == 3
+      assert PasswordStrength.evaluate("Abcdefghij1", 12).score == 2
+    end
+
+    test "the 16 characters of the bonus do not follow the minimum length" do
+      assert PasswordStrength.evaluate("abcdefghijklmno", 8).score == 1
+      assert PasswordStrength.evaluate("abcdefghijklmnop", 8).score == 2
+      assert PasswordStrength.evaluate("Abcdefgh1", 8).score == 3
+      assert PasswordStrength.evaluate("Abcdefghijklmno1", 8).score == 4
     end
 
     test "the minimum length is the caller's" do
@@ -257,7 +271,12 @@ defmodule DevactionUI.AuthTest do
       assigns = %{score: score, rules: rules}
 
       rendered_to_string(~H"""
-      <PasswordStrength.password_strength score={@score} label="Weak" rules={@rules}>
+      <PasswordStrength.password_strength
+        score={@score}
+        label="Weak"
+        meter_label="Password strength"
+        rules={@rules}
+      >
         <:met_icon>OK</:met_icon>
         <:unmet_icon>--</:unmet_icon>
       </PasswordStrength.password_strength>
@@ -269,15 +288,42 @@ defmodule DevactionUI.AuthTest do
 
       assert html =~ ~s(role="meter")
       assert html =~ ~s(aria-valuenow="2")
-      assert html =~ ~s(aria-label="Weak")
+      assert html =~ ~s(aria-label="Password strength")
+      assert html =~ ~s(aria-valuetext="Weak")
       assert html =~ "12 characters"
+    end
+
+    test "the line is announced politely and takes the colour of the score" do
+      assert meter(2, []) =~ ~r/<p aria-live="polite" class="[^"]*text-tag-warn-text/
+      assert meter(0, []) =~ ~r/<p aria-live="polite" class="[^"]*text-muted/
+    end
+
+    test "a rule that is met colours the whole line, not only the mark" do
+      assert meter(1, [%{label: "A", met: true}]) =~ "data-[met=true]:text-ok-fg"
+    end
+
+    test "without icons the rules are still listed" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <PasswordStrength.password_strength
+          score={1}
+          label="Weak"
+          meter_label="Strength"
+          rules={[%{label: "A", met: true}]}
+        />
+        """)
+
+      assert html =~ "A"
+      assert html =~ ~s(aria-hidden="true")
     end
 
     test "the bars up to the score are filled and the rest are empty" do
       html = meter(3, [])
 
-      assert length(Regex.scan(~r/h-1 rounded-full bg-tag-info/, html)) <= 3
-      assert length(Regex.scan(~r/h-1 rounded-full bg-line/, html)) == 1
+      assert length(Regex.scan(~r/h-\[5px\] rounded-full bg-learn/, html)) <= 3
+      assert length(Regex.scan(~r/h-\[5px\] rounded-full bg-line/, html)) == 1
     end
 
     test "a rule that is met gets its mark and a rule that is not gets the other" do

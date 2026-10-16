@@ -5,7 +5,17 @@ defmodule DevactionUI.InputGroup do
   the focus ring, the error and the disabled look, so the field inside stays a plain `<input>`.
 
   The icon, the action and the add-ons are slots: the library knows no icon set. The error is whatever the
-  caller says with `invalid`, and `loading` swaps the end for a spinner.
+  caller says with `invalid`, and `loading` swaps the end for a spinner (and then `loading_label` is required).
+  An add-on is boxed (a tinted block with a line) unless it says `loose` (plain muted text, as `.devaction.app`),
+  and `mono` sets it in the monospace of an amount or a code.
+
+  The field carries no error message of its own: render it under the group with an `id` and point the field at
+  it with `aria-describedby`, which goes to the `<input>` through `rest`:
+
+      <InputGroup.input_group id="slug" invalid aria-describedby="slug-error" />
+      <p id="slug-error">Already taken</p>
+
+  The look comes from the `.input-group*` classes of `devaction_ui.css`, which the app must import.
   """
   use Phoenix.Component
 
@@ -18,23 +28,39 @@ defmodule DevactionUI.InputGroup do
   attr :size, :atom, values: [:sm, :md, :lg], default: :md, doc: "36, 44 or 52 px high"
   attr :invalid, :boolean, default: false
   attr :loading, :boolean, default: false, doc: "swaps the action for a spinner"
-  attr :loading_label, :string, default: nil, doc: "what is happening, read by screen readers"
+
+  attr :loading_label, :string,
+    default: nil,
+    doc: "what is happening, read by screen readers; required when `loading`"
+
   attr :class, :any, default: nil
 
   attr :rest, :global,
     include:
-      ~w(placeholder disabled readonly maxlength inputmode autocomplete required min max step)
+      ~w(placeholder disabled readonly maxlength minlength inputmode autocomplete required min max step pattern form list)
 
   slot :icon, doc: "drawn before the text, muted"
   slot :action, doc: "a button at the end: show the password, clear, copy"
-  slot :prefix, doc: "an add-on glued to the start: `R$`, `https://`"
-  slot :suffix, doc: "an add-on glued to the end: `por marco`, `.devaction.app`"
+
+  slot :prefix, doc: "an add-on glued to the start: `R$`, `https://`" do
+    attr :loose, :boolean
+    attr :mono, :boolean
+  end
+
+  slot :suffix, doc: "an add-on glued to the end: `por marco`, `.devaction.app`" do
+    attr :loose, :boolean
+    attr :mono, :boolean
+  end
+
   slot :hint, doc: "a small key cap or text inside the field, before the action"
+
+  def input_group(%{loading: true, loading_label: nil}),
+    do: raise(ArgumentError, "input_group/1 needs a loading_label while it is loading")
 
   def input_group(assigns) do
     ~H"""
     <span id={"#{@id}-group"} class={["input-group", size_class(@size), @class]}>
-      <span :for={prefix <- @prefix} class="input-addon">{render_slot(prefix)}</span>
+      <span :for={prefix <- @prefix} class={addon_class(prefix)}>{render_slot(prefix)}</span>
       <span :if={@icon != []} class="input-icon [&>*]:size-full">{render_slot(@icon)}</span>
       <input
         id={@id}
@@ -45,9 +71,9 @@ defmodule DevactionUI.InputGroup do
         {@rest}
       />
       <span :if={@hint != []} class="shrink-0">{render_slot(@hint)}</span>
-      <.spinner :if={@loading} label={@loading_label || "…"} class="size-[18px] shrink-0 border-2" />
+      <.spinner :if={@loading} label={@loading_label} class="size-[18px] shrink-0 border-2" />
       <span :if={!@loading and @action != []} class="contents">{render_slot(@action)}</span>
-      <span :for={suffix <- @suffix} class="input-addon">{render_slot(suffix)}</span>
+      <span :for={suffix <- @suffix} class={addon_class(suffix)}>{render_slot(suffix)}</span>
     </span>
     """
   end
@@ -64,6 +90,13 @@ defmodule DevactionUI.InputGroup do
       {render_slot(@inner_block)}
     </button>
     """
+  end
+
+  defp addon_class(slot) do
+    [
+      (slot[:loose] && "input-note") || "input-addon",
+      slot[:mono] && "font-mono text-[13px]"
+    ]
   end
 
   defp size_class(:sm), do: "input-sm"

@@ -76,7 +76,71 @@ defmodule DevactionUI.FormFieldsTest do
       refute loading =~ ~s(aria-label="Clear")
       refute loading =~ "false"
 
-      assert rendered_to_string(~H|<InputGroup.input_group id="a" loading />|) =~ "…"
+      assert_raise ArgumentError, ~r/loading_label/, fn ->
+        rendered_to_string(~H|<InputGroup.input_group id="a" loading />|)
+      end
+    end
+
+    test "passes the validation attributes and the description of the error to the input" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <InputGroup.input_group
+          id="a"
+          pattern="[a-z]+"
+          minlength="3"
+          form="f"
+          list="opts"
+          invalid
+          aria-describedby="a-error"
+        />
+        """)
+
+      assert html =~ ~s(pattern="[a-z]+")
+      assert html =~ ~s(minlength="3")
+      assert html =~ ~s(form="f")
+      assert html =~ ~s(list="opts")
+      assert html =~ ~s(aria-describedby="a-error")
+    end
+
+    test "an invalid and disabled field says both, a readonly one is plain readonly" do
+      assigns = %{}
+      html = rendered_to_string(~H|<InputGroup.input_group id="a" invalid disabled readonly />|)
+      assert html =~ ~s(aria-invalid="true")
+      assert html =~ "disabled"
+      assert html =~ "readonly"
+    end
+
+    test "add-ons are boxed unless loose, and mono when asked" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <InputGroup.input_group id="a">
+          <:prefix mono>R$</:prefix>
+          <:suffix loose>.devaction.app</:suffix>
+          <:suffix>por marco</:suffix>
+        </InputGroup.input_group>
+        """)
+
+      assert html =~ ~r/class="input-addon font-mono[^"]*">R\$/
+      assert html =~ ~r/class="input-note[^"]*">\.devaction\.app/
+      assert html =~ ~r/class="input-addon[^"]*">por marco/
+    end
+
+    test "the action keeps the phx-click given in rest" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(
+          ~H|<InputGroup.input_action label="Copy" phx-click="copy" phx-value-id="1">
+  X
+</InputGroup.input_action>|
+        )
+
+      assert html =~ ~s(phx-click="copy")
+      assert html =~ ~s(phx-value-id="1")
     end
   end
 
@@ -126,13 +190,67 @@ defmodule DevactionUI.FormFieldsTest do
       refute html =~ "textarea-count"
     end
 
-    test "says it is wrong and looks disabled" do
+    test "the error is on the textarea only, for the frame to draw the ring" do
       assigns = %{}
       html = rendered_to_string(~H|<Textarea.textarea id="t" invalid disabled />|)
 
-      assert html =~ ~s(aria-invalid="true")
-      assert html =~ "border-missing"
-      assert html =~ "border-dashed"
+      assert [_] = Regex.scan(~r/aria-invalid="true"/, html)
+      assert html =~ ~r/<textarea[^>]*aria-invalid="true"/
+      refute html =~ ~r/<div[^>]*aria-invalid/
+      assert html =~ "disabled"
+    end
+
+    test "rows is the least height" do
+      assigns = %{}
+      assert rendered_to_string(~H|<Textarea.textarea id="t" rows={2} />|) =~ "--rows: 2"
+    end
+
+    test "the counter describes the field and joins the description the caller gives" do
+      assigns = %{}
+
+      html = rendered_to_string(~H|<Textarea.textarea id="t" maxlength={10} />|)
+      assert html =~ ~s(aria-describedby="t-count")
+      assert html =~ ~s(aria-live="off")
+
+      html =
+        rendered_to_string(
+          ~H|<Textarea.textarea id="t" maxlength={10} value="123456789" aria-describedby="t-help" />|
+        )
+
+      assert html =~ ~s(aria-describedby="t-help t-count")
+      assert html =~ ~s(aria-live="polite")
+      assert [_] = Regex.scan(~r/aria-describedby/, html)
+
+      refute rendered_to_string(~H|<Textarea.textarea id="t" />|) =~ "aria-describedby"
+    end
+
+    test "takes minlength, form and wrap" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H|<Textarea.textarea id="t" minlength="5" form="f" wrap="soft" />|)
+
+      assert html =~ ~s(minlength="5")
+      assert html =~ ~s(form="f")
+      assert html =~ ~s(wrap="soft")
+    end
+
+    test "a footer button is 34px, with an AI look and what the caller gives in rest" do
+      assigns = %{}
+
+      plain =
+        rendered_to_string(
+          ~H|<Textarea.footer_button label="Attach" phx-click="attach">A</Textarea.footer_button>|
+        )
+
+      ai =
+        rendered_to_string(
+          ~H|<Textarea.footer_button label="Improve" variant={:ai}>I</Textarea.footer_button>|
+        )
+
+      assert plain =~ "h-[34px]"
+      assert plain =~ ~s(phx-click="attach")
+      assert ai =~ "tag-warn-bg"
     end
   end
 

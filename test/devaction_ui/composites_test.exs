@@ -137,6 +137,56 @@ defmodule DevactionUI.CompositesTest do
       assert bad =~ ~s(aria-describedby="m-error")
       assert bad =~ "Too low."
     end
+
+    test "is an input group with the R$ add-on, decimal keyboard and the group's own height and error look" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(
+          ~H|<MoneyInput.money_input id="m" name="amount" label="Value" value="123456" />|
+        )
+
+      assert html =~ ~s(id="m-group")
+      assert html =~ "input-group"
+      assert html =~ ~r/class="input-addon font-mono[^"]*">R\$/
+      assert html =~ ~s(inputmode="decimal")
+      assert html =~ ~s(placeholder="0,00")
+      assert html =~ "[&amp;&gt;input]:text-right"
+      assert html =~ ~s(value="123456")
+    end
+
+    test "an error is tied to the field next to the description the caller gives" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <MoneyInput.money_input
+          id="m"
+          name="amount"
+          label="Value"
+          errors={["Too low."]}
+          aria-describedby="m-help"
+        />
+        """)
+
+      assert html =~ ~s(aria-describedby="m-help m-error")
+      assert [_] = Regex.scan(~r/aria-describedby/, html)
+      assert html =~ ~s(id="m-error")
+    end
+
+    test "the description of the caller alone stays, and none gives none" do
+      assigns = %{}
+
+      help =
+        rendered_to_string(
+          ~H|<MoneyInput.money_input id="m" name="a" label="V" aria-describedby="m-help" />|
+        )
+
+      assert help =~ ~s(aria-describedby="m-help")
+
+      refute rendered_to_string(~H|<MoneyInput.money_input id="m" name="a" label="V" />|) =~
+               "aria-describedby"
+    end
   end
 
   describe "dropdown/1" do

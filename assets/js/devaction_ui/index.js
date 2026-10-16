@@ -17,6 +17,7 @@ import Dropdown from "./dropdown.js"
 import Editor from "./editor.js"
 import Dropzone from "./dropzone.js"
 import MoneyMask from "./money_mask.js"
+import NumberInput from "./number_input.js"
 import DataTable from "./data_table.js"
 import DatePicker from "./date_picker.js"
 import FilterMenu from "./filter_menu.js"
@@ -42,6 +43,7 @@ export const hooks = {
   "DevactionUI.Dropzone": Dropzone,
   "DevactionUI.Editor": Editor,
   "DevactionUI.MoneyMask": MoneyMask,
+  "DevactionUI.NumberInput": NumberInput,
   "DevactionUI.FilterMenu": FilterMenu,
   "DevactionUI.Kanban": Kanban,
   "DevactionUI.Pillbox": Pillbox,
