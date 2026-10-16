@@ -4,7 +4,16 @@ defmodule DevactionUISite.DocsLiveTest do
   import Phoenix.ConnTest
   import Phoenix.LiveViewTest
 
-  alias DevactionUISite.{Catalog, Project, Reference, ScreenHTML, Templates, TopicHTML}
+  alias DevactionUISite.{
+    Catalog,
+    Changelog,
+    Project,
+    Reference,
+    Repo,
+    ScreenHTML,
+    Templates,
+    TopicHTML
+  }
 
   @endpoint DevactionUISite.Endpoint
 
@@ -104,6 +113,12 @@ defmodule DevactionUISite.DocsLiveTest do
   end
 
   describe "the shell" do
+    setup do
+      :ok = Ecto.Adapters.SQL.Sandbox.checkout(Repo)
+      Changelog.sync!()
+      :ok
+    end
+
     test "the home and the changelog have the header and no sidebar" do
       for path <- ["/", "/changelog"] do
         {:ok, view, _html} = live(build_conn(), path)

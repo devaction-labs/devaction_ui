@@ -7,7 +7,7 @@ defmodule DevactionUISite.DocsLive do
   """
   use Phoenix.LiveView
 
-  alias DevactionUISite.{Catalog, DocsHTML, Templates}
+  alias DevactionUISite.{Catalog, Changelog, DocsHTML, Templates}
 
   @impl true
   def mount(_params, _session, socket) do
@@ -66,7 +66,22 @@ defmodule DevactionUISite.DocsLive do
     do: {:noreply, assign(socket, topic: nil, page_title: "Installation · DevactionUI")}
 
   def handle_params(_params, _uri, %{assigns: %{live_action: :changelog}} = socket),
-    do: {:noreply, assign(socket, topic: nil, page_title: "Changelog · DevactionUI")}
+    do:
+      {:noreply,
+       assign(socket,
+         topic: nil,
+         page_title: "Changelog · DevactionUI",
+         changelog_versions: Changelog.versions()
+       )}
+
+  def handle_params(_params, _uri, %{assigns: %{live_action: :home}} = socket),
+    do:
+      {:noreply,
+       assign(socket,
+         topic: nil,
+         page_title: "DevAction UI",
+         changelog_versions: Changelog.versions()
+       )}
 
   def handle_params(_params, _uri, %{assigns: %{live_action: :overview}} = socket),
     do: {:noreply, assign(socket, topic: nil, page_title: "Introduction · DevactionUI")}

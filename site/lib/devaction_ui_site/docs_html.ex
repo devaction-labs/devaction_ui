@@ -65,8 +65,21 @@ new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
     """
   end
 
-  def page(%{live_action: :home} = assigns), do: HomeHTML.page(assigns)
-  def page(%{live_action: :changelog} = assigns), do: ChangelogHTML.page(assigns)
+  def page(%{live_action: :home} = assigns) do
+    ~H"""
+    <Shell.shell page={assigns} sidebar={false}>
+      <HomeHTML.page {assigns} />
+    </Shell.shell>
+    """
+  end
+
+  def page(%{live_action: :changelog} = assigns) do
+    ~H"""
+    <Shell.shell page={assigns} sidebar={false}>
+      <ChangelogHTML.page {assigns} />
+    </Shell.shell>
+    """
+  end
 
   def page(assigns) do
     assigns = assign(assigns, toc: toc(assigns), toc_key: toc_key(assigns))
