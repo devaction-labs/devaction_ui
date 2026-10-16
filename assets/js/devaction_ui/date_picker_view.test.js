@@ -43,6 +43,33 @@ test("only the focused day is in the tab order", () => {
   assert.match(html, /data-day="2026-10-15"[^>]*tabindex="0"/)
 })
 
+test("the tab stop lands on the minimum when the focus is before it", () => {
+  const html = renderCalendar({...state, focus: "2026-10-03", min: "2026-10-10"}, text)
+  assert.equal((html.match(/tabindex="0"/g) ?? []).length, 1)
+  assert.match(html, /data-day="2026-10-10"[^>]*tabindex="0"/)
+  assert.match(html, /data-day="2026-10-03" disabled[^>]*tabindex="-1"/)
+})
+
+test("the days are buttons in a labelled group, not a grid", () => {
+  const html = renderCalendar(state, text)
+  assert.match(html, /role="group" aria-label="October 2026"/)
+  assert.doesNotMatch(html, /role="grid"/)
+})
+
+test("the arrows are the icons given, or a typographic arrow", () => {
+  assert.match(renderCalendar(state, text), />‹<\/button>/)
+  const html = renderCalendar(state, {...text, previousIcon: "<svg>L</svg>", nextIcon: "<svg>R</svg>"})
+  assert.match(html, /data-nav="-1"[^>]*><svg>L<\/svg><\/button>/)
+  assert.match(html, /data-nav="1"[^>]*><svg>R<\/svg><\/button>/)
+})
+
+test("the days between the ends of a range say so to a screen reader", () => {
+  const html = renderCalendar(state, {...text, insideLabel: "in the range"})
+  assert.match(html, /data-day="2026-10-16"[^>]*aria-label="day 2026-10-16, in the range"/)
+  assert.match(html, /data-day="2026-10-15"[^>]*aria-label="day 2026-10-15"/)
+  assert.doesNotMatch(renderCalendar(state, text), /in the range/)
+})
+
 test("a day's classes follow what it is", () => {
   assert.match(dayClass({edge: true}), /bg-ink/)
   assert.match(dayClass({inside: true}), /bg-wrap/)

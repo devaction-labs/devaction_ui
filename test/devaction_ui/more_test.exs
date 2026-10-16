@@ -145,6 +145,42 @@ defmodule DevactionUI.MoreTest do
       assert html =~ ~s(data-min="2026-10-10")
     end
 
+    test "the arrows come from the icon slots, and the title, range hint and shadow are options" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <DatePicker.date_picker
+          id="d"
+          name="due"
+          today="2026-10-14"
+          previous_label="Prev"
+          next_label="Next"
+          capitalize={false}
+          inside_label="in the range"
+          shadow
+        >
+          <:prev_icon>L</:prev_icon>
+          <:next_icon>R</:next_icon>
+        </DatePicker.date_picker>
+        """)
+
+      assert html =~ ~r/<template data-previous-icon>\s*L\s*<\/template>/
+      assert html =~ ~r/<template data-next-icon>\s*R\s*<\/template>/
+      assert html =~ ~s(data-capitalize="false")
+      assert html =~ ~s(data-inside="in the range")
+      assert html =~ "shadow-pop"
+    end
+
+    test "by default it capitalises, has no shadow and says nothing about the range" do
+      assigns = %{mode: :single, value: nil, min: nil}
+      html = rendered_to_string(~H|<.picker mode={@mode} value={@value} min={@min} />|)
+
+      assert html =~ ~s(data-capitalize="true")
+      refute html =~ "data-inside"
+      refute html =~ "shadow-pop"
+    end
+
     test "no value is empty inputs" do
       assigns = %{mode: :single, value: nil, min: nil}
       html = rendered_to_string(~H|<.picker mode={@mode} value={@value} min={@min} />|)
@@ -172,6 +208,7 @@ defmodule DevactionUI.MoreTest do
       assert html =~ ~s(data-state="late")
       assert html =~ "bg-tag-risk-bg"
       assert html =~ "2 days late"
+      assert html =~ "px-2.5"
     end
   end
 

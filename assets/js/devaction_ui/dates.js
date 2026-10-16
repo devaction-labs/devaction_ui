@@ -50,6 +50,9 @@ export const leadingDays = ({year, month}, weekStart) =>
 /** Position of `iso` in its week, 0 for the first day of the week. */
 export const weekdayIndex = (iso, weekStart) => (parse(iso).getUTCDay() - weekStart + 7) % 7
 
+/** `iso`, or the minimum when `iso` is before it (a day that cannot be picked cannot be where the keyboard lands). */
+export const clampMin = (iso, min) => (min && iso < min ? min : iso)
+
 /** Where a key moves the focused day, or `undefined` for a key that does not move it. */
 const moves = {
   ArrowLeft: (iso) => addDays(iso, -1),
