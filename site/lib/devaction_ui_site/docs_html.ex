@@ -35,7 +35,7 @@ new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
 
 <Tag.tag variant={:ok}>Em dia</Tag.tag>|
 
-  @install_dep ~S|{:devaction_ui, github: "devaction-labs/devaction_ui"}|
+  @install_dep ~s|{:devaction_ui, "~> #{Project.short_version()}.0"}|
 
   def page(%{live_action: :preview} = assigns) do
     assigns =

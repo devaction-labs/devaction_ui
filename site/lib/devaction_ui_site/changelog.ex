@@ -75,8 +75,15 @@ defmodule DevactionUISite.Changelog do
         "The Blade version of the kit for Laravel and Livewire projects, starting with the color picker, the slider and the filter menu."
     },
     %{
-      version: "v0.2.4",
+      version: "v0.2.5",
       status: "current",
+      tag: "v0.2.5",
+      summary:
+        "The install instructions use Hex (`{:devaction_ui, \"~> 0.2.0\"}`) now that the package is published; the package itself is unchanged since 0.2.3."
+    },
+    %{
+      version: "v0.2.4",
+      status: "archived",
       tag: "v0.2.4",
       summary:
         "The example cards of the documentation no longer clip a floating panel (combobox, dropdown, popover), and every release of the series is listed in this changelog."
@@ -111,6 +118,10 @@ defmodule DevactionUISite.Changelog do
   ]
 
   @patches %{
+    "v0.2.5" => [
+      {"improved", "Improvements", "install",
+       "The install instructions use the Hex requirement instead of the GitHub repository."}
+    ],
     "v0.2.4" => [
       {"fixed", "Fixes", "example_cards",
        "A floating panel opened inside an example (combobox, dropdown, popover, date picker) is no longer cut off by the card."},
