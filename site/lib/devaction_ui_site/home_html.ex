@@ -108,7 +108,7 @@ defmodule DevactionUISite.HomeHTML do
         rows: @rows,
         tags: @tags,
         current: current,
-        highlights: Changelog.highlights(current),
+        highlights: Changelog.highlights(Changelog.latest_release(versions)),
         next_line: next_line(next),
         github: @github
       )
@@ -349,6 +349,7 @@ defmodule DevactionUISite.HomeHTML do
         <span class="sm:ml-auto">Phoenix LiveView 1.1+ · Tailwind v4 · Geist</span>
         <.link navigate="/changelog" class="underline hover:text-ink">Changelog</.link>
         <a href={@github} class="underline hover:text-ink">GitHub</a>
+        <p class="m-0 basis-full pt-5 text-center">Toda honra e glória ao Senhor Jesus.</p>
       </footer>
     </div>
     """

@@ -2,7 +2,7 @@ defmodule DevactionUISite.Changelog do
   @moduledoc """
   The changelog of the kit: the versions and what came with each, kept in SQLite. `sync!/0` writes what the code
   itself knows (every component of the `Catalog` as a `new` entry of the version it came with, with the first
-  sentence of its module documentation, the improvements and breaking changes of v0.2, and the `planned`
+  sentence of its module documentation, the improvements and breaking changes of v0.2.0, what each patch release fixed, and the `planned`
   entries of v0.3) and is safe to run on every boot: rows are keyed by version, group and name, and rows added
   later by hand are left alone.
   """
@@ -47,11 +47,6 @@ defmodule DevactionUISite.Changelog do
     {"breadcrumb", "A collapsed middle for long paths and a separator as text or chevron."}
   ]
 
-  @fixed [
-    {"site_assets",
-     "The documentation site serves its scripts, styles and icons under digested names, so a cache in front of it never hands a page an older script."}
-  ]
-
   @breaking [
     {"confirm_dialog",
      "Now a thin wrapper over `Modal`: `eyebrow` is gone and the close button is optional."},
@@ -70,6 +65,73 @@ defmodule DevactionUISite.Changelog do
     {"required_texts",
      "New required text attrs: `nav_label` (AuthLayout), `toolbar_label` (Editor), `hint_label` (Kanban), `meter_label` (PasswordStrength), and the labels of DataTable, Kanban and Editor no longer have English defaults."}
   ]
+
+  @releases [
+    %{
+      version: "v0.3",
+      status: "next",
+      tag: nil,
+      summary:
+        "The Blade version of the kit for Laravel and Livewire projects, starting with the color picker, the slider and the filter menu."
+    },
+    %{
+      version: "v0.2.4",
+      status: "current",
+      tag: "v0.2.4",
+      summary:
+        "The example cards of the documentation no longer clip a floating panel (combobox, dropdown, popover), and every release of the series is listed in this changelog."
+    },
+    %{
+      version: "v0.2.3",
+      status: "archived",
+      tag: "v0.2.3",
+      summary:
+        "The toast group, rebuilt to the new design: toasts pushed from the server, a pile that opens on hover, loading that turns into done, Alt+T, Esc and a sideways drag."
+    },
+    %{
+      version: "v0.2.2",
+      status: "archived",
+      tag: "v0.2.2",
+      summary: "The toast pile opens and closes with a glide instead of jumping."
+    },
+    %{
+      version: "v0.2.1",
+      status: "archived",
+      tag: "v0.2.1",
+      summary: "The documentation site serves its scripts, styles and icons under digested names."
+    },
+    %{version: "v0.2.0", status: "archived", tag: "v0.2.0", summary: :v02},
+    %{
+      version: "v0.1.0",
+      status: "archived",
+      tag: "v0.1.0",
+      summary:
+        "First public release: function components for Phoenix LiveView, with light and dark tokens, keyboard navigation and state on the server."
+    }
+  ]
+
+  @patches %{
+    "v0.2.4" => [
+      {"fixed", "Fixes", "example_cards",
+       "A floating panel opened inside an example (combobox, dropdown, popover, date picker) is no longer cut off by the card."},
+      {"improved", "Improvements", "changelog",
+       "Every release of the series has its own entry here, with what it fixed or broke."}
+    ],
+    "v0.2.3" => [
+      {"breaking", "Breaking changes", "toast_group",
+       "Rebuilt to the new design: toasts are pushed from the server with `put_toast`, `update_toast`, `dismiss_toast` and `clear_toasts` instead of `:toast` slots, and `label` and `dismiss_label` are required."},
+      {"improved", "Improvements", "toast_group",
+       "The pile shows the newest toast with two peeking behind; pointing at it or focusing it opens a list; timers pause while it is open or the tab is hidden; Alt+T focuses it, Esc closes a toast and a sideways drag dismisses; `loading` stays until it is updated to done or failed."}
+    ],
+    "v0.2.2" => [
+      {"fixed", "Fixes", "toast_group",
+       "The pile opens and closes with a glide, and the group can be anchored with `fixed` (it no longer forces `relative`)."}
+    ],
+    "v0.2.1" => [
+      {"fixed", "Fixes", "site_assets",
+       "The documentation site serves its scripts, styles and icons under digested names, so a cache in front of it never hands a page an older script."}
+    ]
+  }
 
   @doc "The kinds of change, in the order the page shows them."
   def kinds, do: @kinds
@@ -115,6 +177,13 @@ defmodule DevactionUISite.Changelog do
     |> Enum.map(& &1.group)
     |> Enum.uniq()
     |> Enum.map(fn group -> {group, Enum.filter(entries, &(&1.group == group))} end)
+  end
+
+  @doc "The newest version that is not the next one and has new components in it, or `nil`."
+  def latest_release(versions) do
+    Enum.find(versions, fn version ->
+      version.status != "next" and Enum.any?(version.entries, &(&1.kind == "new"))
+    end)
   end
 
   @doc "Up to four lines that sum up the current version, read off its `new` entries."
@@ -175,41 +244,21 @@ defmodule DevactionUISite.Changelog do
     total = length(Catalog.all())
     added = Enum.count(Catalog.all(), &(Catalog.since(&1) == "0.2"))
 
-    versions = [
-      %{
-        version: "v0.3",
-        status: "next",
-        tag: nil,
-        released_on: nil,
-        summary:
-          "The Blade version of the kit for Laravel and Livewire projects, starting with the color picker, the slider and the filter menu.",
-        position: 1,
-        inserted_at: now,
-        updated_at: now
-      },
-      %{
-        version: "v0.2",
-        status: "current",
-        tag: "v0.2.0",
-        released_on: nil,
-        summary:
-          "#{added} new components for reviews, contracts and the app (file tree, diff view, PDF viewer, one-time code, date range, notifications, plans, cookies, menus and panels), and a round of fixes to the canvas and to the accessibility of the v0.1 components. #{total} components in all.",
-        position: 2,
-        inserted_at: now,
-        updated_at: now
-      },
-      %{
-        version: "v0.1",
-        status: "archived",
-        tag: "v0.1.0",
-        released_on: nil,
-        summary:
-          "First public release: function components for Phoenix LiveView, with light and dark tokens, keyboard navigation and state on the server.",
-        position: 3,
-        inserted_at: now,
-        updated_at: now
-      }
-    ]
+    Repo.delete_all(from(version in Version, where: version.version in ["v0.1", "v0.2"]))
+
+    versions =
+      for {release, index} <- Enum.with_index(@releases, 1) do
+        %{
+          version: release.version,
+          status: release.status,
+          tag: release.tag,
+          released_on: nil,
+          summary: summary(release.summary, added, total),
+          position: index,
+          inserted_at: now,
+          updated_at: now
+        }
+      end
 
     Repo.insert_all(Version, versions,
       on_conflict: {:replace, [:status, :tag, :summary, :position, :updated_at]},
@@ -227,6 +276,12 @@ defmodule DevactionUISite.Changelog do
     :ok
   end
 
+  defp summary(:v02, added, total),
+    do:
+      "#{added} new components for reviews, contracts and the app (file tree, diff view, PDF viewer, one-time code, date range, notifications, plans, cookies, menus and panels), and a round of fixes to the canvas and to the accessibility of the v0.1 components. #{total} components in all."
+
+  defp summary(text, _added, _total), do: text
+
   defp code_entries(ids, now) do
     planned =
       for {{name, summary}, index} <- Enum.with_index(@planned, 1),
@@ -243,21 +298,22 @@ defmodule DevactionUISite.Changelog do
     released =
       for {since, rows} <- Enum.group_by(components ++ templates, &elem(&1, 0)),
           {{_since, group, name, summary}, index} <- Enum.with_index(rows, 1),
-          do: row(ids["v" <> since], "new", group, name, summary, index, now)
+          do: row(ids["v#{since}.0"], "new", group, name, summary, index, now)
 
     improved =
       for {{name, summary}, index} <- Enum.with_index(@improved, 1),
-          do: row(ids["v0.2"], "improved", "Improvements", name, summary, 1000 + index, now)
+          do: row(ids["v0.2.0"], "improved", "Improvements", name, summary, 1000 + index, now)
 
     breaking =
       for {{name, summary}, index} <- Enum.with_index(@breaking, 1),
-          do: row(ids["v0.2"], "breaking", "Breaking changes", name, summary, 2000 + index, now)
+          do: row(ids["v0.2.0"], "breaking", "Breaking changes", name, summary, 2000 + index, now)
 
-    fixed =
-      for {{name, summary}, index} <- Enum.with_index(@fixed, 1),
-          do: row(ids["v0.2"], "fixed", "Fixes", name, summary, 3000 + index, now)
+    patches =
+      for {version, rows} <- @patches,
+          {{kind, group, name, summary}, index} <- Enum.with_index(rows, 1),
+          do: row(ids[version], kind, group, name, summary, 3000 + index, now)
 
-    planned ++ released ++ improved ++ breaking ++ fixed
+    planned ++ released ++ improved ++ breaking ++ patches
   end
 
   defp row(version_id, kind, group, name, summary, position, now) do
