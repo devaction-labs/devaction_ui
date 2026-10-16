@@ -254,6 +254,119 @@ defmodule DevactionUI.ShellPiecesTest do
     test "has no toggle when nobody listens" do
       refute sidebar(false, nil) =~ "nav-toggle"
     end
+
+    defp grouped(collapsed, closed \\ []) do
+      assigns = %{collapsed: collapsed, closed: closed}
+
+      rendered_to_string(~H"""
+      <Sidebar.sidebar id="nav" label="Main" collapsed={@collapsed} closed_groups={@closed}>
+        <:icon>I</:icon>
+        <:group_icon>›</:group_icon>
+        <:item to="/a" label="Today" />
+        <:item to="/b" label="Projects" group="Work" />
+        <:item to="/c" label="Contracts" group="Work" />
+        <:item to="/d" label="Help" group="More" />
+      </Sidebar.sidebar>
+      """)
+    end
+
+    defp query(html, selector),
+      do: html |> LazyHTML.from_fragment() |> LazyHTML.query(selector)
+
+    test "consecutive items of a group sit under a native details with its title" do
+      html = grouped(false)
+
+      assert Enum.count(query(html, "details")) == 2
+      assert Enum.count(query(html, "details#nav-group-1 li")) == 2
+      assert Enum.count(query(html, "details#nav-group-3 li")) == 1
+      assert query(html, "details#nav-group-1 > summary") |> LazyHTML.text() =~ "Work"
+      assert Enum.count(query(html, "details[open]")) == 2
+    end
+
+    test "closed_groups starts those groups closed" do
+      html = grouped(false, ["More"])
+
+      assert Enum.count(query(html, "details[open]")) == 1
+      assert Enum.count(query(html, "details#nav-group-3:not([open])")) == 1
+    end
+
+    test "collapsed there are no headings, only the items, each with its tooltip" do
+      html = grouped(true)
+
+      refute html =~ "<details"
+      refute html =~ "<summary"
+      assert length(Regex.scan(~r/role="tooltip"/, html)) == 4
+      assert html =~ ~s(id="nav-tip-3")
+    end
+
+    test "items have a 19px icon and a 10px count, as the canvas draws them" do
+      html = sidebar(false)
+
+      assert html =~ "size-[19px]"
+      assert html =~ "text-[10px]"
+      assert html =~ "rounded-[5px]"
+    end
+  end
+
+  describe "Sidebar.search/1 and user/1" do
+    test "search is a labelled search field with the key hint, hidden when collapsed" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Sidebar.search
+          id="s"
+          label="Search"
+          placeholder="Search"
+          hint="⌘K"
+          phx-change="find"
+          aria-keyshortcuts="Meta+K"
+        >
+          <:icon>M</:icon>
+        </Sidebar.search>
+        """)
+
+      field = "label[for=s] input#s[type=search][aria-label=Search][phx-change=find]"
+      assert Enum.count(query(html, field)) == 1
+      assert html =~ ~r/<kbd[^>]*aria-hidden="true"[^>]*>\s*⌘K/
+      assert html =~ "h-10"
+      assert html =~ "rounded-[10px]"
+      assert html =~ "group-data-[collapsed=true]/sidebar:hidden"
+    end
+
+    test "search without a hint draws no key" do
+      assigns = %{}
+      html = rendered_to_string(~H|<Sidebar.search id="s" label="Search" />|)
+
+      refute html =~ "<kbd"
+    end
+
+    test "user is the avatar with the name, the detail and the menu, under a line" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Sidebar.user name="Alex Nogueira" detail="DevAction Labs">
+          <:menu><button id="menu" type="button">...</button></:menu>
+        </Sidebar.user>
+        """)
+
+      assert html =~ "border-t border-line-strong"
+      assert html =~ "AN"
+      assert html =~ "Alex Nogueira"
+      assert html =~ "DevAction Labs"
+      assert html =~ ~s(id="menu")
+      assert html =~ "group-data-[collapsed=true]/sidebar:justify-center"
+      assert html =~ "group-data-[collapsed=true]/sidebar:hidden"
+    end
+
+    test "user without a menu or a detail is just the avatar and the name" do
+      assigns = %{}
+      html = rendered_to_string(~H|<Sidebar.user name="Alex Nogueira" />|)
+
+      refute html =~ "DevAction"
+      refute html =~ "id="
+    end
   end
 
   describe "CommandPalette" do

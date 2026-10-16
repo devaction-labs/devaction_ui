@@ -177,6 +177,69 @@ defmodule DevactionUI.ComponentsTest do
     end
   end
 
+  describe "code_block/1 lines" do
+    defp lines_of(html) do
+      html |> LazyHTML.from_fragment() |> LazyHTML.query("code > span.code-line")
+    end
+
+    test "without a line feature the code is one run, with no line spans" do
+      assigns = %{code: "a\nb"}
+      html = rendered_to_string(~H|<.code_block code={@code} />|)
+
+      assert Enum.empty?(lines_of(html))
+      refute html =~ "--code-gutter"
+    end
+
+    test "line_numbers numbers every line, sizes the gutter and keeps the text copyable" do
+      code = Enum.map_join(1..12, "\n", &"l#{&1}")
+      assigns = %{code: code}
+      html = rendered_to_string(~H|<.code_block code={@code} line_numbers />|)
+
+      assert Enum.count(lines_of(html)) == 12
+      assert html =~ ~s(data-line="12")
+      assert html =~ ~s(data-numbered)
+      assert html =~ "--code-gutter: 2ch"
+
+      text = html |> LazyHTML.from_fragment() |> LazyHTML.query("code") |> LazyHTML.text()
+      assert text == code
+    end
+
+    test "highlight_lines marks numbers and ranges" do
+      assigns = %{code: "a\nb\nc\nd\ne"}
+      html = rendered_to_string(~H|<.code_block code={@code} highlight_lines={[2, 4..5]} />|)
+
+      marked =
+        html
+        |> LazyHTML.from_fragment()
+        |> LazyHTML.query("[data-highlighted]")
+        |> Enum.map(&(&1 |> LazyHTML.attribute("data-line") |> hd()))
+
+      assert marked == ["2", "4", "5"]
+    end
+
+    test "diff reads the marker of each line and keeps it in the text" do
+      assigns = %{code: "  keep\n+ new\n- old"}
+      html = rendered_to_string(~H|<.code_block code={@code} diff />|)
+
+      kinds =
+        html
+        |> LazyHTML.from_fragment()
+        |> LazyHTML.query("[data-diff]")
+        |> Enum.map(&(&1 |> LazyHTML.attribute("data-diff") |> hd()))
+
+      assert kinds == ["context", "add", "del"]
+      assert html =~ "+ new" and html =~ "- old"
+    end
+
+    test "lines go with a language: the tokens are coloured inside each line" do
+      assigns = %{code: "def a\nend"}
+      html = rendered_to_string(~H|<.code_block lang={:elixir} code={@code} line_numbers />|)
+
+      assert html =~ ~s(<span class="text-[#C4A7E7]">def</span>)
+      assert Enum.count(lines_of(html)) == 2
+    end
+  end
+
   test "kbd/1 draws a key cap" do
     assigns = %{}
     html = rendered_to_string(~H|<.kbd>⌘K</.kbd>|)

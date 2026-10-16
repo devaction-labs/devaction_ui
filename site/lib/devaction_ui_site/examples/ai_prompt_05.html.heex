@@ -1,0 +1,18 @@
+<%!-- title: Streaming and attachments | text: While `streaming` the send button becomes the stop one; `attachments` holds what goes with the question. --%>
+<AiPrompt.ai_prompt
+  id="ai-prompt-streaming"
+  event="prompt"
+  label="Ask the AI"
+  send_label="Send"
+  value="Explain this diff"
+  streaming
+  on_stop="stop"
+  stop_label="Stop answering"
+  class="max-w-xl"
+>
+  <:attachments>
+    <span class="rounded-full bg-on-primary/15 px-2 py-0.5 text-xs">diff.patch</span>
+  </:attachments>
+  <:icon><.icon name="arrow-down-01" class="size-4 rotate-180" /></:icon>
+  <:stop><span class="size-3 rounded-sm bg-current" aria-hidden="true"></span></:stop>
+</AiPrompt.ai_prompt>

@@ -11,9 +11,11 @@ defmodule DevactionUI.AuthLayout do
   The two columns are the page's `<main>`, whose `id` (`main_id`, `"main"` by default) is where a skip link
   of the host points. The footer links are a `<nav>` named by `nav_label`.
 
-  The brand mark is the caller's markup. The canvas draws it as a 34 px tile with the product's symbol; give
-  the tile `bg-(--brand-tile)` and `border-(--brand-tile-line)` (the same tokens `AuthCard` uses for its
-  `icon_tone: :brand`), so the symbol keeps its dark ground in both themes.
+  The brand is the `brand` slot. `auth_brand/1` draws the canvas's pattern in it: a 34 px tile on the product's
+  dark ground (the `--brand-tile` and `--brand-tile-line` tokens, the same `AuthCard` uses for its
+  `icon_tone: :brand`) holding your symbol in its `mark` slot, and the name at 18 px semibold. The footer text
+  and the icons of the reasons have their own tokens too (`--auth-foot`, `--auth-feature`), and the strip of
+  `AuthCard` has `--auth-strip` and `--auth-strip-line`.
   """
   use Phoenix.Component
 
@@ -59,7 +61,7 @@ defmodule DevactionUI.AuthLayout do
             <ul :if={@feature != []} class="m-0 flex list-none flex-col gap-[22px] p-0">
               <li :for={feature <- @feature} class="flex gap-3.5">
                 <span
-                  class="grid size-9 flex-none place-items-center rounded-[10px] border border-line bg-wrap text-ink-2"
+                  class="grid size-9 flex-none place-items-center rounded-[10px] border border-line bg-(--auth-feature) text-ink-2"
                   aria-hidden="true"
                 >
                   {render_slot(feature)}
@@ -75,16 +77,43 @@ defmodule DevactionUI.AuthLayout do
             {render_slot(@inner_block)}
           </div>
         </main>
-        <footer class="flex flex-wrap items-center justify-between gap-3 text-[13px] text-muted">
+        <footer class="flex flex-wrap items-center justify-between gap-3 text-[13px] text-(--auth-foot)">
           <span>{@copyright}</span>
-          <nav :if={@link != []} aria-label={@nav_label} class="flex gap-5">
-            <.link :for={link <- @link} href={link.href} class="text-muted underline hover:text-ink">
+          <nav :if={@link != []} aria-label={@nav_label} class="flex gap-[18px]">
+            <.link
+              :for={link <- @link}
+              href={link.href}
+              class="text-(--auth-foot) underline hover:text-ink"
+            >
               {render_slot(link)}
             </.link>
           </nav>
         </footer>
       </div>
     </div>
+    """
+  end
+
+  attr :name, :string, required: true, doc: "the product's name"
+  attr :class, :any, default: nil
+  attr :rest, :global
+  slot :mark, required: true, doc: "the symbol, drawn by the caller, about 32 px"
+
+  @doc "The product's mark on its dark tile and its name, for the `brand` slot of `auth_layout/1`."
+  @spec auth_brand(map()) :: Phoenix.LiveView.Rendered.t()
+  def auth_brand(assigns) do
+    ~H"""
+    <span
+      class={[
+        "grid size-[34px] place-items-center rounded-[9px] border border-(--brand-tile-line) bg-(--brand-tile)",
+        @class
+      ]}
+      aria-hidden="true"
+      {@rest}
+    >
+      {render_slot(@mark)}
+    </span>
+    <span class="text-lg font-semibold tracking-[-0.01em] text-ink">{@name}</span>
     """
   end
 end

@@ -87,7 +87,7 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 | `DevactionUI.Tone` | the five tones (`risk`, `warn`, `ok`, `info`, `neutral`) as class strings, and the canvas's kinds (`note`, `ai`, `tip`, `warning`, `decision`) mapped to them |
 | `DevactionUI.Tag` | the mono label; `variant`, `size: :md \| :sm`, `surface: :tinted \| :plain` |
 | `DevactionUI.Callout` | a tinted block with title, icon, body and actions |
-| `DevactionUI.CodeBlock` | code in mono: the dark suggestion block and the tinted "your code" / "idiomatic" ones; a `label` makes it a focusable region, `copy_label` adds a copy button; `lang: :heex` colours it |
+| `DevactionUI.CodeBlock` | code in mono: the dark suggestion block and the tinted "your code" / "idiomatic" ones; a `label` makes it a focusable region, `copy_label` adds a copy button; `lang: :heex` or `:elixir` colours it; `line_numbers`, `highlight_lines` and `diff` work on its lines |
 | `DevactionUI.Kbd` | a key cap |
 | `DevactionUI.Panel` | the canvas card (a soft wrap around a bordered panel), `eyebrow/1` and `empty/1` |
 | `DevactionUI.Button` | button or link, `variant` (primary, secondary, ghost, ai, danger, info, link), `size` sm/md/lg, `loading` |
@@ -118,11 +118,11 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 | `DevactionUI.EmptyState` | the dashed card of a list with nothing in it: icon chip, title, one line, optional action |
 | `DevactionUI.Avatar` | two letters in a circle (`initials/1`) and a stack that overlaps by 8px, named once as a group |
 | `DevactionUI.ChatBubble` | one message with the AI (left, with its mark) or the person (right, in ink); amber when the AI did something |
-| `DevactionUI.AiPrompt` | the ink pill that talks to the AI: amber dot, required field, round send button; `loading` and `disabled`; a form, so Enter sends |
-| `DevactionUI.Sidebar` | the app's side menu, 236 px or 64 px collapsed with tooltips; `aria-current`, a toned `count` per item, `responsive` to keep it on small screens |
+| `DevactionUI.AiPrompt` | the ink pill that talks to the AI: amber dot, required field, round send button; `loading`, `disabled`, `streaming` with a stop button, an `attachments` slot and a `target`; a form, so Enter sends |
+| `DevactionUI.Sidebar` | the app's side menu, 236 px or 64 px collapsed with tooltips; `aria-current`, a toned `count` per item, collapsible `group`s, `responsive` to keep it on small screens; `Sidebar.search` (with the key hint) and `Sidebar.user` (avatar, name, menu trigger) for its header and footer |
 | `DevactionUI.AuthCard` | the card of a sign-in screen: grid and glow header, icon tile (`brand` or amber), `h1`/`h2` title, form, quiet footer strip |
-| `DevactionUI.AuthLayout` | the framed page around it: product column with reasons to sign in, the card, a footer `nav` (named by `nav_label`) |
-| `DevactionUI.Highlight` | `heex/1`: splits HEEx source into `{kind, text}` tokens (tags, components, slots, attributes, strings, expressions, comments) for `CodeBlock` |
+| `DevactionUI.AuthLayout` | the framed page around it: product column with reasons to sign in, the card, a footer `nav` (named by `nav_label`); `AuthLayout.auth_brand` draws the mark tile and the name |
+| `DevactionUI.Highlight` | `heex/1` and `elixir/1`: split source into `{kind, text}` tokens (tags, components, slots, attributes, `:if`/`:for`/`phx-*` directives, strings, the Elixir inside expressions, comments) for `CodeBlock`; `lines/1` cuts them at the line breaks |
 | `DevactionUI.MoneyInput` | a field masked as `R$ 1.234,56` (`DevactionUI.MoneyMask` hook); `parse/1` returns the cents |
 | `DevactionUI.Dropdown` | a button with a menu of actions or choices (radio items with a check), ↑ ↓ Home End Esc |
 | `DevactionUI.ConfirmDialog` | the modal that asks before something that cannot be taken back; focus trapped, Esc closes |
@@ -130,7 +130,7 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 | `DevactionUI.Choice` | checkbox (with the partial state and a task style), radio, choice card, and the `checkbox_group/1` and `radio_group/1` fieldsets with help and error |
 | `DevactionUI.Switch` | a `role="switch"` button for what takes effect at once; `name` makes it a form field through a hidden input; row, card and the `saved_note/1` live region |
 | `DevactionUI.Segmented` | a pill of toggle buttons (`aria-pressed`) with a roving tabindex and arrow keys, counts, disabled options and `patch`/`navigate` |
-| `DevactionUI.Aura` | a turning ring of light (or a breathing halo) around the AI at work |
+| `DevactionUI.Aura` | a turning ring of light (or a breathing halo) around the AI at work; `variant`, `size`, `shape`, `speed`; still under reduced motion |
 | `DevactionUI.Chart` | SVG charts drawn on the server: a line chart (with a table view), bars, columns, a ring and a sparkline; the four `chart-*` colours, hover and focus dim the others |
 | `DevactionUI.Progress` | a linear progress bar |
 | `DevactionUI.ProgressToast` | a notice that fills as a job advances, with an aura, and leaves by itself when it is done |

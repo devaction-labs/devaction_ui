@@ -49,6 +49,7 @@
   --animate-shimmer: shimmer 1.4s linear infinite;
   --animate-aura-spin: aura-spin 2.6s linear infinite;
   --animate-aura-spin-slow: aura-spin 3.2s linear infinite;
+  --animate-aura-spin-fast: aura-spin 1.4s linear infinite;
   --animate-aura-glow: aura-glow 2s ease-in-out infinite;
   --animate-toast-out: toast-out 0.4s ease-in forwards;
   --animate-pulse-dot: pulse-dot 1.4s ease-in-out infinite;
@@ -459,8 +460,8 @@
   .segmented-sm > .segment { @apply h-7 rounded-md px-2.5 text-[13px]; }
   .segmented-full { @apply flex w-full [&>.segment]:flex-1; }
   .app-shell   { @apply flex min-h-dvh flex-wrap gap-4 bg-frame p-4; }
-  .sidebar     { @apply flex w-59 shrink-0 flex-col gap-5 px-1 py-3 transition-[width] data-[collapsed=true]:w-16 data-[responsive=true]:max-md:hidden; }
-  .sidebar-link { @apply flex h-11 items-center gap-3 rounded-[10px] border border-transparent px-3 text-ink-2
+  .sidebar     { @apply flex w-59 shrink-0 flex-col gap-[18px] px-0.5 py-2 transition-[width] data-[collapsed=true]:w-16 data-[responsive=true]:max-md:hidden; }
+  .sidebar-link { @apply flex h-[42px] items-center gap-3 rounded-[10px] border border-transparent px-2.5 text-ink-2 group-data-[collapsed=true]/sidebar:justify-center
                          aria-[current=page]:border-line aria-[current=page]:bg-card aria-[current=page]:font-medium aria-[current=page]:text-ink; }
   .app-main    { @apply min-w-0 flex-[999_1_45rem] rounded-panel bg-panel px-9 pt-7 pb-10 shadow-sm max-sm:px-5; }
   .page-header { @apply flex flex-wrap items-end justify-between gap-4; }
@@ -480,12 +481,16 @@
     --auth-bg: light-dark(var(--frame), #0C0C12);
     --auth-frame: light-dark(var(--panel), #101016);
     --auth-frame-line: light-dark(var(--line), #24242E);
+    --auth-strip: light-dark(var(--wrap), #16161D);
+    --auth-strip-line: light-dark(var(--line), #24242E);
+    --auth-feature: light-dark(var(--wrap), #17171F);
+    --auth-foot: light-dark(var(--muted), #8A8A9C);
     --brand-tile: #060C1F;
     --brand-tile-line: #383D4B;
   }
   .auth-page   { @apply flex min-h-screen p-4 text-ink; background: var(--auth-bg); }
   .auth-frame  { @apply flex flex-1 flex-col gap-7 rounded-[22px] border px-8 py-12; border-color: var(--auth-frame-line); background: var(--auth-frame); }
-  .auth-card   { @apply relative overflow-hidden rounded-[18px] border border-line-strong bg-panel; box-shadow: 0 30px 80px light-dark(rgb(24 24 27 / 0.12), rgb(0 0 0 / 0.45)); }
+  .auth-card   { @apply relative overflow-hidden rounded-[18px] border border-line bg-panel; box-shadow: 0 30px 80px light-dark(rgb(24 24 27 / 0.12), rgb(0 0 0 / 0.45)); }
   .auth-icon   { @apply grid size-14 place-items-center rounded-2xl border border-line-strong bg-card text-ink; box-shadow: 0 10px 30px color-mix(in oklab, var(--ai) 18%, transparent); }
   .auth-grid   { @apply pointer-events-none absolute inset-x-0 top-0 h-60;
                  background-image: linear-gradient(color-mix(in oklab, var(--ink) 5.5%, transparent) 1px, transparent 1px),
@@ -495,6 +500,12 @@
                  mask-image: radial-gradient(ellipse 75% 100% at 50% 0%, #000 25%, transparent 78%); }
   .auth-glow   { @apply pointer-events-none absolute top-[-120px] left-1/2 -ml-45 h-60 w-90;
                  background: radial-gradient(closest-side, color-mix(in oklab, var(--ai) 16%, transparent), transparent); }
+
+  .code-line   { @apply inline-block min-w-full border-l-2 border-transparent; }
+  .code-line[data-numbered]::before { content: attr(data-line); @apply mr-4 inline-block text-right opacity-50 select-none; width: var(--code-gutter, 2ch); }
+  .code-line[data-highlighted] { @apply border-ai; background: color-mix(in oklab, currentColor 12%, transparent); }
+  .code-line[data-diff=add] { background: color-mix(in oklab, var(--tag-ok-text) 18%, transparent); }
+  .code-line[data-diff=del] { background: color-mix(in oklab, var(--tag-risk-text) 18%, transparent); }
 
   .color-picker        { @apply relative w-full max-w-75; --cp-color: #2563EB; --cp-hue: #2563EB; }
   .color-picker-field  { @apply flex h-11 items-center gap-2.5 rounded-xl border border-line-strong bg-card px-3 focus-within:border-ink focus-within:ring-4 focus-within:ring-ink/10 data-[invalid=true]:border-missing has-disabled:border-dashed has-disabled:bg-wrap has-disabled:text-muted; }

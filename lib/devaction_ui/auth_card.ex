@@ -48,7 +48,7 @@ defmodule DevactionUI.AuthCard do
       </div>
       <div
         :if={@footer != []}
-        class="relative border-t border-line bg-wrap px-7 py-[18px] text-center text-sm text-muted"
+        class="relative border-t border-(--auth-strip-line) bg-(--auth-strip) px-7 py-[18px] text-center text-sm text-muted"
       >
         {render_slot(@footer)}
       </div>
