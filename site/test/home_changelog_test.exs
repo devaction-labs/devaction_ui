@@ -42,7 +42,7 @@ defmodule DevactionUISite.HomeChangelogTest do
         assert has_element?(view, "#install-panel-#{tab}[role=tabpanel]")
       end
 
-      assert html =~ ~s|{:devaction_ui, github: &quot;devaction-labs/devaction_ui&quot;}|
+      assert html =~ ~s|{:devaction_ui, &quot;~&gt; 0.2.0&quot;}|
       assert html =~ "@import &quot;../../deps/devaction_ui/assets/css/devaction_ui.css&quot;;"
       assert html =~ "hooks as devactionUI"
     end
@@ -91,6 +91,7 @@ defmodule DevactionUISite.HomeChangelogTest do
       assert has_element?(view, "[data-filter=planned]", "1")
       assert has_element?(view, "[data-filter=breaking]", "#{counts["breaking"]}")
       assert has_element?(view, "#v03[data-release]", "no date")
+      assert has_element?(view, "#v025[data-release]", "tag v0.2.5")
       assert has_element?(view, "#v024[data-release]", "tag v0.2.4")
       assert has_element?(view, "#v023[data-release]", "tag v0.2.3")
       assert has_element?(view, "#v022[data-release]", "tag v0.2.2")
@@ -102,8 +103,8 @@ defmodule DevactionUISite.HomeChangelogTest do
     test "the current version has the install line, and v0.2.0 a table per group listing what is new" do
       {:ok, view, html} = live(build_conn(), "/changelog")
 
-      assert html =~ "tag: &quot;v0.2.4&quot;"
-      assert has_element?(view, "#v024 [data-copy-text*='v0.2.4']")
+      assert html =~ "{:devaction_ui, &quot;~&gt; 0.2.0&quot;}"
+      assert has_element?(view, "#v025 [data-copy-text*='~> 0.2.0']")
 
       for group <- ~w(Base Overlay Form Data) do
         assert has_element?(view, "#v020-#{String.downcase(group)}[data-group]", group)

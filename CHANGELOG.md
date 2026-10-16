@@ -2,6 +2,12 @@
 
 Every release lists new components, improvements, fixes and breaking changes. While the version is 0.x a minor release may break compatibility, and every break is listed with the step to follow.
 
+## 0.2.5
+
+### Improved
+
+- The install instructions (README, home, installation page and the changelog) use the Hex requirement `{:devaction_ui, "~> 0.2.0"}` instead of the GitHub repository. The package itself is unchanged since 0.2.3.
+
 ## 0.2.4
 
 ### Fixed

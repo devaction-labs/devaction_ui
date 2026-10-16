@@ -282,8 +282,10 @@ defmodule DevactionUISite.ChangelogHTML do
 
   defp anchor(%{version: version}), do: String.replace(version, ".", "")
 
-  defp install_line(%{status: "current", tag: tag}) when is_binary(tag),
-    do: ~s|{:devaction_ui, github: "devaction-labs/devaction_ui", tag: "#{tag}"}|
+  defp install_line(%{status: "current", tag: "v" <> number}) do
+    [major, minor | _patch] = String.split(number, ".")
+    ~s|{:devaction_ui, "~> #{major}.#{minor}.0"}|
+  end
 
   defp install_line(_version), do: nil
 
