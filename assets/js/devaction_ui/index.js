@@ -25,6 +25,7 @@ import {Indeterminate, NumberInput, Range, RangePair, Segmented, Switch} from ".
 import Kanban from "./kanban.js"
 import Overlay from "./overlay.js"
 import PdfViewer from "./pdf_viewer.js"
+import {CookieConsent, NotificationCenter} from "./panels.js"
 import Pillbox from "./pillbox.js"
 import Popover from "./popover.js"
 import ProgressToast from "./progress_toast.js"
@@ -41,6 +42,7 @@ export const hooks = {
   "DevactionUI.CodeCopy": CodeCopy,
   "DevactionUI.Combobox": Combobox,
   "DevactionUI.CopyField": CodeCopy,
+  "DevactionUI.CookieConsent": CookieConsent,
   "DevactionUI.DataTable": DataTable,
   "DevactionUI.DateInput": DateInput,
   "DevactionUI.DatePicker": DatePicker,
@@ -48,6 +50,7 @@ export const hooks = {
   "DevactionUI.Dropzone": Dropzone,
   "DevactionUI.Editor": Editor,
   "DevactionUI.MoneyMask": MoneyMask,
+  "DevactionUI.NotificationCenter": NotificationCenter,
   "DevactionUI.NumberInput": NumberInput,
   "DevactionUI.FilterMenu": FilterMenu,
   "DevactionUI.Indeterminate": Indeterminate,

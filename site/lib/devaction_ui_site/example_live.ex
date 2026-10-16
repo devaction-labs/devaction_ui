@@ -44,6 +44,56 @@ defmodule DevactionUISite.ExampleLive do
     "done" => [{"c4", "Importar planilha"}]
   }
 
+  @notifications [
+    %{
+      id: "n1",
+      day: "Today",
+      type: "reviews",
+      icon: "sparkles",
+      tone: :warn,
+      title: "The AI finished the review of #214: 2 blocking findings",
+      meta: "sge-api · 4 min ago"
+    },
+    %{
+      id: "n2",
+      day: "Today",
+      type: "mentions",
+      icon: "@",
+      tone: :info,
+      title: "Carlos André mentioned you in \"Financial reports\"",
+      meta: "SGE · M3 · 1 h ago"
+    },
+    %{
+      id: "n3",
+      day: "Today",
+      type: "other",
+      icon: "contracts",
+      tone: :risk,
+      title: "The AYRAM contract renews in 3 days with no proposal sent",
+      meta: "Contracts · 3 h ago"
+    },
+    %{
+      id: "n4",
+      day: "Yesterday",
+      type: "reviews",
+      icon: "checkmark-circle-02",
+      tone: :ok,
+      old: true,
+      title: "Hub API #88 approved by the AI, ready to merge",
+      meta: "hub-api · yesterday 17:40"
+    },
+    %{
+      id: "n5",
+      day: "Yesterday",
+      type: "mentions",
+      icon: "user",
+      tone: :neutral,
+      old: true,
+      title: "Fernando assigned \"Schedule and shifts\" to you",
+      meta: "SGE · M4 · yesterday 10:12"
+    }
+  ]
+
   @impl true
   def mount(_params, %{"example" => example}, socket) do
     {:ok,
@@ -122,6 +172,9 @@ defmodule DevactionUISite.ExampleLive do
          model: "fixed",
          publish: "draft"
        },
+       notifications: notifications(%{tab: "all", read: []}),
+       pricing: %{period: "yearly", chosen: nil},
+       cookies: %{open: false, analytics: false, marketing: false, answered: nil},
        overlays: %{kind: nil, typed: "", done: false, nested: false},
        secret_revealed: false,
        banners_dismissed: [],
@@ -430,6 +483,44 @@ defmodule DevactionUISite.ExampleLive do
   def handle_event("banner_reset", _params, socket),
     do: {:noreply, assign(socket, :banners_dismissed, [])}
 
+  def handle_event("notif_tab", %{"id" => tab}, %{assigns: %{notifications: current}} = socket)
+      when tab in ["all", "mentions", "reviews"],
+      do: {:noreply, assign(socket, :notifications, notifications(%{current | tab: tab}))}
+
+  def handle_event("notif_open", %{"id" => id}, %{assigns: %{notifications: current}} = socket),
+    do: {:noreply, assign(socket, :notifications, notifications(read(current, [id])))}
+
+  def handle_event("notif_read_all", _params, %{assigns: %{notifications: current}} = socket),
+    do:
+      {:noreply,
+       assign(
+         socket,
+         :notifications,
+         notifications(read(current, Enum.map(@notifications, & &1.id)))
+       )}
+
+  def handle_event("pricing_period", %{"value" => period}, socket)
+      when period in ["monthly", "yearly"],
+      do: {:noreply, update(socket, :pricing, &%{&1 | period: period})}
+
+  def handle_event("pricing_choose", %{"plan" => plan}, socket),
+    do: {:noreply, update(socket, :pricing, &%{&1 | chosen: plan})}
+
+  def handle_event("cookies_prefs", _params, socket),
+    do: {:noreply, update(socket, :cookies, &%{&1 | open: !&1.open})}
+
+  def handle_event("cookies_category", %{"id" => id}, socket)
+      when id in ["analytics", "marketing"] do
+    key = String.to_existing_atom(id)
+    {:noreply, update(socket, :cookies, &Map.update!(&1, key, fn on -> !on end))}
+  end
+
+  def handle_event("cookies_necessary", _params, socket),
+    do: {:noreply, assign(socket, :cookies, answered(false, "necessary"))}
+
+  def handle_event("cookies_accept", _params, socket),
+    do: {:noreply, assign(socket, :cookies, answered(true, "all"))}
+
   def handle_event(_event, _params, socket), do: {:noreply, socket}
 
   @lessons [
@@ -574,6 +665,47 @@ defmodule DevactionUISite.ExampleLive do
       :error -> default
     end
   end
+
+  defp answered(on, answer),
+    do: %{open: false, analytics: on, marketing: on, answered: answer}
+
+  defp read(%{read: read} = current, ids), do: %{current | read: Enum.uniq(read ++ ids)}
+
+  defp notifications(%{tab: tab, read: read}) do
+    visible = Enum.filter(@notifications, &(tab == "all" or &1.type == tab))
+
+    unread = fn type ->
+      Enum.count(@notifications, &(not read?(&1, read) and match_type?(&1, type)))
+    end
+
+    %{
+      tab: tab,
+      read: read,
+      tabs: [
+        %{id: "all", label: "All", count: unread.("all")},
+        %{id: "mentions", label: "Mentions", count: unread.("mentions")},
+        %{id: "reviews", label: "Reviews", count: unread.("reviews")}
+      ],
+      groups:
+        for day <- visible |> Enum.map(& &1.day) |> Enum.uniq() do
+          %{
+            id: String.downcase(day),
+            label: String.upcase(day),
+            items:
+              for item <- visible, item.day == day do
+                Map.put(item, :unread, not read?(item, read))
+              end
+          }
+        end
+    }
+  end
+
+  defp read?(%{old: true}, _read), do: true
+  defp read?(%{id: id}, read), do: id in read
+
+  defp match_type?(_item, "all"), do: true
+  defp match_type?(%{type: type}, type), do: true
+  defp match_type?(_item, _type), do: false
 
   defp update_shell(socket, changes),
     do: update(socket, :shell, &Map.merge(&1, Map.new(changes)))

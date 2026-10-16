@@ -1,0 +1,21 @@
+<%!-- title: Custom plan and check slot | text: A plan can be only text, with no price; the check slot replaces the typographic check with an icon. --%>
+<Pricing.table id="pricing-custom" billing_label="Billing period" event="pricing_choose">
+  <:plan
+    id="team"
+    name="Team"
+    tagline="Up to 10 people."
+    price="[PRICE]"
+    period="/month"
+    features={["Unlimited projects", "Client portal"]}
+    cta="Create account"
+  />
+  <:plan
+    id="custom"
+    name="Custom"
+    tagline="More than 10 people or your own install."
+    custom="Talk to us"
+    features={["Everything in Team", "SSO and audit", "Dedicated support"]}
+    cta="Talk to sales"
+  />
+  <:check><.icon name="tick-02" class="size-[15px]" /></:check>
+</Pricing.table>

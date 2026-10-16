@@ -881,4 +881,36 @@
   --color-banner-info: var(--banner-info-fg);
   --color-banner-warn: var(--banner-warn-fg);
   --color-banner-risk: var(--banner-risk-fg);
+/* NotificationCenter, Pricing and CookieConsent: the values the canvas draws that the tokens above lack. */
+:root {
+  --unread-wash: light-dark(#FFFDF6, #221D12);
+  --ribbon-fg: light-dark(#FFFFFF, #20202A);
+  --float-shadow: light-dark(rgba(24, 24, 27, 0.25), rgba(0, 0, 0, 0.5));
+}
+
+@layer components {
+  .notif { @apply w-full overflow-hidden rounded-2xl border border-line bg-card text-ink shadow-[0_20px_50px_-20px_var(--float-shadow)]; }
+  .notif-readall { @apply rounded-md text-[13px] text-ink outline-none focus-visible:ring-4 focus-visible:ring-ink/10 disabled:cursor-default disabled:text-muted-2; }
+  .notif-tab { @apply -mb-px inline-flex h-[34px] items-center gap-1.5 border-b-2 border-transparent text-sm text-muted outline-none focus-visible:ring-4 focus-visible:ring-ink/10 aria-selected:border-ink aria-selected:font-medium aria-selected:text-ink; }
+  .notif-count { @apply inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-ink px-[5px] text-[11px] font-normal text-card; }
+  .notif-day { @apply px-4 pt-2.5 pb-1 font-mono text-[11px] tracking-[0.06em] text-muted; }
+  .notif-row { @apply flex w-full gap-3 px-4 py-3 text-left text-ink outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-ink/10 data-[unread=true]:bg-(--unread-wash); }
+  .notif-tile { @apply grid size-8 shrink-0 place-items-center rounded-[10px]; }
+  .notif-dot { @apply mt-1.5 size-2 shrink-0 rounded-full bg-ai; }
+  .notif-foot { @apply flex items-center justify-between border-t border-line-soft px-4 py-3 text-[13px]; }
+
+  .pricing-billing .segment { @apply h-[30px] text-[13px] font-normal; }
+  .segment-tag { @apply inline-flex h-[18px] items-center rounded-[5px] bg-tag-ok-bg px-1.5 text-[11px] font-normal text-tag-ok-text; }
+  .pricing-plan { @apply relative flex flex-col rounded-[14px] border border-line bg-card p-5 text-ink data-[highlighted=true]:border-2 data-[highlighted=true]:border-ink; }
+  .pricing-ribbon { @apply absolute -top-[11px] left-5 flex h-[22px] items-center rounded-md bg-ai px-2 text-[11px] font-semibold text-(--ribbon-fg); }
+  .pricing-cta { @apply mt-[18px] inline-flex h-10 items-center justify-center rounded-[10px] border border-line bg-card px-3 text-sm font-medium text-ink outline-none focus-visible:ring-4 focus-visible:ring-ink/10 data-[highlighted=true]:border-ink data-[highlighted=true]:bg-ink data-[highlighted=true]:text-card; }
+
+  .cookie-region { @apply z-50 w-full data-[fixed=true]:fixed data-[fixed=true]:inset-x-0 data-[fixed=true]:bottom-0 data-[fixed=true]:p-3 sm:data-[fixed=true]:p-4; }
+  .cookie-card { @apply mx-auto w-full max-w-4xl rounded-[14px] border border-line bg-card px-[18px] py-4 text-ink shadow-[0_16px_40px_-16px_var(--float-shadow)]; }
+  .cookie-btn { @apply inline-flex h-9 items-center rounded-[10px] border border-line bg-card px-3 text-[13px] text-ink outline-none focus-visible:ring-4 focus-visible:ring-ink/10; }
+  .cookie-btn-primary { @apply border-ink bg-ink font-medium text-card; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notif-row, .notif-tab, .cookie-btn, .pricing-cta { transition: none; }
 }

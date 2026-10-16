@@ -1,0 +1,52 @@
+<%!-- title: Basic | text: The billing toggle is a Segmented; the price, period and items come in by attr, so a placeholder stands where the value goes. --%>
+<Pricing.table
+  id="pricing-basic"
+  billing_label="Billing period"
+  billing={[
+    %{value: "monthly", label: "Monthly"},
+    %{value: "yearly", label: "Yearly", tag: "2 months free"}
+  ]}
+  period={@pricing.period}
+  billing_event="pricing_period"
+  event="pricing_choose"
+>
+  <:title>Plans</:title>
+  <:plan
+    id="solo"
+    name="Freelancer"
+    tagline="1 person, up to 3 repositories."
+    price="[PRICE]"
+    period="/month"
+    note={%{"monthly" => "billed monthly", "yearly" => "billed yearly"}[@pricing.period]}
+    features={["AI review on PRs", "Projects and milestones", "Mobile app"]}
+    cta="Get started"
+  />
+  <:plan
+    id="agency"
+    name="Agency"
+    tagline="For teams of up to 10 people."
+    price="[PRICE]"
+    period="/month"
+    note={%{"monthly" => "billed monthly", "yearly" => "billed yearly"}[@pricing.period]}
+    features={[
+      "Everything in Freelancer",
+      "Contracts and time bank",
+      "Client portal",
+      "Unlimited repositories"
+    ]}
+    highlighted
+    ribbon="MOST USED"
+    cta="Create the agency account"
+  />
+  <:plan
+    id="custom"
+    name="Custom"
+    tagline="More than 10 people or your own install."
+    custom="Talk to us"
+    features={["Everything in Agency", "SSO and audit", "Dedicated support"]}
+    cta="Talk to sales"
+  />
+  <:footnote>
+    Values are placeholders; the component takes price, period and items by attr.
+  </:footnote>
+</Pricing.table>

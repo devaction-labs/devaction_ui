@@ -131,6 +131,9 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 | `DevactionUI.Choice` | checkbox (with the partial state and a task style), radio, choice card, and the `checkbox_group/1` and `radio_group/1` fieldsets with help and error |
 | `DevactionUI.Switch` | a `role="switch"` button for what takes effect at once; `name` makes it a form field through a hidden input; row, card and the `saved_note/1` live region |
 | `DevactionUI.Segmented` | a pill of toggle buttons (`aria-pressed`) with a roving tabindex and arrow keys, counts, disabled options and `patch`/`navigate` |
+| `DevactionUI.NotificationCenter` | `panel/1`: the notification panel (tabs with unread counts, day groups, tone-coloured icon tiles, warm unread tint and dot, "mark all as read", footer); ↑ ↓ between rows, ← → between tabs; events by attr, the `icon` slot receives the item |
+| `DevactionUI.Pricing` | `table/1`: a billing toggle built on `Segmented` and a card per plan (price, period and features all by attr, never invented), a highlighted plan with a ribbon, a text-only plan, a `check` slot |
+| `DevactionUI.CookieConsent` | `banner/1`: a non-modal `role="dialog"` anchored to the bottom, three actions and the category list with a switch each (the first locked on); Esc closes only the preferences |
 | `DevactionUI.Aura` | a turning ring of light (or a breathing halo) around the AI at work; `variant`, `size`, `shape`, `speed`; still under reduced motion |
 | `DevactionUI.Chart` | SVG charts drawn on the server: a line chart (with a table view), bars, columns, a ring and a sparkline; the four `chart-*` colours, hover and focus dim the others |
 | `DevactionUI.Progress` | a linear progress bar |

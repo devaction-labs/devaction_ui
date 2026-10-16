@@ -37,6 +37,7 @@ defmodule DevactionUI.Segmented do
     attr :label, :string, required: true
     attr :count, :any
     attr :icon_only, :boolean
+    attr :tag, :string, doc: "a small note on the segment, such as a discount"
     attr :disabled, :boolean
     attr :class, :any
     attr :patch, :string, doc: "a path to patch to instead of sending the event"
@@ -85,6 +86,7 @@ defmodule DevactionUI.Segmented do
         <span :if={Map.get(option, :count)} class="font-mono text-[11px] text-muted">
           {option.count}
         </span>
+        <span :if={Map.get(option, :tag)} class="segment-tag">{option.tag}</span>
       </button>
     </div>
     """

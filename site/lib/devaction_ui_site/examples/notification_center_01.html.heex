@@ -1,0 +1,24 @@
+<%!-- title: Basic | text: Tabs with the unread count, notifications by day, the warm tint and dot on what is unread; opening one reads it. | layout: center --%>
+<div class="w-full max-w-[420px]">
+  <NotificationCenter.panel
+    id="notifications-basic"
+    title="Notifications"
+    read_all_label="Mark all as read"
+    read_all_event="notif_read_all"
+    tabs_label="Filter notifications"
+    tabs={@notifications.tabs}
+    tab={@notifications.tab}
+    tab_event="notif_tab"
+    groups={@notifications.groups}
+    unread_label="Unread"
+    empty_label="Nothing here."
+    open_event="notif_open"
+    preferences_label="Notification preferences"
+    all_label="See all"
+  >
+    <:icon :let={item}>
+      <span :if={item.icon == "@"} class="text-sm font-semibold">@</span>
+      <.icon :if={item.icon != "@"} name={item.icon} class="size-4" />
+    </:icon>
+  </NotificationCenter.panel>
+</div>

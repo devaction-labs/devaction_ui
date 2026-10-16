@@ -1,0 +1,23 @@
+<%!-- title: Without billing toggle | text: With no billing options the toggle is gone: two plans with a single price. --%>
+<Pricing.table id="pricing-flat" billing_label="Billing period" event="pricing_choose">
+  <:title>Pick a plan</:title>
+  <:plan
+    id="free"
+    name="Free"
+    tagline="For trying it out."
+    price="$0"
+    period="/month"
+    features={["1 project", "Community support"]}
+    cta="Start free"
+  />
+  <:plan
+    id="pro"
+    name="Pro"
+    tagline="For people who ship every week."
+    price="$12"
+    period="/month"
+    note="billed monthly"
+    features={["Unlimited projects", "AI review", "Priority support"]}
+    cta="Upgrade"
+  />
+</Pricing.table>

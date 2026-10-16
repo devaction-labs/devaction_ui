@@ -1,0 +1,43 @@
+<%!-- title: All read | text: With nothing unread the counts disappear and the "mark all as read" action is disabled. | layout: center --%>
+<div class="w-full max-w-[420px]">
+  <NotificationCenter.panel
+    id="notifications-read"
+    title="Notifications"
+    read_all_label="Mark all as read"
+    tabs_label="Filter notifications"
+    tabs={[%{id: "all", label: "All", count: 0}, %{id: "mentions", label: "Mentions", count: 0}]}
+    tab="all"
+    groups={[
+      %{
+        id: "yesterday",
+        label: "YESTERDAY",
+        items: [
+          %{
+            id: "a",
+            title: "Hub API #88 approved by the AI, ready to merge",
+            meta: "hub-api · yesterday 17:40",
+            tone: :ok,
+            unread: false,
+            icon: "checkmark-circle-02"
+          },
+          %{
+            id: "b",
+            title: "Fernando assigned a task to you",
+            meta: "SGE · M4 · yesterday 10:12",
+            tone: :neutral,
+            unread: false,
+            icon: "user"
+          }
+        ]
+      }
+    ]}
+    unread_label="Unread"
+    empty_label="Nothing here."
+    preferences_label="Notification preferences"
+    all_label="See all"
+  >
+    <:icon :let={item}>
+      <.icon name={item.icon} class="size-4" />
+    </:icon>
+  </NotificationCenter.panel>
+</div>

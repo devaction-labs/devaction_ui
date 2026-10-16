@@ -1,0 +1,68 @@
+<%!-- title: Tones | text: The tile takes the tone of the item (warn, info, risk, ok, neutral); the icon slot draws what is inside. | layout: center --%>
+<div class="w-full max-w-[420px]">
+  <NotificationCenter.panel
+    id="notifications-tones"
+    title="Notifications"
+    read_all_label="Mark all as read"
+    tabs_label="Filter notifications"
+    tabs={[%{id: "all", label: "All", count: 2}]}
+    tab="all"
+    groups={[
+      %{
+        id: "today",
+        label: "TODAY",
+        items: [
+          %{
+            id: "a",
+            title: "Review finished: 2 blocking findings",
+            meta: "sge-api · 4 min ago",
+            tone: :warn,
+            unread: true,
+            icon: "sparkles"
+          },
+          %{
+            id: "b",
+            title: "Carlos mentioned you in a task",
+            meta: "SGE · M3 · 1 h ago",
+            tone: :info,
+            unread: true,
+            icon: "@"
+          },
+          %{
+            id: "c",
+            title: "Contract renews in 3 days",
+            meta: "Contracts · 3 h ago",
+            tone: :risk,
+            unread: false,
+            icon: "contracts"
+          },
+          %{
+            id: "d",
+            title: "Pull request approved",
+            meta: "hub-api · 5 h ago",
+            tone: :ok,
+            unread: false,
+            icon: "checkmark-circle-02"
+          },
+          %{
+            id: "e",
+            title: "A task was assigned to you",
+            meta: "SGE · M4 · 6 h ago",
+            tone: :neutral,
+            unread: false,
+            icon: "user"
+          }
+        ]
+      }
+    ]}
+    unread_label="Unread"
+    empty_label="Nothing here."
+    preferences_label="Notification preferences"
+    all_label="See all"
+  >
+    <:icon :let={item}>
+      <span :if={item.icon == "@"} class="text-sm font-semibold">@</span>
+      <.icon :if={item.icon != "@"} name={item.icon} class="size-4" />
+    </:icon>
+  </NotificationCenter.panel>
+</div>
