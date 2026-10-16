@@ -16,7 +16,7 @@ export const planLayout = ({count, expanded}) => {
   return {expanded: open, stacked: many && !expanded, showBar: open, showExpand: many && !expanded}
 }
 
-/** A toast behind the front one of a collapsed stack is not drawn: the blocks of the group stand for it. */
+/** A toast behind the front one of a collapsed stack is not drawn: the layers above the front toast stand for it. */
 const hiddenStyle = {display: "none", position: "", zIndex: ""}
 
 /** The front toast of a stack, above the blocks behind it. */
@@ -36,8 +36,11 @@ export const styleFor = ({index, stacked}) =>
     {index, stacked},
   )
 
-/** Room under a collapsed stack for the two blocks that peek out below the front toast. */
-export const stackPadding = (count) => (count > 1 ? "20px" : "")
+/** The layers that peek out above the front toast of a collapsed stack: one per toast behind it, at most two. */
+export const layerCount = (count) => Math.min(Math.max(count - 1, 0), 2)
+
+/** Room above a collapsed stack for the two layers that peek out over the front toast. */
+export const stackPadding = (count) => (count > 1 ? "16px" : "")
 
 /** The line of the group's bar: the heading when there is one, then the count written by `label`. */
 export const countText = ({heading, label, count}) =>

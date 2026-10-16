@@ -1,8 +1,8 @@
 import {runKey} from "./keys.js"
-import {countText, escapeStep, planLayout, stackPadding, styleFor} from "./toast_logic.js"
+import {countText, escapeStep, layerCount, planLayout, stackPadding, styleFor} from "./toast_logic.js"
 
 /**
- * Notices that pile up without covering the screen: a toast with two solid blocks behind it and a count badge
+ * Notices that pile up without covering the screen: a toast with up to two layers peeking out above it
  * while there are several, a panel with a heading, "Collapse" and "Clear" when opened. A toast closes by itself after its `data-duration` (0
  * keeps it), the timers pausing while the pointer or the focus is in the group or the list is open. Closing
  * one or clearing all is told to the LiveView (`data-on-dismiss`, `data-on-clear`), which is the source of
@@ -90,14 +90,12 @@ export default {
       label: this.el.dataset.countLabel,
       count: toasts.length,
     })
-    this.el.querySelectorAll("[data-layer]").forEach((layer) => (layer.hidden = !plan.stacked))
-    this.el.querySelectorAll("[data-stack-count]").forEach((badge) => {
-      badge.hidden = !plan.stacked
-      badge.textContent = String(toasts.length)
-    })
+    const layers = plan.stacked ? layerCount(toasts.length) : 0
+    this.el.dataset.stacked = String(plan.stacked)
+    this.el.querySelectorAll("[data-layer]").forEach((layer) => (layer.hidden = Number(layer.dataset.layer) > layers))
 
     toasts.forEach((toast, index) => this.style(toast, index, plan.stacked))
-    this.el.style.paddingBottom = plan.stacked ? stackPadding(toasts.length) : ""
+    this.el.style.paddingTop = plan.stacked ? stackPadding(toasts.length) : ""
     this.schedule()
   },
 

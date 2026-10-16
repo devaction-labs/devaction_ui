@@ -1,6 +1,6 @@
 import assert from "node:assert/strict"
 import test from "node:test"
-import {countText, escapeStep, EXIT_MS, leftAfter, LINGER_MS, plan, planLayout, stackPadding, styleFor} from "./toast_logic.js"
+import {countText, escapeStep, EXIT_MS, layerCount, leftAfter, LINGER_MS, plan, planLayout, stackPadding, styleFor} from "./toast_logic.js"
 
 test("one toast is never a stack, and opening it changes nothing", () => {
   assert.deepEqual(planLayout({count: 1, expanded: true}), {expanded: false, stacked: false, showBar: false, showExpand: false})
@@ -17,10 +17,14 @@ test("behind the front toast of a stack nothing is drawn: the blocks of the grou
   assert.equal(styleFor({index: 4, stacked: true}).display, "none")
 })
 
-test("a stack leaves room for the blocks that peek out under it, and a lone toast none", () => {
-  assert.equal(stackPadding(2), "20px")
-  assert.equal(stackPadding(9), "20px")
+test("a stack leaves room above for the layers that peek out over it, and a lone toast none", () => {
+  assert.equal(stackPadding(2), "16px")
+  assert.equal(stackPadding(9), "16px")
   assert.equal(stackPadding(1), "")
+})
+
+test("a stack shows one layer per toast behind the front one, at most two", () => {
+  assert.deepEqual([0, 1, 2, 3, 9].map(layerCount), [0, 0, 1, 2, 2])
 })
 
 test("the style follows the toast's place: hidden, the lead of a stack, or a normal one", () => {

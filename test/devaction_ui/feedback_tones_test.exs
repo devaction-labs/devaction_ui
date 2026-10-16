@@ -428,20 +428,20 @@ defmodule DevactionUI.FeedbackTonesTest do
       """
     end
 
-    test "the two blocks behind the front toast are decoration with solid tokens" do
+    test "the layers over the front toast are decoration with solid tokens, narrower each" do
       html = rendered_to_string(stack(%{}))
 
-      assert length(Regex.scan(~r/data-layer/, html)) == 2
+      assert length(Regex.scan(~r/data-layer=/, html)) == 2
       assert html =~ "bg-toast-layer-1"
       assert html =~ "bg-toast-layer-2"
-      assert html =~ "scale-[0.94]"
+      assert html =~ "top-0 bottom-0"
+      assert html =~ "inset-x-3.5 top-2 bottom-0"
       assert html =~ ~s(aria-hidden="true")
     end
 
-    test "only the front toast has the count badge" do
+    test "there is no count badge: the pile itself says there is more than one" do
       html = rendered_to_string(stack(%{}))
-      assert length(Regex.scan(~r/data-stack-count/, html)) == 1
-      assert html =~ "px-[7px] py-0.5 font-mono text-[11px]"
+      refute html =~ "data-stack-count"
     end
 
     test "a toast can carry its dot, 10px and 8px when opened" do

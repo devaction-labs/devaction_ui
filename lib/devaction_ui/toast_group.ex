@@ -1,7 +1,7 @@
 defmodule DevactionUI.ToastGroup do
   @moduledoc """
-  Notices that pile up without covering the screen: while there is more than one, the newest shows alone, with
-  two solid blocks peeking out behind it and a badge with the count, and a click (or the button) opens them
+  Notices that pile up without covering the screen: as soon as there is more than one, the newest shows alone
+  with up to two layers peeking out above it, a little narrower each, and a click (or the button) opens them
   into a panel with the `heading` and the count, "Collapse" and "Clear", where each notice is a white card
   with its dot.
   Each toast closes by itself after `duration` milliseconds (0 keeps it), pausing while the pointer or the
@@ -61,6 +61,8 @@ defmodule DevactionUI.ToastGroup do
   @doc "The group of notices: a stack while collapsed, a panel of cards when opened."
   @spec toast_group(map()) :: Phoenix.LiveView.Rendered.t()
   def toast_group(assigns) do
+    assigns = assign(assigns, count: length(assigns.toast))
+
     ~H"""
     <section
       id={@id}
@@ -69,28 +71,29 @@ defmodule DevactionUI.ToastGroup do
       aria-label={@label}
       aria-live="polite"
       data-expanded="false"
-      phx-mounted={JS.ignore_attributes(["data-expanded"])}
+      data-stacked={to_string(@count > 1)}
+      phx-mounted={JS.ignore_attributes(["data-expanded", "data-stacked"])}
       data-on-dismiss={@on_dismiss}
       data-on-clear={@on_clear}
       data-count-label={@count_label}
       data-heading={@heading}
       class={[
-        "group relative flex flex-col gap-2 data-[expanded=true]:rounded-2xl data-[expanded=true]:bg-wrap data-[expanded=true]:p-3",
+        "group relative flex flex-col gap-2 data-[stacked=true]:cursor-pointer data-[stacked=true]:pt-4 data-[expanded=true]:rounded-2xl data-[expanded=true]:bg-wrap data-[expanded=true]:p-3",
         @class
       ]}
       {@rest}
     >
       <span
-        data-layer
-        hidden
+        data-layer="2"
+        hidden={@count < 3}
         aria-hidden="true"
-        class="pointer-events-none absolute inset-x-6 top-5 bottom-0 origin-top scale-[0.94] rounded-[14px] bg-toast-layer-2"
+        class="pointer-events-none absolute inset-x-7 top-0 bottom-0 rounded-[14px] bg-toast-layer-2 group-data-[stacked=false]:hidden"
       />
       <span
-        data-layer
-        hidden
+        data-layer="1"
+        hidden={@count < 2}
         aria-hidden="true"
-        class="pointer-events-none absolute inset-x-3 top-2.5 bottom-2.5 rounded-[14px] bg-toast-layer-1"
+        class="pointer-events-none absolute inset-x-3.5 top-2 bottom-0 rounded-[14px] bg-toast-layer-1 group-data-[stacked=false]:hidden"
       />
       <div data-bar hidden class="flex items-center justify-between text-[13px]">
         <span data-count class="font-semibold" />
@@ -106,10 +109,11 @@ defmodule DevactionUI.ToastGroup do
         data-duration={Map.get(toast, :duration, 5000)}
         role={role(Map.get(toast, :kind))}
         class={[
-          "flex items-start gap-3 rounded-[14px] px-4 py-3.5 text-sm",
+          "flex items-start gap-3 rounded-[14px] px-4 py-3.5 text-sm group-data-[stacked=true]:relative group-data-[stacked=true]:z-20 group-data-[stacked=true]:data-[behind]:hidden",
           kind_class(Map.get(toast, :kind, :dark))
         ]}
         data-index={index}
+        data-behind={index > 0}
       >
         <span :if={@icon != []} class="shrink-0" aria-hidden="true">
           {render_slot(@icon, Map.get(toast, :kind, :dark))}
@@ -128,15 +132,6 @@ defmodule DevactionUI.ToastGroup do
             {render_slot(toast)}
           </div>
         </div>
-        <span
-          :if={index == 0}
-          data-stack-count
-          hidden
-          class={[
-            "shrink-0 rounded-full px-[7px] py-0.5 font-mono text-[11px]",
-            badge_class(Map.get(toast, :kind, :dark))
-          ]}
-        />
         <.action :if={Map.get(toast, :action_label)} toast={toast} />
         <button
           type="button"
@@ -213,9 +208,4 @@ defmodule DevactionUI.ToastGroup do
   defp line_class(:dark), do: "text-on-primary/70 group-data-[expanded=true]:text-muted"
   defp line_class(:light), do: "text-muted"
   defp line_class(:risk), do: "opacity-80"
-
-  defp badge_class(:dark),
-    do: "bg-on-primary/15 text-on-primary"
-
-  defp badge_class(_kind), do: "bg-tag-neutral-bg text-ink-2"
 end
