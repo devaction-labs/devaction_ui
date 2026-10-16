@@ -175,3 +175,87 @@
 .site-contained .cmdk {
   width: min(26rem, 100%);
 }
+
+/* ==== home (pixel pass) ==== */
+:root {
+  --p-header: 69px;
+  --p-hair: light-dark(#EFEFF1, #262630);
+  --p-info: light-dark(#1E40AF, #A9C3FF);
+  --p-indigo-bg: light-dark(#EEF2FF, #2E2A4A);
+  --p-indigo-text: light-dark(#3730A3, #C4B9FF);
+  --p-accent: light-dark(#D29A1E, #E3A72F);
+  --p-accent-text: #E3A72F;
+  --p-on-ink: light-dark(#FFFFFF, #20202A);
+  --p-ai: light-dark(#FFFDF6, #221D12);
+  --p-thumb-line: light-dark(#D4D4D8, #4A4A58);
+  --p-thead: light-dark(#F7F7F8, #1C1C25);
+  --p-dot-risk: light-dark(#C62828, #FF5A47);
+  --p-dot-ok: #16A34A;
+  --p-card-hover: light-dark(#D4D4D8, #4A4A58);
+  --p-next-bg: light-dark(#18181B, #EDEDF2);
+  --p-next-fg: light-dark(#FFFFFF, #20202A);
+  --p-next-sub: light-dark(#D4D4D8, #4A4A58);
+  --p-inst-line: #27272A;
+  --p-inst-chip: #27272A;
+  --p-inst-chip-line: #3F3F46;
+  --p-inst-fg: #E4E4E7;
+  --p-inst-tab: #8B8B99;
+  --p-inst-comment: #8B8B99;
+  --p-inst-hl: #F4CF7E;
+  --p-inst-ok: #8EF0B4;
+}
+
+@theme inline {
+  --color-p-hair: var(--p-hair);
+  --color-p-info: var(--p-info);
+  --color-p-indigo-bg: var(--p-indigo-bg);
+  --color-p-indigo-text: var(--p-indigo-text);
+  --color-p-accent: var(--p-accent);
+  --color-p-accent-text: var(--p-accent-text);
+  --color-p-on-ink: var(--p-on-ink);
+  --color-p-ai: var(--p-ai);
+  --color-p-thumb-line: var(--p-thumb-line);
+  --color-p-thead: var(--p-thead);
+  --color-p-dot-risk: var(--p-dot-risk);
+  --color-p-dot-ok: var(--p-dot-ok);
+  --color-p-inst-line: var(--p-inst-line);
+  --color-p-inst-chip: var(--p-inst-chip);
+  --color-p-inst-chip-line: var(--p-inst-chip-line);
+  --color-p-inst-fg: var(--p-inst-fg);
+  --color-p-inst-tab: var(--p-inst-tab);
+  --color-p-inst-comment: var(--p-inst-comment);
+  --color-p-inst-hl: var(--p-inst-hl);
+  --color-p-inst-ok: var(--p-inst-ok);
+  --color-eyebrow: var(--site-eyebrow);
+}
+
+.site-home {
+  line-height: normal;
+}
+
+.site-home .site-grid-top {
+  top: calc(var(--p-header) * -1);
+}
+
+.site-home .site-glow {
+  top: calc(-180px - var(--p-header));
+}
+
+.site-home .site-card:hover {
+  border-color: var(--p-card-hover);
+}
+
+.site-home .site-next {
+  background: var(--p-next-bg);
+  border-color: var(--p-next-bg);
+  color: var(--p-next-fg);
+}
+
+.site-next-eyebrow {
+  color: var(--p-accent-text);
+}
+
+.site-next-sub {
+  color: var(--p-next-sub);
+}
+/* ==== end home (pixel pass) ==== */
