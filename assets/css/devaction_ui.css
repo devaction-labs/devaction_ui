@@ -248,14 +248,6 @@
   /* ---------- Avatar (prancha 11) ---------- */
   .avatar     { @apply relative inline-grid size-10 shrink-0 place-items-center rounded-full bg-info-bg font-mono text-xs text-info-fg; }
   .avatar-xs  { @apply size-6 text-[9px]; }
-  .avatar-sm  { @apply size-8 text-[11px]; }
-  .avatar-lg  { @apply size-14 text-base; }
-  .avatar-xl  { @apply size-18 text-xl; }
-  .avatar-square { @apply rounded-[11px] font-sans font-semibold; }
-  .avatar-ai  { @apply border-[1.5px] border-ai bg-warn-bg text-warn-fg; }
-  .avatar-status { @apply absolute -right-px -bottom-px size-3 rounded-full border-2 border-card bg-done
-                          data-[status=online]:bg-[#16A34A] data-[status=away]:bg-ai data-[status=busy]:bg-[#DC2626]; }
-  .avatar-group  { @apply flex -space-x-2 [&>.avatar]:border-2 [&>.avatar]:border-card; }
 
   /* ---------- Gráficos (prancha 12) ---------- */
   .chart-grid    { @apply stroke-line-soft [stroke-width:1]; }
