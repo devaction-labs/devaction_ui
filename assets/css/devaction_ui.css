@@ -120,8 +120,6 @@
   --dot-emerald: light-dark(#10B981, #34D399);
   --dot-neutral: light-dark(#A1A1AA, #6C6C80);
   --shimmer: light-dark(#F7F7F8, #353544);
-  --toast-layer-1: light-dark(#27272A, #C9C9D6);
-  --toast-layer-2: light-dark(#3F3F46, #A3A3B8);
   --line-dashed: light-dark(#C9C9CF, #4A4A58);
   --avatar-indigo-bg: light-dark(#EEF2FF, #1D2142);
   --avatar-indigo-fg: light-dark(#3730A3, #C3CAFF);
@@ -198,8 +196,6 @@
   --color-dot-emerald: var(--dot-emerald);
   --color-dot-neutral: var(--dot-neutral);
   --color-shimmer: var(--shimmer);
-  --color-toast-layer-1: var(--toast-layer-1);
-  --color-toast-layer-2: var(--toast-layer-2);
   --color-risk-line: var(--tag-risk-line);
   --color-risk-bg: var(--tag-risk-bg);
   --color-risk-fg: var(--tag-risk-text);
@@ -962,4 +958,136 @@
     linear-gradient(var(--dropzone-grid) 1px, transparent 1px),
     linear-gradient(90deg, var(--dropzone-grid) 1px, transparent 1px);
   background-size: 20px 20px;
+}
+
+/* DevactionUI.ToastGroup: the pile of toasts that opens into a list. The card follows --card and --line; the
+   shadow is the only value without a token, so it gets its own colour for each theme. */
+:root {
+  --toast-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --toast-shadow: light-dark(rgb(0 0 0 / 0.28), rgb(0 0 0 / 0.6));
+}
+
+.toast-group {
+  --gap: 12px;
+  position: fixed;
+  z-index: 60;
+  width: min(380px, calc(100vw - 32px));
+  outline: none;
+  bottom: 24px;
+  right: 24px;
+}
+.toast-group[data-position^="top"] { top: 24px; bottom: auto; }
+.toast-group[data-position$="left"] { left: 24px; right: auto; }
+.toast-group[data-position$="center"] { left: 50%; right: auto; translate: -50% 0; }
+.toast-group[data-inline] { position: relative; inset: auto; translate: none; z-index: auto; max-width: 100%; }
+.toast-group[data-inline][data-position$="right"] { margin-left: auto; }
+.toast-group[data-inline][data-position$="center"] { margin-inline: auto; }
+
+.toast-list {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transition: height 0.55s var(--toast-ease);
+}
+
+.toast-item {
+  --lift: calc(var(--i, 0) * var(--peek, 12px) * -1);
+  --scale: calc(1 - var(--i, 0) * 0.05);
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--front-h, auto);
+  outline: none;
+  touch-action: pan-y;
+  transform-origin: 50% 0;
+  transform: translateX(var(--swipe, 0px)) translateY(var(--lift)) scale(var(--scale));
+  transition: transform 0.55s var(--toast-ease), opacity 0.45s var(--toast-ease), height 0.55s var(--toast-ease);
+  transition-delay: calc(var(--i, 0) * 28ms);
+}
+.toast-item[data-mounted="false"] { opacity: 0; transform: translateY(60%); transition-delay: 0ms; }
+.toast-item[data-removed] { opacity: 0; pointer-events: none; transition-delay: 0ms; transform: translateY(calc(var(--lift) + 14px)) scale(var(--scale)); }
+.toast-item[data-swipe-out] { opacity: 0; }
+.toast-item[data-overflow] { opacity: 0; pointer-events: none; }
+.toast-item[data-swiping] { transition: none; cursor: grabbing; }
+.toast-item[data-swipe-out] { transition-delay: 0ms; }
+
+.toast-card {
+  box-sizing: border-box;
+  height: 100%;
+  overflow: hidden;
+  padding: 13px 10px 13px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: 0 12px 32px -14px var(--toast-shadow), 0 2px 6px -2px rgb(0 0 0 / 0.08);
+  font-size: 14px;
+  line-height: 1.4;
+}
+.toast-row { display: flex; align-items: flex-start; gap: 10px; transition: opacity 0.35s var(--toast-ease) 0.12s; }
+.toast-item[data-behind] .toast-row { opacity: 0; }
+
+.toast-group[data-expanded] .toast-item { height: var(--own-h); transform: translateX(var(--swipe, 0px)) translateY(calc(var(--offset) * -1)); }
+.toast-group[data-expanded] .toast-item[data-behind] .toast-row { opacity: 1; }
+.toast-group[data-expanded] .toast-item[data-overflow] { opacity: 1; pointer-events: auto; }
+.toast-group[data-expanded] .toast-item[data-removed],
+.toast-group[data-expanded] .toast-item[data-swipe-out] { opacity: 0; }
+.toast-group[data-expanded] .toast-item::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: var(--gap); }
+
+.toast-icon { flex: none; display: grid; place-items: center; width: 20px; height: 20px; margin-top: 2px; color: var(--muted); }
+.toast-icon svg { width: 18px; height: 18px; }
+.toast-item[data-variant="ok"] .toast-icon { color: var(--tag-ok-text); }
+.toast-item[data-variant="warn"] .toast-icon { color: var(--tag-warn-text); }
+.toast-item[data-variant="risk"] .toast-icon { color: var(--tag-risk-text); }
+.toast-item[data-variant="info"] .toast-icon { color: var(--tag-info-text); }
+.toast-item[data-variant="ai"] .toast-icon { color: var(--ai); }
+.toast-item[data-variant="loading"] .toast-icon svg { animation: toast-spin 0.8s linear infinite; }
+.toast-item[data-variant="risk"] .toast-card { border-color: var(--tag-risk-line); }
+@keyframes toast-spin { to { rotate: 360deg; } }
+
+.toast-body { flex: 1; min-width: 0; padding-top: 2px; }
+.toast-title { margin: 0; font-weight: 500; }
+.toast-desc { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+.toast-action {
+  flex: none;
+  height: 26px;
+  margin-block: -1px;
+  padding: 0 9px;
+  border: 0;
+  border-radius: 7px;
+  background: var(--ink);
+  color: var(--on-primary);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.toast-close {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.toast-close svg { width: 14px; height: 14px; }
+.toast-close:hover { background: var(--wrap); color: var(--ink); }
+.toast-action:focus-visible,
+.toast-close:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.toast-item:focus-visible .toast-card { box-shadow: 0 0 0 2px var(--ink); }
+
+@media (max-width: 640px) {
+  .toast-group:not([data-inline]) { left: 16px; right: 16px; width: auto; translate: none; }
+  .toast-group[data-position^="bottom"]:not([data-inline]) { bottom: calc(16px + env(safe-area-inset-bottom)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .toast-list, .toast-item, .toast-row { transition-duration: 0.01ms; transition-delay: 0ms; }
+  .toast-item[data-variant="loading"] .toast-icon svg { animation-duration: 3s; }
 }

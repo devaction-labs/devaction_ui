@@ -1,0 +1,31 @@
+<%!-- title: How it behaves | text: What the group does, in the order you will notice it --%>
+<ol class="m-0 grid max-w-xl list-none gap-3 p-0">
+  <li
+    :for={
+      {n, term, detail} <-
+        [
+          {1, "A new toast enters from below", "and pushes the others behind the pile."},
+          {2, "Closed",
+           "it shows the front one; up to two peek behind, smaller and without text."},
+          {3, "Pointer over, or focus inside",
+           "opens a list with a 12px gap; the gap does not close it."},
+          {4, "Timers pause",
+           "while the list is open and while the tab is hidden, and go on from where they stopped."},
+          {5, "Alt+T", "moves the focus to the pile. Esc closes the focused toast."},
+          {6, "Drag sideways", "to dismiss (more than 80px)."},
+          {7, "Risk is an alert",
+           "and is read at once (role=\"alert\"); the rest are polite status messages."},
+          {8, "Loading does not go away", "until it becomes ok or risk with the same id."}
+        ]
+    }
+    class="flex gap-3 text-sm"
+  >
+    <span class="grid size-6 shrink-0 place-items-center rounded-full bg-wrap font-mono text-xs text-muted">
+      {n}
+    </span>
+    <span>
+      <strong class="font-medium text-ink">{term}</strong>
+      <span class="text-muted">{detail}</span>
+    </span>
+  </li>
+</ol>

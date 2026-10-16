@@ -1,0 +1,24 @@
+<%!-- title: Keyboard | text: Alt+T moves the focus to the pile and opens it, Esc closes the focused toast, and a drag sideways (more than 80px) dismisses it. --%>
+<div class="grid w-full gap-3">
+  <div class="flex flex-wrap items-center gap-2">
+    <Button.button id="toast-keys-fire" variant={:secondary} size={:sm} phx-click="toast_keys">
+      Fire three toasts
+    </Button.button>
+    <span class="text-[13px] text-muted">
+      Then press
+      <.kbd>Alt</.kbd>
+      +
+      <.kbd>T</.kbd>
+      and <.kbd>Esc</.kbd>.
+    </span>
+  </div>
+  <div class="flex h-[260px] items-end">
+    <ToastGroup.toast_group
+      id="toast-keys"
+      inline
+      duration={30000}
+      label="Notifications (Alt+T)"
+      dismiss_label="Close"
+    />
+  </div>
+</div>
