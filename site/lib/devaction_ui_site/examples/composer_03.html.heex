@@ -14,6 +14,7 @@
       <Composer.file
         :for={entry <- @uploads.attachments.entries}
         entry={entry}
+        detail={"#{Float.round(entry.client_size / 1000, 1)} KB"}
         remove_label={"Remove #{entry.client_name}"}
         cancel_event="composer_cancel"
       >

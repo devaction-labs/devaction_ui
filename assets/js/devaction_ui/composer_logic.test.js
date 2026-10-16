@@ -1,6 +1,6 @@
 import assert from "node:assert/strict"
 import test from "node:test"
-import {canSend, carriesFiles, countView, fieldHeight, intentOf, isOver, joinFiles} from "./composer_logic.js"
+import {applyPick, canSend, carriesFiles, countView, fieldHeight, intentOf, isOver, joinFiles, moveActive, triggerOf} from "./composer_logic.js"
 
 const measures = {lineHeight: 20, padding: 10, maxRows: 4}
 const key = (key, extra = {}) => ({key, shiftKey: false, isComposing: false, keyCode: 0, ...extra})
@@ -64,4 +64,59 @@ test("only a drag with files counts", () => {
 test("the files chosen stay when more arrive", () => {
   assert.deepEqual(joinFiles(["a"], ["b", "c"]), ["a", "b", "c"])
   assert.deepEqual(joinFiles(undefined, ["b"]), ["b"])
+})
+
+test("an open suggestion list owns the arrows, Enter, Tab and Esc", () => {
+  const open = state({text: "/re", suggesting: true})
+  assert.equal(intentOf(key("ArrowDown"), open), "next")
+  assert.equal(intentOf(key("ArrowUp"), open), "previous")
+  assert.equal(intentOf(key("Enter"), open), "pick")
+  assert.equal(intentOf(key("Tab"), open), "pick")
+  assert.equal(intentOf(key("Escape"), open), "close")
+  assert.equal(intentOf(key("Escape"), {...open, busy: true}), "close")
+})
+
+test("Enter that confirms an accent does not pick a suggestion", () => {
+  const open = state({suggesting: true})
+  assert.equal(intentOf(key("Enter", {isComposing: true}), open), "none")
+  assert.equal(intentOf(key("ArrowDown", {keyCode: 229}), open), "none")
+})
+
+test("a closed list leaves the keys to the field", () => {
+  assert.equal(intentOf(key("Enter"), state({suggesting: false})), "send")
+  assert.equal(intentOf(key("ArrowDown"), state()), "none")
+})
+
+test("a / at the start of the text opens the commands", () => {
+  assert.deepEqual(triggerOf("/", 1), {trigger: "/", query: "", start: 0, end: 1})
+  assert.deepEqual(triggerOf("/rev", 4), {trigger: "/", query: "rev", start: 0, end: 4})
+  assert.equal(triggerOf("see /rev", 8), null)
+  assert.equal(triggerOf("/rev now", 8), null)
+})
+
+test("an @ at the start of a word opens the mentions, wherever the word is", () => {
+  assert.deepEqual(triggerOf("@", 1), {trigger: "@", query: "", start: 0, end: 1})
+  assert.deepEqual(triggerOf("ask @ca", 7), {trigger: "@", query: "ca", start: 4, end: 7})
+  assert.deepEqual(triggerOf("ask\n@ca", 7), {trigger: "@", query: "ca", start: 4, end: 7})
+  assert.equal(triggerOf("mail a@b", 8), null)
+  assert.equal(triggerOf("ask @ca done", 12), null)
+})
+
+test("only the text before the caret counts", () => {
+  assert.deepEqual(triggerOf("@carlos and more", 3), {trigger: "@", query: "ca", start: 0, end: 3})
+  assert.equal(triggerOf("", 0), null)
+})
+
+test("choosing a suggestion replaces the typed word and leaves the caret after it", () => {
+  const token = triggerOf("ask @ca please", 7)
+  assert.deepEqual(applyPick("ask @ca please", token, "@carlos"), {text: "ask @carlos  please", caret: 12})
+  assert.deepEqual(applyPick("/re", triggerOf("/re", 3), "/review"), {text: "/review ", caret: 8})
+})
+
+test("the arrows move the highlight round the list and other keys leave it", () => {
+  assert.equal(moveActive(0, "ArrowDown", 3), 1)
+  assert.equal(moveActive(2, "ArrowDown", 3), 0)
+  assert.equal(moveActive(0, "ArrowUp", 3), 2)
+  assert.equal(moveActive(1, "a", 3), 1)
+  assert.equal(moveActive(0, "ArrowDown", 0), 0)
 })

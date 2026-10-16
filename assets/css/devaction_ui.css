@@ -1447,6 +1447,10 @@
   .composer-send svg { @apply size-4.25; }
   .composer-send .composer-stop-icon, .composer-send[data-stop] .composer-send-icon { @apply hidden; }
   .composer-send[data-stop] .composer-stop-icon { @apply block; }
+  .composer-file-kind { @apply grid size-10 shrink-0 place-items-center rounded-lg border border-line-soft bg-card font-mono text-[10px] font-semibold text-ink-2; }
+  .composer-suggest { @apply absolute bottom-full left-0 z-30 mb-2 max-w-full empty:hidden; }
+  .composer-picker  { @apply gap-1.5 border-tag-warn-line! bg-tag-warn-bg! text-tag-warn-text! hover:border-ai! focus-visible:ring-tag-warn-line!; }
+  .composer-picker svg { @apply size-3.5; }
   .composer-count   { @apply font-mono text-[11px] text-muted [.composer[data-over]_&]:text-risk-fg; }
   .composer[data-size=sm] { @apply flex-row items-center rounded-[14px] shadow-none; }
   .composer[data-size=sm] .composer-input   { @apply px-3.5 py-3 text-sm; }

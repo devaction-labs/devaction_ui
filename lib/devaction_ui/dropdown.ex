@@ -16,7 +16,8 @@ defmodule DevactionUI.Dropdown do
   "task"}}` arrives as `"id"` and `"kind"`). The menu closes when an item is chosen and gives the focus back
   to the button; `close_on_select={false}` keeps it open (a menu of toggles).
 
-  The button is a bordered box by default (`variant: :outline`). `variant: :ghost` drops the border and
+  The button is a bordered box by default (`variant: :outline`). `variant: :ghost` drops the border,
+  `variant: :chip` is the amber pill of the mode or model of a `DevactionUI.Composer` and
   `variant: :icon` is a square with only an icon (the "more" menu of a row): give it a `trigger_label`, which is
   its accessible name. `trigger_class` adds classes to the button.
 
@@ -34,7 +35,7 @@ defmodule DevactionUI.Dropdown do
   attr :label, :string, required: true, doc: "the name of the menu, for assistive technology"
   attr :align, :atom, values: [:start, :end], default: :start
   attr :size, :atom, values: [:sm, :md], default: :md, doc: "the height of the button: 38 or 42px"
-  attr :variant, :atom, values: [:outline, :ghost, :icon], default: :outline
+  attr :variant, :atom, values: [:outline, :ghost, :icon, :chip], default: :outline
 
   attr :trigger_label, :string,
     default: nil,
@@ -233,6 +234,10 @@ defmodule DevactionUI.Dropdown do
 
   defp trigger_class(:ghost, :sm), do: "inline-flex h-[38px] rounded-[10px] px-3 text-sm"
   defp trigger_class(:ghost, :md), do: "inline-flex h-[42px] rounded-[11px] px-3.5"
+
+  defp trigger_class(:chip, _size),
+    do: "composer-picker inline-flex h-8.5 rounded-[10px] border px-2.5 text-[13px] font-medium"
+
   defp trigger_class(:icon, :sm), do: "grid size-[38px] place-items-center rounded-[10px]"
   defp trigger_class(:icon, :md), do: "grid size-[42px] place-items-center rounded-[11px]"
 
