@@ -53,7 +53,10 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
    so there is no `@source` to add.
 2. JS: `import {hooks as devactionUI} from "../../deps/devaction_ui/assets/js/devaction_ui"` and merge into
    the LiveSocket `hooks`.
-3. Fonts: Geist and Geist Mono are named in the tokens; the host app serves them.
+3. Fonts: Geist and Geist Mono are named in the tokens; the host app serves them. The minimum is the
+   canvas's own link: `https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap`.
+4. Theme: the stylesheet sets `:root { color-scheme: light dark }`, so the page follows the system theme.
+   To pin one, set `data-theme="light"` or `data-theme="dark"` (or the `.light` / `.dark` class) on `<html>`.
 
 ## The rules that keep it extractable
 

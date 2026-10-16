@@ -32,6 +32,15 @@
   to { opacity: 0; transform: translateY(8px); }
 }
 
+@keyframes spin-fast {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
 :root {
   color-scheme: light dark;
 }
@@ -41,7 +50,9 @@
   --animate-aura-spin: aura-spin 2.6s linear infinite;
   --animate-aura-spin-slow: aura-spin 3.2s linear infinite;
   --animate-aura-glow: aura-glow 2s ease-in-out infinite;
-  --animate-toast-out: toast-out 0.2s ease-in forwards;
+  --animate-toast-out: toast-out 0.4s ease-in forwards;
+  --animate-pulse-dot: pulse-dot 1.4s ease-in-out infinite;
+  --animate-spin-fast: spin-fast 0.8s linear infinite;
 }
 
 /* Design tokens of the canvas (artboard "Paleta de cores"). Each flips with the theme through
@@ -74,18 +85,24 @@
   --tag-risk-line: light-dark(#FBCFCF, #4A2A26);
   --tag-risk-bg: light-dark(#FEF2F2, #2A1B1A);
   --tag-risk-text: light-dark(#B91C1C, #FFB4AA);
+  --tag-risk-strong: light-dark(#991B1B, #FFCFC8);
   --tag-warn-line: light-dark(#F5DFA8, #4A3A18);
   --tag-warn-bg: light-dark(#FEF9EC, #2A2314);
   --tag-warn-text: light-dark(#854D0E, #F4CF7E);
+  --tag-warn-strong: light-dark(#713F12, #FBE6B4);
   --tag-ok-line: light-dark(#BBF7D0, #1E4A2E);
   --tag-ok-bg: light-dark(#F0FDF4, #14261B);
   --tag-ok-text: light-dark(#15803D, #8EF0B4);
+  --tag-ok-strong: light-dark(#14532D, #C9F2D8);
   --tag-info-line: light-dark(#C7D7FE, #2E3A66);
   --tag-info-bg: light-dark(#EFF4FF, #1A2036);
   --tag-info-text: light-dark(#1D4ED8, #A9C3FF);
+  --tag-info-strong: light-dark(#1E3A8A, #D3E0FF);
   --tag-neutral-line: light-dark(#E4E4E7, #383846);
   --tag-neutral-bg: light-dark(#F4F4F5, #2A2A36);
   --tag-neutral-text: light-dark(#3F3F46, #C9C9D6);
+  --tag-neutral-strong: light-dark(#18181B, #EDEDF2);
+  --line-dashed: light-dark(#C9C9CF, #4A4A58);
 }
 
 @theme inline {
@@ -96,6 +113,7 @@
   --color-line: var(--line);
   --color-line-soft: var(--line-soft);
   --color-line-strong: var(--line-strong);
+  --color-line-dashed: var(--line-dashed);
   --color-ink: var(--ink);
   --color-ink-2: var(--ink-2);
   --color-muted: var(--muted);
@@ -107,18 +125,23 @@
   --color-tag-risk-line: var(--tag-risk-line);
   --color-tag-risk-bg: var(--tag-risk-bg);
   --color-tag-risk-text: var(--tag-risk-text);
+  --color-tag-risk-strong: var(--tag-risk-strong);
   --color-tag-warn-line: var(--tag-warn-line);
   --color-tag-warn-bg: var(--tag-warn-bg);
   --color-tag-warn-text: var(--tag-warn-text);
+  --color-tag-warn-strong: var(--tag-warn-strong);
   --color-tag-ok-line: var(--tag-ok-line);
   --color-tag-ok-bg: var(--tag-ok-bg);
   --color-tag-ok-text: var(--tag-ok-text);
+  --color-tag-ok-strong: var(--tag-ok-strong);
   --color-tag-info-line: var(--tag-info-line);
   --color-tag-info-bg: var(--tag-info-bg);
   --color-tag-info-text: var(--tag-info-text);
+  --color-tag-info-strong: var(--tag-info-strong);
   --color-tag-neutral-line: var(--tag-neutral-line);
   --color-tag-neutral-bg: var(--tag-neutral-bg);
   --color-tag-neutral-text: var(--tag-neutral-text);
+  --color-tag-neutral-strong: var(--tag-neutral-strong);
   --color-risk-line: var(--tag-risk-line);
   --color-risk-bg: var(--tag-risk-bg);
   --color-risk-fg: var(--tag-risk-text);
@@ -150,6 +173,9 @@
   --radius-wrap: 1.25rem;
   --radius-panel: 1.375rem;
   --shadow-pop: 0 16px 40px rgb(24 24 27 / 0.12);
+  --shadow-toast-dark: 0 12px 30px rgb(24 24 27 / 0.25);
+  --shadow-toast-light: 0 12px 30px rgb(24 24 27 / 0.12);
+  --shadow-toast-progress: 0 12px 30px rgb(24 24 27 / 0.1);
 }
 
 @keyframes drawer-in-right { from { opacity: 0; transform: translateX(24px); } }
@@ -253,8 +279,6 @@
   .avatar-xl  { @apply size-18 text-xl; }
   .avatar-square { @apply rounded-[11px] font-sans font-semibold; }
   .avatar-ai  { @apply border-[1.5px] border-ai bg-warn-bg text-warn-fg; }
-  .avatar-status { @apply absolute -right-px -bottom-px size-3 rounded-full border-2 border-card bg-done
-                          data-[status=online]:bg-[#16A34A] data-[status=away]:bg-ai data-[status=busy]:bg-[#DC2626]; }
   .avatar-group  { @apply flex -space-x-2 [&>.avatar]:border-2 [&>.avatar]:border-card; }
 
   /* ---------- Gráficos (prancha 12) ---------- */
@@ -312,7 +336,7 @@
   .empty        { @apply relative flex flex-col items-center gap-3 overflow-hidden rounded-card border border-line bg-card px-7 pt-10 pb-8 text-center; }
   .empty-grid   { @apply pointer-events-none absolute inset-x-0 top-0 h-45 bg-[linear-gradient(var(--line-soft)_1px,transparent_1px),linear-gradient(90deg,var(--line-soft)_1px,transparent_1px)] bg-size-[24px_24px] [mask-image:radial-gradient(ellipse_50%_90%_at_50%_0%,#000_20%,transparent_75%)]; }
   .empty-icon   { @apply relative grid size-14 place-items-center rounded-2xl border border-line bg-card text-ink shadow-[0_10px_24px_rgb(24_24_27/0.08)]; }
-  .empty-inline { @apply flex flex-col items-center gap-1.5 rounded-xl border border-dashed border-line-strong p-5.5 text-center; }
+  .empty-inline { @apply flex flex-col items-center gap-1.5 rounded-xl border border-dashed border-line-dashed p-5.5 text-center; }
   .stepper { @apply grid list-none grid-cols-[repeat(auto-fit,minmax(0,1fr))] gap-2 p-0; }
   .step    { @apply flex flex-col gap-2.5 before:h-1 before:rounded-full before:bg-line
                     data-[state=done]:before:bg-ink data-[state=current]:before:bg-ai data-[state=error]:before:bg-missing; }
@@ -320,8 +344,6 @@
                      [[data-state=done]_&]:border-ink [[data-state=done]_&]:bg-ink [[data-state=done]_&]:text-on-ink
                      [[data-state=current]_&]:border-2 [[data-state=current]_&]:border-ink [[data-state=current]_&]:text-ink
                      [[data-state=error]_&]:border-2 [[data-state=error]_&]:border-missing [[data-state=error]_&]:text-missing; }
-  .progress     { @apply flex h-2 gap-0.5 overflow-hidden rounded-full bg-wrap; }
-  .progress-bar { @apply rounded-full bg-ink transition-[width]; }
 
   /* ---------- Paleta, segmentado e shell (prancha 17) ---------- */
   .cmdk        { @apply w-[min(40rem,calc(100vw-2rem))] overflow-hidden rounded-card border border-line bg-card shadow-pop; }

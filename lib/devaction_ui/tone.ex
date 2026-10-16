@@ -9,9 +9,10 @@ defmodule DevactionUI.Tone do
   """
 
   @type t :: :risk | :warn | :ok | :info | :neutral
+  @type kind :: t() | :ai | :warning | :decision | :tip | :note
 
   @doc "The tone a callout or alert kind is drawn in."
-  @spec from_kind(atom()) :: t()
+  @spec from_kind(kind()) :: t()
   def from_kind(kind) when kind in [:risk, :warn, :ok, :info, :neutral], do: kind
   def from_kind(:ai), do: :warn
   def from_kind(:warning), do: :risk
@@ -34,6 +35,14 @@ defmodule DevactionUI.Tone do
   def text(:ok), do: "text-tag-ok-text"
   def text(:info), do: "text-tag-info-text"
   def text(:neutral), do: "text-tag-neutral-text"
+
+  @doc "The darker text of the tone, for the title and body of a tinted alert or callout."
+  @spec strong(t()) :: String.t()
+  def strong(:risk), do: "text-tag-risk-strong"
+  def strong(:warn), do: "text-tag-warn-strong"
+  def strong(:ok), do: "text-tag-ok-strong"
+  def strong(:info), do: "text-tag-info-strong"
+  def strong(:neutral), do: "text-tag-neutral-strong"
 
   @doc "A solid fill of the tone, for bars and dots."
   @spec fill(t()) :: String.t()
