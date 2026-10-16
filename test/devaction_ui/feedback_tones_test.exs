@@ -15,7 +15,6 @@ defmodule DevactionUI.FeedbackTonesTest do
     Skeleton,
     Spinner,
     Tag,
-    ToastGroup,
     Tone
   }
 
@@ -65,8 +64,7 @@ defmodule DevactionUI.FeedbackTonesTest do
       tokens =
         ~w(tag-indigo-line tag-indigo-bg tag-indigo-text tag-indigo-strong tag-emerald-line
            tag-emerald-bg tag-emerald-text tag-emerald-strong dot-ok dot-warn dot-risk dot-info
-           dot-indigo dot-emerald dot-neutral shimmer chart-1 chart-2 chart-3 chart-4
-           toast-layer-1 toast-layer-2)
+           dot-indigo dot-emerald dot-neutral shimmer chart-1 chart-2 chart-3 chart-4)
 
       for token <- tokens do
         assert css =~ "--#{token}: light-dark("
@@ -404,83 +402,6 @@ defmodule DevactionUI.FeedbackTonesTest do
       error = rendered_to_string(variant_toast(%{variant: :steps, state: :error, progress: 40}))
       assert error =~ ~s(role="alert")
       assert error =~ ~s(data-state="error")
-    end
-  end
-
-  describe "ToastGroup stack and panel" do
-    defp stack(assigns) do
-      ~H"""
-      <ToastGroup.toast_group
-        id="tg"
-        label="Notices"
-        heading={Map.get(assigns, :heading)}
-        on_dismiss="dismiss"
-        on_clear="clear"
-        expand_label="Show all"
-        collapse_label="Collapse"
-        clear_label="Clear"
-        dismiss_label="Close"
-        count_label="__COUNT__ notices"
-      >
-        <:toast id="a" title="First" dot={:warn}>Line</:toast>
-        <:toast id="b" kind={:light} title="Second" dot={:ok} />
-      </ToastGroup.toast_group>
-      """
-    end
-
-    test "the pile is the toasts themselves, each placed by its position behind the front one" do
-      html = rendered_to_string(stack(%{}))
-
-      assert html =~ ~s(style="--i: 0")
-      assert html =~ ~s(style="--i: 1")
-      assert html =~ "calc(var(--i)*-10px)"
-      assert html =~ "[z-index:calc(10-var(--i))]"
-      refute html =~ "data-layer"
-      refute html =~ "bg-toast-layer"
-    end
-
-    test "only the front toast is not behind, and the ones past the third are not drawn" do
-      html = rendered_to_string(stack(%{}))
-
-      assert length(Regex.scan(~r/ data-behind(?=[ >])/, html)) == 1
-      refute html =~ "data-deep"
-    end
-
-    test "there is no count badge: the pile itself says there is more than one" do
-      html = rendered_to_string(stack(%{}))
-      refute html =~ "data-stack-count"
-    end
-
-    test "the button that opens the pile takes no room, so the layers end at the front toast" do
-      html = rendered_to_string(stack(%{}))
-      assert html =~ ~r/<button[^>]*data-expand[^>]*class="sr-only"/s
-    end
-
-    test "a toast can carry its dot, 10px and 8px when opened" do
-      html = rendered_to_string(stack(%{}))
-
-      assert html =~ "size-2.5"
-      assert html =~ "group-data-[expanded=true]:size-2"
-      assert html =~ Tone.dot(:warn)
-      assert html =~ Tone.dot(:ok)
-    end
-
-    test "the heading goes to the hook for the panel's title" do
-      assert rendered_to_string(stack(%{heading: "AI review"})) =~ ~s(data-heading="AI review")
-      refute rendered_to_string(stack(%{})) =~ "data-heading"
-    end
-
-    test "the opened group is a panel and each toast a white card" do
-      html = rendered_to_string(stack(%{}))
-
-      assert html =~ "data-[expanded=true]:bg-wrap"
-      assert html =~ "data-[expanded=true]:rounded-2xl"
-      assert html =~ "group-data-[expanded=true]:bg-card"
-      assert html =~ "group-data-[expanded=true]:rounded-xl"
-    end
-
-    test "the second line of a dark toast is the soft white" do
-      assert rendered_to_string(stack(%{})) =~ "text-on-primary/70"
     end
   end
 

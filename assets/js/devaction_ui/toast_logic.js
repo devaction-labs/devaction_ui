@@ -1,66 +1,82 @@
 /**
- * The toasts without a DOM: how a group of them is laid out, what Escape does in it, and when the notice of a
- * finished job leaves by itself.
+ * The toasts without a DOM: how the pile is placed from the heights of its toasts, how tall the list is, what the
+ * timers, the swipe and the hotkey do, and when the notice of a finished job leaves by itself.
  */
-import {decide} from "./keys.js"
+
+/** The toast variants the group draws. */
+export const VARIANTS = ["default", "ok", "warn", "risk", "info", "ai", "loading"]
+
+/** Pixels the pile uses: the gap of the open list and how much each layer peeks above the one in front. */
+export const GAP_PX = 12
+export const PEEK_PX = 12
+
+/** How far sideways a toast has to be dragged to leave, and how long the open list waits before closing. */
+export const SWIPE_PX = 80
+export const CLOSE_DELAY_MS = 120
+
+/** How many toasts the group keeps at most; the oldest are dropped past it. */
+export const MAX_TOASTS = 20
+
+const ROLES = {risk: "alert"}
+
+/** The ARIA role of a toast: an error is announced at once, the rest politely. */
+export const roleFor = (variant) => ROLES[variant] ?? "status"
+
+/** The variant, or `default` for one the group does not know. */
+export const variantOf = (variant) => (VARIANTS.includes(variant) ? variant : "default")
 
 /**
- * How a group of toasts is laid out. With more than one it is either a stack of layers (collapsed) or a
- * list (expanded); a single toast is always itself.
- *
- * @param {{count: number, expanded: boolean}} state
+ * How long a toast stays: `loading` never leaves by itself, the others take `duration` (the group's when absent);
+ * zero (or less) keeps a toast until it is closed.
  */
-export const planLayout = ({count, expanded}) => {
-  const many = count > 1
-  const open = many && expanded
-  return {expanded: open, stacked: many && !expanded, showBar: open, showExpand: many && !expanded}
+export const durationFor = ({variant, duration, fallback}) => {
+  const wanted = duration ?? fallback
+  return variant === "loading" || wanted <= 0 ? Infinity : wanted
 }
 
 /**
- * How far each toast has to travel when the pile opens or closes: from where it was drawn to where the new
- * layout puts it. `before` and `after` map a toast's id to `{x, y}`; a toast that did not move, or that was not
- * there before, has no step.
+ * Where each toast of the pile goes. `heights` are the natural heights, newest first. A toast past `visible`
+ * is an overflow (hidden while the pile is closed); the open list stacks the toasts with `gap` between them.
+ *
+ * @param {number[]} heights
+ * @param {{visible: number, gap?: number, peek?: number}} options
  */
-export const glideSteps = (before, after) =>
-  [...after]
-    .filter(([id]) => before.has(id))
-    .map(([id, to]) => ({id, dx: before.get(id).x - to.x, dy: before.get(id).y - to.y}))
-    .filter(({dx, dy}) => dx !== 0 || dy !== 0)
+export const stackPlan = (heights, {visible, gap = GAP_PX, peek = PEEK_PX}) => {
+  const front = heights[0] ?? 0
+  const items = heights.map((height, index) => ({
+    index,
+    height,
+    offset: heights.slice(0, index).reduce((sum, h) => sum + h + gap, 0),
+    front: index === 0,
+    overflow: index >= visible,
+  }))
+  const open = Math.max(0, heights.reduce((sum, h) => sum + h + gap, -gap))
+  const closed = heights.length === 0 ? 0 : front + Math.min(heights.length - 1, visible - 1) * peek
+  return {front, items, open, closed}
+}
 
-/** How long a toast takes to glide between the pile and the list. */
-export const GLIDE_MS = 320
+/** The height of the list: the whole open list, or the front toast plus the layers that peek. */
+export const listHeight = (plan, expanded) => (expanded ? plan.open : plan.closed)
 
-/** The line of the group's bar: the heading when there is one, then the count written by `label`. */
-export const countText = ({heading, label, count}) =>
-  [heading, label.replace("__COUNT__", String(count))].filter(Boolean).join(" \u00b7 ")
+/** What a timer does when the pile is paused (open or tab hidden) or not: `pause`, `start` or `keep`. */
+export const timerStep = ({paused, running, finite}) =>
+  [
+    [!finite, "keep"],
+    [paused && running, "pause"],
+    [!paused && !running, "start"],
+  ].find(([hit]) => hit)?.[1] ?? "keep"
 
-/** How long the list stays open after the pointer or the focus has left the pile, so a stray move does not close it. */
-export const HOVER_CLOSE_MS = 250
+/** What a drag ending at `dx` pixels does: `dismiss` past the threshold, else `restore`. */
+export const swipeOutcome = (dx, threshold = SWIPE_PX) => (dx > threshold ? "dismiss" : "restore")
 
-/**
- * What the pile does when the pointer or the focus comes in (`enter`) or goes out (`leave`): a collapsed stack
- * opens, and a list that opened by itself closes again; one the person opened on purpose (a click) stays.
- */
-export const hoverStep = ({event, stacked, expanded, auto}) =>
-  decide(
-    [
-      [(s) => s.event === "enter" && s.stacked && !s.expanded, () => "open"],
-      [(s) => s.event === "leave" && s.auto && s.expanded, () => "close"],
-      [() => true, () => null],
-    ],
-    {event, stacked, expanded, auto},
-  )
+/** Whether a key event is the hotkey that focuses the pile (Alt+T, whatever the layout makes of the letter). */
+export const isHotkey = (event) => event.altKey && !event.ctrlKey && !event.metaKey && (event.code === "KeyT" || event.key?.toLowerCase() === "t")
 
-/** What Escape does: close an open list first, else close the toast the focus is on, else nothing. */
-export const escapeStep = ({expanded, focused}) =>
-  decide(
-    [
-      [(s) => s.expanded, () => "collapse"],
-      [(s) => s.focused, () => "dismiss"],
-      [() => true, () => null],
-    ],
-    {expanded, focused},
-  )
+/** Whether an event from the server is for the group `id`: one without a `group` is for every group on the page. */
+export const isForGroup = (payload, id) => payload?.group === undefined || payload.group === id
+
+/** Which toast gets the focus when the focused one leaves: the one that takes its place, or the last, else none. */
+export const focusAfter = (remaining, index) => (remaining === 0 ? null : Math.min(index, remaining - 1))
 
 /** How long a finished job's toast stays before it leaves, and how long its exit animation gets. */
 export const LINGER_MS = 1600

@@ -1,5 +1,5 @@
 defmodule DevactionUI.FeedbackTest do
-  @moduledoc "The tones and the feedback components: alert, badge, tag, callout, progress, toasts, spinner, skeleton, empty state."
+  @moduledoc "The tones and the feedback components: alert, badge, tag, callout, progress, spinner, skeleton, empty state."
   use ExUnit.Case, async: true
 
   import Phoenix.Component
@@ -15,7 +15,6 @@ defmodule DevactionUI.FeedbackTest do
     Skeleton,
     Spinner,
     Tag,
-    ToastGroup,
     Tone
   }
 
@@ -220,49 +219,6 @@ defmodule DevactionUI.FeedbackTest do
       assert html =~ ~r/font-semibold">Review</
       assert html =~ ~r/font-medium text-tag-ok-text">\s*done\s*</
       refute html =~ ~r/>\s*100%\s*</
-    end
-  end
-
-  describe "ToastGroup" do
-    defp group(assigns) do
-      ~H"""
-      <ToastGroup.toast_group
-        id="tg"
-        label="Notices"
-        on_dismiss="dismiss"
-        on_clear="clear"
-        expand_label="Show all"
-        collapse_label="Collapse"
-        clear_label="Clear"
-        dismiss_label="Close"
-        count_label="__COUNT__ notices"
-      >
-        <:icon :let={kind}>icon-{kind}</:icon>
-        <:toast id="a" kind={:light} title="Saved" action_label="Open" action_navigate="/x" />
-        <:toast id="b" title="Done" action_label="Undo" action_event="undo" action_target="#panel" />
-      </ToastGroup.toast_group>
-      """
-    end
-
-    test "the region is polite and each toast has its icon, semibold title and kind shadow" do
-      assigns = %{}
-      html = rendered_to_string(~H|<.group />|)
-
-      assert html =~ ~s(aria-live="polite")
-      assert html =~ "icon-light"
-      assert html =~ "icon-dark"
-      assert html =~ "font-semibold"
-      assert html =~ "shadow-toast-light"
-      assert html =~ "shadow-toast-dark"
-    end
-
-    test "an action navigates or sends its event to a target" do
-      assigns = %{}
-      html = rendered_to_string(~H|<.group />|)
-
-      assert html =~ ~s(href="/x")
-      assert html =~ ~s(phx-target="#panel")
-      assert html =~ ~s(phx-click="undo")
     end
   end
 

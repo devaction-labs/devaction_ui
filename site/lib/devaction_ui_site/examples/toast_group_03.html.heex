@@ -1,23 +1,31 @@
-<%!-- title: With action | text: A toast can offer one action, such as undoing what just happened --%>
-<div class="max-w-[380px]">
-  <ToastGroup.toast_group
-    id="toast-group-action"
-    label="Notices"
-    on_dismiss="dismiss_toast"
-    on_clear="clear_toasts"
-    expand_label="Show all"
-    collapse_label="Collapse"
-    clear_label="Clear"
-    dismiss_label="Close"
-    count_label="__COUNT__ notices"
-  >
-    <:toast
-      id="toast-action-1"
-      kind={:dark}
-      title="sge-api is no longer monitored"
-      duration={0}
-      action_label="Undo"
-      action_event="clear_toasts"
+<%!-- title: Loading to done | text: A loading toast never leaves by itself. The server turns it into ok or risk with update_toast and the same id. --%>
+<div class="grid w-full gap-3">
+  <div class="flex flex-wrap gap-2">
+    <Button.button
+      id="toast-report-ok"
+      variant={:primary}
+      size={:sm}
+      phx-click="toast_report"
+      phx-value-result="ok"
+    >
+      Generate report
+    </Button.button>
+    <Button.button
+      id="toast-report-fail"
+      variant={:secondary}
+      size={:sm}
+      phx-click="toast_report"
+      phx-value-result="risk"
+    >
+      Generate and fail
+    </Button.button>
+  </div>
+  <div class="flex h-[140px] items-end">
+    <ToastGroup.toast_group
+      id="toast-report"
+      inline
+      label="Notifications (Alt+T)"
+      dismiss_label="Close"
     />
-  </ToastGroup.toast_group>
+  </div>
 </div>
