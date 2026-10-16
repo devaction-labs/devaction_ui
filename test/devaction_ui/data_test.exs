@@ -91,7 +91,8 @@ defmodule DevactionUI.DataTest do
         )
 
       assert desc =~ ~s(aria-sort="descending")
-      assert desc =~ "py-1.5"
+      assert desc =~ ~s(data-density="compact")
+      assert desc =~ "group-data-[density=compact]/dt:py-1.5"
     end
 
     test "selection adds a checkbox per row, a tri-state header one and a hidden bulk bar" do
@@ -216,6 +217,159 @@ defmodule DevactionUI.DataTest do
 
       assert html =~ "Nobody."
       assert html =~ ~s(colspan="3")
+    end
+  end
+
+  describe "DataTable around the rows" do
+    defp around(extra \\ %{}) do
+      assigns =
+        Map.merge(
+          %{
+            rows: @rows,
+            density: :comfortable,
+            density_label: nil,
+            loading: false,
+            loading_label: nil,
+            error: nil,
+            empty_text: nil,
+            selectable: false,
+            toolbar: false,
+            footer: false,
+            empty_slot: false
+          },
+          extra
+        )
+
+      rendered_to_string(~H"""
+      <DataTable.data_table
+        id="t"
+        label="People"
+        rows={@rows}
+        density={@density}
+        density_label={@density_label}
+        loading={@loading}
+        loading_label={@loading_label}
+        error={@error}
+        empty_text={@empty_text}
+        selectable={@selectable}
+        select_all_label="a"
+        select_row_label="b"
+        selected_label="c"
+        clear_label="d"
+      >
+        <:col :let={row} label="Name">{row.name}</:col>
+        <:col :let={row} label="Count">{row.n}</:col>
+        <:toolbar :if={@toolbar}><input id="search" type="search" /></:toolbar>
+        <:footer :if={@footer}><span>1-2 of 33</span></:footer>
+        <:empty :if={@empty_slot}>Nobody.</:empty>
+        <:error_action><button id="retry" type="button">Retry</button></:error_action>
+        <:density_icon>ROWS</:density_icon>
+      </DataTable.data_table>
+      """)
+    end
+
+    test "the toolbar sits above the table and the footer below it, and neither exists without a slot" do
+      html = around(%{toolbar: true, footer: true})
+
+      {toolbar, _} = :binary.match(html, ~s(id="search"))
+      {table, _} = :binary.match(html, "<table")
+      {footer, _} = :binary.match(html, "1-2 of 33")
+      assert toolbar < table and table < footer
+
+      plain = around()
+      refute plain =~ ~s(id="search")
+      refute plain =~ "1-2 of 33"
+      refute plain =~ "data-density-toggle"
+    end
+
+    test "the density toggle is drawn at the end of the toolbar when it has a label, and says which is on" do
+      html = around(%{density_label: "Compact rows"})
+
+      assert html =~ "data-density-toggle"
+      assert html =~ ~s(aria-label="Compact rows")
+      assert html =~ ~s(aria-pressed="false")
+      assert html =~ "ROWS"
+      assert html =~ ~s(data-density="comfortable")
+
+      compact = around(%{density_label: "Compact rows", density: :compact})
+      assert compact =~ ~s(aria-pressed="true")
+      assert compact =~ ~s(data-density="compact")
+    end
+
+    test "the cells follow the density of the table, so the toggle needs no redraw" do
+      html = around()
+
+      assert html =~ "py-3"
+      assert html =~ "group-data-[density=compact]/dt:py-1.5"
+      assert html =~ "group/dt"
+    end
+
+    test "loading draws skeleton rows, hides the rows and is named once" do
+      html = around(%{loading: true, loading_label: "Loading people"})
+
+      assert html =~ ~r/role="status" class="sr-only">\s*Loading people/
+      assert html =~ ~s(aria-busy="true")
+      assert length(Regex.scan(~r/animate-shimmer/, html)) == 10
+      assert html =~ ~r/<tbody[^>]*hidden/
+      assert html =~ ~r/<tbody aria-hidden="true">/
+    end
+
+    test "the number of skeleton rows is an attribute and a selectable table gets a box column too" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <DataTable.data_table
+          id="t"
+          label="L"
+          rows={[]}
+          loading
+          loading_label="Loading"
+          loading_rows={2}
+          selectable
+          select_all_label="a"
+          select_row_label="b"
+          selected_label="c"
+          clear_label="d"
+        >
+          <:col :let={row} label="Name">{row.name}</:col>
+        </DataTable.data_table>
+        """)
+
+      assert length(Regex.scan(~r/animate-shimmer/, html)) == 4
+    end
+
+    test "loading needs its label" do
+      assert_raise ArgumentError, ~r/loading_label/, fn -> around(%{loading: true}) end
+    end
+
+    test "an error replaces the rows with an alert and the action under it" do
+      html = around(%{error: "Could not load the list"})
+
+      assert html =~ ~r/role="alert"/
+      assert html =~ "Could not load the list"
+      assert html =~ ~s(id="retry")
+      assert html =~ ~r/<tbody[^>]*hidden/
+      refute html =~ "animate-shimmer"
+    end
+
+    test "no error draws no alert, and loading wins over an error" do
+      refute around() =~ ~s(role="alert")
+
+      both = around(%{error: "Broke", loading: true, loading_label: "Loading"})
+      refute both =~ ~s(role="alert")
+      assert both =~ "animate-shimmer"
+    end
+
+    test "the empty state is the slot, or the text of the attribute, or nothing" do
+      assert around(%{rows: [], empty_slot: true}) =~ "Nobody."
+      assert around(%{rows: [], empty_text: "No people yet"}) =~ "No people yet"
+
+      both = around(%{rows: [], empty_slot: true, empty_text: "No people yet"})
+      assert both =~ "Nobody."
+      refute both =~ "No people yet"
+
+      assert around(%{rows: []}) =~ ~r/id="t-empty"/
     end
   end
 
