@@ -17,6 +17,7 @@ defmodule DevactionUI.Pillbox do
   attr :class, :any, default: nil
 
   attr :rest, :global
+  slot :remove_icon, doc: "replaces the typographic × that removes a pill"
 
   def pillbox(assigns) do
     ~H"""
@@ -40,7 +41,9 @@ defmodule DevactionUI.Pillbox do
         class="min-w-24 flex-1 border-0 bg-transparent p-1 text-[15px] text-ink outline-none placeholder:text-muted focus:ring-0"
       />
       <template data-pill>
-        <.pill name={@name} value="" remove_label={@remove_label} />
+        <.pill name={@name} value="" remove_label={@remove_label}>
+          <:remove_icon :if={@remove_icon != []}>{render_slot(@remove_icon)}</:remove_icon>
+        </.pill>
       </template>
     </div>
     """
@@ -49,6 +52,7 @@ defmodule DevactionUI.Pillbox do
   attr :name, :string, required: true
   attr :value, :string, required: true
   attr :remove_label, :string, required: true
+  slot :remove_icon
 
   defp pill(assigns) do
     ~H"""
@@ -64,7 +68,7 @@ defmodule DevactionUI.Pillbox do
         aria-label={@remove_label}
         class="flex size-[22px] items-center justify-center rounded-md text-muted outline-none hover:bg-line focus-visible:ring-2 focus-visible:ring-ink/20"
       >
-        <span aria-hidden="true">×</span>
+        <span aria-hidden="true">{render_slot(@remove_icon) || "×"}</span>
       </button>
     </span>
     """

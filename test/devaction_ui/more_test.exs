@@ -188,8 +188,8 @@ defmodule DevactionUI.MoreTest do
 
     assert html =~ ~s(role="dialog")
     assert html =~ ~s(aria-label="Details")
-    assert html =~ ~s(aria-expanded="false")
-    assert html =~ ~s(aria-controls="p-panel")
+    assert html =~ ~s(id="p-panel")
+    refute html =~ "aria-expanded"
     assert html =~ ~s(data-placement="top")
     assert html =~ "right-0"
     assert html =~ ~r/data-panel[^>]*hidden/s

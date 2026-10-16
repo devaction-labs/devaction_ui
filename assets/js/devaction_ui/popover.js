@@ -13,9 +13,34 @@ export default {
     this.arrow = this.panel.querySelector("[data-arrow]")
 
     this.trigger.addEventListener("click", () => (this.panel.hidden ? this.open() : this.close(true)))
+    this.trigger.addEventListener("keydown", (event) => {
+      const own = () => event.target === this.trigger && this.toggle()
+      runKey({Enter: own, " ": own}, event)
+    })
+    this.announce()
     this.el.addEventListener("keydown", (event) => this.onKey(event))
     this.outside = (event) => !this.el.contains(event.target) && this.close(false)
     document.addEventListener("mousedown", this.outside)
+  },
+
+  updated() {
+    this.announce()
+  },
+
+  control() {
+    return this.trigger.querySelector("button, a[href], [tabindex]") ?? this.trigger
+  },
+
+  toggle() {
+    this.panel.hidden ? this.open() : this.close(true)
+  },
+
+  announce() {
+    const control = this.control()
+    control === this.trigger && (control.setAttribute("role", "button"), control.tabIndex = 0)
+    control.setAttribute("aria-haspopup", "dialog")
+    control.setAttribute("aria-controls", this.panel.id)
+    control.setAttribute("aria-expanded", String(!this.panel.hidden))
   },
 
   destroyed() {
@@ -35,7 +60,7 @@ export default {
   open() {
     this.panel.hidden = false
     this.place()
-    this.trigger.setAttribute("aria-expanded", "true")
+    this.announce()
     const target = this.panel.querySelector("[autofocus], input, button, a[href], select, textarea") ?? this.panel
     target.focus()
   },
@@ -43,8 +68,8 @@ export default {
   close(returnFocus) {
     if (this.panel.hidden) return
     this.panel.hidden = true
-    this.trigger.setAttribute("aria-expanded", "false")
-    returnFocus && (this.trigger.querySelector("button, a, [tabindex]") ?? this.trigger).focus()
+    this.announce()
+    returnFocus && this.control().focus()
   },
 
   place() {

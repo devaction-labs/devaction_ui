@@ -3,6 +3,7 @@
  * takes a TipTap command chain and returns it, and `active(editor)`; both are looked up by the name the
  * button carries in `data-command`. Nothing here touches the DOM, so it is tested with a fake chain.
  */
+import {wrap} from "./keys.js"
 export const commands = {
   bold: {run: (c) => c.toggleBold(), active: (e) => e.isActive("bold")},
   italic: {run: (c) => c.toggleItalic(), active: (e) => e.isActive("italic")},
@@ -102,3 +103,7 @@ export function nextIndex(index, key, length) {
 export function sends(event) {
   return event.key === "Enter" && Boolean(event.metaKey || event.ctrlKey)
 }
+
+/** Where the arrow keys, Home and End take the focus on the toolbar: an index, or `null` for any other key. */
+export const toolbarTarget = (key, at, count) =>
+  ({ArrowRight: wrap(at, 1, count), ArrowLeft: wrap(at, -1, count), Home: 0, End: count - 1})[key] ?? null

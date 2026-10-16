@@ -20,6 +20,7 @@ import {
   sends,
   imageProblem,
   uploadError,
+  toolbarTarget,
 } from "./editor_logic.js"
 import {popup} from "./suggest.js"
 
@@ -82,7 +83,27 @@ export default {
     this.on("click", "[data-image]", () => this.el.querySelector("[data-image-input]")?.click())
     this.on("change", "[data-image-input]", (input) => this.upload(input))
     this.on("keydown", "[data-link-input]", (input, event) => this.linkKey(input, event))
+    this.setupToolbar()
     this.refresh()
+  },
+
+  tools() {
+    return [...this.el.querySelectorAll('[role="toolbar"] button, [role="toolbar"] select')]
+  },
+
+  rove(at) {
+    this.tools().forEach((tool, index) => (tool.tabIndex = index === at ? 0 : -1))
+  },
+
+  setupToolbar() {
+    const selector = '[role="toolbar"] button, [role="toolbar"] select'
+    this.rove(0)
+    this.on("focusin", selector, (tool) => this.rove(this.tools().indexOf(tool)))
+    this.on("keydown", selector, (tool, event) => {
+      const tools = this.tools()
+      const next = toolbarTarget(event.key, tools.indexOf(tool), tools.length)
+      next !== null && (tools[next].focus(), event.preventDefault())
+    })
   },
 
   suggestions() {

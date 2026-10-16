@@ -100,3 +100,12 @@ test("a comment is sent by command or control with enter, and by nothing else", 
   assert.equal(sends({key: "Enter"}), false)
   assert.equal(sends({key: "a", metaKey: true}), false)
 })
+
+test("the toolbar keys move round the tools, Home and End go to the ends, other keys are left alone", async () => {
+  const {toolbarTarget} = await import("./editor_logic.js")
+  assert.equal(toolbarTarget("ArrowRight", 2, 3), 0)
+  assert.equal(toolbarTarget("ArrowLeft", 0, 3), 2)
+  assert.equal(toolbarTarget("Home", 2, 3), 0)
+  assert.equal(toolbarTarget("End", 0, 3), 2)
+  assert.equal(toolbarTarget("a", 0, 3), null)
+})

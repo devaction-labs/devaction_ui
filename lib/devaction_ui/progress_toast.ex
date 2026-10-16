@@ -23,6 +23,7 @@ defmodule DevactionUI.ProgressToast do
   attr :rest, :global
 
   slot :icon, doc: "drawn before the title"
+  slot :close_icon, doc: "replaces the typographic × of the dismiss button"
   slot :inner_block, doc: "a line under the title: the step, or what went wrong"
 
   def progress_toast(assigns) do
@@ -41,6 +42,7 @@ defmodule DevactionUI.ProgressToast do
         {@rest}
       >
         <:icon :if={@icon != []}>{render_slot(@icon)}</:icon>
+        <:close_icon :if={@close_icon != []}>{render_slot(@close_icon)}</:close_icon>
         <:detail :if={@inner_block != []}>{render_slot(@inner_block)}</:detail>
       </.card>
     </Aura.aura>
@@ -57,6 +59,7 @@ defmodule DevactionUI.ProgressToast do
       {@rest}
     >
       <:icon :if={@icon != []}>{render_slot(@icon)}</:icon>
+      <:close_icon :if={@close_icon != []}>{render_slot(@close_icon)}</:close_icon>
       <:detail :if={@inner_block != []}>{render_slot(@inner_block)}</:detail>
     </.card>
     """
@@ -72,6 +75,7 @@ defmodule DevactionUI.ProgressToast do
   attr :class, :any, default: nil
   attr :rest, :global
   slot :icon
+  slot :close_icon
   slot :detail
 
   defp card(assigns) do
@@ -116,7 +120,7 @@ defmodule DevactionUI.ProgressToast do
         aria-label={@dismiss_label}
         class="relative shrink-0 rounded-md px-1.5 text-lg leading-none text-muted outline-none hover:text-ink focus-visible:ring-2 focus-visible:ring-ink/20"
       >
-        <span aria-hidden="true">×</span>
+        <span aria-hidden="true">{render_slot(@close_icon) || "×"}</span>
       </button>
     </div>
     """

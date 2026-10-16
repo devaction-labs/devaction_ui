@@ -37,6 +37,7 @@ defmodule DevactionUI.Stepper do
   end
 
   attr :rest, :global
+  slot :done_icon, doc: "replaces the typographic ✓ of a finished step"
 
   def stepper(%{orientation: :horizontal} = assigns) do
     ~H"""
@@ -48,7 +49,7 @@ defmodule DevactionUI.Stepper do
         aria-current={step.state == :current && "step"}
       >
         <span class="flex items-center gap-2.5">
-          <span class="step-dot">{dot(step.state, index)}</span>
+          <span class="step-dot">{dot(step.state, index) || render_slot(@done_icon) || "✓"}</span>
           <span class="flex min-w-0 flex-col">
             <span class="text-sm font-medium text-ink">
               {step.label}<span class="sr-only"> · {@state_labels[step.state]}</span>
@@ -71,7 +72,8 @@ defmodule DevactionUI.Stepper do
         aria-current={step.state == :current && "step"}
       >
         <span class="relative flex flex-col items-center">
-          <span class="step-dot" data-state={step.state}>{dot(step.state, index)}</span>
+          <span class="step-dot" data-state={step.state}>{dot(step.state, index) ||
+            render_slot(@done_icon) || "✓"}</span>
           <span
             :if={index < length(@step)}
             class={[
@@ -92,7 +94,7 @@ defmodule DevactionUI.Stepper do
     """
   end
 
-  defp dot(:done, _index), do: "✓"
+  defp dot(:done, _index), do: nil
   defp dot(:error, _index), do: "!"
   defp dot(_state, index), do: index
 end

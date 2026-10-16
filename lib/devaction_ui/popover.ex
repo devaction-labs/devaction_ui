@@ -20,7 +20,8 @@ defmodule DevactionUI.Popover do
 
   slot :trigger,
     required: true,
-    doc: "what is pressed; it gets the `button` role from the wrapper"
+    doc:
+      "what is pressed; the hook puts `aria-haspopup`, `aria-expanded` and `aria-controls` on the button or link inside it (or makes the wrapper a button when there is none)"
 
   slot :inner_block, required: true
 
@@ -37,10 +38,6 @@ defmodule DevactionUI.Popover do
     >
       <span
         data-trigger
-        aria-haspopup="dialog"
-        aria-expanded="false"
-        aria-controls={"#{@id}-panel"}
-        phx-mounted={JS.ignore_attributes(["aria-expanded"])}
         class="inline-flex"
       >
         {render_slot(@trigger)}

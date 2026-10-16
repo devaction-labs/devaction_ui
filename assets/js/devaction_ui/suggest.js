@@ -11,6 +11,14 @@ export function popup(id, row) {
   let items = []
   let index = 0
   let command = null
+  let field = null
+
+  const announce = (open) => {
+    field?.setAttribute("aria-expanded", String(open))
+    open && items.length > 0
+      ? field?.setAttribute("aria-activedescendant", `${id}-option-${index}`)
+      : field?.removeAttribute("aria-activedescendant")
+  }
 
   const draw = () => {
     box.replaceChildren(
@@ -29,6 +37,7 @@ export function popup(id, row) {
       })
     )
     box.hidden = items.length === 0
+    announce(!box.hidden)
   }
 
   const place = (props) => {
@@ -51,6 +60,8 @@ export function popup(id, row) {
       box = document.createElement("div")
       box.id = id
       box.setAttribute("role", "listbox")
+      field = props.editor.view.dom
+      field.setAttribute("aria-controls", id)
       box.className = "absolute z-[2000] w-64 overflow-hidden rounded-xl border border-line bg-card p-1 shadow-pop"
       document.body.appendChild(box)
       index = 0
@@ -65,6 +76,7 @@ export function popup(id, row) {
       }
       if (event.key === "Escape") {
         box.hidden = true
+        announce(false)
         return true
       }
       const next = nextIndex(index, event.key, items.length)
@@ -74,6 +86,9 @@ export function popup(id, row) {
       return true
     },
     onExit() {
+      field?.removeAttribute("aria-controls")
+      field?.removeAttribute("aria-activedescendant")
+      field?.setAttribute("aria-expanded", "false")
       box?.remove()
       box = null
     },
