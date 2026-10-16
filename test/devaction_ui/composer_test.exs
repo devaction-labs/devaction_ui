@@ -5,6 +5,7 @@ defmodule DevactionUI.ComposerTest do
   import Phoenix.LiveViewTest
 
   alias DevactionUI.Composer
+  alias DevactionUI.Editor
   alias Phoenix.LiveView.Socket
 
   defp has?(html, selector),
@@ -28,7 +29,17 @@ defmodule DevactionUI.ComposerTest do
   defp composer(extra \\ %{}) do
     assigns =
       Map.merge(
-        %{busy: false, upload: nil, change_event: nil, stop_event: nil, target: nil, value: ""},
+        %{
+          busy: false,
+          upload: nil,
+          change_event: nil,
+          stop_event: nil,
+          target: nil,
+          value: "",
+          suggest_event: nil,
+          edit_last_event: nil,
+          open: false
+        },
         extra
       )
 
@@ -47,8 +58,15 @@ defmodule DevactionUI.ComposerTest do
       stop_event={@stop_event}
       target={@target}
       value={@value}
+      suggest_event={@suggest_event}
+      edit_last_event={@edit_last_event}
       data-extra="yes"
     >
+      <:suggestions :if={@open}>
+        <Editor.suggest id="chat-suggest" label="Commands">
+          <:option title="Review" insert="/review">R</:option>
+        </Editor.suggest>
+      </:suggestions>
       <:icon>SEND-ICON</:icon>
       <:stop>STOP-ICON</:stop>
       <:leading>
@@ -187,5 +205,102 @@ defmodule DevactionUI.ComposerTest do
              html,
              "button.composer-file-remove[phx-click=drop][phx-value-ref='7'][phx-target='#panel'][aria-label='Remove notes.txt']"
            )
+  end
+
+  test "a file that is not an image shows its tag, name and detail" do
+    entry = %Phoenix.LiveView.UploadEntry{
+      ref: "8",
+      client_name: "Addendum 02.pdf",
+      client_type: "application/pdf",
+      progress: 100
+    }
+
+    assigns = %{entry: entry}
+
+    html =
+      rendered_to_string(~H"""
+      <Composer.file entry={@entry} remove_label="Remove" detail="1.8 MB">
+        <:icon>X</:icon>
+      </Composer.file>
+      """)
+
+    assert has?(html, ".composer-file-kind")
+    assert html =~ "PDF"
+    assert html =~ "Addendum 02.pdf"
+    assert html =~ "1.8 MB"
+    refute html =~ "100%"
+  end
+
+  test "the tag of a file can be given" do
+    entry = %Phoenix.LiveView.UploadEntry{
+      ref: "9",
+      client_name: "scan",
+      client_type: "application/pdf",
+      progress: 5
+    }
+
+    assigns = %{entry: entry}
+
+    html =
+      rendered_to_string(~H"""
+      <Composer.file entry={@entry} remove_label="Remove" kind="DOC">
+        <:icon>X</:icon>
+      </Composer.file>
+      """)
+
+    assert html =~ ">DOC<"
+    assert html =~ "5%"
+  end
+
+  test "the menus are off until a suggest event is named" do
+    assert attribute(composer(), "#chat", "data-suggest") == []
+
+    assert attribute(composer(%{suggest_event: "suggest"}), "#chat", "data-suggest") == [
+             "suggest"
+           ]
+  end
+
+  test "the list of suggestions is drawn above the card only while the server has one" do
+    refute has?(composer(), "[data-composer-suggest]")
+
+    html = composer(%{suggest_event: "suggest", open: true})
+
+    assert has?(
+             html,
+             "#chat [data-composer-suggest] [role=listbox] [role=option][data-insert='/review']"
+           )
+  end
+
+  test "the edit event of the up arrow is a push command, aimed at the target when there is one" do
+    assert attribute(composer(), "#chat", "data-edit-last") == []
+
+    assert [command] =
+             attribute(composer(%{edit_last_event: "edit_last"}), "#chat", "data-edit-last")
+
+    assert command =~ "edit_last"
+    refute command =~ "target"
+
+    assert [aimed] =
+             attribute(
+               composer(%{edit_last_event: "edit_last", target: "#panel"}),
+               "#chat",
+               "data-edit-last"
+             )
+
+    assert aimed =~ "#panel"
+  end
+
+  test "the mode chip is a dropdown of the chip variant" do
+    assigns = %{}
+
+    html =
+      rendered_to_string(~H"""
+      <DevactionUI.Dropdown.dropdown id="mode" label="Mode" variant={:chip} fixed>
+        <:trigger>Reviewer</:trigger>
+        <:item event="mode" value="strict" checked>Strict</:item>
+      </DevactionUI.Dropdown.dropdown>
+      """)
+
+    assert has?(html, "button[data-trigger].composer-picker")
   end
 end

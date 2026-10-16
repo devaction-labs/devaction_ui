@@ -1,0 +1,32 @@
+<%!-- title: Mode picker | text: The mode or model chip is a `Dropdown` with `variant={:chip}` in the `leading` slot; `fixed` keeps its menu from being cut by the card. --%>
+<div class="flex w-full max-w-xl flex-col gap-3 pt-40">
+  <Composer.composer
+    id="composer-modes"
+    event="composer_send"
+    label="Message"
+    send_label="Send"
+    stop_label="Stop"
+    placeholder="Ask the reviewer..."
+  >
+    <:leading>
+      <Dropdown.dropdown id="composer-mode" label="Mode" variant={:chip} fixed>
+        <:trigger>
+          <.icon name="sparkles" class="size-3.5" />
+          {@composer.modes[@composer.mode]}
+          <.icon name="arrow-down-01" class="size-3.5" />
+        </:trigger>
+        <:item
+          :for={{mode, label} <- Enum.sort(@composer.modes)}
+          event="composer_mode"
+          value={mode}
+          checked={@composer.mode == mode}
+        >
+          {label}
+        </:item>
+      </Dropdown.dropdown>
+    </:leading>
+    <:icon><.icon name="arrow-up-02" class="size-4" /></:icon>
+    <:stop><.icon name="stop" class="size-4" /></:stop>
+  </Composer.composer>
+  <p class="m-0 text-sm text-muted" aria-live="polite">Mode: {@composer.modes[@composer.mode]}</p>
+</div>
