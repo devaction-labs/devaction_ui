@@ -1,0 +1,39 @@
+<%!-- title: Bar and steps | text: The dark card with a bar along its base and a cancel, and the batch counted in stages --%>
+<div class="flex max-w-[420px] flex-col gap-4">
+  <ProgressToast.progress_toast
+    id="progress-toast-bar"
+    variant={:bar}
+    state={:running}
+    progress={64}
+    title="Uploading contract.pdf"
+    on_dismiss="dismiss_job"
+    dismiss_label="Close"
+  >
+    <:icon><.icon name="upload-04" class="size-5" /></:icon>
+    <:action><Button.button size={:sm} variant={:ghost}>Cancel</Button.button></:action>
+    12 of 19 MB
+  </ProgressToast.progress_toast>
+  <ProgressToast.progress_toast
+    id="progress-toast-steps"
+    variant={:steps}
+    state={:running}
+    progress={60}
+    title="Reviewing the batch of PRs"
+    on_dismiss="dismiss_job"
+    dismiss_label="Close"
+  >
+    Waiting for the next pull request
+  </ProgressToast.progress_toast>
+  <ProgressToast.progress_toast
+    id="progress-toast-still"
+    state={:running}
+    progress={30}
+    aura={false}
+    title="Without the ring of light"
+    on_dismiss="dismiss_job"
+    dismiss_label="Close"
+  >
+    <:icon :let={state}><.icon name="sparkles" class="size-4" data-state={state} /></:icon>
+    aura={false}
+  </ProgressToast.progress_toast>
+</div>

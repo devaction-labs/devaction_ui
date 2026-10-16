@@ -12,38 +12,32 @@ export const planLayout = ({count, expanded}) => {
   return {expanded: open, stacked: many && !expanded, showBar: open, showExpand: many && !expanded}
 }
 
-/** The inline style of the toast at `index` (0 is the newest) in a collapsed stack: the layers peek out below it. */
-export const layerStyle = (index) => ({
-  position: "absolute",
-  left: "0",
-  right: "0",
-  top: "0",
-  zIndex: String(10 - index),
-  transform: `translateY(${index * 8}px) scale(${1 - index * 0.05})`,
-  transformOrigin: "top center",
-  opacity: index > 2 ? "0" : String(1 - index * 0.2),
-  pointerEvents: "none",
-})
+/** A toast behind the front one of a collapsed stack is not drawn: the blocks of the group stand for it. */
+export const hiddenStyle = {display: "none", position: "", zIndex: ""}
 
-/** The newest toast sits on top of the layers behind it. */
-export const leadStyle = {position: "relative", left: "", right: "", top: "", zIndex: "20", transform: "", opacity: "", pointerEvents: ""}
+/** The front toast of a stack, above the blocks behind it. */
+export const leadStyle = {display: "", position: "relative", zIndex: "20"}
 
 /** A toast in a list (or alone): back to the normal flow. */
-export const flowStyle = {position: "", left: "", right: "", top: "", zIndex: "", transform: "", opacity: "", pointerEvents: ""}
+export const flowStyle = {display: "", position: "", zIndex: ""}
 
-/** The style of the toast at `index`: a layer behind the first, the first of a stack, or a normal one. */
+/** The style of the toast at `index`: hidden behind the first, the first of a stack, or a normal one. */
 export const styleFor = ({index, stacked}) =>
   decide(
     [
-      [(s) => s.stacked && s.index > 0, (s) => layerStyle(s.index)],
+      [(s) => s.stacked && s.index > 0, () => hiddenStyle],
       [(s) => s.stacked, () => leadStyle],
       [() => true, () => flowStyle],
     ],
     {index, stacked},
   )
 
-/** Extra space under a stack so the layers do not run into what is below: at most two layers show. */
-export const stackPadding = (count) => `${Math.min(count - 1, 2) * 8}px`
+/** Room under a collapsed stack for the two blocks that peek out below the front toast. */
+export const stackPadding = (count) => (count > 1 ? "20px" : "")
+
+/** The line of the group's bar: the heading when there is one, then the count written by `label`. */
+export const countText = ({heading, label, count}) =>
+  [heading, label.replace("__COUNT__", String(count))].filter(Boolean).join(" \u00b7 ")
 
 /** What Escape does: close an open list first, else close the toast the focus is on, else nothing. */
 export const escapeStep = ({expanded, focused}) =>

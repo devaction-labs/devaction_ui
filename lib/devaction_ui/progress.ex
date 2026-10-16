@@ -5,6 +5,10 @@ defmodule DevactionUI.Progress do
   steps of a job), `:thin` is the 4 px line of the work in the background, and `indeterminate` is for what
   has no end in sight: it shimmers (still, under reduced motion) and gives no value.
 
+  A segmented one can show where the work is: `current` is the piece in progress (1 is the first), drawn in
+  `current_tone` (amber), with the pieces before it done in `tone` and the ones after it still empty;
+  `segment_tones` gives each done piece its own tone (`[:ok, :ok, :warn]`).
+
   `size` is the thickness of a bar or a segmented one (`:md` 6 px, `:lg` 8 px); by default a bar is 6 px and a
   segmented one 8 px. `parts` draws one bar in several chunks, each with its own tone (what is done, what is
   in review). `value_label` is the text of the value (`3 of 5`, `69%`), drawn by `show_value` and read by
@@ -24,7 +28,25 @@ defmodule DevactionUI.Progress do
     default: :auto,
     doc: "thickness of a bar or a segmented one"
 
+  attr :gap, :atom,
+    values: [:md, :sm],
+    default: :md,
+    doc: "segmented: the space between pieces, 6 px (`:md`) or 4 px (`:sm`)"
+
   attr :segments, :integer, default: 5, doc: "how many pieces the segmented one has"
+
+  attr :current, :integer,
+    default: nil,
+    doc: "segmented: the piece in progress, counting from 1; the ones before it are done"
+
+  attr :current_tone, :atom,
+    values: [:neutral, :warn, :ok, :risk, :info, :indigo, :emerald],
+    default: :warn,
+    doc: "segmented: the tone of the piece in progress"
+
+  attr :segment_tones, :list,
+    default: [],
+    doc: "segmented: the tone of each done piece, in order; the ones past the list use `tone`"
 
   attr :parts, :list,
     default: [],
@@ -59,6 +81,10 @@ defmodule DevactionUI.Progress do
         variant={@variant}
         size={@size}
         segments={@segments}
+        gap={@gap}
+        current={@current}
+        current_tone={@current_tone}
+        segment_tones={@segment_tones}
         parts={@parts}
         indeterminate={@indeterminate}
         value_label={@value_label}
@@ -70,8 +96,9 @@ defmodule DevactionUI.Progress do
   end
 
   def progress(assigns) do
-    assigns = assign(assigns, :value, assigns.parts |> total(assigns.value) |> max(0) |> min(100))
+    assigns = assign(assigns, :value, value(assigns))
     assigns = assign(assigns, :chunks, chunks(assigns.parts, assigns.value, assigns.tone))
+    assigns = assign(assigns, :pieces, pieces(assigns))
 
     ~H"""
     <div
@@ -85,7 +112,7 @@ defmodule DevactionUI.Progress do
       class={[
         "flex w-full overflow-hidden rounded-full bg-line",
         height(@variant, @size),
-        @variant == :segmented && "gap-1.5 bg-transparent",
+        @variant == :segmented && ["bg-transparent", gap(@gap)],
         @class
       ]}
       {@rest}
@@ -95,12 +122,10 @@ defmodule DevactionUI.Progress do
         class="block h-full w-full animate-shimmer rounded-full bg-[linear-gradient(90deg,var(--line)_0,var(--line-strong)_50%,var(--line)_100%)] bg-[length:800px_100%] motion-reduce:animate-none"
       />
       <span
-        :for={index <- pieces(@indeterminate, @variant, @segments)}
-        data-filled={to_string(filled?(index, @segments, @value))}
-        class={[
-          "block h-full flex-1 rounded-full",
-          (filled?(index, @segments, @value) && Tone.fill(@tone)) || "bg-line"
-        ]}
+        :for={piece <- @pieces}
+        data-filled={to_string(piece.state != :todo)}
+        data-state={piece.state}
+        class={["block h-full flex-1 rounded-full", piece.class]}
       />
       <span
         :for={chunk <- bar_chunks(@indeterminate, @variant, @chunks)}
@@ -121,12 +146,39 @@ defmodule DevactionUI.Progress do
   defp chunks([], value, tone), do: [%{value: value, tone: tone}]
   defp chunks(parts, _value, tone), do: Enum.map(parts, &Map.put_new(&1, :tone, tone))
 
-  defp pieces(false, :segmented, segments), do: 1..segments//1
-  defp pieces(_indeterminate, _variant, _segments), do: []
+  defp value(%{variant: :segmented, current: current, segments: segments})
+       when is_integer(current),
+       do: ((current - 1) * 100) |> div(segments) |> max(0) |> min(100)
+
+  defp value(assigns), do: assigns.parts |> total(assigns.value) |> max(0) |> min(100)
+
+  defp pieces(%{indeterminate: false, variant: :segmented} = assigns),
+    do: Enum.map(1..assigns.segments//1, &piece(&1, assigns))
+
+  defp pieces(_assigns), do: []
+
+  defp piece(index, %{current: current} = assigns) when is_integer(current) do
+    piece(index, index - current, assigns)
+  end
+
+  defp piece(index, assigns) do
+    piece(index, (filled?(index, assigns.segments, assigns.value) && -1) || 1, assigns)
+  end
+
+  defp piece(_index, 0, assigns), do: %{state: :current, class: Tone.fill(assigns.current_tone)}
+  defp piece(_index, offset, _assigns) when offset > 0, do: %{state: :todo, class: "bg-line"}
+
+  defp piece(index, _offset, assigns) do
+    tone = Enum.at(assigns.segment_tones, index - 1) || assigns.tone
+    %{state: :done, class: Tone.fill(tone)}
+  end
 
   defp bar_chunks(true, _variant, _chunks), do: []
   defp bar_chunks(false, :segmented, _chunks), do: []
   defp bar_chunks(false, _variant, chunks), do: chunks
+
+  defp gap(:md), do: "gap-1.5"
+  defp gap(:sm), do: "gap-1"
 
   defp height(:thin, _size), do: "h-1"
   defp height(:bar, size) when size in [:auto, :md], do: "h-1.5"
