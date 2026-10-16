@@ -22,9 +22,15 @@ defmodule DevactionUISite.Changelog do
     {"data_table",
      "`sticky={:start}` and `sticky={:end}` pin the first column and the actions while the table scrolls sideways, with a shadow only on the side that has content behind it."},
     {"breadcrumb",
-     "`home`, `home_label` and a `home_icon` slot put a link to the start of the app before the first item."},
+     "`home`, `home_label` and a `home_icon` slot put a link to the start of the app before the first item; `underline={false}` quiets the links of the trail in a shell header."},
     {"page_header",
-     "`toolbar` and `toolbar_end` slots: a row under the tabs for the search, the filters and the count of results."}
+     "`toolbar` and `toolbar_end` slots: a row under the tabs for the search, the filters and the count of results; `size={:md}` is the 28px title of a page inside an app shell."},
+    {"shell",
+     "`sidebar_search/1` for a search field under the head and `sidebar_user/1` for the account card at the foot; both collapse with the rail."},
+    {"tabs",
+     "An `icon` slot, `counts={:chip}` for the count in a small box, `size={:sm}` for the 14px line tab of an app, and a tab with no content gets an empty panel."},
+    {"avatar",
+     "`initials` overrides the letters and the `:ink` tone is the solid avatar of the signed-in person."}
   ]
 
   @improved [
@@ -331,7 +337,7 @@ defmodule DevactionUISite.Changelog do
       end
 
     templates =
-      for group <- Templates.groups(), do: {"0.1", "Templates", group.slug, group.summary}
+      for group <- Templates.groups(), do: {group.since, "Templates", group.slug, group.summary}
 
     released =
       for {since, rows} <- Enum.group_by(components ++ templates, &elem(&1, 0)),

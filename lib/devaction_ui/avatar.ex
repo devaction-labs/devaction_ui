@@ -29,10 +29,15 @@ defmodule DevactionUI.Avatar do
     required: true,
     doc: "the person (or the workspace); the letters come from it"
 
+  attr :initials, :string,
+    default: nil,
+    doc: "the letters drawn, when they should not be the ones of the name (a single letter)"
+
   attr :tone, :atom,
-    values: [:auto, :ok, :warn, :risk, :info, :neutral],
+    values: [:auto, :ink, :ok, :warn, :risk, :info, :neutral],
     default: :neutral,
-    doc: "`:auto` takes one of four colours from a stable hash of the name"
+    doc:
+      "`:auto` takes one of four colours from a stable hash of the name; `:ink` is the solid ink of whoever the screen is about"
 
   attr :size, :atom,
     values: [:xs, :sm, :md, :lg, :xl],
@@ -76,7 +81,7 @@ defmodule DevactionUI.Avatar do
       <span :if={@icon != []} aria-hidden="true" class="size-[45%] [&>*]:size-full">
         {render_slot(@icon)}
       </span>
-      <span :if={@icon == []} aria-hidden="true">{initials(@name)}</span><span class="sr-only">{@name}</span>
+      <span :if={@icon == []} aria-hidden="true">{@initials || initials(@name)}</span><span class="sr-only">{@name}</span>
       <.status_dot :if={@status} status={@status} label={@status_label} size={@size} />
     </span>
     """
@@ -172,12 +177,15 @@ defmodule DevactionUI.Avatar do
   defp edge_class(false, tone, name), do: ["border", surface(tone, name)]
 
   defp surface(:auto, name), do: ["border-transparent", tint(:auto, name)]
+  defp surface(:ink, _name), do: "border-transparent bg-ink"
   defp surface(tone, _name), do: Tone.surface(tone)
 
   defp text_class(:auto, name), do: name |> bucket() |> palette_text()
+  defp text_class(:ink, _name), do: "text-card"
   defp text_class(tone, _name), do: Tone.text(tone)
 
   defp tint(:auto, name), do: name |> bucket() |> palette_fill()
+  defp tint(:ink, _name), do: "bg-ink"
   defp tint(:risk, _name), do: "bg-tag-risk-bg"
   defp tint(:warn, _name), do: "bg-tag-warn-bg"
   defp tint(:ok, _name), do: "bg-tag-ok-bg"

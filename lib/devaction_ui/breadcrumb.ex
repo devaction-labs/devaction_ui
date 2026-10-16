@@ -44,6 +44,11 @@ defmodule DevactionUI.Breadcrumb do
     default: nil,
     doc: "names the home link; required whenever `home` is set"
 
+  attr :underline, :boolean,
+    default: true,
+    doc:
+      "underlines the links of the trail; `false` for the quiet trail in the header of a `Shell`"
+
   attr :class, :any, default: nil
   attr :rest, :global
   slot :home_icon, doc: "the icon of the home link; a typographic glyph when empty"
@@ -66,6 +71,7 @@ defmodule DevactionUI.Breadcrumb do
             collapsed_label={@collapsed_label}
             home_label={@home_label}
             home_icon={@home_icon}
+            underline={@underline}
           />
         </li>
       </ol>
@@ -121,6 +127,7 @@ defmodule DevactionUI.Breadcrumb do
   attr :collapsed_label, :string, required: true
   attr :home_label, :string, required: true
   attr :home_icon, :list, required: true
+  attr :underline, :boolean, required: true
 
   defp entry(%{entry: {:home, path}} = assigns) do
     assigns = assign(assigns, :path, path)
@@ -142,7 +149,7 @@ defmodule DevactionUI.Breadcrumb do
     assigns = assign(assigns, item: item, current: current)
 
     ~H"""
-    <.crumb item={@item} current={@current} />
+    <.crumb item={@item} current={@current} underline={@underline} />
     """
   end
 
@@ -159,7 +166,7 @@ defmodule DevactionUI.Breadcrumb do
       </summary>
       <ol class="absolute start-0 z-40 mt-1.5 flex min-w-40 list-none flex-col gap-1 rounded-[14px] border border-line bg-card p-2 shadow-pop">
         <li :for={item <- @hidden}>
-          <.crumb item={item} current={false} />
+          <.crumb item={item} current={false} underline={@underline} />
         </li>
       </ol>
     </details>
@@ -168,6 +175,7 @@ defmodule DevactionUI.Breadcrumb do
 
   attr :item, :map, required: true
   attr :current, :boolean, required: true
+  attr :underline, :boolean, required: true
 
   defp crumb(assigns) do
     assigns = assign(assigns, :link, link_attrs(assigns.item))
@@ -178,7 +186,8 @@ defmodule DevactionUI.Breadcrumb do
       {@link}
       aria-current={@current && "page"}
       class={[
-        "rounded-sm underline underline-offset-2 outline-none hover:text-ink focus-visible:ring-4 focus-visible:ring-ink/10",
+        "rounded-sm outline-none hover:text-ink focus-visible:ring-4 focus-visible:ring-ink/10",
+        @underline && "underline underline-offset-2",
         (@current && "text-ink") || "text-muted"
       ]}
     >
