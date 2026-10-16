@@ -91,6 +91,7 @@ defmodule DevactionUISite.HomeChangelogTest do
       assert has_element?(view, "[data-filter=planned]", "1")
       assert has_element?(view, "[data-filter=breaking]", "#{counts["breaking"]}")
       assert has_element?(view, "#v03[data-release]", "no date")
+      assert has_element?(view, "#v026[data-release]", "tag v0.2.6")
       assert has_element?(view, "#v025[data-release]", "tag v0.2.5")
       assert has_element?(view, "#v024[data-release]", "tag v0.2.4")
       assert has_element?(view, "#v023[data-release]", "tag v0.2.3")
@@ -104,7 +105,7 @@ defmodule DevactionUISite.HomeChangelogTest do
       {:ok, view, html} = live(build_conn(), "/changelog")
 
       assert html =~ "{:devaction_ui, &quot;~&gt; 0.2.0&quot;}"
-      assert has_element?(view, "#v025 [data-copy-text*='~> 0.2.0']")
+      assert has_element?(view, "#v026 [data-copy-text*='~> 0.2.0']")
 
       for group <- ~w(Base Overlay Form Data) do
         assert has_element?(view, "#v020-#{String.downcase(group)}[data-group]", group)
