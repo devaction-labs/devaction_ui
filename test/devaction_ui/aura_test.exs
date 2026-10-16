@@ -76,6 +76,37 @@ defmodule DevactionUI.AuraTest do
       assert has?(md, "#a.p-0\\.5")
     end
 
+    test "the fast speed is the chip's 1.4 s, for the ring and for the dual one" do
+      assigns = %{}
+
+      for variant <- [:spin, :dual] do
+        assigns = Map.put(assigns, :variant, variant)
+
+        html =
+          rendered_to_string(~H"""
+          <Aura.aura id="a" variant={@variant} speed={:fast}>x</Aura.aura>
+          """)
+
+        assert has?(html, "#a.animate-aura-spin-fast"), "#{variant}"
+      end
+    end
+
+    test "no colour is fixed: the ring follows the tone and the trail the line token, in both themes" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Aura.aura id="a" variant={:dual} tone={:ai}>x</Aura.aura>
+        <Aura.aura id="b" variant={:spin} tone={:risk}>x</Aura.aura>
+        """)
+
+      assert html =~ "var(--line)"
+      assert html =~ "currentColor"
+      refute html =~ ~r/#[0-9A-Fa-f]{3,6}[^\w]/
+      assert has?(html, "#a.text-ai")
+      assert has?(html, "#b.text-missing")
+    end
+
     test "all of it stops under reduced motion" do
       assigns = %{}
 
