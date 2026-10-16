@@ -47,6 +47,10 @@
   background-color: var(--site-pv-bg);
 }
 
+.site-pv:has([role="dialog"]) {
+  z-index: 60;
+}
+
 :root[data-theme="dark"] .site-pv[data-flip="true"] {
   color-scheme: light;
 }
