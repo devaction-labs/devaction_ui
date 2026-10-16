@@ -179,7 +179,7 @@ defmodule DevactionUISite.DocsLiveTest do
     test "the header shows the version of the package" do
       {:ok, view, _html} = live(build_conn(), "/docs")
 
-      assert has_element?(view, "#topbar", "v#{Project.short_version()}")
+      assert has_element?(view, "#topbar", "v#{Project.version()}")
       assert Project.version() =~ ~r/\A\d+\.\d+\.\d+/
     end
 

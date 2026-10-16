@@ -9,7 +9,7 @@ defmodule DevactionUISite.ChangelogHTML do
   import DevactionUISite.Icon
 
   alias DevactionUI.Tag
-  alias DevactionUISite.{Catalog, Changelog, Templates}
+  alias DevactionUISite.{Catalog, Changelog, Dedication, Templates}
 
   @filters [
     {"all", "All"},
@@ -141,9 +141,7 @@ defmodule DevactionUISite.ChangelogHTML do
           </div>
         </div>
 
-        <p class="m-0 mx-auto max-w-[1200px] px-5 pb-12 pt-4 text-center text-[13px] text-(--cl-ink-2)">
-          Toda honra e glória ao Senhor Jesus.
-        </p>
+        <Dedication.dedication class="mx-auto max-w-[1200px] px-5 pb-12 pt-4 text-center text-[13px]" />
       </main>
     </div>
     """

@@ -9,7 +9,7 @@ defmodule DevactionUISite.HomeHTML do
 
   import DevactionUISite.Icon
 
-  alias DevactionUISite.{Catalog, Changelog, Project, Templates}
+  alias DevactionUISite.{Catalog, Changelog, Dedication, Project, Templates}
 
   @github "https://github.com/devaction-labs/devaction_ui"
 
@@ -108,6 +108,7 @@ defmodule DevactionUISite.HomeHTML do
         rows: @rows,
         tags: @tags,
         current: current,
+        release: Changelog.latest_release(versions) || current,
         highlights: Changelog.highlights(Changelog.latest_release(versions)),
         next_line: next_line(next),
         github: @github
@@ -317,10 +318,10 @@ defmodule DevactionUISite.HomeHTML do
             <div class="border-b border-p-hair p-7 lg:border-b-0 lg:border-r">
               <p class="site-eyebrow">CHANGELOG</p>
               <h2 class="m-0 mt-2.5 text-[24px] font-semibold tracking-[-0.02em]">
-                {@current.version} · first release
+                {@release.version} · new components
               </h2>
               <p class="m-0 mt-2 text-[14px] leading-[1.55] text-soft">
-                First public release of the kit, used in DevAction IA and in client projects.
+                {@release.summary}
               </p>
               <.link
                 navigate="/changelog"
@@ -349,7 +350,7 @@ defmodule DevactionUISite.HomeHTML do
         <span class="sm:ml-auto">Phoenix LiveView 1.1+ · Tailwind v4 · Geist</span>
         <.link navigate="/changelog" class="underline hover:text-ink">Changelog</.link>
         <a href={@github} class="underline hover:text-ink">GitHub</a>
-        <p class="m-0 basis-full pt-5 text-center">Toda honra e glória ao Senhor Jesus.</p>
+        <Dedication.dedication class="basis-full pt-5 text-center" />
       </footer>
     </div>
     """

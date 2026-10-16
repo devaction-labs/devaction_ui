@@ -88,7 +88,7 @@ new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
     <Shell.shell page={assigns} toc={@toc} toc_key={@toc_key}>
       <.content live_action={@live_action} topic={@topic} page_assigns={assigns} />
       <:rail :if={@live_action == :topic}>
-        <.history_cards />
+        <.history_cards topic={@topic} />
       </:rail>
     </Shell.shell>
     """
@@ -448,6 +448,8 @@ new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
     """
   end
 
+  attr :topic, :map, required: true
+
   defp history_cards(assigns) do
     ~H"""
     <div class="flex flex-col gap-4">
@@ -461,7 +463,7 @@ new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
         <div class="mt-2.5 rounded-xl border border-line bg-card p-3">
           <p class="m-0 flex items-center gap-2 text-ink-2">
             <Tag.tag variant={:ok} size={:sm} case={:normal} class="rounded-[5px]! px-1.5!">
-              v{Project.short_version()}
+              v{Catalog.since(@topic)}.0
             </Tag.tag>
             Component created
           </p>

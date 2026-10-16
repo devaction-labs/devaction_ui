@@ -2,6 +2,12 @@
 
 Every release lists new components, improvements, fixes and breaking changes. While the version is 0.x a minor release may break compatibility, and every break is listed with the step to follow.
 
+## 0.2.6
+
+### Improved
+
+- The site shows the full version (v0.2.6) in the header chips and the component history, and the dedication in the footer is in English with a soft glow that passes between the letters. The package itself is unchanged since 0.2.3.
+
 ## 0.2.5
 
 ### Improved
