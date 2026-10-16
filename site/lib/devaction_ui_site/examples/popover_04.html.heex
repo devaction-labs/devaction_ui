@@ -1,0 +1,21 @@
+<%!-- title: Beside the trigger | text: To the right and to the left; the hook flips it when there is no room --%>
+<div class="flex items-center justify-between gap-6 py-6">
+  <Popover.popover id="popover-left" label="Left note" placement={:left} panel_class="w-56">
+    <:trigger>
+      <Button.button variant={:secondary} size={:sm}>Opens to the left</Button.button>
+    </:trigger>
+    <p class="m-0 text-sm text-ink-2">Anchored to the top edge of the trigger.</p>
+  </Popover.popover>
+  <Popover.popover
+    id="popover-right"
+    label="Right note"
+    placement={:right}
+    align={:end}
+    panel_class="w-56"
+  >
+    <:trigger>
+      <Button.button variant={:secondary} size={:sm}>Opens to the right</Button.button>
+    </:trigger>
+    <p class="m-0 text-sm text-ink-2">Anchored to the bottom edge of the trigger.</p>
+  </Popover.popover>
+</div>
