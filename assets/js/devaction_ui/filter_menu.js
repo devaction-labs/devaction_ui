@@ -1,5 +1,6 @@
-import {counts, pendingCount, resetAction, submenuSide} from "./filter_logic.js"
+import {counts, pendingCount, resetAction} from "./filter_logic.js"
 import {runKey, wrap} from "./keys.js"
+import {roomAround, screenSize, submenuSide} from "./placement.js"
 
 /**
  * A button that opens a menu of groups; a group opens a submenu of ticks (checkboxes or radios). Ticking
@@ -89,8 +90,8 @@ export default {
     const row = this.el.querySelector(`[data-submenu-trigger="${id}"]`)
     sub.style.top = `${row.offsetTop - 6}px`
     const panel = this.menu.getBoundingClientRect()
-    const room = {panel: sub.offsetWidth, left: panel.left, right: window.innerWidth - panel.right}
-    sub.dataset.side = submenuSide(sub.dataset.align, room)
+    const {left, right} = roomAround(panel, screenSize())
+    sub.dataset.side = submenuSide(sub.dataset.align, {panel: sub.offsetWidth, left, right})
     focus && this.items(sub)[0]?.focus()
   },
 

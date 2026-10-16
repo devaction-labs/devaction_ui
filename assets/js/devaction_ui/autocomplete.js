@@ -1,6 +1,5 @@
 import {isExpanded, selectedStates} from "./autocomplete_logic.js"
-import {keyName, runKey, wrap} from "./keys.js"
-import {nextTab} from "./tabs_logic.js"
+import {keyName, nextTab, runKey, wrap} from "./keys.js"
 
 /**
  * The keys of an autocomplete: ↑ ↓ move the active row (round the list), Enter opens it (rows are links),

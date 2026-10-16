@@ -1,4 +1,4 @@
-import {clampPair, fillBox, fillStyle, fraction, pairText, valueText} from "./range_logic.js"
+import {clampPair, fillBox, fillStyle, fraction, pairText, valueText} from "./numbers.js"
 
 /**
  * Two range inputs on one track (`data-low` and `data-high`): the thumb being dragged stops at the other one,

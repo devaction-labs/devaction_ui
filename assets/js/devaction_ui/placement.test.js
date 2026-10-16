@@ -1,6 +1,6 @@
 import test from "node:test"
 import assert from "node:assert/strict"
-import {arrowShift, chooseSide, clampShift, fixedCorner, flipSide, tabExit} from "./popover_logic.js"
+import {arrowShift, chooseSide, clampShift, fixedCorner, flipSide, placeTip, submenuSide} from "./placement.js"
 
 test("it opens where asked when there is room", () => {
   assert.equal(chooseSide("bottom", {panel: 200, above: 100, below: 400}), "bottom")
@@ -78,10 +78,50 @@ test("a fixed panel wider than the room right of the trigger is pulled back insi
   assert.equal(corner.shiftX, -128)
 })
 
-test("Tab at the last control leaves forward, Shift+Tab at the first returns to the trigger", () => {
-  const ends = {first: "a", last: "z"}
-  assert.equal(tabExit({shift: false, active: "z", ...ends}), "forward")
-  assert.equal(tabExit({shift: true, active: "a", ...ends}), "back")
-  assert.equal(tabExit({shift: false, active: "m", ...ends}), null)
-  assert.equal(tabExit({shift: true, active: "m", ...ends}), null)
+const viewport = {width: 1000, height: 800}
+const at = (left, top, size = 40) => ({left, top, right: left + size, bottom: top + size})
+const tip = {width: 100, height: 30}
+
+test("a hint with room stays on the side asked for, centered", () => {
+  assert.deepEqual(placeTip("top", {tip, trigger: at(480, 400), viewport}), {side: "top", shift: 0, arrow: 0})
 })
+
+test("a hint with no room on its side flips to the opposite one, when that has more", () => {
+  assert.equal(placeTip("top", {tip, trigger: at(480, 10), viewport}).side, "bottom")
+  assert.equal(placeTip("left", {tip, trigger: at(20, 400), viewport}).side, "right")
+  assert.equal(placeTip("bottom", {tip, trigger: at(480, 760), viewport}).side, "top")
+  assert.equal(placeTip("right", {tip, trigger: at(940, 400), viewport}).side, "left")
+})
+
+test("it does not flip when the other side is no better", () => {
+  const short = {width: 1000, height: 40}
+  assert.equal(placeTip("top", {tip: {width: 100, height: 60}, trigger: at(480, 10), viewport: short}).side, "top")
+})
+
+test("a hint that would leave the screen is pushed back and the arrow goes the other way", () => {
+  assert.deepEqual(placeTip("top", {tip, trigger: at(0, 400), viewport}), {side: "top", shift: 38, arrow: -38})
+  assert.deepEqual(placeTip("bottom", {tip, trigger: at(960, 400), viewport}), {side: "bottom", shift: -38, arrow: 38})
+})
+
+test("on the left and right the hint is pushed along the vertical edge", () => {
+  assert.deepEqual(placeTip("left", {tip, trigger: at(500, 0), viewport}), {side: "left", shift: 3, arrow: -3})
+})
+
+test("the arrow never leaves the hint", () => {
+  assert.equal(placeTip("top", {tip, trigger: at(-200, 400, 10), viewport}).arrow, -38)
+})
+
+test("a submenu stays on its side when it fits", () => {
+  assert.equal(submenuSide("right", {panel: 236, left: 100, right: 400}), "right")
+  assert.equal(submenuSide("left", {panel: 236, left: 400, right: 100}), "left")
+})
+
+test("a submenu goes to the other side when it does not fit and the other has more room", () => {
+  assert.equal(submenuSide("right", {panel: 236, left: 500, right: 100}), "left")
+  assert.equal(submenuSide("left", {panel: 236, left: 100, right: 500}), "right")
+})
+
+test("a submenu stays when neither side has room", () => {
+  assert.equal(submenuSide("right", {panel: 236, left: 50, right: 100}), "right")
+})
+

@@ -1,5 +1,6 @@
 import {runKey} from "./keys.js"
-import {FOCUSABLE, dismissesOnTap, placeTip, withDescription} from "./tooltip_logic.js"
+import {placeTip, screenSize} from "./placement.js"
+import {FOCUSABLE, dismissesOnTap, withDescription} from "./tooltip_logic.js"
 
 /**
  * The part of `Tooltip` that CSS cannot do: it points the first focusable control inside the trigger at the
@@ -35,7 +36,7 @@ export default {
     const {side, shift, arrow} = placeTip(this.tip.dataset.placement, {
       tip: {width: this.tip.offsetWidth, height: this.tip.offsetHeight},
       trigger: this.el.getBoundingClientRect(),
-      viewport: {width: window.innerWidth, height: window.innerHeight},
+      viewport: screenSize(),
     })
     this.tip.dataset.side = side
     this.tip.style.setProperty("--tip-shift", `${shift}px`)

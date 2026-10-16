@@ -1,5 +1,19 @@
-import {keyName} from "./keys.js"
-import {nextTab, resolveSelection} from "./tabs_logic.js"
+import {nextTab, runKey} from "./keys.js"
+
+const TAB_KEYS = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"]
+
+/**
+ * Which tab is selected after the server patched the tabs. The tab the person chose in the browser stays,
+ * unless the server has since changed its own selection (then the server wins) or that tab is gone.
+ *
+ * @param {{chosen: string, lastServer: string, server: string, ids: string[]}} state `chosen` is `""` when the
+ *   person has not chosen; `lastServer` and `server` are the server's selection before and after the patch
+ * @returns {{selected: string, chosen: string, lastServer: string}}
+ */
+export const resolveSelection = ({chosen, lastServer, server, ids}) =>
+  chosen && server === lastServer && ids.includes(chosen)
+    ? {selected: chosen, chosen, lastServer: server}
+    : {selected: server, chosen: "", lastServer: server}
 
 /**
  * Tabs that switch panels on the client. ← → (↑ ↓ in a vertical list) move the selection round the list, Home and End jump to the
@@ -43,9 +57,13 @@ export default {
     if (!event.target.closest('[role="tablist"]')) return
     const tabs = this.tabs()
     const current = tabs.findIndex((tab) => tab.getAttribute("aria-selected") === "true")
-    const target = tabs[nextTab(keyName(event), current, tabs.length, this.layout(event))]
+    const layout = this.layout(event)
+    const go = (key) => () => {
+      const target = tabs[nextTab(key, current, tabs.length, layout)]
+      return target ? this.go(target) : false
+    }
 
-    target && this.go(event, target)
+    runKey(Object.fromEntries(TAB_KEYS.map((key) => [key, go(key)])), event)
   },
 
   layout(event) {
@@ -56,8 +74,7 @@ export default {
     }
   },
 
-  go(event, target) {
-    event.preventDefault()
+  go(target) {
     this.select(target)
     target.focus()
   },

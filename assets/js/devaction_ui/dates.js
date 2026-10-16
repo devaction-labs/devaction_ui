@@ -67,7 +67,7 @@ const moves = {
 
 export const moveFocus = (key, iso, weekStart) => moves[key]?.(iso, weekStart)
 
-import {decide} from "./rules.js"
+import {decide} from "./keys.js"
 
 /** The rules of a range, tried in order: the first whose test passes decides the new range. */
 const rangeRules = [

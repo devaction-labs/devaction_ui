@@ -1,4 +1,4 @@
-import {fraction, percent, valueText} from "./range_logic.js"
+import {fraction, percent, valueText} from "./numbers.js"
 
 /**
  * Paints a single range input as it is dragged: the server sets `--p` (the filled part) and the bubble's `--f`

@@ -1,5 +1,5 @@
 import {runKey} from "./keys.js"
-import {NUMBER_KEYS, clampText, keyDelta, parseLimit, scaled} from "./number_logic.js"
+import {NUMBER_KEYS, clampText, keyDelta, parseLimit, scaled} from "./numbers.js"
 
 /**
  * The spinbutton keys of a `NumberInput`: ArrowUp/ArrowDown move a step, PageUp/PageDown ten, Home/End go to the

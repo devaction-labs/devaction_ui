@@ -1,4 +1,4 @@
-import {decide} from "./rules.js"
+import {decide} from "./keys.js"
 
 /**
  * How a group of toasts is laid out. With more than one it is either a stack of layers (collapsed) or a

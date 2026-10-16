@@ -26,24 +26,6 @@ export function pendingCount(draft, applied) {
   return [...now].filter((key) => !before.has(key)).length + [...before].filter((key) => !now.has(key)).length
 }
 
-/** How much room a submenu wants beyond its own width before it is moved to the other side. */
-const MARGIN = 12
-
-/**
- * The side a submenu opens on: the one asked for, unless it does not fit there and the other side has more
- * room.
- *
- * @param {"left" | "right"} wanted
- * @param {{panel: number, left: number, right: number}} room widths, in pixels
- */
-export const submenuSide = (wanted, {panel, left, right}) => {
-  const rules = {
-    right: right < panel + MARGIN && left > right ? "left" : "right",
-    left: left < panel + MARGIN && right > left ? "right" : "left",
-  }
-  return rules[wanted]
-}
-
 /**
  * What Clear does after it unticks everything: `"submit"` sends the form (the empty filters are applied), and
  * anything else only tells the form it changed, as a tick does.

@@ -1,5 +1,4 @@
-import {runKey} from "./keys.js"
-import {move, tabStop} from "./segmented_logic.js"
+import {moveSegment, runKey, tabStop} from "./keys.js"
 
 /**
  * Arrow keys for a segmented control without changing what it is: the segments stay toggle buttons with
@@ -47,7 +46,7 @@ export default {
   key(event) {
     const segments = this.segments()
     const from = segments.indexOf(event.target.closest("button"))
-    const target = segments[move(this.items(), from, event.key)]
+    const target = segments[moveSegment(this.items(), from, event.key)]
     const go = () => {
       if (!target) return false
       this.rove(segments.indexOf(target))
