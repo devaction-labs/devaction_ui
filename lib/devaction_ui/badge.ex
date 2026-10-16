@@ -19,7 +19,7 @@ defmodule DevactionUI.Badge do
     <span
       class={[
         "inline-flex h-[22px] min-w-[22px] items-center justify-center rounded-full px-[7px] text-xs font-semibold",
-        (@tone == :risk && "bg-missing text-white") || "bg-ink text-on-primary",
+        (@tone == :risk && "bg-missing text-on-finding") || "bg-ink text-on-primary",
         @class
       ]}
       {@rest}
