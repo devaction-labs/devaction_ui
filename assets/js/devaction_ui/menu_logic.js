@@ -101,3 +101,14 @@ export const isExpanded = ({hasList, visible, options}) => hasList && visible &&
  * @returns {string[]}
  */
 export const selectedStates = (count, active) => Array.from({length: count}, (_, index) => String(index === active))
+
+/** Whether a key press asks for the context menu: the menu key, or Shift + F10. */
+export const asksForContextMenu = (event) => event.key === "ContextMenu" || (event.key === "F10" && event.shiftKey)
+
+/**
+ * The point a context menu opens at when the keyboard asks for it: near the start of the focused element and a
+ * little above its lower edge, so the menu hangs from the element and not from the middle of the screen.
+ *
+ * @param {{left: number, top: number, width: number, height: number}} rect the focused element
+ */
+export const keyboardAnchor = (rect) => ({x: rect.left + Math.min(rect.width / 2, 32), y: rect.top + rect.height - 4})

@@ -1,6 +1,6 @@
 import test from "node:test"
 import assert from "node:assert/strict"
-import {arrowShift, chooseSide, clampShift, fixedCorner, flipSide, placeTip, submenuSide} from "./placement.js"
+import {arrowShift, chooseSide, clampShift, fixedCorner, flipSide, placeAtPoint, placeTip, submenuSide} from "./placement.js"
 
 test("it opens where asked when there is room", () => {
   assert.equal(chooseSide("bottom", {panel: 200, above: 100, below: 400}), "bottom")
@@ -125,3 +125,16 @@ test("a submenu stays when neither side has room", () => {
   assert.equal(submenuSide("right", {panel: 236, left: 50, right: 100}), "right")
 })
 
+
+test("placeAtPoint opens at the point when the panel fits", () => {
+  assert.deepEqual(placeAtPoint({x: 100, y: 50}, {width: 200, height: 300}, {width: 1000, height: 800}), {left: 100, top: 50})
+})
+
+test("placeAtPoint opens to the left and upwards when the panel would leave the screen", () => {
+  assert.deepEqual(placeAtPoint({x: 900, y: 700}, {width: 200, height: 300}, {width: 1000, height: 800}), {left: 700, top: 400})
+})
+
+test("placeAtPoint never leaves the screen, even when the panel is larger than it", () => {
+  assert.deepEqual(placeAtPoint({x: 20, y: 20}, {width: 2000, height: 2000}, {width: 1000, height: 800}), {left: 8, top: 8})
+  assert.deepEqual(placeAtPoint({x: 5, y: 790}, {width: 200, height: 2000}, {width: 1000, height: 800}), {left: 8, top: 8})
+})

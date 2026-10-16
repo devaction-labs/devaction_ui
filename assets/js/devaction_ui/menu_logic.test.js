@@ -1,6 +1,6 @@
 import assert from "node:assert/strict"
 import test from "node:test"
-import {buttonView, closesOnSelect, counts, extendBuffer, isExpanded, isTypeahead, matchIndex, pendingCount, resetAction, selectedStates} from "./menu_logic.js"
+import {asksForContextMenu, buttonView, closesOnSelect, counts, extendBuffer, isExpanded, isTypeahead, keyboardAnchor, matchIndex, pendingCount, resetAction, selectedStates} from "./menu_logic.js"
 
 const key = (key, extra = {}) => ({key, ctrlKey: false, metaKey: false, altKey: false, ...extra})
 
@@ -123,4 +123,16 @@ test("exactly the active row is selected", () => {
   assert.deepEqual(selectedStates(3, 1), ["false", "true", "false"])
   assert.deepEqual(selectedStates(2, -1), ["false", "false"])
   assert.deepEqual(selectedStates(0, 0), [])
+})
+
+test("the menu key and Shift + F10 ask for the context menu, other keys do not", () => {
+  assert.equal(asksForContextMenu({key: "ContextMenu", shiftKey: false}), true)
+  assert.equal(asksForContextMenu({key: "F10", shiftKey: true}), true)
+  assert.equal(asksForContextMenu({key: "F10", shiftKey: false}), false)
+  assert.equal(asksForContextMenu({key: "Enter", shiftKey: true}), false)
+})
+
+test("the keyboard opens the menu hanging from the start of the focused element", () => {
+  assert.deepEqual(keyboardAnchor({left: 100, top: 200, width: 400, height: 44}), {x: 132, y: 240})
+  assert.deepEqual(keyboardAnchor({left: 100, top: 200, width: 20, height: 44}), {x: 110, y: 240})
 })

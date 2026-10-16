@@ -13,6 +13,7 @@ import Calendar from "./calendar.js"
 import ColorPicker from "./color_picker.js"
 import CodeCopy from "./code_copy.js"
 import Combobox from "./combobox.js"
+import ContextMenu from "./context_menu.js"
 import Dropdown from "./dropdown.js"
 import Editor from "./editor.js"
 import Dropzone from "./dropzone.js"
@@ -21,13 +22,16 @@ import DataTable from "./data_table.js"
 import DateInput from "./date_input.js"
 import DatePicker from "./date_picker.js"
 import FilterMenu from "./filter_menu.js"
+import HoverCard from "./hover_card.js"
 import {Indeterminate, NumberInput, Range, RangePair, Segmented, Switch} from "./controls.js"
 import Kanban from "./kanban.js"
 import Overlay from "./overlay.js"
 import Pillbox from "./pillbox.js"
 import Popover from "./popover.js"
 import ProgressToast from "./progress_toast.js"
+import Resizable from "./resizable.js"
 import Signature from "./signature.js"
+import Sortable from "./sortable.js"
 import Tabs from "./tabs.js"
 import Timer from "./timer.js"
 import ToastGroup from "./toast_group.js"
@@ -39,6 +43,7 @@ export const hooks = {
   "DevactionUI.ColorPicker": ColorPicker,
   "DevactionUI.CodeCopy": CodeCopy,
   "DevactionUI.Combobox": Combobox,
+  "DevactionUI.ContextMenu": ContextMenu,
   "DevactionUI.DataTable": DataTable,
   "DevactionUI.DateInput": DateInput,
   "DevactionUI.DatePicker": DatePicker,
@@ -48,6 +53,7 @@ export const hooks = {
   "DevactionUI.MoneyMask": MoneyMask,
   "DevactionUI.NumberInput": NumberInput,
   "DevactionUI.FilterMenu": FilterMenu,
+  "DevactionUI.HoverCard": HoverCard,
   "DevactionUI.Indeterminate": Indeterminate,
   "DevactionUI.Kanban": Kanban,
   "DevactionUI.Overlay": Overlay,
@@ -55,9 +61,11 @@ export const hooks = {
   "DevactionUI.Popover": Popover,
   "DevactionUI.Range": Range,
   "DevactionUI.RangePair": RangePair,
+  "DevactionUI.Resizable": Resizable,
   "DevactionUI.ProgressToast": ProgressToast,
   "DevactionUI.Signature": Signature,
   "DevactionUI.Segmented": Segmented,
+  "DevactionUI.SortableList": Sortable,
   "DevactionUI.Switch": Switch,
   "DevactionUI.Tabs": Tabs,
   "DevactionUI.Timer": Timer,
