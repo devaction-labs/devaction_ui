@@ -234,5 +234,66 @@ defmodule DevactionUI.ColorFilterTest do
       assert html =~ "Clear"
       assert html =~ "Apply"
     end
+
+    defp render_menu(groups, extra \\ %{}) do
+      assigns = %{groups: groups, extra: extra}
+
+      rendered_to_string(~H"""
+      <FilterMenu.filter_menu
+        id="m"
+        label="Filter"
+        groups={@groups}
+        apply_label="Apply"
+        reset_label="Clear"
+        close_label="Close"
+        {@extra}
+      >
+        <:option_icon :let={slot}>O-{slot.group}-{slot.option.value}</:option_icon>
+      </FilterMenu.filter_menu>
+      """)
+    end
+
+    test "the Apply button has a count of pending changes, hidden until there are some" do
+      html = menu()
+
+      assert html =~ ~r/data-count-pending[^>]*hidden/
+    end
+
+    test "an option can have an icon, given its group and the option" do
+      html = render_menu(@groups)
+
+      assert html =~ "O-status-progress"
+      assert html =~ "O-order-deadline"
+    end
+
+    test "the panel and the submenus take their side, and the shadow is the menu's" do
+      start = render_menu(@groups)
+      assert start =~ ~s(data-align="start")
+      assert start =~ ~s(data-align="right")
+      assert start =~ ~s(data-side="right")
+
+      far = render_menu(@groups, %{align: :end})
+      assert far =~ ~s(data-align="end")
+      assert far =~ ~s(data-align="left")
+      assert far =~ ~s(data-side="left")
+
+      css = File.read!("assets/css/devaction_ui.css")
+      assert css =~ ~r/\.menu-panel\s+\{[^}]*shadow-menu/
+      assert css =~ ~r/\.menu-sub\s+\{[^}]*shadow-menu[^}]*data-\[side=left\]/
+    end
+
+    test "the class goes to the root and the form keeps the global attributes" do
+      html = render_menu(@groups, %{class: "extra-root", "phx-change": "filter", "data-x": "1"})
+
+      assert html =~ ~r/<div id="m" class="filter-menu extra-root"/
+      assert html =~ ~r/<form[^>]*phx-change="filter"/
+      assert html =~ ~r/<form[^>]*data-x="1"/
+    end
+
+    test "a group with a type that is not checkbox or radio raises" do
+      groups = [%{key: "x", label: "X", type: :tree, options: [%{value: "a", label: "A"}]}]
+
+      assert_raise FunctionClauseError, fn -> render_menu(groups) end
+    end
   end
 end
