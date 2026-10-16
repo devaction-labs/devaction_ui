@@ -161,7 +161,7 @@ defmodule DevactionUI.ProgressToast do
       <div class="flex items-center gap-3 px-4 pt-3.5 pb-4">
         <span :if={@icon != []} class="shrink-0">{render_slot(@icon, @state)}</span>
         <.lines title={@title} detail={@detail} detail_class="text-on-primary/70" />
-        <span :if={@state != :done and @action != []} class="shrink-0">
+        <span :if={@state != :done and @action != []} class="shrink-0 [&_button]:text-on-primary [&_button:hover]:bg-on-primary/10">
           {render_slot(@action)}
         </span>
         <.dismiss

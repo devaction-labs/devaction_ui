@@ -72,7 +72,7 @@
   --ink-2: light-dark(#3F3F46, #C9C9D6);
   --muted: light-dark(#71717A, #9B9BAE);
   --muted-chrome: light-dark(#696973, #9B9BAE);
-  --muted-2: light-dark(#A1A1AA, #6C6C80);
+  --muted-2: light-dark(#A1A1AA, #8A8AA0);
   --on-primary: light-dark(#FFFFFF, #15151C);
   --ai: light-dark(#D29A1E, #E3A72F);
   --missing: light-dark(#C62828, #FF5A47);
@@ -840,7 +840,7 @@
 }
 
 .pdf-field .pdf-field-who {
-  color: #71717a;
+  color: #63636b;
 }
 
 .pdf-field[data-state="signed"] {
@@ -859,7 +859,7 @@
 
 .pdf-field .pdf-field-mark {
   background: #d29a1e;
-  color: #fff;
+  color: #2a1b02;
 }
 
 @media (prefers-reduced-motion: no-preference) {

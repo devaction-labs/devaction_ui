@@ -121,8 +121,8 @@ defmodule DevactionUI.Timer do
           phx-target={@target}
           aria-label={(@running? && @pause_label) || @start_label}
           class={[
-            "grid size-13 place-items-center rounded-full text-white outline-none hover:opacity-90 focus-visible:ring-4 focus-visible:ring-ink/10",
-            (@running? && "bg-ink text-on-primary") || "bg-ok-fg"
+            "grid size-13 place-items-center rounded-full outline-none hover:opacity-90 focus-visible:ring-4 focus-visible:ring-ink/10",
+            (@running? && "bg-ink text-on-primary") || "bg-ok-fg text-on-finding"
           ]}
         >
           {(@running? && render_slot(@pause_icon)) || render_slot(@start_icon)}
