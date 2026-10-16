@@ -103,6 +103,8 @@
   --tag-neutral-text: light-dark(#3F3F46, #C9C9D6);
   --tag-neutral-strong: light-dark(#18181B, #EDEDF2);
   --line-dashed: light-dark(#C9C9CF, #4A4A58);
+  --kbd-inverse: light-dark(#3F3F46, #C9C9D6);
+  --kbd-inverse-fg: light-dark(#E4E4E7, #2C2C38);
 }
 
 @theme inline {
@@ -158,6 +160,8 @@
   --color-neutral-bg: var(--tag-neutral-bg);
   --color-neutral-fg: var(--tag-neutral-text);
   --color-on-ink: var(--on-primary);
+  --color-kbd-inverse: var(--kbd-inverse);
+  --color-kbd-inverse-fg: var(--kbd-inverse-fg);
   --color-done: var(--done-cell);
   --color-learn: var(--learn);
   --color-add: var(--add-bg);
@@ -177,6 +181,10 @@
   --shadow-toast-light: 0 12px 30px rgb(24 24 27 / 0.12);
   --shadow-toast-progress: 0 12px 30px rgb(24 24 27 / 0.1);
   --shadow-modal: 0 30px 80px rgb(9 9 11 / 0.28);
+  --shadow-menu: 0 16px 40px rgb(24 24 27 / 0.14);
+  --shadow-cmdk: 0 24px 60px rgb(24 24 27 / 0.16);
+  --shadow-tip: 0 6px 16px rgb(24 24 27 / 0.2);
+  --shadow-tip-rich: 0 10px 30px rgb(24 24 27 / 0.2);
 }
 
 @keyframes drawer-in-right { from { opacity: 0; transform: translateX(24px); } }
@@ -341,9 +349,6 @@
   .modal-footer { @apply flex shrink-0 justify-end gap-2 border-t border-line-soft bg-wrap/60 px-5 py-3.5; }
   .modal-icon   { @apply grid size-11 shrink-0 place-items-center rounded-xl border; }
   .btn-danger-solid { @apply bg-risk-fg text-white hover:bg-risk-fg/90 aria-disabled:cursor-not-allowed aria-disabled:opacity-40; }
-  .tooltip { @apply pointer-events-none z-50 inline-flex items-center gap-2 rounded-lg bg-ink px-2.5 py-1.5 text-xs whitespace-nowrap text-on-ink shadow-md; }
-  .tooltip kbd { @apply rounded bg-ink-2 px-1.5 font-mono text-[10px] text-on-ink; }
-  .tooltip-rich { @apply max-w-72 flex-col items-start gap-1 rounded-xl px-3.5 py-3 whitespace-normal; }
 
   /* ---------- Vazios, stepper e progresso (prancha 16) ---------- */
   .empty        { @apply relative flex flex-col items-center gap-3 overflow-hidden rounded-card border border-line bg-card px-7 pt-10 pb-8 text-center; }
@@ -359,7 +364,7 @@
                      [[data-state=error]_&]:border-2 [[data-state=error]_&]:border-missing [[data-state=error]_&]:text-missing; }
 
   /* ---------- Paleta, segmentado e shell (prancha 17) ---------- */
-  .cmdk        { @apply w-[min(40rem,calc(100vw-2rem))] overflow-hidden rounded-card border border-line bg-card shadow-pop; }
+  .cmdk        { @apply w-[min(40rem,calc(100vw-2rem))] overflow-hidden rounded-card border border-line bg-card shadow-cmdk; }
   .cmdk-input  { @apply flex h-14 items-center gap-3 border-b border-line-soft px-4 text-base; }
   .cmdk-group  { @apply px-2.5 pt-2.5 pb-1 font-mono text-[10px] tracking-[0.08em] text-muted; }
   .cmdk-item   { @apply flex min-h-11 items-center gap-3 rounded-[10px] px-2.5 text-sm aria-selected:bg-wrap; }
@@ -425,12 +430,12 @@
   .filter-menu        { @apply relative inline-block; }
   .menu-trigger       { @apply inline-flex h-9.5 cursor-pointer items-center gap-2 rounded-[10px] border border-line-strong bg-card px-3 text-sm text-ink aria-expanded:border-ink aria-expanded:bg-wrap; }
   .menu-badge         { @apply grid h-4.5 min-w-4.5 place-items-center rounded-full bg-ink px-1.25 text-[11px] font-semibold text-on-primary; }
-  .menu-panel         { @apply absolute top-full left-0 z-50 mt-1.5 flex w-65 flex-col rounded-[14px] border border-line bg-card shadow-pop; }
-  .menu-head          { @apply flex items-center justify-between py-2.5 pr-2.5 pl-3.5 text-sm font-semibold; }
+  .menu-panel         { @apply absolute top-full left-0 z-50 mt-1.5 flex w-65 flex-col rounded-[14px] border border-line bg-card shadow-menu data-[align=end]:right-0 data-[align=end]:left-auto; }
+  .menu-head          { @apply flex items-center justify-between pt-2.5 pr-2.5 pb-1.5 pl-3.5 text-sm font-semibold; }
   .menu-list          { @apply flex flex-col px-1.5 pb-1.5; }
   .menu-row           { @apply flex min-h-10 w-full cursor-pointer items-center gap-2.5 rounded-[9px] px-2.5 text-left text-sm text-ink outline-none hover:bg-wrap focus-visible:bg-wrap aria-expanded:bg-wrap; }
   .menu-count         { @apply grid h-4.5 min-w-4.5 place-items-center rounded-full border border-line bg-wrap px-1.25 font-mono text-[10px]; }
-  .menu-sub           { @apply absolute left-[calc(100%+6px)] z-50 flex w-59 flex-col rounded-[14px] border border-line bg-card p-1.5 shadow-pop; }
+  .menu-sub           { @apply absolute left-[calc(100%+6px)] z-50 flex w-59 flex-col rounded-[14px] border border-line bg-card p-1.5 shadow-menu data-[side=left]:right-[calc(100%+6px)] data-[side=left]:left-auto; }
   .menu-check         { @apply flex min-h-10 cursor-pointer items-center gap-2.5 rounded-[9px] px-2.5 text-sm outline-none hover:bg-wrap focus-visible:bg-wrap has-checked:bg-wrap/70; }
   .menu-check input   { @apply sr-only; }
   .menu-check-mark    { @apply ml-1 grid size-4 place-items-center text-ink opacity-0 [.menu-check:has(input:checked)_&]:opacity-100; }

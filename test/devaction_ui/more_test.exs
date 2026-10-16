@@ -91,6 +91,84 @@ defmodule DevactionUI.MoreTest do
       assert html =~ "Ask the AI"
     end
 
+    test "each group is a named role=group and the rows carry aria-selected" do
+      assigns = %{value: "ecto", groups: @groups, ask: nil}
+      html = rendered_to_string(~H|<.ac value={@value} groups={@groups} ask={@ask} />|)
+
+      assert html =~ ~s(role="group" aria-labelledby="ac-group-0")
+      assert html =~ ~s(id="ac-group-0")
+      assert html =~ ~s(aria-selected="false")
+      assert html =~ "shadow-pop"
+    end
+
+    test "tells assistive technology the list is open only when it has a row" do
+      assigns = %{value: "ecto", groups: @groups, ask: nil}
+      open = rendered_to_string(~H|<.ac value={@value} groups={@groups} ask={@ask} />|)
+      assert open =~ ~s(aria-expanded="true")
+
+      assigns = %{value: "zzz", groups: [], ask: nil}
+      none = rendered_to_string(~H|<.ac value={@value} groups={@groups} ask={@ask} />|)
+      assert none =~ ~s(aria-expanded="false")
+
+      assigns = %{value: "zzz", groups: [], ask: "Ask the AI"}
+      ask = rendered_to_string(~H|<.ac value={@value} groups={@groups} ask={@ask} />|)
+      assert ask =~ ~s(aria-expanded="true")
+
+      assigns = %{value: "", groups: [], ask: nil}
+      closed = rendered_to_string(~H|<.ac value={@value} groups={@groups} ask={@ask} />|)
+      assert closed =~ ~s(aria-expanded="false")
+    end
+
+    test "a row can patch or go to an href, and the key caps and the icon are the caller's" do
+      assigns = %{
+        value: "a",
+        groups: [
+          %{
+            label: "G",
+            items: [
+              %{id: "p", label: "Patch", patch: "/p"},
+              %{id: "h", label: "Href", href: "https://example.com"}
+            ]
+          }
+        ],
+        ask: "Ask"
+      }
+
+      html =
+        rendered_to_string(~H"""
+        <Autocomplete.autocomplete
+          id="ac"
+          label="Search"
+          event="search"
+          value={@value}
+          groups={@groups}
+          empty="Nothing"
+          ask_label={@ask}
+          ask_event="ask"
+          ask_kbd="Ctrl ↵"
+          debounce={400}
+        >
+          <:search_icon>SEARCH-ICON</:search_icon>
+        </Autocomplete.autocomplete>
+        """)
+
+      assert html =~ ~s(data-phx-link="patch")
+      assert html =~ ~s(href="https://example.com")
+      assert html =~ "SEARCH-ICON"
+      refute html =~ "⌕"
+      assert html =~ ~r/<kbd[^>]*>\s*Ctrl ↵\s*<\/kbd>/
+      assert html =~ ~s(phx-debounce="400")
+    end
+
+    test "the AI row has no key cap unless the caller names one, and the field is 44px" do
+      assigns = %{value: "ecto", groups: @groups, ask: "Ask the AI"}
+      html = rendered_to_string(~H|<.ac value={@value} groups={@groups} ask={@ask} />|)
+      refute html =~ "⌘↵"
+      assert html =~ "h-11"
+      assert html =~ ~s(phx-debounce="150")
+      assert html =~ "⌕"
+    end
+
     test "escapes what it highlights" do
       assigns = %{
         value: "a",

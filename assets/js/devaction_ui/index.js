@@ -32,6 +32,7 @@ import Signature from "./signature.js"
 import Tabs from "./tabs.js"
 import Timer from "./timer.js"
 import ToastGroup from "./toast_group.js"
+import Tooltip from "./tooltip.js"
 
 export const hooks = {
   "DevactionUI.Autocomplete": Autocomplete,
@@ -58,4 +59,5 @@ export const hooks = {
   "DevactionUI.Tabs": Tabs,
   "DevactionUI.Timer": Timer,
   "DevactionUI.ToastGroup": ToastGroup,
+  "DevactionUI.Tooltip": Tooltip,
 }

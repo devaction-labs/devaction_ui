@@ -306,7 +306,8 @@ defmodule DevactionUI.OverlaysTest do
           """)
 
         assert html =~ ~s(role="tooltip")
-        assert html =~ ~s(aria-describedby="t-tip")
+        assert html =~ ~s(data-tip="t-tip")
+        assert html =~ ~s(id="t-tip")
         assert html =~ expected
         assert html =~ ~s(data-side="#{side}")
       end
@@ -323,6 +324,10 @@ defmodule DevactionUI.OverlaysTest do
       assert html =~ "delay-[400ms]"
       assert html =~ "⌘K"
       assert html =~ "<kbd"
+      assert html =~ "bg-kbd-inverse"
+      assert html =~ "shadow-tip"
+      assert html =~ "px-[9px]"
+      assert html =~ "group-data-[dismissed]/tip"
 
       rich =
         rendered_to_string(~H"""
@@ -330,8 +335,28 @@ defmodule DevactionUI.OverlaysTest do
         """)
 
       assert rich =~ "RingScore 69"
-      assert rich =~ "max-w-72"
+      assert rich =~ "max-w-[280px]"
+      assert rich =~ "rounded-xl"
+      assert rich =~ "shadow-tip-rich"
       refute rich =~ "<kbd"
+    end
+
+    test "draws an arrow on the side of the trigger" do
+      for {side, arrow} <- [
+            top: "border-t-ink",
+            bottom: "border-b-ink",
+            left: "border-l-ink",
+            right: "border-r-ink"
+          ] do
+        assigns = %{side: side}
+
+        html =
+          rendered_to_string(~H"""
+          <Tooltip.tooltip id="t" text="Search" placement={@side}><button>S</button></Tooltip.tooltip>
+          """)
+
+        assert html =~ arrow
+      end
     end
   end
 end

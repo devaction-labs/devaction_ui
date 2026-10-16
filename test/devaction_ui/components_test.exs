@@ -183,6 +183,28 @@ defmodule DevactionUI.ComponentsTest do
     assert html =~ "<kbd"
     assert html =~ "⌘K"
     assert html =~ "border-b-2"
+    assert html =~ "border-line"
+    refute html =~ "border-line-strong"
+  end
+
+  test "kbd/1 has an inverse tone for dark surfaces and a bare one for menus" do
+    assigns = %{}
+
+    inverse = rendered_to_string(~H|<.kbd tone={:inverse}>⌘B</.kbd>|)
+    assert inverse =~ "bg-kbd-inverse"
+    assert inverse =~ "text-[10px]"
+    refute inverse =~ "border"
+
+    bare = rendered_to_string(~H|<.kbd tone={:bare}>⌘E</.kbd>|)
+    assert bare =~ "text-muted"
+    refute bare =~ "border"
+    refute bare =~ "bg-"
+  end
+
+  test "kbd/1 has a larger cap" do
+    assigns = %{}
+    html = rendered_to_string(~H|<.kbd size={:md}>Esc</.kbd>|)
+    assert html =~ "px-[7px]"
   end
 
   describe "progress/1" do

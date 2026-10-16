@@ -1,27 +1,33 @@
-import {counts} from "./filter_logic.js"
+import {counts, pendingCount, submenuSide} from "./filter_logic.js"
 import {runKey, wrap} from "./keys.js"
 
 /**
  * A button that opens a menu of groups; a group opens a submenu of ticks (checkboxes or radios). Ticking
- * does not close it: the form inside sends on Apply, or the server hears `phx-change`. Counts on each group
- * and on the button follow the ticks. ↑ ↓ Home End move, → opens a submenu, ← and Esc go back, Enter and
- * Space tick. Everything is delegated from the root, so a LiveView patch cannot orphan a listener.
+ * does not close it: the form inside sends on Apply, or the server hears `phx-change`. The counts on each
+ * group follow the ticks of the draft; the count on the button follows the filters that were APPLIED (what
+ * the form sent last, or every tick when the form has `phx-change`), and Apply shows how many changes it
+ * would send. ↑ ↓ Home End move, → opens a submenu (on the other side when there is no room), ← and Esc go
+ * back, Enter and Space tick. Applying gives the focus back to the button, and the menu closes when the
+ * focus leaves it. Everything is delegated from the root, so a LiveView patch cannot orphan a listener.
  */
 export default {
   mounted() {
     this.trigger = this.el.querySelector("[data-menu-trigger]")
     this.menu = this.el.querySelector("[data-menu]")
+    this.applied = this.snapshot()
     this.el.addEventListener("click", (event) => this.onClick(event))
     this.el.addEventListener("mouseover", (event) => this.onHover(event))
-    this.el.addEventListener("change", () => this.count())
+    this.el.addEventListener("change", () => this.onChange())
     this.el.addEventListener("keydown", (event) => this.onKey(event))
-    this.el.addEventListener("submit", () => this.close(false))
+    this.el.addEventListener("submit", () => this.onSubmit())
+    this.el.addEventListener("focusout", (event) => this.onFocusOut(event))
     this.outside = (event) => this.isOpen() && !this.el.contains(event.target) && this.close(false)
     document.addEventListener("pointerdown", this.outside)
     this.count()
   },
 
   updated() {
+    this.isOpen() || (this.applied = this.snapshot())
     this.count()
   },
 
@@ -31,6 +37,19 @@ export default {
 
   isOpen: function () {
     return !this.menu.hidden
+  },
+
+  live() {
+    return this.menu.hasAttribute("phx-change")
+  },
+
+  snapshot() {
+    return [...this.el.querySelectorAll("input[data-group]")].map((input) => ({
+      group: input.dataset.group,
+      value: input.value,
+      checked: input.checked,
+      isDefault: input.hasAttribute("data-default"),
+    }))
   },
 
   subs() {
@@ -68,6 +87,9 @@ export default {
     const sub = this.subs().find((candidate) => candidate.dataset.submenu === id)
     const row = this.el.querySelector(`[data-submenu-trigger="${id}"]`)
     sub.style.top = `${row.offsetTop - 6}px`
+    const panel = this.menu.getBoundingClientRect()
+    const room = {panel: sub.offsetWidth, left: panel.left, right: window.innerWidth - panel.right}
+    sub.dataset.side = submenuSide(sub.dataset.align, room)
     focus && this.items(sub)[0]?.focus()
   },
 
@@ -95,6 +117,22 @@ export default {
     row && (isSubmenuRow ? this.openSub(row.dataset.submenuTrigger) : this.closeSubs())
   },
 
+  onChange() {
+    this.live() && (this.applied = this.snapshot())
+    this.count()
+  },
+
+  onSubmit() {
+    this.applied = this.snapshot()
+    this.count()
+    this.close(true)
+  },
+
+  onFocusOut(event) {
+    const to = event.relatedTarget
+    this.isOpen() && to && !this.el.contains(to) && this.close(false)
+  },
+
   reset() {
     this.el.querySelectorAll("input[data-group]").forEach((input) => (input.checked = input.hasAttribute("data-default")))
     this.count()
@@ -106,20 +144,22 @@ export default {
       const input = row.querySelector("input")
       input && row.setAttribute("aria-checked", String(input.checked))
     })
-    const options = [...this.el.querySelectorAll("input[data-group]")].map((input) => ({
-      group: input.dataset.group,
-      checked: input.checked,
-      isDefault: input.hasAttribute("data-default"),
-    }))
-    const {byGroup, total} = counts(options)
+    const draft = this.snapshot()
+    const {byGroup} = counts(draft)
     this.el.querySelectorAll("[data-count-for]").forEach((badge) => {
       const n = byGroup[badge.dataset.countFor] ?? 0
       badge.textContent = n
       badge.hidden = n === 0
     })
+    const {total} = counts(this.applied)
     this.el.querySelectorAll("[data-count-total]").forEach((badge) => {
       badge.textContent = total
       badge.hidden = total === 0
+    })
+    const pending = pendingCount(draft, this.applied)
+    this.el.querySelectorAll("[data-count-pending]").forEach((badge) => {
+      badge.textContent = pending
+      badge.hidden = pending === 0
     })
   },
 

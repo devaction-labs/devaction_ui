@@ -219,7 +219,10 @@ defmodule DevactionUI.ShellPiecesTest do
               }
             ],
             ask: "Ask the AI",
-            scopes: [%{value: "all", label: "All"}, %{value: "prs", label: "PRs"}]
+            scopes: [%{value: "all", label: "All"}, %{value: "prs", label: "PRs"}],
+            ask_kbd: nil,
+            close_key: "Esc",
+            debounce: 150
           },
           extra
         )
@@ -239,8 +242,12 @@ defmodule DevactionUI.ShellPiecesTest do
         scope="all"
         scope_event="scope"
         keys={[{"↑↓", "move"}, {"↵", "open"}]}
+        ask_kbd={@ask_kbd}
+        close_key={@close_key}
+        debounce={@debounce}
       >
         <:search_icon>S</:search_icon>
+        <:item_icon :let={item}>I-{item.label}</:item_icon>
       </CommandPalette.palette>
       """)
     end
@@ -275,6 +282,63 @@ defmodule DevactionUI.ShellPiecesTest do
       refute bare =~ ~s(phx-click="scope")
       refute bare =~ "data-ask"
       assert bare =~ "Nothing."
+    end
+
+    test "each group is a named role=group and the rows start unselected" do
+      html = palette()
+
+      assert html =~ ~s(role="group" aria-labelledby="p-group-0")
+      assert html =~ ~s(id="p-group-0")
+      assert html =~ ~s(aria-selected="false")
+      assert File.read!("assets/css/devaction_ui.css") =~ ~r/\.cmdk\s+\{[^}]*shadow-cmdk/
+      assert html =~ "max-h-[420px]"
+    end
+
+    test "aria-expanded follows the list: false with no row at all" do
+      assert palette() =~ ~s(aria-expanded="true")
+
+      bare = palette(%{ask: nil, groups: []})
+      assert bare =~ ~s(aria-expanded="false")
+      assert bare =~ ~r/class="m-0 px-2.5 py-7 text-center[^"]*"[^>]*>\s*Nothing\./
+    end
+
+    test "a row can send an event, patch or go to an href, with a second line, a shortcut and an icon" do
+      html =
+        palette(%{
+          groups: [
+            %{
+              label: "Commands",
+              items: [
+                %{
+                  id: "c1",
+                  label: "Create contract",
+                  event: "create",
+                  sub: "In this project",
+                  shortcut: "G C"
+                },
+                %{id: "c2", label: "Settings", patch: "/settings"},
+                %{id: "c3", label: "Docs", href: "https://example.com"}
+              ]
+            }
+          ]
+        })
+
+      assert html =~ ~s(phx-click="create")
+      assert html =~ ~s(phx-value-id="c1")
+      assert html =~ "In this project"
+      assert html =~ "G C"
+      assert html =~ ~s(data-phx-link="patch")
+      assert html =~ ~s(href="https://example.com")
+      assert html =~ "I-Create contract"
+    end
+
+    test "the field has the Esc key cap, the key of the AI row and the debounce the caller sets" do
+      html = palette()
+      assert html =~ ~r/<kbd[^>]*>\s*Esc\s*<\/kbd>/
+      assert html =~ ~s(phx-debounce="150")
+      refute html =~ "⌘↵"
+
+      assert palette(%{ask_kbd: "Ctrl ↵", close_key: nil, debounce: 300}) =~ "Ctrl ↵"
     end
   end
 end
