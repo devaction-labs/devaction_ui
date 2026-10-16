@@ -1,0 +1,17 @@
+<%!-- title: Type ahead and values | text: Type a letter to jump to an item; an item sends several phx-value, and close_on_select={false} keeps a menu of toggles open | layout: center --%>
+<div class="flex gap-3">
+  <Dropdown.dropdown id="dropdown-typeahead" label="Row actions">
+    <:trigger>Row <.icon name="arrow-down-01" class="size-4" /></:trigger>
+    <:item event="overlay_close" values={%{id: 7, kind: "task"}}>Duplicate</:item>
+    <:item event="overlay_close" values={%{id: 7, kind: "task"}}>Download</:item>
+    <:item event="overlay_close" values={%{id: 7, kind: "task"}} separator>Archive</:item>
+    <:item event="overlay_close" values={%{id: 7, kind: "task"}} danger>
+      <.icon name="more-horizontal" class="size-4" /> Delete
+    </:item>
+  </Dropdown.dropdown>
+  <Dropdown.dropdown id="dropdown-stays" label="Columns" close_on_select={false}>
+    <:trigger>Columns <.icon name="arrow-down-01" class="size-4" /></:trigger>
+    <:item event="overlay_close" value="name" checked={true}>Name</:item>
+    <:item event="overlay_close" value="owner" checked={false}>Owner</:item>
+  </Dropdown.dropdown>
+</div>

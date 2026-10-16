@@ -1,4 +1,5 @@
 import {runKey, wrap} from "./keys.js"
+import {closesOnSelect, extendBuffer, isTypeahead, matchIndex} from "./dropdown_logic.js"
 import {chooseSide} from "./popover_logic.js"
 
 const ITEM = '[role^="menuitem"]:not([aria-disabled="true"])'
@@ -8,7 +9,9 @@ const ITEM = '[role^="menuitem"]:not([aria-disabled="true"])'
  * (or the first); ↑ ↓ move round the items, Home and End go to the ends, Esc closes and gives the focus
  * back to the button, Tab closes, a click outside closes, and choosing an item closes it. Items are the
  * `[role^="menuitem"]` buttons and links that are not disabled; the server draws which one is checked. The
- * menu opens above the button when there is no room below it.
+ * menu opens above the button when there is no room below it. Typing a letter jumps to the next item whose
+ * text starts with it (more letters, typed together, narrow it down); `data-close-on-select="false"` keeps the
+ * menu open after an item is chosen.
  */
 export default {
   mounted() {
@@ -18,7 +21,7 @@ export default {
     this.trigger.addEventListener("click", () => (this.menu.hidden ? this.open() : this.close(true)))
     this.trigger.addEventListener("keydown", (event) => this.onTriggerKey(event))
     this.menu.addEventListener("keydown", (event) => this.onMenuKey(event))
-    this.menu.addEventListener("click", (event) => event.target.closest(ITEM) && this.close(true))
+    this.menu.addEventListener("click", (event) => event.target.closest(ITEM) && closesOnSelect(this.el.dataset.closeOnSelect) && this.close(true))
     this.outside = (event) => !this.el.contains(event.target) && this.close(false)
     document.addEventListener("mousedown", this.outside)
   },
@@ -48,7 +51,7 @@ export default {
     const at = items.indexOf(document.activeElement)
     const go = (index) => () => this.focusItem(index)
 
-    runKey(
+    const handled = runKey(
       {
         ArrowDown: go(wrap(at, 1, items.length)),
         ArrowUp: go(wrap(at, -1, items.length)),
@@ -62,6 +65,17 @@ export default {
       },
       event,
     )
+
+    handled || (isTypeahead(event) && this.typeahead(event))
+  },
+
+  typeahead(event) {
+    const now = Date.now()
+    this.typed = extendBuffer(this.typed ?? "", event.key, now - (this.typedAt ?? 0))
+    this.typedAt = now
+    const items = this.items()
+    const labels = items.map((item) => item.textContent)
+    this.focusItem(matchIndex(labels, items.indexOf(document.activeElement), this.typed))
   },
 
   place() {
