@@ -23,3 +23,61 @@
     scroll-behavior: smooth;
   }
 }
+
+/* site chrome: the shell, the code card and its checkerboard preview */
+:root {
+  --site-soft: light-dark(#52525B, #B4B4C4);
+  --site-code: light-dark(#18181B, #0E0E13);
+  --site-pv-bg: light-dark(#FFFFFF, #15151C);
+  --site-pv-grid: light-dark(#EFEFF1, #22222C);
+  --site-pv-check: light-dark(#F7F7F8, #191920);
+}
+
+@theme inline {
+  --color-soft: var(--site-soft);
+  --color-code: var(--site-code);
+}
+
+.site-pv {
+  position: relative;
+  isolation: isolate;
+  color: var(--ink);
+  background-color: var(--site-pv-bg);
+}
+
+:root[data-theme="dark"] .site-pv[data-flip="true"] {
+  color-scheme: light;
+}
+
+:root[data-theme="light"] .site-pv[data-flip="true"] {
+  color-scheme: dark;
+}
+
+.site-theme-switch [data-label="dark"],
+:root[data-theme="dark"] .site-theme-switch [data-label="light"],
+:root[data-theme="dark"] .site-theme-switch[aria-pressed="true"] [data-label="dark"],
+:root[data-theme="light"] .site-theme-switch[aria-pressed="true"] [data-label="light"] {
+  display: none;
+}
+
+:root[data-theme="dark"] .site-theme-switch [data-label="dark"],
+:root[data-theme="dark"] .site-theme-switch[aria-pressed="true"] [data-label="light"],
+:root[data-theme="light"] .site-theme-switch[aria-pressed="true"] [data-label="dark"] {
+  display: inline-flex;
+}
+
+.site-pv::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--site-pv-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--site-pv-grid) 1px, transparent 1px),
+    repeating-conic-gradient(var(--site-pv-check) 0 25%, transparent 0 50%);
+  background-size: 24px 24px, 24px 24px, 48px 48px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 90% at 50% 50%, #000 25%, transparent 85%);
+  mask-image: radial-gradient(ellipse 70% 90% at 50% 50%, #000 25%, transparent 85%);
+}
+/* end of the site chrome */

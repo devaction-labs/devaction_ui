@@ -13,6 +13,26 @@ defmodule DevactionUISite.Reference do
     end
   end
 
+  @doc "The bullets of the `## Accessibility` section of the module's documentation, or `[]` when it has none."
+  def accessibility(module) do
+    module
+    |> moduledoc()
+    |> accessibility_notes()
+  end
+
+  @doc "The bullets of the `## Accessibility` section of a documentation text."
+  def accessibility_notes(nil), do: []
+
+  def accessibility_notes(doc) do
+    case Regex.run(~r/^## Accessibility[ \t]*\n(.*?)(?=^## |\z)/ms, doc) do
+      [_section, body] ->
+        for [_line, note] <- Regex.scan(~r/^\s*[-*]\s+(.+)$/m, body), do: String.trim(note)
+
+      nil ->
+        []
+    end
+  end
+
   @doc "The first sentence of the module's documentation, with its markup taken out."
   def summary(module) do
     module
