@@ -1,6 +1,8 @@
-<%!-- title: With timestamps | text: A time beside each title, newest first. --%>
+<%!-- title: With timestamps | text: The time sits on the line below each title, as a time element when it has a datetime. --%>
 <Timeline.timeline>
-  <:item tone={:ok} title="Merged" time="4 min ago">The pull request went in.</:item>
+  <:item tone={:ok} title="Merged" time="4 min ago" datetime="2026-10-15T10:56:00Z" tone_label="Succeeded:">
+    The pull request went in.
+  </:item>
   <:item tone={:warn} title="AI reviewed" time="1 h ago">2 problems, 1 suggestion.</:item>
   <:item tone={:info} title="Review requested" time="3 h ago" />
   <:item title="Opened" time="yesterday" />
