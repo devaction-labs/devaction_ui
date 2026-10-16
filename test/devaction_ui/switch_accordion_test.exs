@@ -103,7 +103,7 @@ defmodule DevactionUI.SwitchAccordionTest do
       assert html =~ "accordion-chevron"
       assert html =~ "accordion-panel"
       assert html =~ ~s(name="a")
-      assert html =~ "pointer-events-none"
+      assert html =~ ~s(aria-disabled="true")
     end
 
     test "a card has the lead, the sub line, the tag and the actions in its header" do
@@ -126,7 +126,7 @@ defmodule DevactionUI.SwitchAccordionTest do
       refute html =~ ~s(name="c")
     end
 
-    test "the group and the flush ones keep their plus and minus" do
+    test "the group has a chevron at the start and the flush one a plus that stays a plus" do
       assigns = %{}
 
       html =
@@ -139,8 +139,9 @@ defmodule DevactionUI.SwitchAccordionTest do
         </Accordion.accordion>
         """)
 
+      assert html =~ "group-open:rotate-90"
       assert html =~ "+"
-      assert html =~ "−"
+      refute html =~ "−"
       assert html =~ "border-line-soft"
       assert html =~ ~r{>\s*2\s*<}
     end
