@@ -39,7 +39,7 @@ defmodule DevactionUI.InteractiveTest do
                ~r/id="t-tab-b"[^>]*aria-selected="true"|aria-selected="true"[^>]*id="t-tab-b"/s
 
       assert html =~ "border-b-2"
-      assert html =~ ">4<"
+      assert html =~ ~r/>\s*4\s*</
     end
 
     test "carries the hook" do

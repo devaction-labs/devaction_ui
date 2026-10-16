@@ -1,14 +1,33 @@
-import {runKey, wrap} from "./keys.js"
+import {keyName} from "./keys.js"
+import {nextTab, resolveSelection} from "./tabs_logic.js"
 
 /**
  * Tabs that switch panels on the client. ← → move the selection round the list, Home and End jump to the
- * ends, and only the selected tab is in the tab order (roving tabindex). The server renders the first
- * selection; LiveView is told not to undo what this changes (`JS.ignore_attributes` on the tabs and panels).
+ * ends, and only the selected tab is in the tab order (roving tabindex).
+ *
+ * The server renders the selection (`data-server-selected`). What the person picks in the browser lives in
+ * `data-selected`, which LiveView is told to leave alone, and is put back after every patch, so it survives
+ * the server re-rendering the tabs; when the server itself changes its selection, the server wins.
  */
 export default {
   mounted() {
+    this.lastServer = this.el.dataset.serverSelected
     this.el.addEventListener("click", (event) => this.onClick(event))
     this.el.addEventListener("keydown", (event) => this.onKey(event))
+  },
+
+  updated() {
+    const ids = this.tabs().map((tab) => tab.dataset.tab)
+    const next = resolveSelection({
+      chosen: this.el.dataset.selected ?? "",
+      lastServer: this.lastServer,
+      server: this.el.dataset.serverSelected,
+      ids,
+    })
+
+    this.lastServer = next.lastServer
+    this.el.dataset.selected = next.chosen
+    this.apply(next.selected)
   },
 
   tabs() {
@@ -24,26 +43,25 @@ export default {
     if (!event.target.closest('[role="tablist"]')) return
     const tabs = this.tabs()
     const current = tabs.findIndex((tab) => tab.getAttribute("aria-selected") === "true")
-    const go = (to) => () => {
-      const tab = tabs[to(current, tabs.length)]
-      this.select(tab)
-      tab.focus()
-    }
+    const target = tabs[nextTab(keyName(event), current, tabs.length)]
 
-    runKey(
-      {
-        ArrowRight: go((at, count) => wrap(at, 1, count)),
-        ArrowLeft: go((at, count) => wrap(at, -1, count)),
-        Home: go(() => 0),
-        End: go((_at, count) => count - 1),
-      },
-      event,
-    )
+    target && this.go(event, target)
+  },
+
+  go(event, target) {
+    event.preventDefault()
+    this.select(target)
+    target.focus()
   },
 
   select(selected) {
+    this.el.dataset.selected = selected.dataset.tab
+    this.apply(selected.dataset.tab)
+  },
+
+  apply(id) {
     this.tabs().forEach((tab) => {
-      const on = tab === selected
+      const on = tab.dataset.tab === id
       tab.setAttribute("aria-selected", String(on))
       tab.tabIndex = on ? 0 : -1
       const panel = this.el.querySelector(`#${CSS.escape(tab.getAttribute("aria-controls"))}`)

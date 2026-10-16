@@ -1,6 +1,6 @@
 <%!-- title: With counts | text: A count beside the label shows how much is behind each tab. --%>
 <Tabs.tabs id="tabs-counts" label="Review queue" variant={:boxed}>
-  <:tab id="tabs-counts-me" label="For me" count="4">Four are waiting for you.</:tab>
+  <:tab id="tabs-counts-me" label="For me" count="4" count_tone={:risk}>Four are waiting for you.</:tab>
   <:tab id="tabs-counts-team" label="Team" count="9">Nine are open in the team.</:tab>
   <:tab id="tabs-counts-mine" label="Mine">Pull requests you opened.</:tab>
 </Tabs.tabs>
