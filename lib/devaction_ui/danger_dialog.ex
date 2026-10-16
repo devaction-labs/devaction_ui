@@ -7,7 +7,9 @@ defmodule DevactionUI.DangerDialog do
   The LiveView keeps what was typed (`typed`) and learns of each keystroke through `on_type` (a `phx-keyup`);
   `confirmed?/2` says whether the button is unlocked. Enter in the field submits the same `on_confirm` event
   as the red button, so the server checks `confirmed?/2` again when it arrives. After it is done the caller
-  can offer to undo with a toast.
+  can offer to undo with a toast. The sentence over the field is the `type_label` slot; `name_chip/1` draws the
+  name in it as the `<code>` chip of the canvas. The locked button is still focusable (`aria-disabled`) and is
+  described by that sentence, so a screen reader says why it does nothing.
   """
   use Phoenix.Component
 
@@ -17,6 +19,19 @@ defmodule DevactionUI.DangerDialog do
   @spec confirmed?(String.t() | nil, String.t()) :: boolean()
   def confirmed?(typed, expected) when is_binary(typed), do: String.trim(typed) == expected
   def confirmed?(_typed, _expected), do: false
+
+  attr :rest, :global
+  slot :inner_block, required: true, doc: "the name, as it has to be typed"
+
+  @doc "The name drawn as a chip inside the `type_label` slot: `Type <.name_chip>sge-api</.name_chip> to confirm`."
+  def name_chip(assigns) do
+    ~H"""
+    <code
+      class="rounded-[5px] bg-wrap px-1.5 py-px font-mono text-ink"
+      {@rest}
+    >{render_slot(@inner_block)}</code>
+    """
+  end
 
   attr :id, :string, required: true
   attr :name, :string, required: true, doc: "what must be typed: the name of the resource"
@@ -68,7 +83,7 @@ defmodule DevactionUI.DangerDialog do
       <:subtitle>{render_slot(@inner_block)}</:subtitle>
       <form id={"#{@id}-form"} phx-submit={@on_confirm}>
         <label class="flex flex-col gap-1.5 text-sm text-ink-2">
-          {render_slot(@type_label)}
+          <span id={"#{@id}-type-label"}>{render_slot(@type_label)}</span>
           <input
             id={"#{@id}-typed"}
             type="text"
@@ -95,6 +110,7 @@ defmodule DevactionUI.DangerDialog do
           id={"#{@id}-confirm"}
           type="button"
           aria-disabled={to_string(not @unlocked?)}
+          aria-describedby={"#{@id}-type-label"}
           data-unlocked={to_string(@unlocked?)}
           phx-click={@unlocked? && @on_confirm}
           class="h-[42px] rounded-[11px] bg-risk-fg/40 px-4 text-sm font-medium text-on-primary focus-visible:ring-4 focus-visible:ring-risk-fg/30 aria-disabled:cursor-not-allowed data-[unlocked=true]:bg-risk-fg data-[unlocked=true]:hover:opacity-90"

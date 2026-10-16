@@ -1,0 +1,42 @@
+<%!-- title: Stacked | text: A modal over a drawer: Esc closes only the one on top, the page behind stays locked --%>
+<Button.button
+  id="drawer-05-open"
+  variant={:secondary}
+  size={:sm}
+  class="self-start"
+  phx-click={Drawer.open(JS.push("overlay_open", value: %{kind: "drawer_stack"}))}
+>
+  Open the drawer
+</Button.button>
+<Drawer.drawer
+  :if={@overlays.kind == "drawer_stack"}
+  id="drawer-05"
+  on_close="overlay_close"
+  close_label="Close"
+>
+  <:close_icon><.icon name="cancel-01" class="size-4" /></:close_icon>
+  <:title>Edit profile</:title>
+  <:subtitle>Change your personal data.</:subtitle>
+  <label class="flex flex-col gap-1.5 text-sm font-medium">
+    Name <InputGroup.input_group id="drawer-05-name" value="Alex Nogueira" />
+  </label>
+  <:footer>
+    <Button.button id="drawer-05-delete" phx-click={Modal.open("overlay_nested")}>Delete profile</Button.button>
+    <Button.button id="drawer-05-save" variant={:primary} phx-click="overlay_close">Save changes</Button.button>
+  </:footer>
+</Drawer.drawer>
+<Modal.modal
+  :if={@overlays.kind == "drawer_stack" and @overlays.nested}
+  id="drawer-05-modal"
+  size={:sm}
+  tone={:risk}
+  on_close="overlay_unnest"
+>
+  <:icon><.icon name="alert-02" class="size-5" /></:icon>
+  <:title>Delete the profile?</:title>
+  <:subtitle>Press Esc: only this dialog closes, the drawer stays open.</:subtitle>
+  <:footer>
+    <Button.button id="drawer-05-modal-cancel" phx-click="overlay_unnest">Keep it</Button.button>
+    <Button.button id="drawer-05-modal-ok" variant={:primary} phx-click="overlay_close">Delete</Button.button>
+  </:footer>
+</Modal.modal>

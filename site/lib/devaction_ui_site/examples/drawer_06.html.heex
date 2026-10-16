@@ -1,0 +1,28 @@
+<%!-- title: Bottom sheet | text: The sheet variant at any width: drag the handle down to close it --%>
+<Button.button
+  id="drawer-06-open"
+  variant={:secondary}
+  size={:sm}
+  class="self-start"
+  phx-click={Drawer.open(JS.push("overlay_open", value: %{kind: "drawer_sheet"}))}
+>
+  Open the sheet
+</Button.button>
+<Drawer.drawer
+  :if={@overlays.kind == "drawer_sheet"}
+  id="drawer-06"
+  variant={:sheet}
+  on_close="overlay_close"
+  close_label="Close"
+>
+  <:close_icon><.icon name="cancel-01" class="size-4" /></:close_icon>
+  <:title>Filters</:title>
+  <:subtitle>Drag the handle down, or press Esc.</:subtitle>
+  <label class="flex flex-col gap-1.5 text-sm font-medium">
+    Repository <InputGroup.input_group id="drawer-06-repo" value="devaction-labs/sge-api" />
+  </label>
+  <:footer>
+    <Button.button id="drawer-06-clear" phx-click="overlay_close">Clear</Button.button>
+    <Button.button id="drawer-06-apply" variant={:primary} phx-click="overlay_close">Apply</Button.button>
+  </:footer>
+</Drawer.drawer>

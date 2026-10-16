@@ -1,0 +1,30 @@
+<%!-- title: Tall form | text: The body scrolls inside the panel; the page behind does not scroll and cannot be reached --%>
+<Button.button
+  id="modal-tall-open"
+  variant={:secondary}
+  size={:sm}
+  class="self-start"
+  phx-click={Modal.open(JS.push("overlay_open", value: %{kind: "modal_tall"}))}
+>
+  Open the long form
+</Button.button>
+<Modal.modal
+  :if={@overlays.kind == "modal_tall"}
+  id="modal-tall"
+  on_close="overlay_close"
+  close_label="Close"
+>
+  <:close_icon><.icon name="cancel-01" class="size-4" /></:close_icon>
+  <:title>Review rules</:title>
+  <:subtitle>Scroll the body: the header and the footer stay.</:subtitle>
+  <div class="flex flex-col gap-4">
+    <label :for={n <- 1..12} class="flex flex-col gap-1.5 text-sm font-medium">
+      Rule {n}
+      <InputGroup.input_group id={"modal-tall-rule-#{n}"} value={"Check the case #{n}"} />
+    </label>
+  </div>
+  <:footer>
+    <Button.button id="modal-tall-cancel" phx-click="overlay_close">Cancel</Button.button>
+    <Button.button id="modal-tall-save" variant={:primary} phx-click="overlay_close">Save</Button.button>
+  </:footer>
+</Modal.modal>

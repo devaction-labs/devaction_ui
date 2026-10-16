@@ -9,8 +9,16 @@ defmodule DevactionUI.Drawer do
   (`Phoenix.Component.focus_wrap/1`), closes with Esc, the close button and a click outside, and hands the
   focus back to the button that opened it when that button used `open/1`. Widths: 384, 480 (default) and 640.
 
-  The backdrop is `z-40` and the panel `z-50`; a toast or a popover that has to show over an open drawer needs
-  a higher `z-index` of its own.
+  While it is open the `DevactionUI.Overlay` hook locks the scroll of the page and makes everything around it
+  `inert` (put `data-overlay-keep` on what has to stay usable, such as a toast region). Overlays stack: Esc
+  closes only the one on top. The stacking order, from the bottom: a popover in place `z-40`, a tooltip `z-50`,
+  the drawer `z-60`, a `DevactionUI.Modal` `z-70` (so a modal opened from a drawer is over it), a popover with
+  `portal` `z-80`; a toast region of the app has to be above that.
+
+  On a phone, and at any width with `variant={:sheet}`, the drawer is a sheet from the bottom with a handle that
+  closes it when dragged down (a short drag springs back; with `prefers-reduced-motion` it does not animate).
+  The width is 384 (`:sm`), 480 (`:md`, the default, `min(30rem, 100vw - 1.5rem)`) or 640 (`:lg`). The actions
+  of the footer are the caller's: the canvas draws Cancel as a 44 px quiet button with no border.
   """
   use Phoenix.Component
 
@@ -47,9 +55,10 @@ defmodule DevactionUI.Drawer do
     ~H"""
     <div
       id={@id}
+      class="drawer-root"
+      phx-hook="DevactionUI.Overlay"
+      data-close={close(@on_close)}
       phx-mounted={JS.focus_first(to: "##{@id}-panel")}
-      phx-window-keydown={close(@on_close)}
-      phx-key="escape"
       {@rest}
     >
       <div class="drawer-backdrop" phx-click={close(@on_close)} aria-hidden="true" />
@@ -68,13 +77,16 @@ defmodule DevactionUI.Drawer do
           @class
         ]}
       >
-        <span
+        <div
+          data-handle
           class={[
-            "mx-auto mt-2.5 h-1 w-10 flex-none rounded-full bg-done",
-            @variant != :sheet && "hidden max-sm:block"
+            "flex flex-none cursor-grab touch-none justify-center pt-2.5 pb-2 active:cursor-grabbing",
+            @variant != :sheet && "hidden max-sm:flex"
           ]}
           aria-hidden="true"
-        />
+        >
+          <span class="h-1 w-10 rounded-full bg-done" />
+        </div>
         <div class="drawer-header">
           <div class="flex min-w-0 flex-1 flex-col gap-1">
             <h2 id={"#{@id}-title"} class="m-0 text-xl font-semibold tracking-[-0.01em] text-ink">

@@ -47,7 +47,8 @@ defmodule DevactionUI.OverlaysTest do
     test "closes on Esc, the backdrop and the close button, and gives the focus back" do
       html = drawer()
 
-      assert html =~ ~s(phx-key="escape")
+      assert html =~ ~s(phx-hook="DevactionUI.Overlay")
+      assert html =~ ~r/data-close="[^"]*pop_focus/
       assert length(Regex.scan(~r/pop_focus/, html)) >= 3
     end
 
@@ -66,8 +67,21 @@ defmodule DevactionUI.OverlaysTest do
 
       assert html =~ ~s(aria-describedby="d-subtitle")
       assert html =~ ~s(id="d-subtitle")
-      assert html =~ "max-sm:block"
-      refute drawer(%{variant: :sheet}) =~ "max-sm:block"
+      assert html =~ "max-sm:flex"
+      refute drawer(%{variant: :sheet}) =~ "max-sm:flex"
+    end
+
+    test "the drawer is above the page and under a modal, and the handle is a draggable area" do
+      html = drawer()
+
+      assert html =~ ~s(class="drawer-root")
+      assert html =~ ~r/data-handle[^>]*touch-none/s
+      assert html =~ ~r/data-handle[^>]*hidden max-sm:flex/s
+      assert drawer(%{variant: :sheet}) =~ ~r/data-handle[^>]*flex flex-none/s
+      refute drawer(%{variant: :sheet}) =~ "hidden max-sm:flex"
+
+      assert html =~
+               ~r/id="d"[^>]*phx-hook="DevactionUI.Overlay"|phx-hook="DevactionUI.Overlay"[^>]*id="d"/s
     end
 
     test "has no footer when it has no actions" do
@@ -132,6 +146,21 @@ defmodule DevactionUI.OverlaysTest do
 
       refute html =~ "aria-describedby"
       assert html =~ ~s(class="modal-body")
+    end
+
+    test "locks the page and answers Esc through the overlay hook, above a drawer" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H|<Modal.modal id="m" on_close="c">
+  <:title>T</:title>
+</Modal.modal>|)
+
+      assert html =~ ~s(phx-hook="DevactionUI.Overlay")
+      assert html =~ ~r/data-close="[^"]*pop_focus[^"]*"/
+      assert html =~ "z-[70]"
+      refute html =~ "phx-window-keydown"
+      refute html =~ "data-handle"
     end
 
     test "open/1 remembers the focus before the event and close/1 gives it back" do
@@ -268,6 +297,23 @@ defmodule DevactionUI.OverlaysTest do
 
       assert html =~ ~r/<form[^>]*phx-submit="confirm"/
       assert html =~ ~r/id="x-cancel"[^>]*phx-click="[^"]*pop_focus/s
+    end
+
+    test "the name chip draws the name as code, and the locked button says why through the sentence" do
+      assigns = %{}
+
+      chip =
+        rendered_to_string(~H|<DangerDialog.name_chip class="x">sge-api</DangerDialog.name_chip>|)
+
+      assert chip =~ ~r/<code[^>]*class="[^"]*font-mono[^"]*"[^>]*>sge-api<\/code>/
+      html = danger("sge")
+      assert html =~ ~s(id="x-type-label")
+      assert html =~ ~r/id="x-confirm"[^>]*aria-describedby="x-type-label"/s
+    end
+
+    test "the aria-disabled of the red button follows what was typed" do
+      assert danger("") =~ ~r/id="x-confirm"[^>]*aria-disabled="true"/s
+      assert danger("sge-api") =~ ~r/id="x-confirm"[^>]*aria-disabled="false"/s
     end
 
     test "the sentence over the field is a slot and the field is described by the explanation" do
