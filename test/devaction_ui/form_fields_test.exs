@@ -350,5 +350,99 @@ defmodule DevactionUI.FormFieldsTest do
       assert stack =~ "flex-col items-start"
       assert stack =~ "order-first"
     end
+
+    test "a card in error has the invalid mark on the card and the input" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H|<Choice.choice_card id="c" name="p" value="v" label="L" invalid />|)
+
+      assert html =~ ~s(data-invalid="true")
+      assert html =~ ~s(aria-invalid="true")
+
+      refute rendered_to_string(~H|<Choice.choice_card id="c" name="p" value="v" label="L" />|) =~
+               "aria-invalid"
+    end
+
+    test "the small size and the task variant are classes of the label" do
+      assigns = %{}
+
+      small =
+        rendered_to_string(~H|<Choice.radio id="r" name="m" value="a" label="A" size={:sm} />|)
+
+      assert small =~ "choice-sm"
+
+      refute rendered_to_string(~H|<Choice.radio id="r" name="m" value="a" label="A" />|) =~
+               "choice-sm"
+
+      task = rendered_to_string(~H|<Choice.checkbox id="c" label="L" variant={:task} />|)
+      assert task =~ "choice-task"
+      assert task =~ ~s(type="checkbox")
+      refute rendered_to_string(~H|<Choice.checkbox id="c" label="L" />|) =~ "choice-task"
+    end
+
+    test "a checkbox group is a fieldset with a legend around the boxes" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Choice.checkbox_group id="g" legend="Notify me" help="Pick any" required>
+          <Choice.checkbox id="c1" name="n[]" value="a" label="A" />
+          <Choice.checkbox id="c2" name="n[]" value="b" label="B" />
+        </Choice.checkbox_group>
+        """)
+
+      assert html =~ ~r/<fieldset[^>]*id="g"/
+      assert html =~ ~r/<legend[^>]*>\s*Notify me/
+      assert html =~ ~s(aria-describedby="g-help")
+      assert html =~ ~s(id="g-help")
+      assert html =~ ~r/<span[^>]*aria-hidden="true"[^>]*>\*/
+      assert length(Regex.scan(~r/type="checkbox"/, html)) == 2
+      refute html =~ "role="
+      refute html =~ "aria-invalid"
+    end
+
+    test "a radio group is a radiogroup that points at its help and its error" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Choice.radio_group
+          id="g"
+          legend="Priority"
+          help="One only"
+          error="Choose one"
+          required
+          orientation={:horizontal}
+        >
+          <Choice.radio id="r1" name="p" value="a" label="A" />
+          <Choice.radio id="r2" name="p" value="b" label="B" />
+        </Choice.radio_group>
+        """)
+
+      assert html =~ ~s(role="radiogroup")
+      assert html =~ ~s(aria-required="true")
+      assert html =~ ~s(aria-describedby="g-help g-error")
+      assert html =~ ~s(aria-invalid="true")
+      assert html =~ ~r/<p[^>]*id="g-error"[^>]*role="alert"|<p[^>]*role="alert"[^>]*id="g-error"/
+      assert html =~ "gap-x-4"
+      assert length(Regex.scan(~r/type="radio"/, html)) == 2
+    end
+
+    test "a disabled group reaches the fieldset, a plain one has neither help nor error" do
+      assigns = %{}
+
+      off =
+        rendered_to_string(~H"""
+        <Choice.radio_group id="g" legend="L" disabled>
+          <Choice.radio id="r1" name="p" value="a" label="A" />
+        </Choice.radio_group>
+        """)
+
+      assert off =~ ~r/<fieldset[^>]* disabled/
+      refute off =~ "aria-describedby"
+      refute off =~ "aria-required"
+      refute off =~ ~r/<span[^>]*>\*/
+    end
   end
 end

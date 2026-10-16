@@ -266,8 +266,14 @@
                      checked:border-[6px] checked:border-ink disabled:border-line disabled:bg-wrap focus-visible:ring-4 focus-visible:ring-ink/10; }
   .choice-label { @apply flex min-h-11 cursor-pointer items-start gap-3 py-2 text-[15px] text-ink has-disabled:cursor-not-allowed has-disabled:text-muted-2; }
   .choice-desc  { @apply text-[13px] text-muted; }
+  .choice-sm    { @apply min-h-10 gap-2 py-1.5; }
+  .choice-sm .checkbox, .choice-sm .radio { @apply size-4.5; }
+  .choice-task  { @apply has-checked:text-muted has-checked:line-through; }
+  .choice-task .checkbox { @apply size-5.5 rounded-full border-2 border-muted-2 checked:border-ink; }
+  .choice-group { @apply m-0 flex min-w-0 flex-col gap-1 border-0 p-0; }
+  .choice-legend { @apply mb-1 p-0 text-sm font-medium text-ink; }
   .choice-card  { @apply flex cursor-pointer flex-col gap-2 rounded-[14px] border-[1.5px] border-line bg-card p-3.5 transition
-                         hover:border-line-strong has-checked:border-ink has-checked:bg-wrap/70 has-focus-visible:ring-4 has-focus-visible:ring-ink/10; }
+                         hover:border-line-strong has-checked:border-ink has-checked:bg-wrap/70 has-focus-visible:ring-4 has-focus-visible:ring-ink/10 data-[invalid=true]:border-missing; }
 
   /* ---------- Editor (prancha 11) ---------- */
   .editor          { @apply rounded-xl border border-line bg-card focus-within:border-ink-2; }
