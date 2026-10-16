@@ -388,7 +388,7 @@
   .page-title  { @apply text-[2.5rem] leading-[1.05] font-semibold tracking-[-0.03em] max-sm:text-[2rem]; }
 
   /* ---------- Número, agenda, timer, assinatura (prancha 18) ---------- */
-  .number-input { @apply flex h-11 items-center overflow-hidden rounded-xl border border-line-strong [&>button]:h-full [&>button]:w-11 [&>button]:border-line [&>button]:bg-wrap/60 [&>button:first-child]:border-r [&>button:last-child]:border-l; }
+  .number-input { @apply flex h-11 items-center overflow-hidden rounded-xl border border-line-strong [&>button]:h-full [&>button]:w-11 [&>button]:border-line [&>button]:bg-(--fill-field-off) [&>button:first-child]:border-r [&>button:last-child]:border-l; }
   .calendar      { @apply grid grid-cols-7 overflow-hidden rounded-xl border-t border-l border-line; }
   .calendar-cell { @apply flex min-h-23 flex-col gap-1 border-r border-b border-line px-2 py-1.5 text-left aria-selected:bg-wrap/70; }
   .calendar-event{ @apply flex items-center gap-1.5 truncate rounded-md px-1.5 py-0.5 text-[11px]; }
