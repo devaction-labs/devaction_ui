@@ -112,6 +112,19 @@ defmodule DevactionUISite.DocsLiveTest do
     assert redirected_to(conn, 301) == "/"
   end
 
+  test "the document loads its styles and scripts through the endpoint's static paths" do
+    html = html_response(get(build_conn(), "/docs"), 200)
+
+    for path <- [
+          "/assets/css/site.css",
+          "/assets/js/app.js",
+          "/assets/js/theme.js",
+          "/images/favicon.svg"
+        ] do
+      assert html =~ DevactionUISite.Endpoint.static_path(path)
+    end
+  end
+
   describe "the shell" do
     setup do
       :ok = Ecto.Adapters.SQL.Sandbox.checkout(Repo)

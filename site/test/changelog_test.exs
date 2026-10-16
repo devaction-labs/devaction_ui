@@ -48,29 +48,31 @@ defmodule DevactionUISite.ChangelogTest do
   test "sync is idempotent and leaves entries added by hand alone" do
     {:ok, %Entry{}} = Changelog.add_entry("v0.2", "fixed", "Form", "slider-step", "A fix.")
     before = Changelog.counts(Changelog.versions())
+    assert before["fixed"] == 2
 
     Changelog.sync!()
     Changelog.sync!()
 
     assert Changelog.counts(Changelog.versions()) == before
-    assert before["fixed"] == 1
   end
 
   test "counts sum every kind for the filter pills" do
     counts = Changelog.counts(Changelog.versions())
 
     assert counts["all"] ==
-             counts["new"] + counts["planned"] + counts["improved"] + counts["breaking"]
+             counts["new"] + counts["planned"] + counts["improved"] + counts["breaking"] +
+               counts["fixed"]
 
     assert counts["new"] == length(Catalog.all()) + 1
     assert counts["planned"] == 1
     assert counts["improved"] > 0
     assert counts["breaking"] > 0
+    assert counts["fixed"] > 0
   end
 
   test "groups keep the order of the entries" do
     assert Enum.map(Changelog.groups(Changelog.current()), &elem(&1, 0)) ==
-             ["Base", "Overlay", "Form", "Data", "Improvements", "Breaking changes"]
+             ["Base", "Overlay", "Form", "Data", "Improvements", "Breaking changes", "Fixes"]
   end
 
   test "highlights read the current version" do

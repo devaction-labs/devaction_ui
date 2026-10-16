@@ -47,6 +47,11 @@ defmodule DevactionUISite.Changelog do
     {"breadcrumb", "A collapsed middle for long paths and a separator as text or chevron."}
   ]
 
+  @fixed [
+    {"site_assets",
+     "The documentation site serves its scripts, styles and icons under digested names, so a cache in front of it never hands a page an older script."}
+  ]
+
   @breaking [
     {"confirm_dialog",
      "Now a thin wrapper over `Modal`: `eyebrow` is gone and the close button is optional."},
@@ -248,7 +253,11 @@ defmodule DevactionUISite.Changelog do
       for {{name, summary}, index} <- Enum.with_index(@breaking, 1),
           do: row(ids["v0.2"], "breaking", "Breaking changes", name, summary, 2000 + index, now)
 
-    planned ++ released ++ improved ++ breaking
+    fixed =
+      for {{name, summary}, index} <- Enum.with_index(@fixed, 1),
+          do: row(ids["v0.2"], "fixed", "Fixes", name, summary, 3000 + index, now)
+
+    planned ++ released ++ improved ++ breaking ++ fixed
   end
 
   defp row(version_id, kind, group, name, summary, position, now) do
