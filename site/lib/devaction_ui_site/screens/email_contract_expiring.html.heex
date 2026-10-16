@@ -1,0 +1,27 @@
+<Email.styles dark_scope="[data-theme=dark]" />
+<Email.layout
+  preheader="No renewal proposal yet."
+  brand_name="DevAction IA"
+  brand_href="#"
+  logo_src="/images/email-logo.png"
+  signature="DevAction Labs · Feira de Santana, BA"
+>
+  <EmailTag.chip tone={:warn}>RENEWS IN 30 DAYS</EmailTag.chip>
+  <Email.heading>The contract Hub API renews in 30 days</Email.heading>
+  <Email.paragraph>Hi, Alex. No renewal proposal was sent to the client yet.</Email.paragraph>
+  <EmailTable.details>
+    <:row label="Client">Hub Tecnologia Ltda.</:row>
+    <:row label="Model">Monthly retainer</:row>
+    <:row label="Term ends">Nov 15, 2026</:row>
+    <:row label="Monthly value">R$ 8,400.00</:row>
+  </EmailTable.details>
+  <Email.button_row>
+    <:button href="#">Draft the renewal with AI</:button>
+    <:button href="#" variant={:secondary}>Open contract</:button>
+  </Email.button_row>
+  <:footer>
+    You get these notices because you turned on PR and contract notifications.
+    <Email.footer_link href="#">E-mail preferences</Email.footer_link>
+    · <Email.footer_link href="#">Unsubscribe</Email.footer_link>
+  </:footer>
+</Email.layout>

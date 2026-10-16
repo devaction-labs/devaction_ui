@@ -17,7 +17,8 @@ defmodule DevactionUISite.Catalog do
     {"Navigation", ~w(Breadcrumb PageHeader Pagination Shell Sidebar Stepper Steps)},
     {"Data",
      ~w(Calendar Chart DataTable DiffView FileTree Kanban PdfViewer Pricing Resizable SortableList)},
-    {"AI", ~w(AiPrompt Aura ChatBubble Composer)}
+    {"AI", ~w(AiPrompt Aura ChatBubble Composer)},
+    {"Email", ~w(Email EmailCallout EmailTable EmailTag)}
   ]
 
   @groups (for {category, names} <- @categories do
@@ -52,21 +53,25 @@ defmodule DevactionUISite.Catalog do
 
   @since_v03 ~w(Composer RowMenu ScrollArea Shell)
 
+  @since_v04 ~w(Email EmailCallout EmailTable EmailTag)
+
   @doc "The components, grouped by category, in the order of the sidebar."
   def groups, do: @groups
 
   @doc "Every component in order."
   def all, do: @entries
 
-  @doc "The version a component came with: the ones added in v0.3 say 0.3, in v0.2 say 0.2, the rest say 0.1."
+  @doc "The version a component came with: the ones added in v0.4 say 0.4, in v0.3 say 0.3, in v0.2 say 0.2, the rest say 0.1."
   def since(%{module: module}), do: since(Reference.short(module))
+  def since(name) when name in @since_v04, do: "0.4"
   def since(name) when name in @since_v03, do: "0.3"
   def since(name) when name in @since_v02, do: "0.2"
   def since(_name), do: "0.1"
 
-  @doc "The version entry of the changelog a component was created in: `v0.3.0` for the layout theme, else `v0.2.0`."
+  @doc "The version entry of the changelog a component was created in: `v0.4` for the e-mail set, `v0.3.0` for the layout theme, else `v0.2.0`."
   def release(topic), do: release_of(since(topic))
 
+  defp release_of("0.4"), do: "v0.4"
   defp release_of("0.3"), do: "v0.3.0"
   defp release_of(since), do: "v#{since}.0"
 

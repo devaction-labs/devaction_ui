@@ -641,6 +641,8 @@ defmodule DevactionUISite.HomeHTML do
   defp group_style("Data"), do: %{icon: "chart-line-data-01", tint: "bg-wrap text-ink"}
   defp group_style("AI"), do: %{icon: "sparkles", tint: "bg-tag-warn-bg text-tag-warn-text"}
 
+  defp group_style("Email"), do: %{icon: "mail-01", tint: "bg-tag-info-bg text-p-info"}
+
   defp group_style("Templates"),
     do: %{icon: "lock-password", tint: "bg-tag-risk-bg text-tag-risk-text"}
 

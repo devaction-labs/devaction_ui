@@ -5,6 +5,8 @@ defmodule DevactionUISite.Templates do
   drawn from `screens/<group>_<slug>.html.heex`, and the documentation shows it scaled down beside its code.
   """
 
+  @width 1440
+
   @groups [
     %{
       slug: "auth",
@@ -75,6 +77,90 @@ defmodule DevactionUISite.Templates do
           height: 900
         }
       ]
+    },
+    %{
+      slug: "email",
+      since: "0.4",
+      width: 720,
+      title: "Email",
+      summary:
+        "The transactional and product e-mails of an app: eleven messages built only from the e-mail components, as tables with inline styles, with a light and a dark preview.",
+      screens: [
+        %{
+          slug: "magic_link",
+          title: "Magic link",
+          text:
+            "Sign in with one click: a button, the address to copy, and a line that says when and where it was asked.",
+          height: 603
+        },
+        %{
+          slug: "confirm_account",
+          title: "Confirm account",
+          text: "A welcome with the three steps ahead and the button that confirms the e-mail.",
+          height: 782
+        },
+        %{
+          slug: "update_email",
+          title: "Update e-mail",
+          text:
+            "The new address in a details table, a button, and the promise that the old one stays if it was not you.",
+          height: 643
+        },
+        %{
+          slug: "reset_password",
+          title: "Reset password",
+          text:
+            "A button that works for one hour, a notice for who needs to sign in now, and the address to copy.",
+          height: 681
+        },
+        %{
+          slug: "password_changed",
+          title: "Password changed",
+          text:
+            "What changed, when and where, a notice in risk tone and a secondary button to reset it again.",
+          height: 676
+        },
+        %{
+          slug: "new_device",
+          title: "New device",
+          text:
+            "The details of a first access from a device and a secondary button for who does not recognize it.",
+          height: 701
+        },
+        %{
+          slug: "review_ready",
+          title: "Review ready",
+          text:
+            "A pull request reviewed by the AI: the counts, the findings with their place, the button and a suggested lesson.",
+          height: 940
+        },
+        %{
+          slug: "contract_expiring",
+          title: "Contract expiring",
+          text: "A renewal in 30 days: the details of the contract and two buttons side by side.",
+          height: 699
+        },
+        %{
+          slug: "amendment_signature",
+          title: "Amendment for signature",
+          text:
+            "Sent to the client with the agency's name: the new scope as a list, the new date and a button to sign.",
+          height: 839
+        },
+        %{
+          slug: "weekly_digest",
+          title: "Weekly digest",
+          text:
+            "Three numbers, the next contract events with their tags, a suggested lesson and a button.",
+          height: 955
+        },
+        %{
+          slug: "workspace_invite",
+          title: "Workspace invite",
+          text: "Who invited you, the role in a chip and a button to accept.",
+          height: 601
+        }
+      ]
     }
   ]
 
@@ -99,6 +185,6 @@ defmodule DevactionUISite.Templates do
     end
   end
 
-  @doc "The width every screen is drawn at before it is scaled to the page."
-  def width, do: 1440
+  @doc "The width every screen is drawn at before it is scaled to the page: the group's own, else 1440."
+  def width(group), do: Map.get(group, :width, @width)
 end

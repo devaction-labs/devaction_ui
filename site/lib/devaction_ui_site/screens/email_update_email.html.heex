@@ -1,0 +1,27 @@
+<Email.styles dark_scope="[data-theme=dark]" />
+<Email.layout
+  preheader="The change only counts after the click."
+  brand_name="DevAction IA"
+  brand_href="#"
+  logo_src="/images/email-logo.png"
+  signature="DevAction Labs · Feira de Santana, BA"
+>
+  <Email.heading>Confirm your new e-mail</Email.heading>
+  <Email.paragraph>
+    Hi, Alex. We got a request to change the e-mail of your account.
+  </Email.paragraph>
+  <EmailTable.details>
+    <:row label="New e-mail">alex.new@devaction.com.br</:row>
+  </EmailTable.details>
+  <Email.button href="#">Confirm new e-mail</Email.button>
+  <Email.link_fallback href="https://app.devaction.com.br/users/settings/confirm-email/Rt5vB8mLx2">
+    If the button does not work, copy and paste this address in your browser:
+  </Email.link_fallback>
+  <Email.divider />
+  <Email.paragraph size={:small} flush>
+    The link works for 7 days. If it was not you, ignore this e-mail and your current e-mail stays valid.
+  </Email.paragraph>
+  <:footer>
+    You got this e-mail because you have a DevAction IA account. It is automatic: replies are not read.
+  </:footer>
+</Email.layout>
