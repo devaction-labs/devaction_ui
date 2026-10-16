@@ -76,6 +76,23 @@ defmodule DevactionUI.PaginationTest do
       refute html =~ "›"
     end
 
+    test "without icon slots the arrows are 14px inline chevrons, never glyphs" do
+      assigns = %{path: & &1}
+
+      html =
+        rendered_to_string(
+          ~H|<.pagination page={2} pages={3} path={@path} label="P" previous="a" next="b" />|
+        )
+
+      assert length(Regex.scan(~r/<svg[^>]*size-3\.5/, html)) == 2
+      assert html =~ "stroke-width=\"2\""
+      assert html =~ "rtl:-scale-x-100"
+      assert html =~ ~s(d="m15 6-6 6 6 6")
+      assert html =~ ~s(d="m9 6 6 6-6 6")
+      refute html =~ "‹"
+      refute html =~ "›"
+    end
+
     test "the page is clamped when it is past the last one" do
       assigns = %{path: &"/p?page=#{&1}"}
 
