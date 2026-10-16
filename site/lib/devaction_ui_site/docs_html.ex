@@ -661,7 +661,11 @@ new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
   attr :group, :map, required: true
 
   defp templates(assigns) do
-    assigns = assign(assigns, width: Templates.width(), screens: available_screens(assigns.group))
+    assigns =
+      assign(assigns,
+        width: Templates.width(assigns.group),
+        screens: available_screens(assigns.group)
+      )
 
     ~H"""
     <article id={"templates-" <> @group.slug} class="flex flex-col">

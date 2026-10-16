@@ -1,0 +1,17 @@
+<%!-- title: Text | text: The heading, the paragraph in its three sizes, an emphasis that stays readable in dark mode, a mono caption, the divider and the address to copy when the button fails. --%>
+<div class="max-w-[520px]">
+  <Email.heading>Reset your password</Email.heading>
+  <Email.paragraph lead>Hi, Alex.</Email.paragraph>
+  <Email.paragraph>
+    Click the button to create a new password. The link works for <Email.emphasis>1 hour</Email.emphasis>.
+  </Email.paragraph>
+  <Email.caption>WHAT HAPPENS NEXT</Email.caption>
+  <Email.paragraph size={:compact}>We end the sessions on your other devices.</Email.paragraph>
+  <Email.link_fallback href="https://app.devaction.test/reset/8f2c1a">
+    If the button does not work, copy and paste this address in your browser:
+  </Email.link_fallback>
+  <Email.divider />
+  <Email.paragraph size={:small} flush>
+    If you did not ask for this, ignore this e-mail. Your password stays the same.
+  </Email.paragraph>
+</div>

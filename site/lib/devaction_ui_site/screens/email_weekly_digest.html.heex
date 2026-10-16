@@ -1,0 +1,40 @@
+<Email.styles dark_scope="[data-theme=dark]" />
+<Email.layout
+  preheader="12 PRs reviewed and 3 contract events ahead."
+  brand_name="DevAction IA"
+  brand_href="#"
+  logo_src="/images/email-logo.png"
+  signature="DevAction Labs · Feira de Santana, BA"
+>
+  <EmailTag.chip>WEEK OF OCT 12</EmailTag.chip>
+  <Email.heading>Your week, Alex</Email.heading>
+  <EmailTable.stats>
+    <:stat value="12" label="PRs reviewed" />
+    <:stat value="7" label="Risks found" />
+    <:stat value="3" label="Lessons done" />
+  </EmailTable.stats>
+  <Email.caption>NEXT CONTRACT EVENTS</Email.caption>
+  <EmailTable.event_list>
+    <:item title="Renewal" detail="Hub API" tone={:warn} tag="IN 30 DAYS" date="Nov 15" />
+    <:item
+      title="Milestone 2"
+      detail="SGE · Church Management"
+      tone={:risk}
+      tag="LATE"
+      date="Oct 12"
+    />
+    <:item title="Amendment 03" detail="AYRAM web" tone={:info} tag="TO SIGN" date="Oct 24" />
+  </EmailTable.event_list>
+  <EmailCallout.highlight
+    label="SUGGESTED LESSON"
+    title="Idempotent jobs in Oban"
+    href="#"
+    meta="12 min · Elixir · Intermediate"
+  />
+  <Email.button href="#">Open DevAction IA</Email.button>
+  <:footer>
+    You get these notices because you turned on PR and contract notifications.
+    <Email.footer_link href="#">E-mail preferences</Email.footer_link>
+    · <Email.footer_link href="#">Unsubscribe</Email.footer_link>
+  </:footer>
+</Email.layout>

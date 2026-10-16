@@ -2,6 +2,18 @@
 
 Every release lists new components, improvements, fixes and breaking changes. While the version is 0.x a minor release may break compatibility, and every break is listed with the step to follow.
 
+## Unreleased
+
+### New
+
+- E-mail components, for the transactional and product messages of an app, built as tables with inline styles (no Tailwind, no CSS variables, no flex or grid) with the hex values of the canvas kept in one module and a dark mode through `prefers-color-scheme`:
+  - `DevactionUI.Email`: `document/1` (doctype, `color-scheme` metas and the one `<style>`: 600px column, mobile padding, dark rules on the `em-*` classes), `styles/1`, `layout/1` (preheader, brand, card, footer slots and signature), `heading/1`, `paragraph/1`, `emphasis/1`, `caption/1`, `button/1`, `button_row/1`, `link_fallback/1`, `divider/1`, `byline/1`, `footer_link/1` and `to_html/1`.
+  - `DevactionUI.EmailTag`: `tag/1` in the tones `:risk`, `:warn`, `:ok`, `:info` and `:neutral`, `tag_row/1` and `chip/1`.
+  - `DevactionUI.EmailCallout`: `callout/1` and `highlight/1`.
+  - `DevactionUI.EmailTable`: `details/1`, `finding_list/1`, `code_list/1`, `event_list/1`, `steps/1` and `stats/1`.
+  - Every text is a required attribute or a slot: the components draw no words of their own.
+- The documentation site has an "Email" category and an "Email" template group with eleven e-mails (magic link, confirm account, update e-mail, reset password, password changed, new device, review ready, contract expiring, amendment for signature, weekly digest, workspace invite) with a light and a dark preview.
+
 ## 0.3.2
 
 ### Improved

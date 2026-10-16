@@ -1,0 +1,24 @@
+<Email.styles dark_scope="[data-theme=dark]" />
+<Email.layout
+  preheader="Firefox on Linux, on Oct 16 at 09:12."
+  brand_name="DevAction IA"
+  brand_href="#"
+  logo_src="/images/email-logo.png"
+  signature="DevAction Labs · Feira de Santana, BA"
+>
+  <Email.heading>New access to your account</Email.heading>
+  <Email.paragraph>
+    Hi, Alex. Your account was accessed from a device we had not seen before.
+  </Email.paragraph>
+  <EmailTable.details>
+    <:row label="Device">Firefox on Linux</:row>
+    <:row label="When">Oct 16, 2026 at 09:12</:row>
+    <:row label="Way in">Magic link</:row>
+    <:row label="Keep me signed in">Yes, 30 days</:row>
+  </EmailTable.details>
+  <Email.paragraph size={:compact}>Was it you? You do not need to do anything.</Email.paragraph>
+  <Email.button href="#" variant={:secondary}>I do not recognize this access</Email.button>
+  <:footer>
+    You got this e-mail because you have a DevAction IA account. It is automatic: replies are not read.
+  </:footer>
+</Email.layout>

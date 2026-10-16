@@ -1,0 +1,23 @@
+<%!-- title: Finding list | text: A tag, a bold title and the place in mono, one row for each finding of a review. --%>
+<div class="max-w-[520px]">
+  <EmailTable.finding_list>
+    <:item
+      tone={:risk}
+      tag="RISK"
+      title="The query is not scoped to the tenant"
+      location="lib/sge/billing.ex:112"
+    />
+    <:item
+      tone={:warn}
+      tag="ATTENTION"
+      title="The retry has no limit"
+      location="lib/sge/sync.ex:48"
+    />
+    <:item
+      tone={:info}
+      tag="SUGGESTION"
+      title="Extract the date helper"
+      location="lib/sge/billing.ex:140"
+    />
+  </EmailTable.finding_list>
+</div>
