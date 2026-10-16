@@ -1,0 +1,19 @@
+<%!-- title: Answer in progress | text: With `busy` the field is read only and the send button is a stop button; a click or Esc sends `stop_event`. Here the answer ends by itself after three seconds. --%>
+<div class="flex w-full max-w-xl flex-col gap-3">
+  <Composer.composer
+    id="composer-stream"
+    event="composer_ask"
+    stop_event="composer_stop"
+    label="Message"
+    send_label="Send"
+    stop_label="Stop the answer"
+    placeholder="Ask and watch the button change..."
+    busy={@composer.busy}
+  >
+    <:icon><.icon name="arrow-up-02" class="size-4" /></:icon>
+    <:stop><.icon name="stop" class="size-4" /></:stop>
+  </Composer.composer>
+  <p class="m-0 text-sm text-muted" aria-live="polite">
+    {(@composer.busy && "The AI is answering...") || "Idle."}
+  </p>
+</div>

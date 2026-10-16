@@ -12,6 +12,7 @@ defmodule DevactionUISite.ExampleLive do
   alias DevactionUISite.{ReviewDemo, TopicHTML}
 
   @forms_repos ~w(sge-api ayram-web hub-api)
+  @composer_ids ~w(composer-basic composer-stream composer-files)
   @overlays ~w(drawer_floating drawer_docked drawer_left drawer_wide modal_confirm modal_form modal_success modal_tall danger drawer_sheet drawer_stack confirm_locked)
 
   @rows [
@@ -246,6 +247,7 @@ defmodule DevactionUISite.ExampleLive do
        secret_revealed: false,
        banners_dismissed: [],
        menus: %{picked: nil},
+       composer: %{sent: [], busy: false},
        suggest: %{mode: "mention", active: 0},
        sortable: %{items: @milestones, order: @milestone_order, last: nil},
        resizable: %{sizes: @panes},
@@ -258,6 +260,12 @@ defmodule DevactionUISite.ExampleLive do
        accept: ~w(audio/* .txt),
        max_entries: 1,
        max_file_size: 200_000_000
+     )
+     |> allow_upload(:attachments,
+       accept: :any,
+       max_entries: 4,
+       max_file_size: 5_000_000,
+       auto_upload: true
      )}
   end
 
@@ -690,6 +698,38 @@ defmodule DevactionUISite.ExampleLive do
   def handle_event("time_change", %{"entry" => %{"start" => start, "end" => stop}}, socket),
     do: {:noreply, assign(socket, :times, %{start: start, stop: stop})}
 
+  def handle_event("composer_change", _params, socket), do: {:noreply, socket}
+
+  def handle_event("composer_cancel", %{"ref" => ref}, socket),
+    do: {:noreply, cancel_upload(socket, :attachments, ref)}
+
+  def handle_event("composer_send", %{"prompt" => text}, socket) do
+    entries = socket.assigns.uploads.attachments.entries
+    files = Enum.map(entries, & &1.client_name)
+
+    socket =
+      Enum.reduce(entries, socket, fn entry, acc ->
+        cancel_upload(acc, :attachments, entry.ref)
+      end)
+
+    {:noreply,
+     socket
+     |> update(:composer, &%{&1 | sent: &1.sent ++ [%{text: text, files: files}]})
+     |> push_clear()}
+  end
+
+  def handle_event("composer_ask", %{"prompt" => text}, socket) do
+    Process.send_after(self(), :composer_done, 3000)
+
+    {:noreply,
+     socket
+     |> update(:composer, &%{&1 | busy: true, sent: &1.sent ++ [%{text: text, files: []}]})
+     |> push_clear()}
+  end
+
+  def handle_event("composer_stop", _params, socket),
+    do: {:noreply, update(socket, :composer, &%{&1 | busy: false})}
+
   def handle_event("context_pick", %{"choice" => choice}, socket),
     do: {:noreply, update(socket, :menus, &%{&1 | picked: choice})}
 
@@ -840,6 +880,10 @@ defmodule DevactionUISite.ExampleLive do
     )
   end
 
+  defp push_clear(socket) do
+    Enum.reduce(@composer_ids, socket, &push_event(&2, "composer:clear", %{id: &1}))
+  end
+
   defp fold(text),
     do: text |> String.normalize(:nfd) |> String.replace(~r/\p{Mn}/u, "") |> String.downcase()
 
@@ -851,6 +895,9 @@ defmodule DevactionUISite.ExampleLive do
   end
 
   def handle_info(:job_tick, socket), do: {:noreply, socket}
+
+  def handle_info(:composer_done, socket),
+    do: {:noreply, update(socket, :composer, &%{&1 | busy: false})}
 
   def handle_info({:toast_report, id, :ok}, socket),
     do:

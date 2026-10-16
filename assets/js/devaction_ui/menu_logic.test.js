@@ -1,6 +1,6 @@
 import assert from "node:assert/strict"
 import test from "node:test"
-import {asksForContextMenu, buttonView, closesOnSelect, counts, extendBuffer, isExpanded, isTypeahead, keyboardAnchor, matchIndex, pendingCount, resetAction, selectedStates} from "./menu_logic.js"
+import {asksForContextMenu, buttonView, closesOnSelect, counts, extendBuffer, isExpanded, isTypeahead, keyboardAnchor, matchIndex, pendingCount, placeFixed, resetAction, selectedStates} from "./menu_logic.js"
 
 const key = (key, extra = {}) => ({key, ctrlKey: false, metaKey: false, altKey: false, ...extra})
 
@@ -135,4 +135,23 @@ test("the menu key and Shift + F10 ask for the context menu, other keys do not",
 test("the keyboard opens the menu hanging from the start of the focused element", () => {
   assert.deepEqual(keyboardAnchor({left: 100, top: 200, width: 400, height: 44}), {x: 132, y: 240})
   assert.deepEqual(keyboardAnchor({left: 100, top: 200, width: 20, height: 44}), {x: 110, y: 240})
+})
+
+const screen = {width: 1000, height: 700}
+const buttonAt = (left, top) => ({left, top, right: left + 30, bottom: top + 30})
+const menuBox = {width: 190, height: 120}
+
+test("a fixed menu opens under the button, its end on the end of the button", () => {
+  assert.deepEqual(placeFixed("end", buttonAt(900, 100), menuBox, screen), {side: "bottom", top: 136, left: 740})
+})
+
+test("a fixed menu opens above the button when there is no room below", () => {
+  const placed = placeFixed("end", buttonAt(900, 650), menuBox, screen)
+  assert.equal(placed.side, "top")
+  assert.equal(placed.top, 650 - 6 - 120)
+})
+
+test("a fixed menu never leaves the screen", () => {
+  assert.equal(placeFixed("start", buttonAt(960, 100), menuBox, screen).left, 1000 - 8 - 190)
+  assert.equal(placeFixed("end", buttonAt(0, 100), menuBox, screen).left, 8)
 })

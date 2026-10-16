@@ -1,0 +1,19 @@
+<%!-- title: Links and alignment | text: An item can go to `navigate`, `patch` or `href`, a heading names a group and a disabled item stays out of the keys. `align={:start}` puts the start of the menu on the start of the button. --%>
+<div class="flex items-start justify-between gap-4 pb-40">
+  <RowMenu.row_menu
+    id="row-menu-start"
+    label="Report"
+    trigger_label="Report actions"
+    align={:start}
+  >
+    <:trigger><.icon name="more-horizontal" class="size-4" /></:trigger>
+    <:item patch="/c/row_menu">Open this page</:item>
+    <:item event="context_pick" value="export" heading="Export">Export as CSV</:item>
+    <:item event="context_pick" value="share" disabled>Share</:item>
+  </RowMenu.row_menu>
+  <RowMenu.row_menu id="row-menu-end" label="Report" trigger_label="Report actions">
+    <:trigger><.icon name="more-horizontal" class="size-4" /></:trigger>
+    <:item event="context_pick" value="duplicate">Duplicate</:item>
+    <:item event="context_pick" value="archive">Archive</:item>
+  </RowMenu.row_menu>
+</div>

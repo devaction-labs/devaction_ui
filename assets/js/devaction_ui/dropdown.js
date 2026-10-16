@@ -1,5 +1,5 @@
 import {runKey, wrap} from "./keys.js"
-import {closesOnSelect, extendBuffer, isTypeahead, matchIndex} from "./menu_logic.js"
+import {closesOnSelect, extendBuffer, isTypeahead, matchIndex, placeFixed} from "./menu_logic.js"
 import {chooseSide, screenSize} from "./placement.js"
 
 const ITEM = '[role^="menuitem"]:not([aria-disabled="true"])'
@@ -11,7 +11,9 @@ const ITEM = '[role^="menuitem"]:not([aria-disabled="true"])'
  * `[role^="menuitem"]` buttons and links that are not disabled; the server draws which one is checked. The
  * menu opens above the button when there is no room below it. Typing a letter jumps to the next item whose
  * text starts with it (more letters, typed together, narrow it down); `data-close-on-select="false"` keeps the
- * menu open after an item is chosen.
+ * menu open after an item is chosen. With `data-fixed="true"` the menu is `position: fixed` and placed from the
+ * rectangle of the button, so no `overflow` of a table or a scroll area cuts it; it closes when anything scrolls
+ * or the window is resized, because it would no longer sit under its button.
  */
 export default {
   mounted() {
@@ -23,11 +25,27 @@ export default {
     this.menu.addEventListener("keydown", (event) => this.onMenuKey(event))
     this.menu.addEventListener("click", (event) => event.target.closest(ITEM) && closesOnSelect(this.el.dataset.closeOnSelect) && this.close(true))
     this.outside = (event) => !this.el.contains(event.target) && this.close(false)
+    this.leave = (event) => !this.menu.contains(event.target) && this.close(false)
     document.addEventListener("mousedown", this.outside)
   },
 
   destroyed() {
     document.removeEventListener("mousedown", this.outside)
+    this.unwatchMovement()
+  },
+
+  isFixed() {
+    return this.el.dataset.fixed === "true"
+  },
+
+  watchMovement() {
+    this.isFixed() && window.addEventListener("scroll", this.leave, true)
+    this.isFixed() && window.addEventListener("resize", this.leave)
+  },
+
+  unwatchMovement() {
+    window.removeEventListener("scroll", this.leave, true)
+    window.removeEventListener("resize", this.leave)
   },
 
   items() {
@@ -79,14 +97,27 @@ export default {
   },
 
   place() {
+    this.isFixed() ? this.placeFixed() : this.placeBelowOrAbove()
+  },
+
+  placeBelowOrAbove() {
     const {top, bottom} = this.trigger.getBoundingClientRect()
     const room = {panel: this.menu.offsetHeight, above: top, below: screenSize().height - bottom}
     this.menu.dataset.side = chooseSide("bottom", room)
   },
 
+  placeFixed() {
+    const panel = {width: this.menu.offsetWidth, height: this.menu.offsetHeight}
+    const {side, top, left} = placeFixed(this.el.dataset.align, this.trigger.getBoundingClientRect(), panel, screenSize())
+    this.menu.dataset.side = side
+    this.menu.style.top = `${top}px`
+    this.menu.style.left = `${left}px`
+  },
+
   open() {
     this.menu.hidden = false
     this.place()
+    this.watchMovement()
     this.trigger.setAttribute("aria-expanded", "true")
     const chosen = this.items().findIndex((item) => item.getAttribute("aria-checked") === "true")
     this.focusItem(Math.max(chosen, 0))
@@ -95,6 +126,7 @@ export default {
   close(returnFocus) {
     if (this.menu.hidden) return
     this.menu.hidden = true
+    this.unwatchMovement()
     this.trigger.setAttribute("aria-expanded", "false")
     returnFocus && this.trigger.focus()
   },

@@ -2,6 +2,17 @@
 
 Every release lists new components, improvements, fixes and breaking changes. While the version is 0.x a minor release may break compatibility, and every break is listed with the step to follow.
 
+## Unreleased
+
+### New
+
+- `Composer`: the message field of the AI chat, comments and notes, with `Composer.button/1` and `Composer.file/1`.
+- `RowMenu`: the "..." menu of a table row, fixed to the window so no `overflow` cuts it.
+
+### Improved
+
+- `Dropdown` takes `fixed`: the menu opens with `position: fixed` from the rectangle of its button.
+
 ## 0.2.6
 
 ### Improved

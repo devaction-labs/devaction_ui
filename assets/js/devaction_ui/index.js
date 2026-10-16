@@ -13,6 +13,7 @@ import Calendar from "./calendar.js"
 import ColorPicker from "./color_picker.js"
 import CodeCopy from "./code_copy.js"
 import Combobox from "./combobox.js"
+import Composer from "./composer.js"
 import ContextMenu from "./context_menu.js"
 import Dropdown from "./dropdown.js"
 import Editor from "./editor.js"
@@ -49,6 +50,7 @@ export const hooks = {
   "DevactionUI.ColorPicker": ColorPicker,
   "DevactionUI.CodeCopy": CodeCopy,
   "DevactionUI.Combobox": Combobox,
+  "DevactionUI.Composer": Composer,
   "DevactionUI.CopyField": CodeCopy,
   "DevactionUI.CookieConsent": CookieConsent,
   "DevactionUI.ContextMenu": ContextMenu,

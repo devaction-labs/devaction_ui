@@ -320,7 +320,7 @@ defmodule DevactionUISite.Changelog do
     released =
       for {since, rows} <- Enum.group_by(components ++ templates, &elem(&1, 0)),
           {{_since, group, name, summary}, index} <- Enum.with_index(rows, 1),
-          do: row(ids["v#{since}.0"], "new", group, name, summary, index, now)
+          do: row(release_id(ids, since), "new", group, name, summary, index, now)
 
     improved =
       for {{name, summary}, index} <- Enum.with_index(@improved, 1),
@@ -337,6 +337,9 @@ defmodule DevactionUISite.Changelog do
 
     planned ++ released ++ improved ++ breaking ++ patches
   end
+
+  defp release_id(ids, "0.3"), do: ids["v0.3"]
+  defp release_id(ids, since), do: ids["v#{since}.0"]
 
   defp row(version_id, kind, group, name, summary, position, now) do
     %{

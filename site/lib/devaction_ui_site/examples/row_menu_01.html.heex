@@ -1,0 +1,41 @@
+<%!-- title: In a table | text: The table clips whatever sticks out of it (`overflow-hidden`), but the menu is fixed to the window, so it is never cut. Near the bottom of the window it opens upwards. --%>
+<div class="flex w-full flex-col gap-3">
+  <div class="max-h-60 w-full overflow-hidden rounded-xl border border-line bg-card">
+    <table class="w-full border-collapse text-left text-sm">
+      <thead>
+        <tr class="border-b border-line-soft text-muted">
+          <th class="px-4 py-2.5 font-medium">Pull request</th>
+          <th class="px-4 py-2.5 font-medium">Author</th>
+          <th class="w-12 px-2 py-2.5"><span class="sr-only">Actions</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr :for={row <- @rows} class="border-b border-line-soft last:border-0">
+          <td class="px-4 py-2.5 text-ink">#{row.id} {row.title}</td>
+          <td class="px-4 py-2.5 text-ink-2">{row.author}</td>
+          <td class="px-2 py-1.5 text-right">
+            <RowMenu.row_menu
+              id={"row-menu-#{row.id}"}
+              label={"Actions for #{row.title}"}
+              trigger_label={"Actions for #{row.title}"}
+            >
+              <:trigger><.icon name="more-horizontal" class="size-4" /></:trigger>
+              <:item event="context_pick" value={"open-#{row.id}"} shortcut="↵">
+                <.icon name="link-square-02" class="size-4" /> Open
+              </:item>
+              <:item event="context_pick" value={"rename-#{row.id}"}>
+                <.icon name="pencil-edit-02" class="size-4" /> Rename
+              </:item>
+              <:item event="context_pick" value={"delete-#{row.id}"} separator danger>
+                <.icon name="delete-02" class="size-4" /> Delete
+              </:item>
+            </RowMenu.row_menu>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="m-0 text-sm text-muted" aria-live="polite">
+    {(@menus.picked && "Chose: #{@menus.picked}") || "Open the menu of a row."}
+  </p>
+</div>

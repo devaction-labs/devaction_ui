@@ -1091,3 +1091,33 @@
   .toast-list, .toast-item, .toast-row { transition-duration: 0.01ms; transition-delay: 0ms; }
   .toast-item[data-variant="loading"] .toast-icon svg { animation-duration: 3s; }
 }
+
+/* DevactionUI.Composer: the message field of the AI chat, comments and notes. It grows with the text (the hook
+   sets the height of the textarea), lights its border on focus, turns red over the limit and dashed amber
+   while a file is dragged over it. */
+@layer components {
+  .composer         { @apply relative flex cursor-text flex-col rounded-[18px] border border-line bg-card shadow-[0_8px_24px_-16px_color-mix(in_oklab,var(--ink)_30%,transparent)] transition-[border-color,box-shadow]
+                             focus-within:border-line-strong focus-within:shadow-[0_0_0_3px_color-mix(in_oklab,var(--ink)_6%,transparent),0_8px_24px_-16px_color-mix(in_oklab,var(--ink)_30%,transparent)]
+                             data-[over]:border-risk-fg data-[over]:shadow-[0_0_0_3px_color-mix(in_oklab,var(--tag-risk-text)_10%,transparent)]
+                             data-[dragging]:border-dashed data-[dragging]:border-ai data-[dragging]:bg-warn-bg; }
+  .composer-header  { @apply flex flex-wrap gap-2 px-3 pt-3 empty:hidden; }
+  .composer-file    { @apply relative box-border flex h-13 items-center gap-2 rounded-xl border border-line bg-wrap p-1.25 text-[13px]; }
+  .composer-file img { @apply h-10 w-13 rounded-lg object-cover; }
+  .composer-file-remove { @apply absolute -top-1.75 -right-1.75 grid size-5 cursor-pointer place-items-center rounded-full border-2 border-card bg-ink p-0 text-on-primary; }
+  .composer-input   { @apply box-border block min-h-7.5 w-full resize-none overflow-y-hidden border-0 bg-transparent px-4 pt-3.5 pb-1.5 text-[15px] leading-[1.55] text-ink outline-none placeholder:text-muted placeholder:opacity-80
+                             [.composer[data-busy=true]_&]:text-muted;
+                      scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+  .composer-actions { @apply flex items-center gap-0.5 px-2.5 pt-2 pb-2.5; }
+  .composer-leading, .composer-trailing { @apply flex items-center gap-0.5; }
+  .composer-trailing { @apply ml-auto gap-2; }
+  .composer-btn     { @apply inline-flex size-8.5 cursor-pointer items-center justify-center rounded-[10px] border border-transparent bg-transparent text-ink-2 hover:bg-wrap hover:text-ink data-[variant=filled]:border-line data-[variant=filled]:bg-wrap; }
+  .composer-btn svg { @apply size-4.5; }
+  .composer-send    { @apply inline-flex size-8.5 cursor-pointer items-center justify-center rounded-[10px] border-0 bg-ink text-on-primary disabled:cursor-default disabled:bg-line disabled:text-muted; }
+  .composer-send svg { @apply size-4.25; }
+  .composer-send .composer-stop-icon, .composer-send[data-stop] .composer-send-icon { @apply hidden; }
+  .composer-send[data-stop] .composer-stop-icon { @apply block; }
+  .composer-count   { @apply font-mono text-[11px] text-muted [.composer[data-over]_&]:text-risk-fg; }
+  .composer[data-size=sm] { @apply flex-row items-center rounded-[14px] shadow-none; }
+  .composer[data-size=sm] .composer-input   { @apply px-3.5 py-3 text-sm; }
+  .composer[data-size=sm] .composer-actions { @apply p-1.5; }
+}

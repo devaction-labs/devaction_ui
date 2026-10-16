@@ -11,6 +11,11 @@ defmodule DevactionUISite.ChangelogTest do
 
   defp new_names(version), do: for(%{kind: "new"} = entry <- version.entries, do: entry.name)
 
+  defp release_of(topic), do: release_name(Catalog.since(topic))
+
+  defp release_name("0.3"), do: "v0.3"
+  defp release_name(since), do: "v#{since}.0"
+
   defp by_version, do: Map.new(Changelog.versions(), &{&1.version, &1})
 
   test "the current version is the newest release, and every patch has its own entry" do
@@ -36,7 +41,7 @@ defmodule DevactionUISite.ChangelogTest do
     versions = by_version()
 
     for topic <- Catalog.all() do
-      assert topic.slug in new_names(versions["v#{Catalog.since(topic)}.0"])
+      assert topic.slug in new_names(versions[release_of(topic)])
     end
 
     assert "auth" in new_names(versions["v0.1.0"])
@@ -63,8 +68,15 @@ defmodule DevactionUISite.ChangelogTest do
   test "the next version plans only what is truly missing" do
     next = by_version()["v0.3"]
 
-    assert Enum.map(next.entries, & &1.name) == ["x-ui.*"]
-    assert Enum.all?(next.entries, &(&1.kind == "planned"))
+    planned = for %{kind: "planned"} = entry <- next.entries, do: entry.name
+
+    assert planned == ["x-ui.*"]
+  end
+
+  test "the next version lists the components that came after v0.2 as new" do
+    next = by_version()["v0.3"]
+
+    assert ["composer", "row_menu"] -- new_names(next) == []
   end
 
   test "the old two-part versions are removed when sync runs" do
