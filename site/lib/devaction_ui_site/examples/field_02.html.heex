@@ -1,0 +1,21 @@
+<%!-- title: Required and optional | text: A red asterisk for what is required, a muted word for what is not --%>
+<div class="grid max-w-md gap-5">
+  <Field.field
+    :let={field}
+    id="field-required"
+    label="Repository slug"
+    required
+    hint="Lowercase letters, numbers and hyphens."
+  >
+    <InputGroup.input_group
+      id={field.id}
+      name="slug"
+      value="sge-api"
+      aria-required="true"
+      aria-describedby={field.aria[:"aria-describedby"]}
+    />
+  </Field.field>
+  <Field.field :let={field} id="field-optional" label="Website" optional="optional">
+    <InputGroup.input_group id={field.id} name="website" placeholder="https://" />
+  </Field.field>
+</div>

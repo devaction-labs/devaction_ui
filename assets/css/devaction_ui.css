@@ -799,3 +799,17 @@
 .color-picker-hue::-moz-range-thumb {
   background: var(--cp-hue);
 }
+
+/* ---------- Banner, copy field (v0.2) ---------- */
+:root {
+  --banner-info-fg: light-dark(#1E3A8A, #A9C3FF);
+  --banner-warn-fg: light-dark(#713F12, #F4CF7E);
+  --banner-risk-fg: light-dark(#7F1D1D, #FFB4AA);
+  --copy-field-fill: light-dark(#F7F7F8, #1C1C25);
+}
+
+@theme inline {
+  --color-banner-info: var(--banner-info-fg);
+  --color-banner-warn: var(--banner-warn-fg);
+  --color-banner-risk: var(--banner-risk-fg);
+}

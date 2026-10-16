@@ -8,3 +8,6 @@ export const next = (state, event) => STATES[state]?.[event] ?? state
 
 /** Whether this browser (and this context: it needs https) can write to the clipboard. */
 export const canCopy = (nav) => typeof nav?.clipboard?.writeText === "function"
+
+/** What a copy button puts on the clipboard: the `data-copy-value` of its root, else the text of its `<code>`. */
+export const source = (root) => root.dataset?.copyValue ?? root.querySelector("code")?.textContent ?? ""

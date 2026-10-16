@@ -1,0 +1,15 @@
+<%!-- title: Basic | text: A label, the input and a quiet hint; the label points at the input --%>
+<Field.field
+  :let={field}
+  id="field-basic"
+  label="Project name"
+  hint="Shown to the client in the portal."
+  class="max-w-md"
+>
+  <InputGroup.input_group
+    id={field.id}
+    name="name"
+    value="SGE · Church Management"
+    aria-describedby={field.aria[:"aria-describedby"]}
+  />
+</Field.field>

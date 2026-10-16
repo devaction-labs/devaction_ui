@@ -1,0 +1,23 @@
+<%!-- title: Tones | text: Info, warning, critical (announced as an alert) and offline --%>
+<div class="grid gap-3">
+  <Banner.banner tone={:info} title="News:">
+    automatic review now runs on draft pull requests.
+    <:icon><.icon name="information-circle" /></:icon>
+    <:action><a href="#">See the changelog</a></:action>
+  </Banner.banner>
+  <Banner.banner tone={:warning} title="GitHub API unstable.">
+    Reviews may be delayed by up to 10 minutes.
+    <:icon><.icon name="alert-02" /></:icon>
+    <:action><a href="#">GitHub status</a></:action>
+  </Banner.banner>
+  <Banner.banner tone={:critical} title="Your plan expires in 3 days.">
+    After that, new pull requests are not reviewed.
+    <:icon><.icon name="alert-02" /></:icon>
+    <:action><a href="#">Renew plan</a></:action>
+  </Banner.banner>
+  <Banner.banner tone={:offline} title="No connection.">
+    Your changes stay saved and sync when you are back.
+    <:icon><.icon name="refresh" /></:icon>
+    <:action><a href="#">Try now</a></:action>
+  </Banner.banner>
+</div>

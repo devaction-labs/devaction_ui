@@ -116,7 +116,7 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 | `DevactionUI.Popover` | a panel with an arrow anchored to a button; Esc and outside click close it, focus goes in and comes back |
 | `DevactionUI.ToastGroup` | notices stacked into layers with a count, opened into a list, auto-dismissing and pausing on hover |
 | `DevactionUI.EmptyState` | the dashed card of a list with nothing in it: icon chip, title, one line, optional action |
-| `DevactionUI.Avatar` | two letters in a circle (`initials/1`) and a stack that overlaps by 8px, named once as a group |
+| `DevactionUI.Avatar` | two letters in a circle (`initials/1`) and a stack that overlaps by 8px, named once as a group, and `group/1` (rounded squares overlapping by a quarter, status dots, a `+N` chip, a caption) |
 | `DevactionUI.ChatBubble` | one message with the AI (left, with its mark) or the person (right, in ink); amber when the AI did something |
 | `DevactionUI.AiPrompt` | the ink pill that talks to the AI: amber dot, required field, round send button; `loading`, `disabled`, `streaming` with a stop button, an `attachments` slot and a `target`; a form, so Enter sends |
 | `DevactionUI.Sidebar` | the app's side menu, 236 px or 64 px collapsed with tooltips; `aria-current`, a toned `count` per item, collapsible `group`s, `responsive` to keep it on small screens; `Sidebar.search` (with the key hint) and `Sidebar.user` (avatar, name, menu trigger) for its header and footer |
@@ -137,6 +137,11 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 | `DevactionUI.Skeleton` | a shimmering placeholder |
 | `DevactionUI.Timer` | hours on a task in large mono digits (`HH:MM:SS`), start or pause and stop and log; the server owns the seconds, the browser only draws them between updates; `timer_mini/1` (a dot and `HH:MM` for the app bar) and `time_log/1` (the list of what was logged today) |
 | `DevactionUI.Spinner` | a spinning ring |
+| `DevactionUI.Field` | the label (required `*`, an `optional` word), hint, error with icon and `182 / 200` counter around any input; hands the ids (`aria-describedby`, `aria-invalid`, `aria-required`) to the input through `:let={field}` |
+| `DevactionUI.DescriptionList` | term and value rows in a real `dl`, hairlines between them; an item can be a link, a tone or monospace; `:inline` or `:stacked` |
+| `DevactionUI.Separator` | the hairline plain, with a text in the middle (`or continue with`), vertical, and `inline/1`, a row of facts divided by bars |
+| `DevactionUI.CopyField` | a read-only monospace value with a show/hide eye (masked with bullets, the server owns it) and a Copy button that says `copied_label` (the `DevactionUI.CopyField` hook) |
+| `DevactionUI.Banner` | the full-width strip in four tones (info, warning, critical, offline) with an icon, a bold lead, an action and a dismiss button; `critical` is an alert |
 
 Where an app also has its own `alert`, `badge`, `button` or `pagination`, call these qualified
 (`<DevactionUI.Alert.alert>`) instead of importing them, so the two never collide.

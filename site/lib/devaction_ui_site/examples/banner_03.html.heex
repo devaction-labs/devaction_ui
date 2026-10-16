@@ -1,0 +1,33 @@
+<%!-- title: Dismissible | text: The dismiss is an event: the server stops rendering the banner --%>
+<div class="grid gap-3">
+  <Banner.banner
+    :if={"warning" not in @banners_dismissed}
+    tone={:warning}
+    title="GitHub API unstable."
+    on_dismiss={JS.push("banner_dismiss", value: %{tone: "warning"})}
+    dismiss_label="Dismiss"
+  >
+    Reviews may be delayed by up to 10 minutes.
+    <:icon><.icon name="alert-02" /></:icon>
+    <:action><a href="#">GitHub status</a></:action>
+    <:dismiss_icon><.icon name="cancel-01" /></:dismiss_icon>
+  </Banner.banner>
+  <Banner.banner
+    :if={"info" not in @banners_dismissed}
+    tone={:info}
+    title="News:"
+    on_dismiss={JS.push("banner_dismiss", value: %{tone: "info"})}
+    dismiss_label="Dismiss"
+  >
+    automatic review now runs on draft pull requests.
+    <:icon><.icon name="information-circle" /></:icon>
+    <:dismiss_icon><.icon name="cancel-01" /></:dismiss_icon>
+  </Banner.banner>
+  <Button.button
+    :if={@banners_dismissed != []}
+    phx-click="banner_reset"
+    class="justify-self-start"
+  >
+    Show the banners again
+  </Button.button>
+</div>

@@ -1,0 +1,33 @@
+<%!-- title: Counter | text: `count` and `max` draw the counter, amber from nine tenths of the limit --%>
+<div class="grid max-w-md gap-5">
+  <Field.field
+    :let={field}
+    id="field-count-low"
+    label="Summary"
+    optional="optional"
+    count={64}
+    max={200}
+  >
+    <Textarea.textarea
+      id={field.id}
+      name="summary"
+      rows={2}
+      value="The client prefers meetings on Tuesdays."
+    />
+  </Field.field>
+  <Field.field
+    :let={field}
+    id="field-count-high"
+    label="Notes"
+    optional="optional"
+    count={182}
+    max={200}
+  >
+    <Textarea.textarea
+      id={field.id}
+      name="notes"
+      rows={3}
+      value="The client prefers meetings on Tuesdays. Financial reports must go out as PDF with the church's logo."
+    />
+  </Field.field>
+</div>

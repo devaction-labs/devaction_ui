@@ -1,0 +1,19 @@
+<%!-- title: Show and hide | text: The eye is an event the server answers; masked, only the ends stay visible --%>
+<CopyField.field
+  id="copy-reveal"
+  label="Webhook secret"
+  value="whsec_9f3c1e7a2b8d4f60c5e1"
+  copy_label="Copy"
+  copied_label="Copied"
+  revealed={@secret_revealed}
+  on_toggle="secret_toggle"
+  show_label="Show the secret"
+  hide_label="Hide the secret"
+  mask_prefix={6}
+  class="max-w-md"
+>
+  <:copy_icon><.icon name="copy-01" /></:copy_icon>
+  <:copied_icon><.icon name="tick-02" /></:copied_icon>
+  <:show_icon><.icon name="view" /></:show_icon>
+  <:hide_icon><.icon name="view-off" /></:hide_icon>
+</CopyField.field>

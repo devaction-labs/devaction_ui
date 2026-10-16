@@ -1,0 +1,15 @@
+<%!-- title: Inline and vertical | text: A row of small facts divided by bars, and an upright line between two blocks --%>
+<div class="grid gap-6">
+  <Separator.inline>
+    <:item>Today</:item>
+    <:item>3 PRs</:item>
+    <:item>12 h logged</:item>
+  </Separator.inline>
+  <div class="flex h-10 items-center gap-4 text-sm">
+    <span>Overview</span>
+    <Separator.separator orientation={:vertical} />
+    <span>Activity</span>
+    <Separator.separator orientation={:vertical} decorative />
+    <span>Settings</span>
+  </div>
+</div>

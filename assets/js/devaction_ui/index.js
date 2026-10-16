@@ -39,6 +39,7 @@ export const hooks = {
   "DevactionUI.ColorPicker": ColorPicker,
   "DevactionUI.CodeCopy": CodeCopy,
   "DevactionUI.Combobox": Combobox,
+  "DevactionUI.CopyField": CodeCopy,
   "DevactionUI.DataTable": DataTable,
   "DevactionUI.DateInput": DateInput,
   "DevactionUI.DatePicker": DatePicker,
