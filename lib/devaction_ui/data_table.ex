@@ -11,8 +11,14 @@ defmodule DevactionUI.DataTable do
   Selection is the browser's: the checkboxes are plain inputs named `name[]`, a hook keeps the header
   checkbox and the bulk bar in step, and fires `input` on the table so a form around it hears the change.
 
+  `selected` is the list of row ids ticked when the table is first drawn; after that the browser owns the
+  ticks. A column with no title of its own (the actions of a row) takes `hide_label`: its `label` stays for
+  screen readers and is not drawn. The arrows of a sorted header are the `sort_asc_icon`, `sort_desc_icon` and
+  `sort_none_icon` slots (a typographic arrow when empty).
+
   Texts (`select_all_label`, `select_row_label`, `selected_label` with `__COUNT__`, `clear_label`) come
-  from the caller, so the library carries no language of its own.
+  from the caller, so the library carries no language of its own. There is no toolbar, density switch or
+  footer: the page puts a search and a `DevactionUI.Pagination` around the table.
   """
   use Phoenix.Component
 
@@ -33,7 +39,12 @@ defmodule DevactionUI.DataTable do
   attr :selectable, :boolean, default: false
   attr :name, :string, default: "selected", doc: "the field name of the row checkboxes (`name[]`)"
   attr :density, :atom, values: [:comfortable, :compact], default: :comfortable
-  attr :max_height, :string, default: "max-h-[420px]"
+  attr :selected, :list, default: [], doc: "the ids of the rows ticked at the first draw"
+
+  attr :max_height, :string,
+    default: "max-h-[300px]",
+    doc: "a Tailwind class; it is only found if it is written in the app's own sources"
+
   attr :select_all_label, :string, required: true
   attr :select_row_label, :string, required: true
   attr :selected_label, :string, required: true, doc: "with `__COUNT__`"
@@ -44,8 +55,13 @@ defmodule DevactionUI.DataTable do
     attr :label, :string, required: true
     attr :key, :string
     attr :sortable, :boolean
+    attr :hide_label, :boolean, doc: "keep the label for screen readers only"
     attr :class, :string
   end
+
+  slot :sort_asc_icon, doc: "the arrow of the column sorted ascending"
+  slot :sort_desc_icon, doc: "the arrow of the column sorted descending"
+  slot :sort_none_icon, doc: "the arrow of a sortable column that is not sorted"
 
   slot :bulk, doc: "the actions of the bulk bar"
   slot :empty, doc: "shown when there are no rows"
@@ -60,7 +76,8 @@ defmodule DevactionUI.DataTable do
     assigns =
       assign(assigns,
         entries: entries(assigns.rows, assigns.row_id, assigns.id),
-        streaming: streaming?(assigns.rows)
+        streaming: streaming?(assigns.rows),
+        ticked: MapSet.new(assigns.selected, &to_string/1)
       )
 
     ~H"""
@@ -75,11 +92,14 @@ defmodule DevactionUI.DataTable do
         :if={@selectable}
         data-bulk
         hidden
-        class="flex flex-wrap items-center gap-3 rounded-xl bg-ink px-4 py-2.5 text-sm text-on-primary"
+        class="flex flex-wrap items-center gap-3 rounded-xl bg-ink px-3.5 py-2.5 text-sm text-on-primary"
         role="status"
       >
         <span data-count class="font-medium"></span>
-        <div class="flex flex-wrap items-center gap-2">{render_slot(@bulk)}</div>
+        <span class="h-4 w-px bg-on-primary/25" aria-hidden="true" />
+        <div class="flex flex-wrap items-center gap-2 [&>*]:inline-flex [&>*]:h-8 [&>*]:items-center [&>*]:rounded-lg [&>*]:bg-on-primary/15 [&>*]:px-3 [&>*]:text-[13px] [&>*]:outline-none hover:[&>*]:bg-on-primary/25 focus-visible:[&>*]:ring-2 focus-visible:[&>*]:ring-white/40">
+          {render_slot(@bulk)}
+        </div>
         <button
           type="button"
           data-clear
@@ -99,7 +119,7 @@ defmodule DevactionUI.DataTable do
                   type="checkbox"
                   data-select-all
                   aria-label={@select_all_label}
-                  class="size-4 accent-[var(--ink)]"
+                  class="checkbox"
                 />
               </th>
               <th
@@ -114,12 +134,27 @@ defmodule DevactionUI.DataTable do
                   phx-click={@on_sort}
                   phx-target={@target}
                   phx-value-key={col.key}
-                  class="inline-flex items-center gap-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] outline-none hover:text-ink focus-visible:text-ink"
+                  class={[
+                    "inline-flex items-center gap-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] outline-none hover:text-ink focus-visible:text-ink",
+                    sorted?(col, @sort) && "text-ink"
+                  ]}
                 >
                   {col.label}
-                  <span aria-hidden="true">{arrow(col, @sort)}</span>
+                  <span aria-hidden="true">
+                    <.sort_icon
+                      dir={direction(col, @sort)}
+                      asc={@sort_asc_icon}
+                      desc={@sort_desc_icon}
+                      none={@sort_none_icon}
+                    />
+                  </span>
                 </button>
-                <span :if={!(Map.get(col, :sortable, false) && @on_sort)}>{col.label}</span>
+                <span
+                  :if={!(Map.get(col, :sortable, false) && @on_sort)}
+                  class={Map.get(col, :hide_label, false) && "sr-only"}
+                >
+                  {col.label}
+                </span>
               </th>
             </tr>
           </thead>
@@ -127,7 +162,8 @@ defmodule DevactionUI.DataTable do
             <tr
               :for={{dom_id, row} <- @entries}
               id={dom_id}
-              class="group/row hover:bg-wrap has-[input:checked]:bg-ink/[.04]"
+              aria-selected={@selectable && to_string(selected?(@ticked, @row_id.(row)))}
+              class="group/row hover:bg-wrap has-[input:checked]:bg-ink/[.03]"
             >
               <td :if={@selectable} class={[td(@density), "w-10"]}>
                 <input
@@ -135,8 +171,9 @@ defmodule DevactionUI.DataTable do
                   data-select-row
                   name={@name <> "[]"}
                   value={@row_id.(row)}
+                  checked={selected?(@ticked, @row_id.(row))}
                   aria-label={@select_row_label}
-                  class="size-4 accent-[var(--ink)]"
+                  class="checkbox"
                 />
               </td>
               <td :for={col <- @col} class={[td(@density), Map.get(col, :class)]}>
@@ -186,7 +223,22 @@ defmodule DevactionUI.DataTable do
   defp streaming?(%Phoenix.LiveView.LiveStream{}), do: true
   defp streaming?(_rows), do: false
 
-  defp arrow(%{key: key}, {key, :asc}), do: "↑"
-  defp arrow(%{key: key}, {key, :desc}), do: "↓"
-  defp arrow(_col, _sort), do: "↕"
+  defp selected?(ticked, id), do: MapSet.member?(ticked, to_string(id))
+
+  defp direction(%{key: key}, {key, dir}), do: dir
+  defp direction(_col, _sort), do: :none
+
+  defp sorted?(col, sort), do: direction(col, sort) != :none
+
+  attr :dir, :atom, required: true
+  attr :asc, :list, required: true
+  attr :desc, :list, required: true
+  attr :none, :list, required: true
+
+  defp sort_icon(%{dir: :asc, asc: [_ | _]} = assigns), do: ~H"{render_slot(@asc)}"
+  defp sort_icon(%{dir: :asc} = assigns), do: ~H"↑"
+  defp sort_icon(%{dir: :desc, desc: [_ | _]} = assigns), do: ~H"{render_slot(@desc)}"
+  defp sort_icon(%{dir: :desc} = assigns), do: ~H"↓"
+  defp sort_icon(%{dir: :none, none: [_ | _]} = assigns), do: ~H"{render_slot(@none)}"
+  defp sort_icon(assigns), do: ~H"↕"
 end

@@ -111,6 +111,101 @@ defmodule DevactionUI.DataTest do
       assert html =~ "phx-hook"
     end
 
+    test "the boxes are the library's 20px checkbox, the rows say aria-selected and the tint is .03" do
+      assigns = %{rows: @rows, sort: nil, selectable: true, density: :comfortable}
+
+      html =
+        rendered_to_string(
+          ~H|<.table rows={@rows} sort={@sort} selectable={@selectable} density={@density} />|
+        )
+
+      assert length(Regex.scan(~r/class="checkbox"/, html)) == 3
+      refute html =~ "accent-"
+      assert length(Regex.scan(~r/aria-selected="false"/, html)) == 2
+      assert html =~ "has-[input:checked]:bg-ink/[.03]"
+      assert html =~ "max-h-[300px]"
+      assert html =~ "px-3.5"
+      assert html =~ ~s(bg-on-primary/25)
+    end
+
+    test "the rows named in `selected` start ticked" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <DataTable.data_table
+          id="t"
+          label="L"
+          rows={[%{id: 1, name: "Ana"}, %{id: 2, name: "Bruno"}]}
+          selectable
+          selected={[2]}
+          select_all_label="a"
+          select_row_label="b"
+          selected_label="c"
+          clear_label="d"
+        >
+          <:col :let={row} label="Name" key="name">{row.name}</:col>
+        </DataTable.data_table>
+        """)
+
+      assert length(Regex.scan(~r/data-select-row[^>]* checked/, html)) == 1
+      assert html =~ ~r/id="t-row-2"[^>]*aria-selected="true"/s
+      assert html =~ ~r/id="t-row-1"[^>]*aria-selected="false"/s
+    end
+
+    test "the sort arrows come from the slots, with a glyph when there is none, and the sorted header is ink" do
+      assigns = %{rows: @rows}
+
+      html =
+        rendered_to_string(~H"""
+        <DataTable.data_table
+          id="t"
+          label="L"
+          rows={@rows}
+          sort={{"name", :asc}}
+          on_sort="sort"
+          select_all_label="a"
+          select_row_label="b"
+          selected_label="c"
+          clear_label="d"
+        >
+          <:col :let={row} label="Name" key="name" sortable>{row.name}</:col>
+          <:col :let={row} label="Count" key="n" sortable>{row.n}</:col>
+          <:sort_asc_icon>UP</:sort_asc_icon>
+          <:sort_desc_icon>DOWN</:sort_desc_icon>
+        </DataTable.data_table>
+        """)
+
+      assert html =~ "UP"
+      refute html =~ "DOWN"
+      refute html =~ "↑"
+      assert html =~ "↕"
+      assert length(Regex.scan(~r/ text-ink"/, html)) == 1
+    end
+
+    test "a column with a hidden label keeps it for screen readers" do
+      assigns = %{rows: @rows}
+
+      html =
+        rendered_to_string(~H"""
+        <DataTable.data_table
+          id="t"
+          label="L"
+          rows={@rows}
+          select_all_label="a"
+          select_row_label="b"
+          selected_label="c"
+          clear_label="d"
+        >
+          <:col :let={row} label="Name">{row.name}</:col>
+          <:col :let={_row} label="Actions" hide_label>x</:col>
+        </DataTable.data_table>
+        """)
+
+      assert html =~ ~r/<span class="sr-only">\s*Actions\s*<\/span>/
+      refute html =~ ~r/<span class="sr-only">\s*Name/
+    end
+
     test "says so when there is nothing to list" do
       assigns = %{rows: [], sort: nil, selectable: true, density: :comfortable}
 

@@ -2,7 +2,8 @@ import {selectionState} from "./data_table_logic.js"
 
 /**
  * Row selection for `DataTable`: the header checkbox ticks them all and shows a mixed state when only some
- * are, and a bulk bar with the count appears while anything is ticked. A redraw (a sort, a refresh) puts the
+ * are (the box is `indeterminate` and carries `data-partial`, which draws the dash), and a bulk bar with the
+ * count appears while anything is ticked; every row says `aria-selected`. A redraw (a sort, a refresh) puts the
  * ticks back by value. Every change fires `input` on the table so a form around it hears it.
  */
 export default {
@@ -53,6 +54,8 @@ export default {
 
     const all = this.el.querySelector("[data-select-all]")
     all && Object.assign(all, {checked: state.all, indeterminate: state.mixed})
+    all && (all.dataset.partial = String(state.mixed))
+    rows.forEach((row) => row.closest("tr").setAttribute("aria-selected", String(row.checked)))
 
     const bar = this.el.querySelector("[data-bulk]")
     bar && (bar.hidden = state.barHidden)
