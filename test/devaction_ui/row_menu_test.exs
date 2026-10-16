@@ -84,4 +84,12 @@ defmodule DevactionUI.RowMenuTest do
     assert has?(html, "#d[data-fixed=false]")
     assert attribute(html, "#d-menu", "class") |> List.first() =~ "absolute"
   end
+
+  test "the menu is the compact one of a row and a danger item has its own hover" do
+    html = menu()
+
+    assert attribute(html, "#row-7-menu", "class") |> List.first() =~ "min-w-[190px]"
+    assert has?(html, "button.hover\\:bg-tag-risk-bg")
+    refute attribute(html, "#row-7-menu", "class") |> List.first() =~ "w-55"
+  end
 end

@@ -52,6 +52,10 @@ defmodule DevactionUI.Dropdown do
     doc:
       "opens the menu fixed to the window instead of inside the parent, so no `overflow` cuts it"
 
+  attr :compact, :boolean,
+    default: false,
+    doc: "the menu of a row: 190px wide at least, 5px of padding and 34px items"
+
   attr :class, :any, default: nil
   slot :trigger, required: true, doc: "what the button shows"
 
@@ -113,7 +117,8 @@ defmodule DevactionUI.Dropdown do
         hidden
         phx-mounted={JS.ignore_attributes(["hidden", "data-side", "style"])}
         class={[
-          "flex w-55 flex-col rounded-[14px] border border-line bg-card p-1.5 shadow-menu",
+          "flex flex-col border border-line bg-card shadow-menu",
+          menu_size(@compact),
           menu_position(@fixed, @align)
         ]}
       >
@@ -130,7 +135,7 @@ defmodule DevactionUI.Dropdown do
           >
             {item.heading}
           </span>
-          <.menu_item item={item} target={@target} />
+          <.menu_item item={item} target={@target} compact={@compact} />
         <% end %>
       </div>
     </div>
@@ -200,6 +205,9 @@ defmodule DevactionUI.Dropdown do
     """
   end
 
+  defp menu_size(true), do: "min-w-[190px] rounded-xl p-[5px]"
+  defp menu_size(false), do: "w-55 rounded-[14px] p-1.5"
+
   defp menu_position(true, _align), do: "fixed top-0 left-0 z-50"
 
   defp menu_position(false, align) do
@@ -244,8 +252,13 @@ defmodule DevactionUI.Dropdown do
   defp item_class(item, compact) do
     [
       (compact && "h-[34px] rounded-lg") || "h-[38px] rounded-[9px]",
-      "flex w-full items-center justify-between gap-3 border-0 bg-transparent px-2.5 text-left text-sm no-underline outline-none hover:bg-wrap focus-visible:bg-wrap disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent",
-      (Map.get(item, :danger) && "text-tag-risk-text") || "text-ink"
+      "flex w-full items-center justify-between gap-3 border-0 bg-transparent px-2.5 text-left text-sm no-underline outline-none disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent",
+      tone_class(Map.get(item, :danger))
     ]
   end
+
+  defp tone_class(true),
+    do: "text-tag-risk-text hover:bg-tag-risk-bg focus-visible:bg-tag-risk-bg"
+
+  defp tone_class(_danger), do: "text-ink hover:bg-wrap focus-visible:bg-wrap"
 end

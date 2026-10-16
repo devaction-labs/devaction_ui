@@ -1,6 +1,6 @@
 import assert from "node:assert/strict"
 import test from "node:test"
-import {applyPick, canSend, carriesFiles, countView, fieldHeight, intentOf, isOver, joinFiles, moveActive, triggerOf} from "./composer_logic.js"
+import {activatesButton, applyPick, canSend, carriesFiles, countView, fieldHeight, intentOf, isOver, joinFiles, moveActive, triggerOf} from "./composer_logic.js"
 
 const measures = {lineHeight: 20, padding: 10, maxRows: 4}
 const key = (key, extra = {}) => ({key, shiftKey: false, isComposing: false, keyCode: 0, ...extra})
@@ -119,4 +119,11 @@ test("the arrows move the highlight round the list and other keys leave it", () 
   assert.equal(moveActive(0, "ArrowUp", 3), 2)
   assert.equal(moveActive(1, "a", 3), 1)
   assert.equal(moveActive(0, "ArrowDown", 0), 0)
+})
+
+test("Enter and Space activate a label drawn as a button, other keys do not", () => {
+  assert.equal(activatesButton({key: "Enter"}), true)
+  assert.equal(activatesButton({key: " "}), true)
+  assert.equal(activatesButton({key: "a"}), false)
+  assert.equal(activatesButton({key: "Tab"}), false)
 })

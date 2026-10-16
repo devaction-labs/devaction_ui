@@ -163,7 +163,7 @@ defmodule DevactionUI.Components2Test do
       assert DevactionUI.Pagination.entries(10, 10) == [1, :gap, 9, 10]
     end
 
-    test "marks the current page and offers previous and next only where they exist" do
+    test "marks the current page and keeps the missing end as a dimmed, disabled control" do
       assigns = %{path: &"/p?page=#{&1}"}
 
       html =
@@ -172,8 +172,9 @@ defmodule DevactionUI.Components2Test do
         )
 
       assert html =~ ~s(aria-current="page")
-      assert html =~ ~s(aria-label="Next")
-      refute html =~ ~s(aria-label="Previous")
+      assert html =~ ~r/<a[^>]*aria-label="Next"/
+      assert html =~ ~r/<span[^>]*role="link"[^>]*aria-disabled="true"[^>]*aria-label="Previous"/
+      refute html =~ ~r/<a[^>]*aria-label="Previous"/
       assert html =~ "/p?page=2"
     end
 

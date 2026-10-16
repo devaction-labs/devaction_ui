@@ -145,7 +145,8 @@ defmodule DevactionUI.Composer do
           rows="1"
           readonly={@busy}
           placeholder={@placeholder}
-          phx-mounted={JS.ignore_attributes(["style"])}
+          aria-describedby={"#{@id}-count"}
+          phx-mounted={JS.ignore_attributes(["style", "aria-invalid"])}
           phx-debounce="150"
         >{Phoenix.HTML.Form.normalize_value("textarea", @value)}</textarea>
         <div class="composer-actions">

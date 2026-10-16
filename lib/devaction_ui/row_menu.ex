@@ -53,6 +53,7 @@ defmodule DevactionUI.RowMenu do
       size={:sm}
       align={@align}
       fixed
+      compact
       trigger_label={@trigger_label}
       target={@target}
       class={["align-middle", @class]}

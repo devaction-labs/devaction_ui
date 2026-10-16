@@ -242,7 +242,7 @@ defmodule DevactionUI.DataTable do
       >
         <span data-count class="font-medium"></span>
         <span class="h-4 w-px bg-on-primary/25" aria-hidden="true" />
-        <div class="flex flex-wrap items-center gap-2 [&>*]:inline-flex [&>*]:h-8 [&>*]:items-center [&>*]:rounded-lg [&>*]:bg-on-primary/15 [&>*]:px-3 [&>*]:text-[13px] [&>*]:outline-none hover:[&>*]:bg-on-primary/25 focus-visible:[&>*]:ring-2 focus-visible:[&>*]:ring-white/40">
+        <div class="flex flex-wrap items-center gap-2 [&>*]:inline-flex [&>*]:h-8 [&>*]:items-center [&>*]:rounded-lg [&>*]:border-transparent! [&>*]:bg-on-primary/15 [&>*]:px-3 [&>*]:text-on-primary! [&>*]:text-[13px] [&>*]:outline-none hover:[&>*]:bg-on-primary/25 focus-visible:[&>*]:ring-2 focus-visible:[&>*]:ring-white/40">
           {render_slot(@bulk)}
         </div>
         <button
@@ -257,10 +257,13 @@ defmodule DevactionUI.DataTable do
       <div
         id={@pinned && "#{@id}-scroll"}
         class={[
-          "overflow-auto rounded-xl border border-line bg-card group-data-[variant=minimal]/dt:rounded-none group-data-[variant=minimal]/dt:border-0 group-data-[variant=minimal]/dt:bg-transparent",
+          "overflow-auto rounded-xl border border-line bg-card outline-none focus-visible:ring-2 focus-visible:ring-ink/40 focus-visible:ring-inset group-data-[variant=minimal]/dt:rounded-none group-data-[variant=minimal]/dt:border-0 group-data-[variant=minimal]/dt:bg-transparent",
           @max_height
         ]}
         data-pinned={@pinned && ""}
+        role="region"
+        tabindex="0"
+        aria-label={@label}
         phx-hook={@pinned && "DevactionUI.ScrollArea"}
         phx-mounted={@pinned && JS.ignore_attributes(edge_attributes())}
       >

@@ -41,6 +41,12 @@ defmodule DevactionUI.DataTableVariantsTest do
   end
 
   describe "variations" do
+    test "the scrolling box is a named region the keyboard can focus, with or without pinned columns" do
+      html = render_table(expand_label: "Show", action_label: "Actions")
+
+      assert html =~ ~r/<div[^>]*role="region"[^>]*tabindex="0"[^>]*aria-label="People"/
+    end
+
     test "variant, striped and stack are data attributes of the root, which the CSS reads" do
       html =
         render_table(

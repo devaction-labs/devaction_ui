@@ -102,7 +102,26 @@ defmodule DevactionUI.PaginationTest do
         )
 
       assert html =~ ~r/aria-current="page"[^>]*>\s*10\s*</
-      refute html =~ ~s(aria-label="b")
+      refute html =~ ~r/<a[^>]*aria-label="b"/
+      assert html =~ ~r/<span[^>]*aria-disabled="true"[^>]*aria-label="b"/
+    end
+
+    test "the size sets the cells of the links and of the gap" do
+      assigns = %{path: & &1}
+
+      md =
+        rendered_to_string(
+          ~H|<.pagination page={5} pages={9} path={@path} label="P" previous="a" next="b" />|
+        )
+
+      sm =
+        rendered_to_string(
+          ~H|<.pagination size={:sm} page={5} pages={9} path={@path} label="P" previous="a" next="b" />|
+        )
+
+      assert md =~ "size-[38px]" and md =~ "h-[38px]"
+      assert sm =~ "size-[30px]" and sm =~ "h-[30px]"
+      refute sm =~ "size-[38px]"
     end
 
     test "kind picks how a link goes to its page" do
