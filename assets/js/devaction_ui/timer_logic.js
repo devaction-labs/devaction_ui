@@ -7,6 +7,14 @@ export function format(seconds) {
   return `${pad(hours)}:${pad(minutes)}:${pad(whole % 60)}`
 }
 
+/** Seconds as `HH:MM`, the seconds dropped. */
+export function formatShort(seconds) {
+  return format(seconds).slice(0, 5)
+}
+
+/** The writer of each `data-format` of the element: the whole time, or hours and minutes. */
+export const formats = {full: format, short: formatShort}
+
 /** The seconds counted: the base plus, while running, the time since it started (both in seconds). */
 export function elapsed({base, startedAt, nowSeconds}) {
   return startedAt === null ? base : base + Math.max(0, nowSeconds - startedAt)

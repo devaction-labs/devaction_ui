@@ -1,9 +1,10 @@
-import {elapsed, format, read} from "./timer_logic.js"
+import {elapsed, formats, read} from "./timer_logic.js"
 
 /**
  * The seconds of a timer between two updates from the server: `phx-hook="DevactionUI.Timer"` on the box with
  * `data-base`, `data-started-at` (empty while paused) and `data-now` (the server's clock, so a wrong clock in the
- * browser does not shift the time). It writes the time into the `[data-time]` element every second while it runs.
+ * browser does not shift the time). It writes the time into the `[data-time]` element every second while it runs:
+ * as `HH:MM:SS`, or as `HH:MM` when the element says `data-format="short"` (the mini timer).
  */
 export default {
   mounted() {
@@ -31,6 +32,7 @@ export default {
 
   write(seconds) {
     const target = this.el.querySelector("[data-time]")
-    target && (target.textContent = format(seconds))
+    const write = formats[this.el.dataset.format] ?? formats.full
+    target && (target.textContent = write(seconds))
   },
 }
