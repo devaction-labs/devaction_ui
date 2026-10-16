@@ -11,6 +11,7 @@
 import Autocomplete from "./autocomplete.js"
 import Calendar from "./calendar.js"
 import ColorPicker from "./color_picker.js"
+import CodeCopy from "./code_copy.js"
 import Combobox from "./combobox.js"
 import Dropdown from "./dropdown.js"
 import Editor from "./editor.js"
@@ -33,6 +34,7 @@ export const hooks = {
   "DevactionUI.Autocomplete": Autocomplete,
   "DevactionUI.Calendar": Calendar,
   "DevactionUI.ColorPicker": ColorPicker,
+  "DevactionUI.CodeCopy": CodeCopy,
   "DevactionUI.Combobox": Combobox,
   "DevactionUI.DataTable": DataTable,
   "DevactionUI.DatePicker": DatePicker,

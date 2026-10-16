@@ -5,7 +5,15 @@ defmodule DevactionUI.AuthLayout do
   the bottom a copyright line and a few links. The columns wrap on a narrow screen, the product above the form.
 
   It draws no logo and says nothing itself: the mark is the `brand` slot, every word is an attribute or slot, so
-  the same layout serves any product. Colours are tokens, so it follows the light and the dark theme.
+  the same layout serves any product. Colours are tokens (`--auth-bg`, `--auth-frame`, `--auth-frame-line`), so
+  it follows the light and the dark theme.
+
+  The two columns are the page's `<main>`, whose `id` (`main_id`, `"main"` by default) is where a skip link
+  of the host points. The footer links are a `<nav>` named by `nav_label`.
+
+  The brand mark is the caller's markup. The canvas draws it as a 34 px tile with the product's symbol; give
+  the tile `bg-(--brand-tile)` and `border-(--brand-tile-line)` (the same tokens `AuthCard` uses for its
+  `icon_tone: :brand`), so the symbol keeps its dark ground in both themes.
   """
   use Phoenix.Component
 
@@ -15,6 +23,8 @@ defmodule DevactionUI.AuthLayout do
 
   attr :headline, :string, required: true
   attr :copyright, :string, required: true
+  attr :nav_label, :string, required: true, doc: "names the footer links for assistive technology"
+  attr :main_id, :string, default: "main", doc: "the id of `<main>`, the target of a skip link"
   attr :class, :any, default: nil
   attr :rest, :global
   slot :brand, required: true, doc: "the product's mark and name"
@@ -34,7 +44,10 @@ defmodule DevactionUI.AuthLayout do
     ~H"""
     <div class={["auth-page", @class]} {@rest}>
       <div class="auth-frame">
-        <div class="flex flex-1 flex-wrap items-center justify-center gap-x-24 gap-y-16">
+        <main
+          id={@main_id}
+          class="flex flex-1 flex-wrap items-center justify-center gap-x-24 gap-y-16"
+        >
           <section
             aria-label={@about_label}
             class="flex max-w-[480px] flex-[1_1_380px] flex-col gap-8"
@@ -61,10 +74,10 @@ defmodule DevactionUI.AuthLayout do
           <div class="flex min-w-0 flex-[0_1_420px] flex-col gap-5">
             {render_slot(@inner_block)}
           </div>
-        </div>
+        </main>
         <footer class="flex flex-wrap items-center justify-between gap-3 text-[13px] text-muted">
           <span>{@copyright}</span>
-          <nav :if={@link != []} class="flex gap-5">
+          <nav :if={@link != []} aria-label={@nav_label} class="flex gap-5">
             <.link :for={link <- @link} href={link.href} class="text-muted underline hover:text-ink">
               {render_slot(link)}
             </.link>

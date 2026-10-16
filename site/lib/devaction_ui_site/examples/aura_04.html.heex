@@ -1,6 +1,6 @@
 <%!-- title: Sizes | text: The size is the width of the ring. | layout: center --%>
 <div class="flex flex-wrap items-center gap-6">
-  <Aura.aura :for={size <- [:xs, :sm, :lg]} size={size}>
+  <Aura.aura :for={size <- [:xs, :sm, :md, :lg]} size={size}>
     <div class="bg-card px-4 py-3 text-sm text-ink">{size}</div>
   </Aura.aura>
 </div>
