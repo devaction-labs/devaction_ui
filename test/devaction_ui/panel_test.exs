@@ -10,8 +10,8 @@ defmodule DevactionUI.PanelTest do
     assigns = %{}
     html = rendered_to_string(~H|<.panel>Inside</.panel>|)
 
-    assert html =~ "rounded-[20px] bg-wrap p-1.5"
-    assert html =~ "rounded-2xl border border-line bg-card"
+    assert html =~ "rounded-wrap bg-wrap p-1.5"
+    assert html =~ "rounded-card border border-line bg-card"
     assert html =~ "p-6 gap-5"
     assert html =~ "Inside"
   end
@@ -34,9 +34,21 @@ defmodule DevactionUI.PanelTest do
     html =
       rendered_to_string(~H|<.panel class="max-w-md" inner_class="p-4 gap-2">x</.panel>|)
 
-    assert html =~ ~r/class="rounded-\[20px\] bg-wrap p-1.5 max-w-md"/
+    assert html =~ ~r/class="rounded-wrap bg-wrap p-1.5 max-w-md"/
     assert html =~ "p-4 gap-2"
     refute html =~ "p-6"
+  end
+
+  test "size sets the padding and the gap of the card" do
+    for {size, expected} <- [sm: "p-[22px] gap-3.5", md: "p-6 gap-5", lg: "p-[26px] gap-5"] do
+      assigns = %{size: size}
+      assert rendered_to_string(~H|<.panel size={@size}>x</.panel>|) =~ expected
+    end
+
+    assigns = %{}
+    html = rendered_to_string(~H|<.panel size={:lg} inner_class="p-2">x</.panel>|)
+    assert html =~ "p-2"
+    refute html =~ "p-[26px]"
   end
 
   test "global attributes reach the section" do

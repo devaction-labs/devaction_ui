@@ -1,7 +1,9 @@
 defmodule DevactionUI.Panel do
   @moduledoc """
-  The canvas card: a soft wrap around a bordered card, and the mono `eyebrow/1` caption that opens it. For the
-  dashed box of a list with nothing in it, use `DevactionUI.EmptyState`.
+  The canvas card: a soft wrap around a bordered card, and the mono `eyebrow/1` caption that opens it. The card
+  inside takes the `card` colour in both themes, so it reads against the `wrap` around it. Its padding and gap
+  follow `size` (`:sm` 22px and 14px, `:md` 24px and 20px, `:lg` 26px and 20px); `inner_class` overrides them.
+  For the dashed box of a list with nothing in it, use `DevactionUI.EmptyState`.
   """
   use Phoenix.Component
 
@@ -15,9 +17,14 @@ defmodule DevactionUI.Panel do
 
   attr :class, :any, default: nil, doc: "classes of the outer wrap"
 
+  attr :size, :atom,
+    values: [:sm, :md, :lg],
+    default: :md,
+    doc: "the padding and gap of the inner card, by the density of what it holds"
+
   attr :inner_class, :any,
-    default: "p-6 gap-5",
-    doc: "classes of the inner card; replaces the default padding and gap, so give both"
+    default: nil,
+    doc: "classes of the inner card; replace the padding and gap of `size`, so give both"
 
   attr :rest, :global
   slot :inner_block, required: true
@@ -29,15 +36,22 @@ defmodule DevactionUI.Panel do
     <section
       id={@id}
       aria-label={@label}
-      class={["rounded-[20px] bg-wrap p-1.5", @class]}
+      class={["rounded-wrap bg-wrap p-1.5", @class]}
       {@rest}
     >
-      <div class={["flex flex-col rounded-2xl border border-line bg-card", @inner_class]}>
+      <div class={[
+        "flex flex-col rounded-card border border-line bg-card",
+        @inner_class || size_class(@size)
+      ]}>
         {render_slot(@inner_block)}
       </div>
     </section>
     """
   end
+
+  defp size_class(:sm), do: "p-[22px] gap-3.5"
+  defp size_class(:md), do: "p-6 gap-5"
+  defp size_class(:lg), do: "p-[26px] gap-5"
 
   attr :class, :any, default: nil
   slot :inner_block, required: true

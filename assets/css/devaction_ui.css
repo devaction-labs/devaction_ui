@@ -111,6 +111,7 @@
   --avatar-red-fg: light-dark(#B91C1C, #FFB4AA);
   --avatar-gray-bg: light-dark(#F4F4F5, #2A2A36);
   --avatar-gray-fg: light-dark(#3F3F46, #C9C9D6);
+  --bubble-mark: light-dark(#060C1F, #0B1230);
   --kbd-inverse: light-dark(#3F3F46, #C9C9D6);
   --kbd-inverse-fg: light-dark(#E4E4E7, #2C2C38);
 }
@@ -132,6 +133,7 @@
   --color-avatar-red-fg: var(--avatar-red-fg);
   --color-avatar-gray-bg: var(--avatar-gray-bg);
   --color-avatar-gray-fg: var(--avatar-gray-fg);
+  --color-bubble-mark: var(--bubble-mark);
   --color-ink: var(--ink);
   --color-ink-2: var(--ink-2);
   --color-muted: var(--muted);
