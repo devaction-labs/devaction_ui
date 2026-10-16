@@ -8,3 +8,4 @@
 /.claude/
 erl_crash.dump
 *.ez
+/devaction_ui-*.tar
