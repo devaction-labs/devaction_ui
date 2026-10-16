@@ -128,5 +128,25 @@ defmodule DevactionUI.PaginationTest do
       refute href =~ "data-phx-link"
       assert href =~ ~s(href="/p?page=2")
     end
+
+    test "every number cell has a border, the current one inked, and size picks 38px or 30px" do
+      assigns = %{path: & &1}
+
+      md =
+        rendered_to_string(
+          ~H|<.pagination page={2} pages={3} path={@path} label="P" previous="a" next="b" />|
+        )
+
+      sm =
+        rendered_to_string(
+          ~H|<.pagination size={:sm} page={2} pages={3} path={@path} label="P" previous="a" next="b" />|
+        )
+
+      assert length(Regex.scan(~r/class="[^"]*\bborder\b[^"]*border-line\b/, md)) == 4
+      assert md =~ "border-ink bg-ink text-on-primary"
+      assert md =~ "size-[38px]"
+      assert sm =~ "size-[30px]"
+      refute sm =~ "size-[38px]"
+    end
   end
 end

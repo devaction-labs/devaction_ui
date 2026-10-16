@@ -45,6 +45,12 @@ defmodule DevactionUI.Pagination do
     doc: "text for the previous link, for assistive technology"
 
   attr :next, :string, required: true, doc: "text for the next link, for assistive technology"
+
+  attr :size, :atom,
+    values: [:md, :sm],
+    default: :md,
+    doc: "`:md` cells are 38px, `:sm` cells 30px (the page footer of a data table)"
+
   attr :class, :any, default: nil
 
   attr :total, :integer,
@@ -77,6 +83,7 @@ defmodule DevactionUI.Pagination do
       label={@label}
       previous={@previous}
       next={@next}
+      size={@size}
       class={@class}
       rest={@rest}
       previous_icon={@previous_icon}
@@ -110,14 +117,14 @@ defmodule DevactionUI.Pagination do
         :if={@page > 1}
         {link_attrs(@kind, @path.(@page - 1))}
         aria-label={@previous}
-        class={[cell(), "border border-line-strong bg-card text-ink"]}
+        class={[cell(@size), "border border-line bg-card text-ink hover:bg-wrap"]}
       >
         <span aria-hidden="true">{render_slot(@previous_icon) || chevron(:previous)}</span>
       </.link>
       <%= for entry <- @entries do %>
         <span
           :if={entry == :gap}
-          class="flex h-[38px] w-6 items-center justify-center text-muted"
+          class={["flex w-6 items-center justify-center text-muted", gap_height(@size)]}
           aria-hidden="true"
         >
           …
@@ -127,8 +134,9 @@ defmodule DevactionUI.Pagination do
           {link_attrs(@kind, @path.(entry))}
           aria-current={entry == @page && "page"}
           class={[
-            cell(),
-            (entry == @page && "bg-ink text-on-primary") || "text-ink-2 hover:bg-wrap"
+            cell(@size),
+            (entry == @page && "border-ink bg-ink text-on-primary") ||
+              "border-line bg-card text-ink hover:bg-wrap"
           ]}
         >
           {entry}
@@ -138,7 +146,7 @@ defmodule DevactionUI.Pagination do
         :if={@page < @pages}
         {link_attrs(@kind, @path.(@page + 1))}
         aria-label={@next}
-        class={[cell(), "border border-line-strong bg-card text-ink"]}
+        class={[cell(@size), "border border-line bg-card text-ink hover:bg-wrap"]}
       >
         <span aria-hidden="true">{render_slot(@next_icon) || chevron(:next)}</span>
       </.link>
@@ -169,8 +177,17 @@ defmodule DevactionUI.Pagination do
   defp chevron_path(:previous), do: "m15 6-6 6 6 6"
   defp chevron_path(:next), do: "m9 6 6 6-6 6"
 
-  defp cell,
-    do: "flex size-[38px] items-center justify-center rounded-[10px] text-sm no-underline"
+  defp cell(size),
+    do: [
+      "flex items-center justify-center border text-sm no-underline",
+      cell_size(size)
+    ]
+
+  defp cell_size(:md), do: "size-[38px] rounded-[10px]"
+  defp cell_size(:sm), do: "size-[30px] rounded-lg text-[13px]"
+
+  defp gap_height(:md), do: "h-[38px]"
+  defp gap_height(:sm), do: "h-[30px]"
 
   defp link_attrs(:patch, url), do: [patch: url]
   defp link_attrs(:navigate, url), do: [navigate: url]

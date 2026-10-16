@@ -22,6 +22,13 @@ defmodule DevactionUI.TabsTest do
     assert render_tabs(:boxed) =~ ~r/font-mono text-xs text-muted">\s*4/
   end
 
+  test "the selected line tab is medium weight, never semibold" do
+    html = render_tabs(:line)
+
+    assert html =~ "aria-selected:font-medium"
+    refute html =~ "font-semibold"
+  end
+
   test "the line variant is muted until selected and the boxed one is ink-2" do
     line = render_tabs(:line)
     boxed = render_tabs(:boxed)

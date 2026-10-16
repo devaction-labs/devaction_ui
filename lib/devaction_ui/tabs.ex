@@ -94,7 +94,10 @@ defmodule DevactionUI.Tabs do
             {render_slot(@icon, %{id: tab.id})}
           </span>
           {tab.label}
-          <span :if={Map.get(tab, :count)} class={["font-mono text-xs", count_class(tab, @counts)]}>
+          <span
+            :if={Map.get(tab, :count)}
+            class={["font-mono", count_text(@counts), count_class(tab, @counts)]}
+          >
             {tab.count}
           </span>
         </button>
@@ -130,13 +133,13 @@ defmodule DevactionUI.Tabs do
 
   defp tab_class(:line, :horizontal, size) do
     [
-      "-mb-px border-b-2 border-transparent px-3.5 text-muted aria-selected:border-ink aria-selected:font-semibold aria-selected:text-ink",
+      "-mb-px border-b-2 border-transparent px-3.5 text-muted aria-selected:border-ink aria-selected:font-medium aria-selected:text-ink",
       line_size(size)
     ]
   end
 
   defp tab_class(:line, :vertical, _size) do
-    "-ms-px h-11 border-s-2 border-transparent px-3.5 text-muted aria-selected:border-ink aria-selected:font-semibold aria-selected:text-ink"
+    "-ms-px h-11 border-s-2 border-transparent px-3.5 text-muted aria-selected:border-ink aria-selected:font-medium aria-selected:text-ink"
   end
 
   defp line_size(:md), do: "h-11"
@@ -148,10 +151,19 @@ defmodule DevactionUI.Tabs do
   defp count_class(%{count_tone: tone}, counts) when not is_nil(tone),
     do: [Tone.text(tone), chip(counts)]
 
-  defp count_class(_tab, counts), do: ["text-muted", chip(counts)]
+  defp count_class(_tab, counts), do: [count_color(counts), chip(counts)]
 
-  defp chip(:chip), do: "rounded-md border border-line bg-wrap px-1.5 py-px leading-[18px]"
+  defp count_color(:chip), do: "text-ink-2"
+  defp count_color(:plain), do: "text-muted"
+
+  defp chip(:chip),
+    do:
+      "inline-flex h-5 min-w-5 items-center justify-center rounded-md border border-line bg-wrap px-1.5 text-[11px] font-normal"
+
   defp chip(:plain), do: nil
+
+  defp count_text(:chip), do: nil
+  defp count_text(:plain), do: "text-xs"
 
   defp tab_index(id, id), do: "0"
   defp tab_index(_id, _selected), do: "-1"
