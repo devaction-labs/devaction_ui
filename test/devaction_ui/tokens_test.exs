@@ -3,7 +3,7 @@ defmodule DevactionUI.TokensTest do
 
   @css Path.expand("../../assets/css/devaction_ui.css", __DIR__)
   @external_resource @css
-  @tones [:risk, :warn, :ok, :info, :neutral]
+  @tones [:risk, :warn, :ok, :info, :neutral, :indigo, :emerald]
 
   @tokens ~r/--([\w-]+): light-dark\((#[0-9A-Fa-f]{6}), (#[0-9A-Fa-f]{6})\);/
           |> Regex.scan(File.read!(@css))

@@ -1,0 +1,14 @@
+<%!-- title: Icon layout and compact | text: The icon on the line of the title (the default), in a tile, and the tight one for inside a card --%>
+<.callout kind={:tip} title="Inline icon">
+  <:icon><.icon name="bulb" class="size-4" /></:icon>
+  The icon sits on the line of the title.
+</.callout>
+<.callout kind={:ai} title="Tile icon" icon_layout={:box}>
+  <:icon><.icon name="sparkles" class="size-4" /></:icon>
+  The icon sits in a tile at the left of the whole block.
+</.callout>
+<.callout kind={:warning} compact>
+  <:icon><.icon name="alert-02" class="size-4" /></:icon>
+  Compact: less padding and a 13 px text, for a note inside a form.
+</.callout>
+<.callout kind={:indigo} title="Indigo" compact>Work in review takes the indigo tint.</.callout>

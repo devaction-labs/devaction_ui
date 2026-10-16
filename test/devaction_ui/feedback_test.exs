@@ -19,7 +19,7 @@ defmodule DevactionUI.FeedbackTest do
     Tone
   }
 
-  @tones [:risk, :warn, :ok, :info, :neutral]
+  @tones [:risk, :warn, :ok, :info, :neutral, :indigo, :emerald]
 
   describe "Tone" do
     test "every tone has a strong text from its own token" do
@@ -27,7 +27,7 @@ defmodule DevactionUI.FeedbackTest do
     end
 
     test "kinds outside the union are not a tone" do
-      assert_raise FunctionClauseError, fn -> Tone.from_kind(:nope) end
+      assert_raise FunctionClauseError, fn -> apply(Tone, :from_kind, [:nope]) end
     end
   end
 
@@ -218,7 +218,7 @@ defmodule DevactionUI.FeedbackTest do
       html = rendered_to_string(toast(%{state: :done, percent_label: "done"}))
 
       assert html =~ ~r/font-semibold">Review</
-      assert html =~ ~r/font-semibold text-muted">\s*done\s*</
+      assert html =~ ~r/font-medium text-tag-ok-text">\s*done\s*</
       refute html =~ ~r/>\s*100%\s*</
     end
   end

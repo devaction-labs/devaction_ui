@@ -12,9 +12,23 @@ defmodule DevactionUI.Alert do
   alias DevactionUI.Tone
 
   attr :kind, :atom,
-    values: [:ok, :ai, :info, :warn, :risk, :neutral],
+    values: [
+      :ok,
+      :ai,
+      :info,
+      :warn,
+      :risk,
+      :neutral,
+      :indigo,
+      :emerald,
+      :note,
+      :tip,
+      :warning,
+      :decision
+    ],
     default: :info,
-    doc: "the tone it is drawn in; `:ai` is the amber of what the AI did"
+    doc:
+      "the tone it is drawn in: a plain tone, or the canvas's name (`:ai` is the amber of what the AI did, `:warning` the red, `:decision` the green, `:tip` the blue, `:note` the grey)"
 
   attr :title, :string, required: true, doc: "the bold first line"
   attr :class, :any, default: nil

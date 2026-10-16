@@ -52,6 +52,7 @@
   --animate-aura-glow: aura-glow 2s ease-in-out infinite;
   --animate-toast-out: toast-out 0.4s ease-in forwards;
   --animate-pulse-dot: pulse-dot 1.4s ease-in-out infinite;
+  --animate-pulse-dot-fast: pulse-dot 1s ease-in-out infinite;
   --animate-spin-fast: spin-fast 0.8s linear infinite;
 }
 
@@ -102,6 +103,24 @@
   --tag-neutral-bg: light-dark(#F4F4F5, #2A2A36);
   --tag-neutral-text: light-dark(#3F3F46, #C9C9D6);
   --tag-neutral-strong: light-dark(#18181B, #EDEDF2);
+  --tag-indigo-line: light-dark(#C7D2FE, #343A6E);
+  --tag-indigo-bg: light-dark(#EEF2FF, #1C1F3A);
+  --tag-indigo-text: light-dark(#3730A3, #B4B9FF);
+  --tag-indigo-strong: light-dark(#312E81, #D9DCFF);
+  --tag-emerald-line: light-dark(#A7F3D0, #1B4A3A);
+  --tag-emerald-bg: light-dark(#ECFDF5, #12261F);
+  --tag-emerald-text: light-dark(#047857, #7EE8C0);
+  --tag-emerald-strong: light-dark(#064E3B, #C4F5E2);
+  --dot-ok: light-dark(#16A34A, #4ADE80);
+  --dot-warn: light-dark(#D29A1E, #E3A72F);
+  --dot-risk: light-dark(#C62828, #FF5A47);
+  --dot-info: light-dark(#2563EB, #6EA8FE);
+  --dot-indigo: light-dark(#6A57DE, #9A8CFF);
+  --dot-emerald: light-dark(#10B981, #34D399);
+  --dot-neutral: light-dark(#A1A1AA, #6C6C80);
+  --shimmer: light-dark(#F7F7F8, #353544);
+  --toast-layer-1: light-dark(#27272A, #C9C9D6);
+  --toast-layer-2: light-dark(#3F3F46, #A3A3B8);
   --line-dashed: light-dark(#C9C9CF, #4A4A58);
   --kbd-inverse: light-dark(#3F3F46, #C9C9D6);
   --kbd-inverse-fg: light-dark(#E4E4E7, #2C2C38);
@@ -144,6 +163,24 @@
   --color-tag-neutral-bg: var(--tag-neutral-bg);
   --color-tag-neutral-text: var(--tag-neutral-text);
   --color-tag-neutral-strong: var(--tag-neutral-strong);
+  --color-tag-indigo-line: var(--tag-indigo-line);
+  --color-tag-indigo-bg: var(--tag-indigo-bg);
+  --color-tag-indigo-text: var(--tag-indigo-text);
+  --color-tag-indigo-strong: var(--tag-indigo-strong);
+  --color-tag-emerald-line: var(--tag-emerald-line);
+  --color-tag-emerald-bg: var(--tag-emerald-bg);
+  --color-tag-emerald-text: var(--tag-emerald-text);
+  --color-tag-emerald-strong: var(--tag-emerald-strong);
+  --color-dot-ok: var(--dot-ok);
+  --color-dot-warn: var(--dot-warn);
+  --color-dot-risk: var(--dot-risk);
+  --color-dot-info: var(--dot-info);
+  --color-dot-indigo: var(--dot-indigo);
+  --color-dot-emerald: var(--dot-emerald);
+  --color-dot-neutral: var(--dot-neutral);
+  --color-shimmer: var(--shimmer);
+  --color-toast-layer-1: var(--toast-layer-1);
+  --color-toast-layer-2: var(--toast-layer-2);
   --color-risk-line: var(--tag-risk-line);
   --color-risk-bg: var(--tag-risk-bg);
   --color-risk-fg: var(--tag-risk-text);
@@ -354,7 +391,7 @@
   .empty        { @apply relative flex flex-col items-center gap-3 overflow-hidden rounded-card border border-line bg-card px-7 pt-10 pb-8 text-center; }
   .empty-grid   { @apply pointer-events-none absolute inset-x-0 top-0 h-45 bg-[linear-gradient(var(--line-soft)_1px,transparent_1px),linear-gradient(90deg,var(--line-soft)_1px,transparent_1px)] bg-size-[24px_24px] [mask-image:radial-gradient(ellipse_50%_90%_at_50%_0%,#000_20%,transparent_75%)]; }
   .empty-icon   { @apply relative grid size-14 place-items-center rounded-2xl border border-line bg-card text-ink shadow-[0_10px_24px_rgb(24_24_27/0.08)]; }
-  .empty-inline { @apply flex flex-col items-center gap-1.5 rounded-xl border border-dashed border-line-dashed p-5.5 text-center; }
+  .empty-inline { @apply flex flex-col items-center gap-1.5 rounded-xl border border-dashed border-done p-5.5 text-center; }
   .stepper { @apply grid list-none grid-cols-[repeat(auto-fit,minmax(0,1fr))] gap-2 p-0; }
   .step    { @apply flex flex-col gap-2.5 before:h-1 before:rounded-full before:bg-line
                     data-[state=done]:before:bg-ink data-[state=current]:before:bg-ai data-[state=error]:before:bg-missing; }
