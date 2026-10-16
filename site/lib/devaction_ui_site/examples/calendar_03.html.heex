@@ -1,0 +1,81 @@
+<%!-- title: Week with hours | text: A time column and each event at its time and length; overlaps share the width, an event without a time is an all-day chip, and the legend names the categories. --%>
+<Calendar.calendar
+  id="calendar-hours"
+  label="Deliveries this week"
+  title="Oct 12 to Oct 16, 2026"
+  date={~D[2026-10-15]}
+  view={:week}
+  week_start={:monday}
+  hours={8..13}
+  weekend={false}
+  today={~D[2026-10-15]}
+  events={[
+    %{
+      id: "h1",
+      date: ~D[2026-10-12],
+      label: "Lesson",
+      detail: "Ecto.Multi, 20 min",
+      kind: :chart_4,
+      starts_at: ~T[09:00:00],
+      ends_at: ~T[09:36:00]
+    },
+    %{
+      id: "h2",
+      date: ~D[2026-10-13],
+      label: "Daily",
+      detail: "Carlos, Fernando",
+      kind: :chart_3,
+      starts_at: ~T[09:00:00],
+      ends_at: ~T[09:30:00]
+    },
+    %{
+      id: "h3",
+      date: ~D[2026-10-13],
+      label: "PR #142",
+      detail: "review",
+      kind: :chart_1,
+      starts_at: ~T[11:00:00],
+      ends_at: ~T[12:30:00]
+    },
+    %{
+      id: "h4",
+      date: ~D[2026-10-15],
+      label: "Review PR #145",
+      kind: :chart_1,
+      starts_at: ~T[10:00:00],
+      ends_at: ~T[11:00:00]
+    },
+    %{
+      id: "h5",
+      date: ~D[2026-10-15],
+      label: "Amendment 01",
+      detail: "send",
+      kind: :chart_2,
+      starts_at: ~T[10:30:00],
+      ends_at: ~T[11:30:00]
+    },
+    %{
+      id: "h6",
+      date: ~D[2026-10-16],
+      label: "M3 delivery",
+      kind: :chart_1,
+      starts_at: ~T[09:00:00],
+      ends_at: ~T[11:00:00]
+    },
+    %{id: "h7", date: ~D[2026-10-14], label: "Holiday", kind: :chart_2}
+  ]}
+  weekdays={~w(Mon Tue Wed Thu Fri)}
+  more_label="+%{count} more"
+  prev_label="Previous week"
+  next_label="Next week"
+  select_event="calendar_select"
+  prev_event="calendar_prev"
+  next_event="calendar_next"
+>
+  <:prev_icon><.icon name="arrow-down-01" class="size-4 rotate-90" /></:prev_icon>
+  <:next_icon><.icon name="arrow-down-01" class="size-4 -rotate-90" /></:next_icon>
+  <:legend kind={:chart_1}>Milestone</:legend>
+  <:legend kind={:chart_2}>Contract</:legend>
+  <:legend kind={:chart_3}>Meeting</:legend>
+  <:legend kind={:chart_4}>Lesson</:legend>
+</Calendar.calendar>

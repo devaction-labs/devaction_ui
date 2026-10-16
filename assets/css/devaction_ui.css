@@ -389,6 +389,13 @@
   .calendar      { @apply grid grid-cols-7 overflow-hidden rounded-xl border-t border-l border-line; }
   .calendar-cell { @apply flex min-h-23 flex-col gap-1 border-r border-b border-line px-2 py-1.5 text-left aria-selected:bg-wrap/70; }
   .calendar-event{ @apply flex items-center gap-1.5 truncate rounded-md px-1.5 py-0.5 text-[11px]; }
+  .calendar-hours { @apply grid overflow-hidden rounded-xl border border-line; grid-template-columns: 52px repeat(var(--cal-days), minmax(0, 1fr)); }
+  .calendar-hours-corner { @apply border-b border-line bg-wrap/60; }
+  .calendar-hours-head { @apply truncate border-b border-l border-line bg-wrap/60 px-2.5 py-2 text-[13px]; }
+  .calendar-hours-times { @apply flex flex-col; }
+  .calendar-hours-time { @apply h-14 pt-1 pr-2 text-right font-mono text-[11px] text-muted; }
+  .calendar-hours-day { @apply relative cursor-pointer border-l border-line outline-none focus-visible:z-10 focus-visible:ring-4 focus-visible:ring-ink/10 aria-selected:bg-wrap/40; height: calc(var(--cal-hours) * 56px); background-image: linear-gradient(var(--line-soft) 1px, transparent 1px); background-size: 100% 56px; }
+  .calendar-hours-event { @apply absolute box-border overflow-hidden rounded-lg border-l-[3px] px-2 py-1.5 text-xs leading-snug; }
   .timer         { @apply flex flex-col items-center gap-1.5 rounded-card border border-line bg-wrap/60 p-4.5 data-[running=true]:border-ok-line data-[running=true]:bg-ok-bg/50; }
   .timer-time    { @apply font-mono text-[44px] font-medium tracking-tight tabular-nums; }
   .signature-pad { @apply aspect-[360/170] w-full touch-none rounded-xl border border-dashed border-muted/60 bg-wrap/60; }
