@@ -22,12 +22,12 @@ defmodule DevactionUISite.EmailTemplateTest do
 
     for entry <- entries do
       assert Catalog.since(entry) == "0.4"
-      assert Catalog.release(entry) == "v0.4"
+      assert Catalog.release(entry) == "v0.4.0"
     end
   end
 
   test "the next version lists the components and the template group as new" do
-    next = Enum.find(Changelog.versions(), &(&1.version == "v0.4"))
+    next = Enum.find(Changelog.versions(), &(&1.version == "v0.4.0"))
     new = for %{kind: "new", group: "Email", name: name} <- next.entries, do: name
 
     assert Enum.sort(new) == ~w(email email_callout email_table email_tag)

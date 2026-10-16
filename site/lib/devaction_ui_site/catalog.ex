@@ -68,10 +68,9 @@ defmodule DevactionUISite.Catalog do
   def since(name) when name in @since_v02, do: "0.2"
   def since(_name), do: "0.1"
 
-  @doc "The version entry of the changelog a component was created in: `v0.4` for the e-mail set, `v0.3.0` for the layout theme, else `v0.2.0`."
+  @doc "The version entry of the changelog a component was created in: `v0.4.0` for the e-mail set, `v0.3.0` for the layout theme, else `v0.2.0`."
   def release(topic), do: release_of(since(topic))
 
-  defp release_of("0.4"), do: "v0.4"
   defp release_of("0.3"), do: "v0.3.0"
   defp release_of(since), do: "v#{since}.0"
 
