@@ -252,6 +252,52 @@ defmodule DevactionUI.FormFieldsTest do
       assert plain =~ ~s(phx-click="attach")
       assert ai =~ "tag-warn-bg"
     end
+
+    test "the padding of a footer button belongs to its variant, never both" do
+      assigns = %{}
+
+      plain =
+        rendered_to_string(~H|<Textarea.footer_button label="Attach">A</Textarea.footer_button>|)
+
+      ai =
+        rendered_to_string(
+          ~H|<Textarea.footer_button label="Improve" variant={:ai}>I</Textarea.footer_button>|
+        )
+
+      assert plain =~ " px-2 "
+      refute plain =~ "px-2.5"
+      assert ai =~ "px-2.5"
+      refute ai =~ " px-2 "
+      assert ai =~ "rounded-[9px]"
+    end
+  end
+
+  describe "the field frames in the stylesheet" do
+    @css File.read!(Path.expand("../../assets/css/devaction_ui.css", __DIR__))
+    @external_resource Path.expand("../../assets/css/devaction_ui.css", __DIR__)
+
+    for rule <- ~w(.input-group .textarea .number-input) do
+      test "#{rule} gets the ring, the error and the disabled fill from tokens, not from the ink" do
+        [declaration] =
+          Regex.run(~r/#{Regex.escape(unquote(rule))}[ ,][^{]*\{[^}]*--ring-field:[^}]*\}/s, @css)
+
+        assert declaration =~ "--ring-field-error"
+        assert declaration =~ "--fill-field-error"
+        assert declaration =~ "--fill-field-off"
+        assert declaration =~ "rgb(237 237 242 / 0.10)"
+      end
+    end
+
+    test "the input group and the textarea read those tokens" do
+      for rule <- ["  .input-group  {", "  .textarea        {"] do
+        [block] = Regex.run(~r/#{Regex.escape(rule)}[^}]*\}/s, @css)
+        assert block =~ "ring-(color:--ring-field)"
+        assert block =~ "ring-(color:--ring-field-error)"
+        assert block =~ "bg-(--fill-field-error)"
+        assert block =~ "bg-(--fill-field-off)"
+        refute block =~ "ring-ink/8"
+      end
+    end
   end
 
   describe "Choice" do

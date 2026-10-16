@@ -238,11 +238,14 @@
   .switch-card-mark { @apply grid size-10 shrink-0 place-items-center rounded-[11px] bg-wrap text-ink-2 [.switch-card:has([aria-checked=true])_&]:bg-ink [.switch-card:has([aria-checked=true])_&]:text-on-primary; }
 
   /* ---------- Formulários completos (prancha 10) ---------- */
+  .input-group, .textarea, .number-input { --ring-field: light-dark(rgb(24 24 27 / 0.08), rgb(237 237 242 / 0.10));
+                         --ring-field-error: light-dark(rgb(198 40 40 / 0.08), rgb(255 90 71 / 0.16));
+                         --fill-field-error: light-dark(#FFFBFB, #241818); --fill-field-off: light-dark(#FAFAFA, #15151C); }
   .input-group  { @apply flex h-11 w-full items-center gap-2.5 rounded-xl border border-line-strong bg-panel px-3.5 text-[15px] text-ink
-                         focus-within:border-ink focus-within:ring-4 focus-within:ring-ink/8
-                         has-[[aria-invalid=true]]:border-missing has-[[aria-invalid=true]]:bg-tag-risk-bg/40 has-[[aria-invalid=true]]:ring-missing/8
+                         focus-within:border-ink focus-within:ring-4 focus-within:ring-(color:--ring-field)
+                         has-[[aria-invalid=true]]:border-missing has-[[aria-invalid=true]]:bg-(--fill-field-error) has-[[aria-invalid=true]]:ring-(color:--ring-field-error)
                          has-[input[readonly]]:border-line has-[input[readonly]]:bg-wrap has-[input[readonly]]:font-mono has-[input[readonly]]:text-[13px] has-[input[readonly]]:text-ink-2
-                         has-disabled:border-dashed has-disabled:bg-wrap has-disabled:text-muted; }
+                         has-disabled:border-dashed has-disabled:bg-(--fill-field-off) has-disabled:text-muted; }
   .input-group > input { @apply h-full min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-2; }
   .input-icon   { @apply size-[18px] shrink-0 text-muted; }
   .input-action { @apply -mr-2.5 grid size-9 shrink-0 place-items-center rounded-[9px] text-ink-2 hover:bg-wrap; }
@@ -252,11 +255,11 @@
   .input-sm { @apply h-9 rounded-[10px] px-3 text-[13px]; }
   .input-lg { @apply h-13 rounded-[14px] px-4 text-base; }
 
-  .textarea        { @apply overflow-hidden rounded-xl border border-line-strong bg-panel has-[.textarea-footer]:rounded-[14px] focus-within:border-ink focus-within:ring-4 focus-within:ring-ink/8
-                         has-[[aria-invalid=true]]:border-missing has-[[aria-invalid=true]]:bg-tag-risk-bg/40 has-[[aria-invalid=true]]:ring-missing/8
-                         has-disabled:border-dashed has-disabled:bg-wrap has-disabled:text-muted; }
+  .textarea        { @apply overflow-hidden rounded-xl border border-line-strong bg-panel has-[.textarea-footer]:rounded-[14px] focus-within:border-ink focus-within:ring-4 focus-within:ring-(color:--ring-field)
+                         has-[[aria-invalid=true]]:border-missing has-[[aria-invalid=true]]:bg-(--fill-field-error) has-[[aria-invalid=true]]:ring-(color:--ring-field-error)
+                         has-disabled:border-dashed has-disabled:bg-(--fill-field-off) has-disabled:text-muted; }
   .textarea > textarea { @apply block w-full resize-y bg-transparent px-3.5 py-3 text-[15px] leading-[1.55] outline-none placeholder:text-muted-2 [field-sizing:content] min-h-[calc(var(--rows,3)*1lh+1.5rem)] max-h-[calc(12*1lh+1.5rem)]; }
-  .textarea-footer { @apply flex items-center gap-1 border-t border-line-soft bg-wrap/60 py-1.5 pr-2 pl-2.5; }
+  .textarea-footer { @apply flex items-center gap-1 border-t border-line-soft bg-(--fill-field-off) py-1.5 pr-2 pl-2.5; }
   .textarea-count  { @apply ml-auto font-mono text-xs text-muted data-[over=true]:text-risk-fg; }
 
   .checkbox { @apply grid size-5 shrink-0 appearance-none place-content-center rounded-md border-[1.5px] border-muted/70 bg-card

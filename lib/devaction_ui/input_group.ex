@@ -15,7 +15,10 @@ defmodule DevactionUI.InputGroup do
       <InputGroup.input_group id="slug" invalid aria-describedby="slug-error" />
       <p id="slug-error">Already taken</p>
 
-  The look comes from the `.input-group*` classes of `devaction_ui.css`, which the app must import.
+  The look comes from the `.input-group*` classes of `devaction_ui.css`, which the app must import. The focus and
+  error rings (8% of the ink in light, 10% in dark), the error fill and the disabled fill are the custom
+  properties `--ring-field`, `--ring-field-error`, `--fill-field-error` and `--fill-field-off`, which an app can
+  override on the group. A `readonly` field is drawn as the canvas draws a secret to copy: plain fill, monospace.
   """
   use Phoenix.Component
 
