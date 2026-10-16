@@ -1,0 +1,28 @@
+<%!-- title: Around any input | text: A plain input and an input group take the same wrapper; splat `field.aria` on a plain one --%>
+<div class="grid max-w-md gap-5">
+  <Field.field
+    :let={field}
+    id="field-plain"
+    label="Plain input"
+    required
+    hint="Any element takes the ids."
+  >
+    <input
+      id={field.id}
+      name="plain"
+      value="devaction"
+      class="h-10 rounded-[10px] border border-line bg-card px-3 text-sm text-ink outline-none focus-visible:ring-4 focus-visible:ring-ink/10"
+      {field.aria}
+    />
+  </Field.field>
+  <Field.field :let={field} id="field-group" label="Subdomain" hint="Where the client signs in.">
+    <InputGroup.input_group
+      id={field.id}
+      name="sub"
+      value="sge"
+      aria-describedby={field.aria[:"aria-describedby"]}
+    >
+      <:suffix loose>.devaction.app</:suffix>
+    </InputGroup.input_group>
+  </Field.field>
+</div>

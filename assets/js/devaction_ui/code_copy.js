@@ -1,7 +1,7 @@
-import {COPIED_MS, canCopy, next} from "./code_copy_logic.js"
+import {COPIED_MS, canCopy, next, source} from "./code_copy_logic.js"
 
 /**
- * Copies the text of the `<code>` of a code block and says so for a moment: `data-copied` on the button
+ * Copies the text of the `<code>` of a code block, or the `data-copy-value` of a copy field, and says so for a moment: `data-copied` on the button
  * (`data-code-copy`) and the button's `data-copied-label` in the status line (`data-code-status`).
  */
 export default {
@@ -18,7 +18,7 @@ export default {
   },
 
   async copy() {
-    await navigator.clipboard.writeText(this.el.querySelector("code").textContent)
+    await navigator.clipboard.writeText(source(this.el))
     this.show(next(this.state, "copy"))
     clearTimeout(this.timer)
     this.timer = setTimeout(() => this.show(next(this.state, "reset")), COPIED_MS)

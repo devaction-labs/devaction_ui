@@ -1,6 +1,12 @@
 import test from "node:test"
 import assert from "node:assert/strict"
-import {canCopy, next} from "./code_copy_logic.js"
+import {canCopy, next, source} from "./code_copy_logic.js"
+
+test("the copied text is the root's own value, else the code's text", () => {
+  assert.equal(source({dataset: {copyValue: "whsec_1"}, querySelector: () => ({textContent: "x"})}), "whsec_1")
+  assert.equal(source({dataset: {}, querySelector: () => ({textContent: "mix test"})}), "mix test")
+  assert.equal(source({dataset: {}, querySelector: () => null}), "")
+})
 
 test("a copy lights the button and the timer puts it out", () => {
   assert.equal(next("idle", "copy"), "copied")

@@ -123,6 +123,8 @@ defmodule DevactionUISite.ExampleLive do
          publish: "draft"
        },
        overlays: %{kind: nil, typed: "", done: false, nested: false},
+       secret_revealed: false,
+       banners_dismissed: [],
        switches: %{on: ["auto_review", "card_ai", "repo-sge-api"], saving: nil, saved: false},
        confirming: false,
        published: false,
@@ -417,6 +419,16 @@ defmodule DevactionUISite.ExampleLive do
     do: {:noreply, assign(socket, :pdf, pdf_state(pdf.page, pdf.zoom, true))}
 
   def handle_event("pdf_sign", _params, socket), do: {:noreply, socket}
+
+  def handle_event("secret_toggle", _params, socket),
+    do: {:noreply, update(socket, :secret_revealed, &(not &1))}
+
+  def handle_event("banner_dismiss", %{"tone" => tone}, socket)
+      when tone in ~w(info warning critical offline),
+      do: {:noreply, update(socket, :banners_dismissed, &[tone | &1])}
+
+  def handle_event("banner_reset", _params, socket),
+    do: {:noreply, assign(socket, :banners_dismissed, [])}
 
   def handle_event(_event, _params, socket), do: {:noreply, socket}
 

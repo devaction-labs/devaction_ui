@@ -1,0 +1,46 @@
+<%!-- title: Group sizes | text: Medium, small and extra small, the last for tables; circles with `shape` --%>
+<div class="grid gap-4">
+  <Avatar.group
+    label="Medium"
+    size={:md}
+    people={[
+      %{name: "Ana Nogueira", tone: :ink},
+      %{name: "Carlos Andre", tone: :info},
+      %{name: "Fernando Pinto", tone: :warn}
+    ]}
+  >
+    <:caption>Medium</:caption>
+  </Avatar.group>
+  <Avatar.group
+    label="Small"
+    size={:sm}
+    people={[
+      %{name: "Ana Nogueira", tone: :ink},
+      %{name: "Ana Iris", tone: :warn},
+      %{name: "Bia Lopes"}
+    ]}
+    max={2}
+  >
+    <:caption>Small</:caption>
+  </Avatar.group>
+  <Avatar.group
+    label="Compact, in tables"
+    size={:xs}
+    people={[
+      %{name: "Ana Nogueira", tone: :ink},
+      %{name: "Carlos Andre", tone: :info},
+      %{name: "Fernando Pinto", tone: :warn},
+      %{name: "Bia Lopes"}
+    ]}
+    max={3}
+  >
+    <:caption>Compact, in tables</:caption>
+  </Avatar.group>
+  <Avatar.group
+    label="Round"
+    shape={:round}
+    people={[%{name: "Ana Nogueira", tone: :ink}, %{name: "Carlos Andre", tone: :info}]}
+  >
+    <:caption>Round</:caption>
+  </Avatar.group>
+</div>

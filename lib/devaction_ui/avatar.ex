@@ -8,7 +8,8 @@ defmodule DevactionUI.Avatar do
 
   Around it: five sizes (`:xs` to `:xl`), a square shape for what is not a person (a workspace, a repository, a
   client), a status dot (online, away, busy, offline), the AI agent (`agent/1`, amber, with its own mark) and
-  the invite slot (`avatar_invite/1`). A status is never alone: it is also read out.
+  the invite slot (`avatar_invite/1`). A status is never alone: it is also read out. `group/1` is the canvas's
+  overlapped group: rounded squares in three sizes, status dots, a `+N` chip and a caption beside.
   """
   use Phoenix.Component
 
@@ -242,6 +243,93 @@ defmodule DevactionUI.Avatar do
     </span>
     """
   end
+
+  attr :people, :list,
+    required: true,
+    doc:
+      "`%{name: ..., tone: ..., status: ..., status_label: ...}` each, the first on top; `tone` is `:ink` (the solid ink of whoever is the subject), `:auto` or a `Tone`, `status` and `status_label` are optional"
+
+  attr :label, :string, required: true, doc: "what the group is, read by assistive technology"
+  attr :max, :integer, default: nil, doc: "how many are drawn; the rest become a `+N` chip"
+  attr :size, :atom, values: [:xs, :sm, :md], default: :md, doc: "22, 28 and 36 px"
+
+  attr :shape, :atom,
+    values: [:square, :round],
+    default: :square,
+    doc: "the corners: rounded squares (the canvas's group) or circles"
+
+  attr :class, :any, default: nil
+  attr :rest, :global
+  slot :caption, doc: "the text beside the avatars, such as `Review team, 2 online`"
+
+  @doc "Avatars overlapping by a quarter of their size, with status dots, a `+N` chip and a caption beside."
+  @spec group(map()) :: Phoenix.LiveView.Rendered.t()
+  def group(assigns) do
+    {shown, hidden} = split(assigns.people, assigns.max)
+    assigns = assign(assigns, shown: shown, hidden: hidden)
+
+    ~H"""
+    <span class={["inline-flex items-center gap-3", @class]} {@rest}>
+      <span role="group" aria-label={@label} class="flex">
+        <span
+          :for={{person, index} <- Enum.with_index(@shown)}
+          data-person
+          title={person.name}
+          class={[
+            "relative inline-flex shrink-0 items-center justify-center border-2 border-card font-sans font-semibold",
+            group_size(@size),
+            group_shape(@shape, @size),
+            group_tone(Map.get(person, :tone, :neutral), person.name),
+            index > 0 && group_overlap(@size)
+          ]}
+        >
+          <span aria-hidden="true">{initials(person.name)}</span>
+          <span class="sr-only">{person.name}</span>
+          <span
+            :if={Map.get(person, :status)}
+            data-status={person.status}
+            role="img"
+            aria-label={Map.get(person, :status_label) || to_string(person.status)}
+            class={[
+              "absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full border-2 border-card",
+              dot_color(person.status)
+            ]}
+          />
+        </span>
+        <span
+          :if={@hidden > 0}
+          data-more={@hidden}
+          class={[
+            "relative inline-flex shrink-0 items-center justify-center border-2 border-card bg-wrap font-sans font-semibold text-ink-2",
+            group_size(@size),
+            group_shape(@shape, @size),
+            group_overlap(@size)
+          ]}
+        >
+          +{@hidden}
+        </span>
+      </span>
+      <span :if={@caption != []} class="text-[13px] text-ink-2">{render_slot(@caption)}</span>
+    </span>
+    """
+  end
+
+  defp group_size(:xs), do: "size-[22px] text-[9px]"
+  defp group_size(:sm), do: "size-7 text-[10px]"
+  defp group_size(:md), do: "size-9 text-xs"
+
+  defp group_shape(:round, _size), do: "rounded-full"
+  defp group_shape(:square, :xs), do: "rounded-[7px]"
+  defp group_shape(:square, :sm), do: "rounded-[9px]"
+  defp group_shape(:square, :md), do: "rounded-[11px]"
+
+  defp group_overlap(:xs), do: "-ml-1.5"
+  defp group_overlap(:sm), do: "-ml-[7px]"
+  defp group_overlap(:md), do: "-ml-[9px]"
+
+  defp group_tone(:ink, _name), do: "bg-ink text-card"
+  defp group_tone(:auto, name), do: [tint(:auto, name), text_class(:auto, name)]
+  defp group_tone(tone, _name), do: [Tone.bg(tone), Tone.text(tone)]
 
   defp split(people, nil), do: {people, 0}
   defp split(people, max), do: {Enum.take(people, max), max(length(people) - max, 0)}

@@ -225,4 +225,63 @@ defmodule DevactionUI.AvatarTest do
     assert html =~ "border-2 border-card"
     assert html =~ ~r/bg-avatar-\w+-bg/
   end
+
+  test "the group overlaps rounded squares, with status dots and a caption" do
+    assigns = %{
+      people: [
+        %{name: "Ana Nogueira", tone: :ink, status: :online, status_label: "online"},
+        %{name: "Carlos Andre", tone: :info, status: :online},
+        %{name: "Fernando Pinto", tone: :warn}
+      ]
+    }
+
+    html =
+      rendered_to_string(~H"""
+      <Avatar.group people={@people} label="SGE team">
+        <:caption>SGE team, 2 online</:caption>
+      </Avatar.group>
+      """)
+
+    assert html =~ ~s(role="group" aria-label="SGE team")
+    assert html =~ "size-9"
+    assert html =~ "rounded-[11px]"
+    assert html =~ "bg-ink text-card"
+    assert html =~ "bg-tag-info-bg"
+    assert html =~ "-ml-[9px]"
+    assert length(Regex.scan(~r/data-status=/, html)) == 2
+    assert html =~ ~s(aria-label="online")
+    assert html =~ ~s(aria-label="online")
+    assert html =~ ">AN<"
+    assert html =~ "SGE team, 2 online"
+    refute html =~ "data-more"
+  end
+
+  test "the group folds the people past max into a +N chip and has three sizes" do
+    assigns = %{people: for(name <- ~w(Ana Bia Caio Dani Edu Fabi), do: %{name: name})}
+
+    for {size, shape, overlap} <- [
+          {:md, "rounded-[11px]", "-ml-[9px]"},
+          {:sm, "rounded-[9px]", "-ml-[7px]"},
+          {:xs, "rounded-[7px]", "-ml-1.5"}
+        ] do
+      html =
+        rendered_to_string(
+          ~H|<Avatar.group people={@people} label="Reviewers" max={3} size={size} />|
+        )
+
+      assert html =~ shape
+      assert html =~ overlap
+      assert html =~ ~s(data-more="3")
+      assert html =~ "+3"
+      assert length(Regex.scan(~r/data-person/, html)) == 3
+    end
+  end
+
+  test "the group can be round" do
+    assigns = %{people: [%{name: "Ana Lima", tone: :auto}]}
+    html = rendered_to_string(~H|<Avatar.group people={@people} label="M" shape={:round} />|)
+
+    assert html =~ "rounded-full"
+    assert html =~ ~r/bg-avatar-\w+-bg/
+  end
 end
