@@ -5,3 +5,4 @@
 doc
 site/priv/static/assets
 erl_crash.dump
+site/priv/data

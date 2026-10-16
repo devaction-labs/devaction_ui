@@ -45,7 +45,12 @@ WORKDIR /app
 ENV HOME=/app \
     MIX_ENV=prod \
     PHX_SERVER=true \
-    LANG=C.UTF-8
+    LANG=C.UTF-8 \
+    DATABASE_PATH=/app/data/changelog.db
+
+RUN mkdir -p /app/data && chown appuser:appgroup /app/data
+
+VOLUME ["/app/data"]
 
 COPY --from=builder --chown=appuser:appgroup /app/site/_build/prod/rel/devaction_ui_site ./
 

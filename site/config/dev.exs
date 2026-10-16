@@ -23,6 +23,10 @@ config :devaction_ui_site, DevactionUISite.Endpoint,
     ]
   ]
 
+config :devaction_ui_site, DevactionUISite.Repo,
+  database: Path.expand("../priv/data/dev.db", __DIR__),
+  pool_size: 5
+
 config :phoenix, :stacktrace_depth, 20
 config :phoenix, :plug_init_mode, :runtime
 config :phoenix_live_view, debug_heex_annotations: true, debug_attributes: true
