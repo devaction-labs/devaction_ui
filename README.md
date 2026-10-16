@@ -101,9 +101,10 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 | `DevactionUI.Tabs` | boxed or underlined tabs, switched on the client with ← → Home End |
 | `DevactionUI.Accordion` | `<details>` sections, exclusive through a shared `name`, no JavaScript |
 | `DevactionUI.Tooltip` | a hint on hover and focus, CSS only |
-| `DevactionUI.Pillbox` | removable pills in a field; Enter or comma adds, Backspace removes |
+| `DevactionUI.Pillbox` | removable pills in a field; Enter or comma adds, Backspace removes; `empty_sentinel` makes an emptied list still reach the server |
+| `DevactionUI.FilterPill` | the round pills of a filter bar: on or off (ink), amber, with a ×, and the dashed `add_pill/1` |
 | `DevactionUI.ColorPicker` | a hex field with a panel: saturation and brightness square, hue and opacity strips, presets, the eyedropper where the browser has one |
-| `DevactionUI.Slider` | a native range input and a two-thumb range slider whose thumbs never cross, with the fill and the value following the drag |
+| `DevactionUI.Slider` | a native range input and a two-thumb range slider whose thumbs never cross, with the fill and the value following the drag; a value `bubble` over the thumb and a `:vertical` orientation |
 | `DevactionUI.SignatureField` | draw or type a signature; the pad stays mounted when the mode changes, and the SVG of the stroke is safe to keep. The typed name is set in the Caveat font (weight 500), which you load yourself |
 | `DevactionUI.Combobox` | a select with a search field, accent-insensitive filtering and the ARIA combobox keys |
 | `DevactionUI.DataTable` | sticky header, sortable columns (`aria-sort`, the server sorts), row selection with a tri-state header checkbox and a bulk bar that shows while something is ticked, two densities |
@@ -125,7 +126,10 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 | `DevactionUI.MoneyInput` | a field masked as `R$ 1.234,56` (`DevactionUI.MoneyMask` hook); `parse/1` returns the cents |
 | `DevactionUI.Dropdown` | a button with a menu of actions or choices (radio items with a check), ↑ ↓ Home End Esc |
 | `DevactionUI.ConfirmDialog` | the modal that asks before something that cannot be taken back; focus trapped, Esc closes |
-| `DevactionUI.Dropzone` | the dashed area over a LiveView upload; lights up while a file is over it |
+| `DevactionUI.Dropzone` | the dashed area over a LiveView upload; lights up (and announces it) while a file is over it, writes the limits from the upload config, lists each file with a progress bar and a remove button |
+| `DevactionUI.Choice` | checkbox (with the partial state and a task style), radio, choice card, and the `checkbox_group/1` and `radio_group/1` fieldsets with help and error |
+| `DevactionUI.Switch` | a `role="switch"` button for what takes effect at once; `name` makes it a form field through a hidden input; row, card and the `saved_note/1` live region |
+| `DevactionUI.Segmented` | a pill of toggle buttons (`aria-pressed`) with a roving tabindex and arrow keys, counts, disabled options and `patch`/`navigate` |
 | `DevactionUI.Aura` | a turning ring of light (or a breathing halo) around the AI at work |
 | `DevactionUI.Chart` | SVG charts drawn on the server: a line chart (with a table view), bars, columns, a ring and a sparkline; the four `chart-*` colours, hover and focus dim the others |
 | `DevactionUI.Progress` | a linear progress bar |

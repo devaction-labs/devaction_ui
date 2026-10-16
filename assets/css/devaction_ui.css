@@ -637,6 +637,7 @@
   --picker-ring: light-dark(rgb(0 0 0 / 0.3), rgb(0 0 0 / 0.55));
   --picker-checker-a: light-dark(#E4E4E7, #3A3A48);
   --picker-checker-b: light-dark(#FFFFFF, #26262F);
+  --dropzone-bg: light-dark(#FAFAFB, #15151C);
 }
 
 .color-picker-hue::-webkit-slider-runnable-track,

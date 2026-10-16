@@ -1,6 +1,12 @@
 import test from "node:test"
 import assert from "node:assert/strict"
-import {depthAfter, isOver} from "./dropzone_logic.js"
+import {depthAfter, isOver, overText} from "./dropzone_logic.js"
+
+test("the announcement is the caller's text while over, and nothing otherwise", () => {
+  assert.equal(overText(1, "Drop to upload"), "Drop to upload")
+  assert.equal(overText(0, "Drop to upload"), "")
+  assert.equal(overText(2, undefined), "")
+})
 
 test("crossing into a child and out of the parent keeps the zone lit", () => {
   const events = ["dragenter", "dragenter", "dragleave"]
