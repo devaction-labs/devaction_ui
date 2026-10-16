@@ -1,0 +1,35 @@
+<%!-- title: Highlighted plan | text: The plan to push has a 2px border, a ribbon and the dark action; the event carries the plan id. --%>
+<Pricing.table id="pricing-highlight" billing_label="Billing period" event="pricing_choose">
+  <:plan
+    id="basic"
+    name="Basic"
+    tagline="Everything to begin."
+    price="$9"
+    period="/month"
+    features={["5 projects", "Email support"]}
+    cta="Choose Basic"
+  />
+  <:plan
+    id="team"
+    name="Team"
+    tagline="For growing teams."
+    price="$29"
+    period="/month"
+    features={["Unlimited projects", "Roles and audit", "Chat support"]}
+    highlighted
+    ribbon="MOST USED"
+    cta="Choose Team"
+  />
+  <:plan
+    id="scale"
+    name="Scale"
+    tagline="For many teams."
+    price="$99"
+    period="/month"
+    features={["Everything in Team", "SSO"]}
+    cta="Choose Scale"
+  />
+  <:footnote>
+    {(@pricing.chosen && "You chose #{@pricing.chosen}.") || "Press an action to see the event."}
+  </:footnote>
+</Pricing.table>
