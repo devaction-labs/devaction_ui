@@ -2,6 +2,19 @@
 
 Every release lists new components, improvements, fixes and breaking changes. While the version is 0.x a minor release may break compatibility, and every break is listed with the step to follow.
 
+## Unreleased (0.3)
+
+### New components
+
+- `DevactionUI.Shell`: the frame of an app with a sidebar that collapses to a rail (⌘B, the `dui_sidebar` cookie, a drawer on small screens), `sidebar_head/1`, `sidebar_nav/1`, `sidebar_group/1`, `sidebar_item/1`, `sidebar_foot/1`, the variants `classic`, `topbar`, `split`, `centered` and `docs`, and the `DevactionUI.Shell.SidebarCookie` plug with `DevactionUI.Shell.on_mount/4`.
+- `DevactionUI.ScrollArea`: a thin scrollbar and a shadow only at the edges that still have content.
+
+### Improved
+
+- `DataTable`: `sticky={:start}` and `sticky={:end}` on a `:col` pin the first column and the actions.
+- `Breadcrumb`: `home`, `home_label` and a `home_icon` slot.
+- `PageHeader`: `toolbar` and `toolbar_end` slots.
+
 ## 0.2.6
 
 ### Improved

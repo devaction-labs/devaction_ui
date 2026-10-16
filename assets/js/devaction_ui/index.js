@@ -35,6 +35,8 @@ import Pillbox from "./pillbox.js"
 import Popover from "./popover.js"
 import ProgressToast from "./progress_toast.js"
 import Resizable from "./resizable.js"
+import ScrollArea from "./scroll_area.js"
+import Shell from "./shell.js"
 import Signature from "./signature.js"
 import Sortable from "./sortable.js"
 import Tabs from "./tabs.js"
@@ -76,6 +78,8 @@ export const hooks = {
   "DevactionUI.RangePair": RangePair,
   "DevactionUI.Resizable": Resizable,
   "DevactionUI.ProgressToast": ProgressToast,
+  "DevactionUI.ScrollArea": ScrollArea,
+  "DevactionUI.Shell": Shell,
   "DevactionUI.Signature": Signature,
   "DevactionUI.Segmented": Segmented,
   "DevactionUI.SortableList": Sortable,

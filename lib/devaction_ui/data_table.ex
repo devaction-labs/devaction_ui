@@ -26,6 +26,11 @@ defmodule DevactionUI.DataTable do
   is where it starts; the choice is kept across redraws), its icon the `density_icon` slot. `max_height` is a class
   written in full, so the Tailwind of the app finds it through the `@source` of this package.
 
+  A `:col` with `sticky={:start}` (the first column) or `sticky={:end}` (the actions) stays in view while the table
+  scrolls sideways; in a selectable table the checkbox column is pinned along with the first one. The header is
+  always sticky, and a table with pinned columns gets a shadow on the pinned side only while there is content
+  behind it (the `DevactionUI.ScrollArea` hook).
+
   `loading` draws `loading_rows` rows of skeletons in place of the rows (named once for assistive technology by
   `loading_label`, which it needs) and `error` draws its message, with the `error_action` slot for a retry button,
   as an alert; the empty state is the `empty` slot, or the text `empty_text`. In a stream the rows stay in the page
@@ -34,6 +39,8 @@ defmodule DevactionUI.DataTable do
   use Phoenix.Component
 
   import DevactionUI.Skeleton, only: [skeleton: 1]
+
+  alias Phoenix.LiveView.JS
 
   attr :id, :string, required: true
   attr :label, :string, required: true, doc: "what the table lists, for assistive technology"
@@ -88,6 +95,11 @@ defmodule DevactionUI.DataTable do
     attr :sortable, :boolean
     attr :hide_label, :boolean, doc: "keep the label for screen readers only"
     attr :class, :string
+
+    attr :sticky, :atom,
+      values: [:start, :end],
+      doc:
+        "pins the column to the start (the first column) or the end (the actions) while the table scrolls sideways"
   end
 
   slot :sort_asc_icon, doc: "the arrow of the column sorted ascending"
@@ -115,7 +127,9 @@ defmodule DevactionUI.DataTable do
       assign(assigns,
         entries: entries(assigns.rows, assigns.row_id, assigns.id),
         streaming: streaming?(assigns.rows),
-        ticked: MapSet.new(assigns.selected, &to_string/1)
+        ticked: MapSet.new(assigns.selected, &to_string/1),
+        pinned: Enum.any?(assigns.col, &(Map.get(&1, :sticky) != nil)),
+        pin_select: Enum.any?(assigns.col, &(Map.get(&1, :sticky) == :start))
       )
 
     ~H"""
@@ -162,12 +176,24 @@ defmodule DevactionUI.DataTable do
         </button>
       </div>
 
-      <div class={["overflow-auto rounded-xl border border-line bg-card", @max_height]}>
+      <div
+        id={@pinned && "#{@id}-scroll"}
+        class={["overflow-auto rounded-xl border border-line bg-card", @max_height]}
+        data-pinned={@pinned && ""}
+        phx-hook={@pinned && "DevactionUI.ScrollArea"}
+        phx-mounted={@pinned && JS.ignore_attributes(edge_attributes())}
+      >
         <table class="w-full border-collapse text-left text-sm" aria-busy={@loading && "true"}>
           <caption class="sr-only">{@label}</caption>
           <thead>
             <tr>
-              <th :if={@selectable} scope="col" class={[th(), "w-10"]}>
+              <th
+                :if={@selectable}
+                scope="col"
+                class={[th(), "w-10"]}
+                data-select-cell
+                data-sticky={@pin_select && "start"}
+              >
                 <input
                   type="checkbox"
                   data-select-all
@@ -178,6 +204,7 @@ defmodule DevactionUI.DataTable do
               <th
                 :for={col <- @col}
                 scope="col"
+                data-sticky={Map.get(col, :sticky)}
                 aria-sort={sort_state(col, @sort)}
                 class={[th(), Map.get(col, :class)]}
               >
@@ -222,7 +249,12 @@ defmodule DevactionUI.DataTable do
               aria-selected={@selectable && to_string(selected?(@ticked, @row_id.(row)))}
               class="group/row hover:bg-wrap has-[input:checked]:bg-ink/[.03]"
             >
-              <td :if={@selectable} class={[td(), "w-10"]}>
+              <td
+                :if={@selectable}
+                class={[td(), "w-10"]}
+                data-select-cell
+                data-sticky={@pin_select && "start"}
+              >
                 <input
                   type="checkbox"
                   data-select-row
@@ -233,7 +265,11 @@ defmodule DevactionUI.DataTable do
                   class="checkbox"
                 />
               </td>
-              <td :for={col <- @col} class={[td(), Map.get(col, :class)]}>
+              <td
+                :for={col <- @col}
+                class={[td(), Map.get(col, :class)]}
+                data-sticky={Map.get(col, :sticky)}
+              >
                 {render_slot(col, row)}
               </td>
             </tr>
@@ -284,6 +320,15 @@ defmodule DevactionUI.DataTable do
 
   @doc false
   def default_id(%{id: id}), do: id
+
+  defp edge_attributes,
+    do: [
+      "data-more-left",
+      "data-more-right",
+      "data-more-top",
+      "data-more-bottom",
+      "data-scrolled-y"
+    ]
 
   defp th,
     do:

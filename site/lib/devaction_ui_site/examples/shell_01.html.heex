@@ -1,0 +1,66 @@
+<%!-- title: Classic | text: A sidebar with collapsible groups beside the page. Press Ctrl+B or ⌘B, or the button in the header, to collapse it to a rail; the choice is kept in a cookie. --%>
+<div class="overflow-hidden rounded-2xl">
+  <Shell.shell
+    id="shell-classic"
+    style="--shell-h: 460px"
+    sidebar_label="Main"
+    open_label="Open the menu"
+    close_label="Collapse the menu"
+  >
+    <:toggle_icon><.icon name="menu-01" class="size-[18px]" /></:toggle_icon>
+    <:sidebar>
+      <Shell.sidebar_head name="DevAction IA" subtitle="Workspace">
+        <:logo>
+          <span class="grid size-full place-items-center bg-ink text-xs font-semibold text-on-ink">DA</span>
+        </:logo>
+      </Shell.sidebar_head>
+      <Shell.sidebar_nav>
+        <Shell.sidebar_item tip="Today" href="#today" current>
+          <:icon><.icon name="home-01" class="size-full" /></:icon>
+          Today
+        </Shell.sidebar_item>
+        <Shell.sidebar_group id="shell-work" label="Work">
+          <:icon><.icon name="arrow-down-01" class="size-full" /></:icon>
+          <Shell.sidebar_item tip="Projects" href="#projects" badge={6}>
+            <:icon><.icon name="folder-01" class="size-full" /></:icon>
+            Projects
+            <:sub>
+              <Shell.sidebar_item tip="Archived" href="#archived">Archived</Shell.sidebar_item>
+            </:sub>
+          </Shell.sidebar_item>
+          <Shell.sidebar_item tip="Pull requests" href="#prs" dot badge={3} badge_tone="ai">
+            <:icon><.icon name="git-pull-request" class="size-full" /></:icon>
+            Pull requests
+          </Shell.sidebar_item>
+        </Shell.sidebar_group>
+        <Shell.sidebar_group id="shell-team" label="Team">
+          <:icon><.icon name="arrow-down-01" class="size-full" /></:icon>
+          <Shell.sidebar_item tip="People" href="#people">
+            <:icon><.icon name="user" class="size-full" /></:icon>
+            People
+          </Shell.sidebar_item>
+        </Shell.sidebar_group>
+      </Shell.sidebar_nav>
+      <Shell.sidebar_foot>
+        <Shell.sidebar_item tip="Settings" href="#settings">
+          <:icon><.icon name="key-01" class="size-full" /></:icon>
+          Settings
+        </Shell.sidebar_item>
+      </Shell.sidebar_foot>
+    </:sidebar>
+    <:header>
+      <Breadcrumb.breadcrumb
+        label="You are here"
+        separator={:chevron}
+        items={[%{label: "Work", to: "#work"}, %{label: "Projects"}]}
+      />
+    </:header>
+    <:header_actions>
+      <Button.button variant={:secondary} size={:sm}>Share</Button.button>
+    </:header_actions>
+    <PageHeader.page_header id="shell-classic-head">
+      <:title>Projects</:title>
+      <:subtitle>6 active across 4 clients</:subtitle>
+    </PageHeader.page_header>
+  </Shell.shell>
+</div>

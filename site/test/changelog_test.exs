@@ -36,7 +36,7 @@ defmodule DevactionUISite.ChangelogTest do
     versions = by_version()
 
     for topic <- Catalog.all() do
-      assert topic.slug in new_names(versions["v#{Catalog.since(topic)}.0"])
+      assert topic.slug in new_names(versions[Catalog.release(topic)])
     end
 
     assert "auth" in new_names(versions["v0.1.0"])
@@ -63,8 +63,18 @@ defmodule DevactionUISite.ChangelogTest do
   test "the next version plans only what is truly missing" do
     next = by_version()["v0.3"]
 
-    assert Enum.map(next.entries, & &1.name) == ["x-ui.*"]
-    assert Enum.all?(next.entries, &(&1.kind == "planned"))
+    assert Enum.map(Enum.filter(next.entries, &(&1.kind == "planned")), & &1.name) == ["x-ui.*"]
+  end
+
+  test "the next version lists the new components and the improvements of the layout theme" do
+    next = by_version()["v0.3"]
+    new = for %{kind: "new", name: name} <- next.entries, do: name
+    improved = for %{kind: "improved", name: name} <- next.entries, do: name
+
+    assert Enum.sort(new) == ["scroll_area", "shell"]
+    assert Enum.sort(improved) == ["breadcrumb", "data_table", "page_header"]
+    assert Catalog.release(%{module: DevactionUI.Shell}) == "v0.3"
+    assert Catalog.release(%{module: DevactionUI.Tabs}) == "v0.1.0"
   end
 
   test "the old two-part versions are removed when sync runs" do

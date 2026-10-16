@@ -1,0 +1,10 @@
+<%!-- title: Plain content | text: Any content scrolls inside it. `bare` drops the frame when the area sits inside a card of its own. --%>
+<div class="rounded-xl border border-line bg-card p-3">
+  <ScrollArea.scroll_area id="scroll-area-text" bare max_h="160px" label="Release notes">
+    <ol class="m-0 flex list-none flex-col gap-2 p-0 pr-3 text-sm text-ink-2">
+      <li :for={n <- 1..14}>
+        Release note {n}: the milestone keeps its due date when the contract is edited.
+      </li>
+    </ol>
+  </ScrollArea.scroll_area>
+</div>

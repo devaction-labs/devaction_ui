@@ -1,0 +1,15 @@
+<%!-- title: Centered | text: `variant="centered"` drops the panel frame and keeps the page in a narrow column, for forms and settings. --%>
+<div class="overflow-hidden rounded-2xl">
+  <Shell.shell id="shell-centered" variant="centered" style="--shell-h: 300px">
+    <:header>
+      <Breadcrumb.breadcrumb
+        label="You are here"
+        items={[%{label: "Account"}, %{label: "Profile"}]}
+      />
+    </:header>
+    <PageHeader.page_header id="shell-centered-head">
+      <:title>Profile</:title>
+      <:subtitle>How you appear to the rest of the team</:subtitle>
+    </PageHeader.page_header>
+  </Shell.shell>
+</div>
