@@ -9,7 +9,12 @@ defmodule DevactionUI.DatePicker do
   day, `name_from` and `name_to` for a range), as ISO dates, and the hook fires `input` so `phx-change` hears it.
 
   Keys: ← → move a day, ↑ ↓ a week, PageUp and PageDown a month, Home and End the week, Enter or Space
-  picks. Days before `min` are dimmed and cannot be picked.
+  picks. Days before `min` are dimmed and cannot be picked, and the keyboard lands on `min` when today is
+  before it. The days are buttons in a labelled group, not a `grid`.
+
+  The element is `phx-update="ignore"` (the browser owns the month on show), so a new `value` from the server is
+  not drawn: give the picker a new `id` to reset it. The month title is capitalised unless `capitalize` is
+  false; the arrows are the `prev_icon` and `next_icon` slots (a typographic arrow when empty).
 
   `due_chip/1` compares a date with `today` and draws it late (red), due today (amber) or later (neutral).
   """
@@ -25,7 +30,16 @@ defmodule DevactionUI.DatePicker do
   attr :week_start, :integer, default: 0, doc: "0 for Sunday, 1 for Monday"
   attr :previous_label, :string, required: true
   attr :next_label, :string, required: true
+  attr :capitalize, :boolean, default: true, doc: "upper-case the first letter of the month title"
+
+  attr :inside_label, :string,
+    default: nil,
+    doc: "added to the name of the days between the ends of a range, e.g. `in the range`"
+
+  attr :shadow, :boolean, default: false, doc: "the panel's shadow, for use inside a popover"
   attr :class, :any, default: nil
+  slot :prev_icon, doc: "the icon of the previous month button"
+  slot :next_icon, doc: "the icon of the next month button"
 
   slot :shortcut do
     attr :date, :string, required: true, doc: "an ISO date"
@@ -51,8 +65,11 @@ defmodule DevactionUI.DatePicker do
       data-to={@to}
       data-previous={@previous_label}
       data-next={@next_label}
+      data-capitalize={to_string(@capitalize)}
+      data-inside={@inside_label}
       class={[
         "flex w-[300px] flex-col gap-2.5 rounded-[14px] border border-line bg-card p-3.5",
+        @shadow && "shadow-pop",
         @class
       ]}
       {@rest}
@@ -64,6 +81,8 @@ defmodule DevactionUI.DatePicker do
         data-from-input
       />
       <input :if={@mode == :range} type="hidden" name={@name <> "_to"} value={@to} data-to-input />
+      <template data-previous-icon>{render_slot(@prev_icon)}</template>
+      <template data-next-icon>{render_slot(@next_icon)}</template>
       <div data-calendar></div>
       <div :if={@shortcut != []} class="flex flex-wrap gap-1.5 border-t border-line-soft pt-2">
         <button
@@ -99,7 +118,7 @@ defmodule DevactionUI.DatePicker do
     <span
       data-state={@state}
       class={[
-        "inline-flex h-7 items-center rounded-lg px-2 text-xs",
+        "inline-flex h-7 items-center rounded-lg px-2.5 text-xs",
         chip_class(@state),
         @class
       ]}

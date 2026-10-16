@@ -6,7 +6,9 @@ import {insertionIndex, isFull, parseWip} from "./kanban_logic.js"
  * focus it and press Alt + arrow keys (←→ between columns, ↑↓ within one). The card moves in the page at
  * once and the LiveView, which stays the source of truth, gets one event with
  * `{card, from, to, index}`. A column with a limit that is full takes no more cards from outside, and every
- * move is announced in a live region. After the server redraws, the focus goes back to the moved card.
+ * move is announced in a live region, and every card is described by the keyboard hint of the board
+ * (`data-hint-id`). After the server redraws, the focus goes back to the moved card. Dragging is HTML5 drag
+ * and drop: on a touch screen the keyboard is the way that always works.
  */
 export default {
   mounted() {
@@ -16,13 +18,19 @@ export default {
     this.el.addEventListener("dragend", () => this.clear())
     this.el.addEventListener("keydown", (event) => this.onKey(event))
     this.meters()
+    this.describe()
   },
 
   updated() {
     this.meters()
+    this.describe()
     const card = this.focusId && document.activeElement === document.body ? document.getElementById(this.focusId) : null
     card?.focus()
     this.focusId = null
+  },
+
+  describe() {
+    this.el.querySelectorAll("[data-kanban-card]").forEach((card) => card.setAttribute("aria-describedby", this.el.dataset.hintId))
   },
 
   columns() {

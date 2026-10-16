@@ -8,7 +8,12 @@ defmodule DevactionUI.Calendar do
 
   The server owns the dates: `month_weeks/3` and `week_days/2` give the days to draw, so the grid is the same
   in the browser and in a test. The names of the months and of the days come from the caller (the library
-  holds no language).
+  holds no language): `title` is written by the caller, and `cell_label` (a function of the day and its events)
+  names each cell for screen readers.
+
+  The week view is the seven days of the week as cells with all their events as chips; it has no grid of hours
+  and an event carries a date, not a time. Days outside the shown month are drawn dimmed and without events.
+  Event kinds are the tones of `DevactionUI.Tone`.
   """
   use Phoenix.Component
 
@@ -50,14 +55,15 @@ defmodule DevactionUI.Calendar do
 
   defp shifted(first, _delta), do: first |> Date.end_of_month() |> Date.add(1)
 
-  @doc "`2026-10` for a month and `2026-10-11 – 2026-10-17` for a week, the neutral form a caller can replace with its own words."
+  @doc "`10/2026` for a month and `11/10 – 17/10/2026` for a week, the neutral form a caller replaces with its own words."
   @spec title(Date.t(), :month | :week, :sunday | :monday) :: String.t()
   def title(date, view, week_start \\ :sunday)
-  def title(date, :month, _week_start), do: Calendar.strftime(date, "%Y-%m")
+  def title(date, :month, _week_start), do: Calendar.strftime(date, "%m/%Y")
 
   def title(date, :week, week_start) do
     days = week_days(date, week_start)
-    "#{Date.to_iso8601(List.first(days))} – #{Date.to_iso8601(List.last(days))}"
+
+    "#{Calendar.strftime(List.first(days), "%d/%m")} – #{Calendar.strftime(List.last(days), "%d/%m/%Y")}"
   end
 
   @type event :: %{id: String.t(), date: Date.t(), label: String.t(), kind: Tone.t()}
@@ -80,6 +86,11 @@ defmodule DevactionUI.Calendar do
   attr :more_label, :string,
     required: true,
     doc: "`+%{count} more`, with the count placed by the caller"
+
+  attr :cell_label, :any,
+    default: nil,
+    doc:
+      "a function of the day and its events returning the name of the cell for screen readers; `dd/mm/yyyy: labels` when nil"
 
   attr :prev_label, :string, required: true
   attr :next_label, :string, required: true
@@ -163,14 +174,14 @@ defmodule DevactionUI.Calendar do
             data-date={Date.to_iso8601(day)}
             aria-selected={to_string(day == @selected)}
             aria-current={day == @today && "date"}
-            aria-label={cell_label(day, Map.get(@by_day, day, []))}
+            aria-label={cell_label(@cell_label, day, shown(@by_day, day, @view, @date))}
             phx-click={@select_event}
             phx-target={@target}
             phx-value-date={Date.to_iso8601(day)}
             class={[
               "calendar-cell cursor-pointer outline-none focus-visible:relative focus-visible:z-10 focus-visible:ring-4 focus-visible:ring-ink/10",
               @view == :week && "min-h-48",
-              @view == :month && day.month != @date.month && "bg-wrap/40 text-muted"
+              @view == :month && day.month != @date.month && "bg-wrap/40 text-muted-2"
             ]}
           >
             <span class={[
@@ -179,14 +190,14 @@ defmodule DevactionUI.Calendar do
             ]}>
               {day.day}
             </span>
-            <% events = Map.get(@by_day, day, []) %>
+            <% events = shown(@by_day, day, @view, @date) %>
             <span
               :for={event <- visible(events, @view, @max)}
               data-event={event.id}
               class={["calendar-event", Tone.surface(event.kind), Tone.text(event.kind)]}
             >
               <span
-                class={["size-1.5 shrink-0 rounded-full", Tone.fill(event.kind)]}
+                class={["size-1.5 shrink-0 rounded-[2px]", Tone.fill(event.kind)]}
                 aria-hidden="true"
               />
               <span class="truncate">{event.label}</span>
@@ -220,12 +231,17 @@ defmodule DevactionUI.Calendar do
 
   defp first_of(weeks), do: weeks |> List.first() |> List.first()
 
-  defp cell_label(day, events) do
-    base = Date.to_iso8601(day)
+  defp shown(_by_day, day, :month, %Date{month: month}) when day.month != month, do: []
+  defp shown(by_day, day, _view, _date), do: Map.get(by_day, day, [])
+
+  defp cell_label(nil, day, events) do
+    base = Calendar.strftime(day, "%d/%m/%Y")
 
     case events do
       [] -> base
       list -> "#{base}: #{Enum.map_join(list, ", ", & &1.label)}"
     end
   end
+
+  defp cell_label(fun, day, events), do: fun.(day, events)
 end

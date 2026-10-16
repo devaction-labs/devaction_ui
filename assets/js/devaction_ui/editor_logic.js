@@ -107,3 +107,20 @@ export function sends(event) {
 /** Where the arrow keys, Home and End take the focus on the toolbar: an index, or `null` for any other key. */
 export const toolbarTarget = (key, at, count) =>
   ({ArrowRight: wrap(at, 1, count), ArrowLeft: wrap(at, -1, count), Home: 0, End: count - 1})[key] ?? null
+
+/** The attributes of the text area, by name; `null` takes the attribute off. */
+export const textboxAttributes = ({label, labelledby, invalid, describedby, disabled}) => ({
+  "aria-label": labelledby ? null : (label ?? ""),
+  "aria-labelledby": labelledby || null,
+  "aria-invalid": invalid ? "true" : null,
+  "aria-describedby": describedby || null,
+  "aria-disabled": disabled ? "true" : null,
+})
+
+/** The cells of a row of the "/" and "@" menus: an optional icon glyph, the label and an optional hint at the end. */
+export const rowParts = (item) =>
+  [
+    item.icon && {text: item.icon, className: "w-4 shrink-0 text-center text-muted"},
+    {text: item.label, className: "flex-1 truncate"},
+    item.hint && {text: item.hint, className: "shrink-0 font-mono text-xs text-muted"},
+  ].filter(Boolean)

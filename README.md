@@ -53,9 +53,12 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
    so there is no `@source` to add.
 2. JS: `import {hooks as devactionUI} from "../../deps/devaction_ui/assets/js/devaction_ui"` and merge into
    the LiveSocket `hooks`.
-3. Fonts: Geist and Geist Mono are named in the tokens; the host app serves them. The minimum is the
+3. Editor only: `DevactionUI.Editor` needs TipTap. Copy the `dependencies` of `deps/devaction_ui/assets/package.json`
+   (the `@tiptap/*` packages, pinned to 3.32.0) into the app's `package.json` and `npm install`. The hook loads
+   TipTap with a dynamic `import()` when an editor is mounted, so an app that renders none can skip this.
+4. Fonts: Geist and Geist Mono are named in the tokens; the host app serves them. The minimum is the
    canvas's own link: `https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap`.
-4. Theme: the stylesheet sets `:root { color-scheme: light dark }`, so the page follows the system theme.
+5. Theme: the stylesheet sets `:root { color-scheme: light dark }`, so the page follows the system theme.
    To pin one, set `data-theme="light"` or `data-theme="dark"` (or the `.light` / `.dark` class) on `<html>`.
 
 ## The rules that keep it extractable
@@ -101,8 +104,10 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 | `DevactionUI.Combobox` | a select with a search field, accent-insensitive filtering and the ARIA combobox keys |
 | `DevactionUI.DataTable` | sticky header, sortable columns (`aria-sort`, the server sorts), row selection with a tri-state header checkbox and a bulk bar that shows while something is ticked, two densities |
 | `DevactionUI.Kanban` | columns with WIP limits and cards that move by drag or Alt + arrows, announced to screen readers; the LiveView gets one `move_card` event |
+| `DevactionUI.Editor` | a TipTap toolbar and surface that sends HTML and Markdown in hidden inputs; `/` blocks, `@` mentions, image upload, an AI tool, a compact comment form, visible label, error and disabled |
 | `DevactionUI.Autocomplete` | a field with grouped suggestions (the server searches), the match in bold, ↑ ↓ Enter, ⌘↵ for an "ask the AI" row |
 | `DevactionUI.DatePicker` | a month calendar for one day or a range, keyboard grid, shortcuts, dates as ISO in hidden inputs; plus `due_chip/1` (late, today, later) |
+| `DevactionUI.Calendar` | a month or a week of days with coloured event chips, a keyboard grid (arrows, Home, End, Page keys); `title` and `cell_label` come from the caller; no hours grid |
 | `DevactionUI.Popover` | a panel with an arrow anchored to a button; Esc and outside click close it, focus goes in and comes back |
 | `DevactionUI.ToastGroup` | notices stacked into layers with a count, opened into a list, auto-dismissing and pausing on hover |
 | `DevactionUI.EmptyState` | the dashed card of a list with nothing in it: icon chip, title, one line, optional action |
@@ -118,9 +123,11 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 | `DevactionUI.ConfirmDialog` | the modal that asks before something that cannot be taken back; focus trapped, Esc closes |
 | `DevactionUI.Dropzone` | the dashed area over a LiveView upload; lights up while a file is over it |
 | `DevactionUI.Aura` | a turning ring of light (or a breathing halo) around the AI at work |
+| `DevactionUI.Chart` | SVG charts drawn on the server: a line chart (with a table view), bars, columns, a ring and a sparkline; the four `chart-*` colours, hover and focus dim the others |
 | `DevactionUI.Progress` | a linear progress bar |
 | `DevactionUI.ProgressToast` | a notice that fills as a job advances, with an aura, and leaves by itself when it is done |
 | `DevactionUI.Skeleton` | a shimmering placeholder |
+| `DevactionUI.Timer` | hours on a task in large mono digits (`HH:MM:SS`), start or pause and stop and log; the server owns the seconds, the browser only draws them between updates |
 | `DevactionUI.Spinner` | a spinning ring |
 
 Where an app also has its own `alert`, `badge`, `button` or `pagination`, call these qualified

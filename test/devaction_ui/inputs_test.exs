@@ -226,8 +226,8 @@ defmodule DevactionUI.InputsTest do
       assert Timer.elapsed(60, nil, 1000) == 60
       assert Timer.elapsed(60, 1000, 1030) == 90
       assert Timer.elapsed(60, 1000, 990) == 60
-      assert Timer.format(0) == "0:00:00"
-      assert Timer.format(3725) == "1:02:05"
+      assert Timer.format(0) == "00:00:00"
+      assert Timer.format(3725) == "01:02:05"
     end
 
     defp timer(base, started_at) do
@@ -258,9 +258,9 @@ defmodule DevactionUI.InputsTest do
       assert html =~ ~s(phx-hook="DevactionUI.Timer")
       assert html =~ ~s(data-base="0")
       assert html =~ ~s(data-running="false")
-      assert html =~ "0:00:00"
+      assert html =~ "00:00:00"
       assert html =~ "Start"
-      assert html =~ ~s(aria-pressed="false")
+      refute html =~ "aria-pressed"
       assert html =~ ~r/id="t-log"[^>]* disabled[ >]/s
     end
 
@@ -269,9 +269,10 @@ defmodule DevactionUI.InputsTest do
 
       assert html =~ ~s(data-started-at="1900")
       assert html =~ ~s(data-now="2000")
-      assert html =~ "0:02:40"
+      assert html =~ "00:02:40"
       assert html =~ "Pause"
-      assert html =~ ~s(aria-pressed="true")
+      refute html =~ "aria-pressed"
+      assert html =~ "bg-ink"
       refute html =~ ~r/id="t-log"[^>]* disabled[ >]/s
     end
 
@@ -281,6 +282,8 @@ defmodule DevactionUI.InputsTest do
       assert html =~ ~s(aria-label="Start")
       assert html =~ ~s(aria-label="Log")
       assert html =~ "rounded-full"
+      assert html =~ "bg-ok-fg"
+      refute html =~ "#15803D"
       assert html =~ "Time on DIA-142"
     end
 

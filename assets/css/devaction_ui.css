@@ -260,6 +260,10 @@
   /* ---------- Editor (prancha 11) ---------- */
   .editor          { @apply rounded-xl border border-line bg-card focus-within:border-ink-2; }
   .editor-toolbar  { @apply flex flex-wrap items-center gap-0.5 rounded-t-xl border-b border-line bg-wrap/60 px-2 py-1.5; }
+  .editor-root[data-invalid="true"] .editor { @apply border-tag-risk-line; }
+  .editor-root[data-disabled="true"] .editor { @apply bg-wrap opacity-60; }
+  .editor-btn[data-ai] { @apply w-auto gap-1.5 border border-tag-warn-line bg-tag-warn-bg px-2.5 text-tag-warn-text hover:bg-tag-warn-bg hover:opacity-80 aria-pressed:bg-tag-warn-bg aria-pressed:text-tag-warn-text; }
+  .editor-footer   { @apply flex items-center justify-between gap-2 rounded-b-xl border-t border-line bg-wrap/60 px-3 py-2; }
   .editor-sep      { @apply mx-1 h-4.5 w-px bg-line; }
   .editor-btn      { @apply grid size-8.5 place-items-center rounded-lg text-ink-2 hover:bg-wrap aria-pressed:bg-line aria-pressed:text-ink; }
   .editor-content  { @apply min-h-40 px-5 py-4 leading-relaxed text-ink-2 outline-none
@@ -292,6 +296,9 @@
   .chart-axis    { @apply fill-muted font-mono text-xs; }
   .chart-line    { @apply fill-none [stroke-width:2] [stroke-linecap:round] [stroke-linejoin:round]; }
   .chart-area    { @apply [fill-opacity:0.08]; }
+  .chart-area-spark { @apply [fill-opacity:0.1]; }
+  .chart-axis-x  { @apply fill-muted font-sans text-xs; }
+  .chart-slice   { @apply stroke-card [stroke-width:2]; }
   .chart-dot     { @apply stroke-card [stroke-width:2]; }
   .chart-legend  { @apply flex flex-wrap items-center gap-4 text-[13px] text-ink-2; }
   .chart-key     { @apply h-0.5 w-3.5 rounded-full; }
@@ -490,7 +497,7 @@
 .chart-tip-box {
   fill: var(--card);
   stroke: var(--line);
-  filter: drop-shadow(0 10px 20px rgb(24 24 27 / 0.12));
+  filter: drop-shadow(0 10px 30px rgb(24 24 27 / 0.12));
 }
 
 .range {

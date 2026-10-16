@@ -1,4 +1,4 @@
-import {monthOf, moveFocus, pick, sameDayIn, shiftMonth} from "./dates.js"
+import {clampMin, monthOf, moveFocus, pick, sameDayIn, shiftMonth} from "./dates.js"
 import {renderCalendar} from "./date_picker_view.js"
 import {runKey} from "./keys.js"
 
@@ -9,7 +9,9 @@ const UTC = {timeZone: "UTC"}
  * the workspace's time zone, the minimum, the locale, the shortcuts); month and weekday names come from the
  * browser's `Intl`. A pick goes into the hidden inputs as ISO dates and fires `input` so `phx-change` hears
  * it. Keys: ← → a day, ↑ ↓ a week, PageUp/PageDown a month, Home/End the ends of the week, Enter picks.
- * The element is `phx-update="ignore"`: give it a new id to reset it from the server.
+ * The element is `phx-update="ignore"`: a new `value` from the server is not shown until the element gets a new
+ * id. The month title is capitalised unless `data-capitalize="false"`; the arrows come from the `<template>`s
+ * of the icon slots.
  */
 export default {
   mounted() {
@@ -19,7 +21,8 @@ export default {
     this.min = data.min || null
     this.weekStart = Number.parseInt(data.weekStart, 10)
     this.selection = {from: data.from || null, to: data.to || null}
-    this.focus = this.selection.from ?? this.today
+    this.focus = clampMin(this.selection.from ?? this.today, this.min)
+    this.capitalize = data.capitalize !== "false"
     this.view = monthOf(this.focus)
 
     this.monthFormat = new Intl.DateTimeFormat(data.locale, {...UTC, month: "long", year: "numeric"})
@@ -78,7 +81,7 @@ export default {
 
   title() {
     const text = this.monthFormat.format(new Date(Date.UTC(this.view.year, this.view.month, 1)))
-    return text.charAt(0).toUpperCase() + text.slice(1)
+    return this.capitalize ? text.charAt(0).toUpperCase() + text.slice(1) : text
   },
 
   weekdays() {
@@ -86,6 +89,11 @@ export default {
     return [...Array(7)].map((_, index) =>
       this.weekdayFormat.format(new Date(Date.UTC(2023, 0, 1 + ((index + this.weekStart) % 7)))),
     )
+  },
+
+  icon(name) {
+    const html = this.el.querySelector(`template[data-${name}-icon]`)?.innerHTML.trim()
+    return html || undefined
   },
 
   draw({refocus = false} = {}) {
@@ -97,6 +105,9 @@ export default {
         weekdays: this.weekdays(),
         previous: data.previous,
         next: data.next,
+        previousIcon: this.icon("previous"),
+        nextIcon: this.icon("next"),
+        insideLabel: data.inside,
         dayLabel: (iso) => this.dayFormat.format(new Date(`${iso}T00:00:00Z`)),
       },
     )

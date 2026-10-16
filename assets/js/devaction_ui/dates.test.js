@@ -1,6 +1,6 @@
 import test from "node:test"
 import assert from "node:assert/strict"
-import {addDays, addMonths, daysInMonth, leadingDays, monthOf, moveFocus, pick, sameDayIn, shiftMonth, weekdayIndex} from "./dates.js"
+import {addDays, addMonths, clampMin, daysInMonth, leadingDays, monthOf, moveFocus, pick, sameDayIn, shiftMonth, weekdayIndex} from "./dates.js"
 
 test("adding days and months crosses month and year ends", () => {
   assert.equal(addDays("2026-10-31", 1), "2026-11-01")
@@ -55,4 +55,10 @@ test("a range starts, closes, restarts earlier and starts anew", () => {
 
   assert.deepEqual(pick(start, "2026-10-11", "range"), {from: "2026-10-11", to: null})
   assert.deepEqual(pick(closed, "2026-10-25", "range"), {from: "2026-10-25", to: null})
+})
+
+test("clampMin holds a day to the minimum", () => {
+  assert.equal(clampMin("2026-10-03", "2026-10-10"), "2026-10-10")
+  assert.equal(clampMin("2026-10-12", "2026-10-10"), "2026-10-12")
+  assert.equal(clampMin("2026-10-03", null), "2026-10-03")
 })
