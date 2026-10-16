@@ -1,17 +1,19 @@
-import {planLayout, stackPadding, styleFor} from "./toast_layout.js"
+import {runKey} from "./keys.js"
+import {escapeStep, planLayout, stackPadding, styleFor} from "./toast_layout.js"
 
 /**
  * Notices that pile up without covering the screen: a stack of layers with a count while there are several,
  * a list with "Collapse" and "Clear" when opened. A toast closes by itself after its `data-duration` (0
  * keeps it), the timers pausing while the pointer or the focus is in the group or the list is open. Closing
  * one or clearing all is told to the LiveView (`data-on-dismiss`, `data-on-clear`), which is the source of
- * truth for what is shown.
+ * truth for what is shown. Escape closes the open list, or the toast the focus is on.
  */
 export default {
   mounted() {
     this.timers = new Map()
     this.paused = false
     this.el.addEventListener("click", (event) => this.onClick(event))
+    this.el.addEventListener("keydown", (event) => this.onKey(event))
     ;["mouseenter", "focusin"].forEach((name) => this.el.addEventListener(name, () => this.pause(true)))
     ;["mouseleave", "focusout"].forEach((name) => this.el.addEventListener(name, () => this.pause(false)))
     this.layout()
@@ -45,6 +47,12 @@ export default {
     ]
     const [selector, act] = actions.find(([candidate]) => on(candidate)) ?? []
     selector && act(on(selector))
+  },
+
+  onKey(event) {
+    const focused = event.target.closest("[data-toast]")
+    const steps = {collapse: () => this.expand(false), dismiss: () => this.dismiss(focused), null: () => false}
+    runKey({Escape: () => steps[escapeStep({expanded: this.expanded(), focused: Boolean(focused)})]()}, event)
   },
 
   expand(open) {

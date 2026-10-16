@@ -1,6 +1,6 @@
 import test from "node:test"
 import assert from "node:assert/strict"
-import {LINGER_MS, leftAfter, plan} from "./progress_toast_logic.js"
+import {EXIT_MS, LINGER_MS, leftAfter, plan} from "./progress_toast_logic.js"
 
 test("a finished job leaves after the linger time", () => {
   assert.deepEqual(plan({state: "done"}), {wait: LINGER_MS})
@@ -19,4 +19,8 @@ test("what is left of the wait is kept across a pause", () => {
   assert.equal(leftAfter(1600, 1000, 1400), 1200)
   assert.equal(leftAfter(1200, 5000, 9000), 0)
   assert.deepEqual(plan({state: "done", remaining: 300}), {wait: 300})
+})
+
+test("the exit lasts 400 ms, as long as the toast-out animation", () => {
+  assert.equal(EXIT_MS, 400)
 })

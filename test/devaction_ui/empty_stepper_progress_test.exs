@@ -19,7 +19,7 @@ defmodule DevactionUI.EmptyStepperProgressTest do
         """)
 
       assert html =~ "border-dashed"
-      assert html =~ ">T<"
+      assert html =~ ~r/<h2[^>]*>\s*T\s*<\/h2>/
       assert html =~ ">A<"
     end
 
@@ -45,7 +45,7 @@ defmodule DevactionUI.EmptyStepperProgressTest do
 
       bare = rendered_to_string(~H|<EmptyState.empty_state variant={:page} title="Only" />|)
       refute bare =~ "empty-icon"
-      refute bare =~ "mt-2 flex"
+      refute bare =~ "mt-1.5 flex"
     end
 
     test "the inline one is a small row, with an action when it can be fixed" do
@@ -145,14 +145,14 @@ defmodule DevactionUI.EmptyStepperProgressTest do
 
       assert length(Regex.scan(~r/data-filled="true"/, html)) == 2
       assert length(Regex.scan(~r/data-filled="false"/, html)) == 2
-      assert html =~ "flex gap-0.5"
+      assert html =~ "gap-1.5"
     end
 
-    test "the thin one is two pixels and the indeterminate one gives no value" do
+    test "the thin one is four pixels and the indeterminate one gives no value" do
       assigns = %{}
 
       assert rendered_to_string(~H|<Progress.progress label="L" variant={:thin} value={10} />|) =~
-               "h-0.5"
+               "h-1"
 
       html = rendered_to_string(~H|<Progress.progress label="L" indeterminate />|)
       assert html =~ ~s(aria-busy="true")

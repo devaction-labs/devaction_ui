@@ -1,25 +1,27 @@
-<%!-- title: Inline | text: Compact versions for search, an empty queue and an error --%>
+<%!-- title: Inline | text: Compact versions for an empty search, a queue that is done and a load that failed --%>
 <div class="grid gap-4 md:grid-cols-3">
   <EmptyState.empty_state
     variant={:inline}
     title="Nothing for “refunds”"
     text="Try another term or clear the filters."
   >
-    <:icon><.icon name="search-01" class="size-5" /></:icon>
+    <:icon><.icon name="search-01" class="size-5.5" /></:icon>
   </EmptyState.empty_state>
   <EmptyState.empty_state
     variant={:inline}
+    tone={:ok}
     title="Review queue is empty"
     text="No pull request is waiting for you."
   >
-    <:icon><.icon name="checkmark-circle-02" class="size-5" /></:icon>
+    <:icon><.icon name="checkmark-circle-02" class="size-5.5" /></:icon>
   </EmptyState.empty_state>
   <EmptyState.empty_state
     variant={:inline}
+    tone={:risk}
     title="Could not load the pull requests"
-    text="GitHub did not answer."
+    text="The server did not answer."
   >
-    <:icon><.icon name="alert-02" class="size-5" /></:icon>
+    <:icon><.icon name="alert-02" class="size-5.5" /></:icon>
     <:action><Button.button size={:sm}>Try again</Button.button></:action>
   </EmptyState.empty_state>
 </div>

@@ -1,0 +1,13 @@
+<%!-- title: Every kind | text: Ok, AI, info, warn, risk and neutral, each in the strong text of its tone --%>
+<div class="flex max-w-xl flex-col gap-3">
+  <Alert.alert kind={:ok} title="Repository connected">6 repositories synced.</Alert.alert>
+  <Alert.alert kind={:ai} title="The AI is reviewing">
+    About a minute per pull request.
+  </Alert.alert>
+  <Alert.alert kind={:info} title="Tip">
+    Link the PR to the task with DIA-123 in the title.
+  </Alert.alert>
+  <Alert.alert kind={:warn} title="Token expires soon">Renew it before Friday.</Alert.alert>
+  <Alert.alert kind={:risk} title="Webhook failed">Retrying in 30 s.</Alert.alert>
+  <Alert.alert kind={:neutral} title="Draft saved">Nothing was published.</Alert.alert>
+</div>

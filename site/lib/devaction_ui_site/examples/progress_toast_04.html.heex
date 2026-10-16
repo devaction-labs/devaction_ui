@@ -1,0 +1,18 @@
+<%!-- title: Failed with retry | text: The icon receives the state, and the action slot shows only when it failed --%>
+<div class="max-w-[420px]">
+  <ProgressToast.progress_toast
+    id="progress-toast-retry"
+    state={:error}
+    progress={60}
+    title="Review failed"
+    on_dismiss="dismiss_job"
+    dismiss_label="Close"
+    percent_label="Failed"
+  >
+    <:icon :let={state}>
+      <.icon name={(state == :error && "alert-02") || "checkmark-circle-02"} class="size-5" />
+    </:icon>
+    <:action><Button.button size={:sm}>Try again</Button.button></:action>
+    The server did not answer
+  </ProgressToast.progress_toast>
+</div>

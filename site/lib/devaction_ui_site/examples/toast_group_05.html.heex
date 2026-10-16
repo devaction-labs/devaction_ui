@@ -1,0 +1,26 @@
+<%!-- title: Icon and link action | text: The icon slot receives each toast's kind; the action can navigate instead of sending an event --%>
+<div class="max-w-[380px]">
+  <ToastGroup.toast_group
+    id="toast-group-icon"
+    label="Notices"
+    on_dismiss="dismiss_toast"
+    on_clear="clear_toasts"
+    expand_label="Show all"
+    collapse_label="Collapse"
+    clear_label="Clear"
+    dismiss_label="Close"
+    count_label="__COUNT__ notices"
+  >
+    <:icon :let={kind}>
+      <.icon name={(kind == :risk && "alert-02") || "checkmark-circle-02"} class="size-5" />
+    </:icon>
+    <:toast
+      id="toast-icon-1"
+      kind={:light}
+      title="Review published"
+      duration={0}
+      action_label="Open"
+      action_navigate="/components/toast_group"
+    />
+  </ToastGroup.toast_group>
+</div>

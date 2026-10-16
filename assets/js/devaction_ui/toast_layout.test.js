@@ -1,6 +1,6 @@
 import test from "node:test"
 import assert from "node:assert/strict"
-import {layerStyle, planLayout, stackPadding, styleFor} from "./toast_layout.js"
+import {escapeStep, layerStyle, planLayout, stackPadding, styleFor} from "./toast_layout.js"
 
 test("one toast is never a stack, and opening it changes nothing", () => {
   assert.deepEqual(planLayout({count: 1, expanded: true}), {expanded: false, stacked: false, showBar: false, showExpand: false})
@@ -33,4 +33,10 @@ test("the style follows the toast's place: a layer, the lead of a stack, or a no
   assert.equal(styleFor({index: 0, stacked: true}).zIndex, "20")
   assert.equal(styleFor({index: 0, stacked: false}).position, "")
   assert.equal(styleFor({index: 3, stacked: false}).position, "")
+})
+
+test("Escape closes an open list first, then the focused toast, else it is left alone", () => {
+  assert.equal(escapeStep({expanded: true, focused: true}), "collapse")
+  assert.equal(escapeStep({expanded: false, focused: true}), "dismiss")
+  assert.equal(escapeStep({expanded: false, focused: false}), null)
 })

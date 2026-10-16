@@ -44,3 +44,14 @@ export const styleFor = ({index, stacked}) =>
 
 /** Extra space under a stack so the layers do not run into what is below: at most two layers show. */
 export const stackPadding = (count) => `${Math.min(count - 1, 2) * 8}px`
+
+/** What Escape does: close an open list first, else close the toast the focus is on, else nothing. */
+export const escapeStep = ({expanded, focused}) =>
+  decide(
+    [
+      [(s) => s.expanded, () => "collapse"],
+      [(s) => s.focused, () => "dismiss"],
+      [() => true, () => null],
+    ],
+    {expanded, focused},
+  )

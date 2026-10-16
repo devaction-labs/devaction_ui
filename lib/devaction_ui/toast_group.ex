@@ -6,6 +6,9 @@ defmodule DevactionUI.ToastGroup do
   focus is in the group or the list is open. Closing one, or clearing all, is sent to the LiveView
   (`on_dismiss`, `on_clear`), which is the source of truth: it removes the toast from what it renders.
 
+  Escape closes an open list, or the toast the focus is on. The region is `aria-live="polite"`; a `:risk`
+  toast is announced as an alert.
+
   The caller places the group (`class="fixed right-4 bottom-4 w-[380px]"`). The newest toast is the first
   in the slot. A toast is `:dark` (the inverted one), `:light` or `:risk` (announced as an alert).
   """
@@ -35,10 +38,16 @@ defmodule DevactionUI.ToastGroup do
     attr :duration, :integer
     attr :action_label, :string
     attr :action_event, :string
+    attr :action_target, :any, doc: "the `@myself` that receives `action_event`"
+    attr :action_navigate, :string, doc: "a path the action goes to, instead of sending an event"
   end
 
   attr :rest, :global
   slot :close_icon, doc: "replaces the typographic × that dismisses a toast"
+
+  slot :icon,
+    doc:
+      "drawn before the title of each toast; receives its kind (`:let={kind}`), so each can have its own"
 
   def toast_group(assigns) do
     ~H"""
@@ -47,6 +56,7 @@ defmodule DevactionUI.ToastGroup do
       phx-hook="DevactionUI.ToastGroup"
       role="region"
       aria-label={@label}
+      aria-live="polite"
       data-expanded="false"
       phx-mounted={JS.ignore_attributes(["data-expanded"])}
       data-on-dismiss={@on_dismiss}
@@ -73,24 +83,19 @@ defmodule DevactionUI.ToastGroup do
         data-duration={Map.get(toast, :duration, 5000)}
         role={role(Map.get(toast, :kind))}
         class={[
-          "flex items-start gap-3 rounded-[14px] px-4 py-3.5 text-sm shadow-[0_12px_30px_rgba(24,24,27,0.25)] transition-all duration-200 motion-reduce:transition-none",
+          "flex items-start gap-3 rounded-[14px] px-4 py-3.5 text-sm transition-all duration-200 motion-reduce:transition-none",
           kind_class(Map.get(toast, :kind, :dark))
         ]}
         data-index={index}
       >
+        <span :if={@icon != []} class="shrink-0" aria-hidden="true">
+          {render_slot(@icon, Map.get(toast, :kind, :dark))}
+        </span>
         <div class="flex min-w-0 flex-1 flex-col gap-1">
-          <p class="m-0 font-medium">{toast.title}</p>
+          <p class="m-0 font-semibold">{toast.title}</p>
           <div :if={toast.inner_block} class="opacity-80">{render_slot(toast)}</div>
         </div>
-        <button
-          :if={Map.get(toast, :action_label)}
-          type="button"
-          phx-click={Map.get(toast, :action_event)}
-          phx-value-id={toast.id}
-          class="shrink-0 rounded-lg bg-white/15 px-2.5 py-1 text-[13px] outline-none hover:bg-white/25 focus-visible:ring-2 focus-visible:ring-white/50"
-        >
-          {toast.action_label}
-        </button>
+        <.action :if={Map.get(toast, :action_label)} toast={toast} />
         <button
           type="button"
           data-dismiss
@@ -112,6 +117,32 @@ defmodule DevactionUI.ToastGroup do
     """
   end
 
+  attr :toast, :map, required: true
+
+  defp action(%{toast: %{action_navigate: path}} = assigns) when is_binary(path) do
+    ~H"""
+    <.link navigate={@toast.action_navigate} class={action_class()}>{@toast.action_label}</.link>
+    """
+  end
+
+  defp action(assigns) do
+    ~H"""
+    <button
+      type="button"
+      phx-click={Map.get(@toast, :action_event)}
+      phx-target={Map.get(@toast, :action_target)}
+      phx-value-id={@toast.id}
+      class={action_class()}
+    >
+      {@toast.action_label}
+    </button>
+    """
+  end
+
+  defp action_class,
+    do:
+      "shrink-0 rounded-lg bg-white/15 px-2.5 py-1 text-[13px] outline-none hover:bg-white/25 focus-visible:ring-2 focus-visible:ring-white/50"
+
   defp bar_button,
     do:
       "rounded-md px-2 py-1 text-[13px] text-ink-2 outline-none hover:bg-line focus-visible:ring-2 focus-visible:ring-ink/20"
@@ -119,7 +150,7 @@ defmodule DevactionUI.ToastGroup do
   defp role(:risk), do: "alert"
   defp role(_kind), do: "status"
 
-  defp kind_class(:dark), do: "bg-ink text-on-primary"
-  defp kind_class(:light), do: "border border-line bg-card text-ink"
+  defp kind_class(:dark), do: "bg-ink text-on-primary shadow-toast-dark"
+  defp kind_class(:light), do: "border border-line bg-card text-ink shadow-toast-light"
   defp kind_class(:risk), do: "border border-tag-risk-line bg-tag-risk-bg text-tag-risk-text"
 end

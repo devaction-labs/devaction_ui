@@ -17,7 +17,7 @@ defmodule DevactionUI.Badge do
     ~H"""
     <span
       class={[
-        "inline-flex h-[22px] min-w-[22px] items-center justify-center rounded-full px-1.5 text-xs font-medium",
+        "inline-flex h-[22px] min-w-[22px] items-center justify-center rounded-full px-[7px] text-xs font-semibold",
         (@tone == :risk && "bg-missing text-white") || "bg-ink text-on-primary",
         @class
       ]}
@@ -50,7 +50,7 @@ defmodule DevactionUI.Badge do
       class={[
         "inline-block size-2 rounded-full",
         Tone.fill(@tone),
-        @pulse && "animate-pulse motion-reduce:animate-none",
+        @pulse && "animate-pulse-dot motion-reduce:animate-none",
         @class
       ]}
       {@rest}

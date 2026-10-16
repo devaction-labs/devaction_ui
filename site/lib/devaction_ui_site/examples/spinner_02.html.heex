@@ -1,7 +1,8 @@
-<%!-- title: Sizes | text: Size and color come from classes. | layout: center --%>
+<%!-- title: Sizes and tones | text: Medium (22 px) is the canvas's; small (16 px) goes inside a button or a line of text. The tone colors the moving arc. | layout: center --%>
 <div class="flex items-center gap-6">
-  <.spinner label="Loading" class="size-3" />
-  <.spinner label="Loading" class="size-4" />
-  <.spinner label="Loading" class="size-6" />
-  <.spinner label="Loading" class="size-10" />
+  <.spinner label="Loading" size={:sm} />
+  <.spinner label="Loading" />
+  <.spinner label="Loading" tone={:warn} />
+  <.spinner label="Loading" tone={:ok} />
+  <.spinner label="Loading" tone={:risk} />
 </div>

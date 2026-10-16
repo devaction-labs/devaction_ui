@@ -6,7 +6,7 @@ defmodule DevactionUI.Tag do
   background and text from the `--tag-*` tokens, so they flip with the theme. The variant says what the
   tag means, not what color it is: `:risk`, `:warn`, `:ok`, `:info`, `:neutral`.
 
-  `size: :sm` is the 11px tag of lists and cards; `surface: :plain` puts it on a white background, for
+  `size: :sm` is the 11px tag of lists and cards, `:xs` the 10px one; `surface: :plain` puts it on a white background, for
   tags that sit inside a tinted card (a finding, a callout), where a tinted tag would vanish.
 
   `case: :normal` keeps the text as written, for a value that is code (`:risk`, `phx-click`) and would be
@@ -15,8 +15,15 @@ defmodule DevactionUI.Tag do
 
   use Phoenix.Component
 
-  attr :variant, :atom, values: [:risk, :warn, :ok, :info, :neutral], default: :neutral
-  attr :size, :atom, values: [:md, :sm], default: :md
+  attr :variant, :atom,
+    values: [:risk, :warn, :ok, :info, :neutral],
+    default: :neutral,
+    doc: "what the tag means, which sets its border, background and text"
+
+  attr :size, :atom,
+    values: [:md, :sm, :xs],
+    default: :md,
+    doc: "`:md` 12px, `:sm` 11px for lists and cards, `:xs` 10px for a count beside a name"
 
   attr :surface, :atom,
     values: [:tinted, :plain],
@@ -39,7 +46,7 @@ defmodule DevactionUI.Tag do
         "inline-flex items-center whitespace-nowrap rounded-md border font-mono",
         case_class(@case),
         size_class(@size),
-        variant_class(@variant, @surface),
+        tone(@variant, @surface),
         @class
       ]}
       {@rest}
@@ -54,15 +61,19 @@ defmodule DevactionUI.Tag do
 
   defp size_class(:md), do: "px-[9px] py-1 text-xs"
   defp size_class(:sm), do: "px-2 py-[3px] text-[11px]"
+  defp size_class(:xs), do: "px-[7px] py-[3px] text-[10px]"
 
-  defp variant_class(variant, :tinted), do: tone(variant)
+  defp tone(:risk, :tinted), do: "border-tag-risk-line bg-tag-risk-bg text-tag-risk-text"
+  defp tone(:warn, :tinted), do: "border-tag-warn-line bg-tag-warn-bg text-tag-warn-text"
+  defp tone(:ok, :tinted), do: "border-tag-ok-line bg-tag-ok-bg text-tag-ok-text"
+  defp tone(:info, :tinted), do: "border-tag-info-line bg-tag-info-bg text-tag-info-text"
 
-  defp variant_class(variant, :plain),
-    do: String.replace(tone(variant), ~r/bg-tag-\w+-bg/, "bg-card")
+  defp tone(:neutral, :tinted),
+    do: "border-tag-neutral-line bg-tag-neutral-bg text-tag-neutral-text"
 
-  defp tone(:risk), do: "border-tag-risk-line bg-tag-risk-bg text-tag-risk-text"
-  defp tone(:warn), do: "border-tag-warn-line bg-tag-warn-bg text-tag-warn-text"
-  defp tone(:ok), do: "border-tag-ok-line bg-tag-ok-bg text-tag-ok-text"
-  defp tone(:info), do: "border-tag-info-line bg-tag-info-bg text-tag-info-text"
-  defp tone(:neutral), do: "border-tag-neutral-line bg-tag-neutral-bg text-tag-neutral-text"
+  defp tone(:risk, :plain), do: "border-tag-risk-line bg-card text-tag-risk-text"
+  defp tone(:warn, :plain), do: "border-tag-warn-line bg-card text-tag-warn-text"
+  defp tone(:ok, :plain), do: "border-tag-ok-line bg-card text-tag-ok-text"
+  defp tone(:info, :plain), do: "border-tag-info-line bg-card text-tag-info-text"
+  defp tone(:neutral, :plain), do: "border-tag-neutral-line bg-card text-tag-neutral-text"
 end

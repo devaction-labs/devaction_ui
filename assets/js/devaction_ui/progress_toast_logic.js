@@ -1,6 +1,6 @@
 /** How long a finished job's toast stays before it leaves, and how long its exit animation gets. */
 export const LINGER_MS = 1600
-export const EXIT_MS = 250
+export const EXIT_MS = 400
 
 /**
  * What the toast should do now. A job that is done leaves after LINGER_MS, with the time the pointer or
