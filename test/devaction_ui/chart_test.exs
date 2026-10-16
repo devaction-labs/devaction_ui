@@ -115,10 +115,11 @@ defmodule DevactionUI.ChartTest do
       """)
     end
 
-    test "is an image with a summary, a legend, the axis, the area and two lines, the second dashed" do
+    test "is a group with a summary, a legend, the axis, the area and two lines, the second dashed" do
       html = line()
 
-      assert html =~ ~s(role="img")
+      assert html =~ ~s(<svg viewBox="0 0 820 280" role="group")
+      refute html =~ ~s(role="img")
       assert html =~ ~s(aria-label="Revenue")
       assert html =~ "chart-legend"
       assert html =~ "Done" and html =~ "Forecast"
@@ -128,6 +129,14 @@ defmodule DevactionUI.ChartTest do
       assert html =~ "stroke-chart-1" and html =~ "stroke-chart-2"
       assert html =~ "40k"
       assert html =~ ">Mar<"
+    end
+
+    test "the axis of the days is sans, the last value of each line is bold" do
+      html = line()
+
+      assert html =~ ~r/class="chart-axis-x">\s*Mar/
+      assert html =~ "text-xs font-semibold fill-ink"
+      assert html =~ "text-xs font-semibold fill-ink-2"
     end
 
     test "each column can be reached with the keyboard and says its values" do
@@ -183,11 +192,17 @@ defmodule DevactionUI.ChartTest do
 
       assert html =~ ~s(aria-label="Hours")
       assert html =~ "120 h" and html =~ "40 h"
-      assert html =~ "width: 100%"
-      assert html =~ "width: 33.33%"
+      assert html =~ "calc((100% - 4rem) * 100 / 100)"
+      assert html =~ "calc((100% - 4rem) * 33.33 / 100)"
+      assert html =~ "rounded-r-[4px]"
+      assert html =~ "h-5"
+      refute html =~ ~s(role="img")
+      assert length(Regex.scan(~r/tabindex="0"/, html)) == 2
+      assert html =~ ~s(aria-label="SGE: 120 h")
+      assert html =~ "group-has-[[data-item]:hover]/dim:not-hover:opacity-40"
     end
 
-    test "columns are at most 24 wide, with a rounded top and the value over each" do
+    test "columns are at most 24 wide, with a rounded top and the value shown only on the column in focus" do
       assigns = %{items: [%{label: "W1", value: 4}, %{label: "W2", value: 9}]}
       html = rendered_to_string(~H|<Chart.column_chart id="c" summary="PRs" items={@items} />|)
 
@@ -195,6 +210,13 @@ defmodule DevactionUI.ChartTest do
       assert html =~ ">W1<"
       assert html =~ ~r/>\s*9\s*</
       assert html =~ "Q"
+      assert html =~ "opacity-0"
+      assert html =~ "group-hover/col:opacity-100"
+      assert html =~ "group-focus/col:opacity-100"
+      assert html =~ ~s(role="group")
+      assert html =~ ~s(aria-label="W2: 9")
+      assert length(Regex.scan(~r/tabindex="0"/, html)) == 2
+      assert html =~ "group-has-[[data-item]:focus-visible]/dim:not-focus-visible:opacity-40"
     end
 
     test "the ring has a slice per value, a legend with the figures and the percentage, and the total in the hole" do
@@ -214,6 +236,12 @@ defmodule DevactionUI.ChartTest do
         """)
 
       assert length(Regex.scan(~r/<path/, html)) == 2
+      assert html =~ ~s(viewBox="0 0 220 220")
+      assert html =~ ~s(width="220")
+      assert html =~ "chart-slice"
+      assert html =~ "aria-label=\"Approved: 18 (69%)\""
+      assert length(Regex.scan(~r/tabindex="0"/, html)) == 2
+      assert html =~ "rounded-[3px]"
       assert html =~ "69%" and html =~ "31%" and html =~ "0%"
       assert html =~ "Approved"
       assert html =~ ~r/>\s*26\s*</
@@ -235,11 +263,40 @@ defmodule DevactionUI.ChartTest do
         rendered_to_string(~H|<Chart.sparkline summary="Trend" values={[3, 5, 4, 8]} id="s" />|)
 
       assert html =~ ~s(aria-label="Trend")
-      assert html =~ "chart-area"
+      assert html =~ ~s(role="img")
+      assert html =~ "chart-area-spark"
       assert html =~ "<circle"
 
       assert rendered_to_string(~H|<Chart.sparkline summary="x" values={[]} />|) =~ "<svg"
       assert rendered_to_string(~H|<Chart.sparkline summary="x" values={[7]} />|) =~ "<circle"
+    end
+
+    test "the ring has a size" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(
+          ~H|<Chart.donut_chart id="d" summary="S" size={160} items={[%{label: "A", value: 1}]} />|
+        )
+
+      assert html =~ ~s(width="160")
+      assert html =~ "width: 160px"
+    end
+
+    test "a chart with nothing in it still draws, without a slice, a bar or a column" do
+      assigns = %{}
+
+      assert rendered_to_string(~H|<Chart.bar_chart id="b" summary="S" items={[]} />|) =~ "<ul"
+
+      columns = rendered_to_string(~H|<Chart.column_chart id="c" summary="S" items={[]} />|)
+      assert columns =~ "<svg"
+      refute columns =~ "tabindex"
+
+      ring = rendered_to_string(~H|<Chart.donut_chart id="d" summary="S" items={[]} />|)
+      refute ring =~ "<path"
+      refute ring =~ "tabindex"
+
+      assert line(%{labels: [], series: []}) =~ "<svg"
     end
 
     test "the palette is fixed, four colours, and wraps" do

@@ -266,6 +266,9 @@
   .chart-axis    { @apply fill-muted font-mono text-xs; }
   .chart-line    { @apply fill-none [stroke-width:2] [stroke-linecap:round] [stroke-linejoin:round]; }
   .chart-area    { @apply [fill-opacity:0.08]; }
+  .chart-area-spark { @apply [fill-opacity:0.1]; }
+  .chart-axis-x  { @apply fill-muted font-sans text-xs; }
+  .chart-slice   { @apply stroke-card [stroke-width:2]; }
   .chart-dot     { @apply stroke-card [stroke-width:2]; }
   .chart-legend  { @apply flex flex-wrap items-center gap-4 text-[13px] text-ink-2; }
   .chart-key     { @apply h-0.5 w-3.5 rounded-full; }
@@ -456,7 +459,7 @@
 .chart-tip-box {
   fill: var(--card);
   stroke: var(--line);
-  filter: drop-shadow(0 10px 20px rgb(24 24 27 / 0.12));
+  filter: drop-shadow(0 10px 30px rgb(24 24 27 / 0.12));
 }
 
 .range {

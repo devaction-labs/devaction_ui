@@ -116,6 +116,7 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 | `DevactionUI.ConfirmDialog` | the modal that asks before something that cannot be taken back; focus trapped, Esc closes |
 | `DevactionUI.Dropzone` | the dashed area over a LiveView upload; lights up while a file is over it |
 | `DevactionUI.Aura` | a turning ring of light (or a breathing halo) around the AI at work |
+| `DevactionUI.Chart` | SVG charts drawn on the server: a line chart (with a table view), bars, columns, a ring and a sparkline; the four `chart-*` colours, hover and focus dim the others |
 | `DevactionUI.Progress` | a linear progress bar |
 | `DevactionUI.ProgressToast` | a notice that fills as a job advances, with an aura, and leaves by itself when it is done |
 | `DevactionUI.Skeleton` | a shimmering placeholder |
