@@ -103,7 +103,7 @@ Requirements: Elixir 1.20 or newer, Phoenix 1.8, Phoenix LiveView 1.2, Tailwind 
 | `DevactionUI.Button` | button or link, `variant` (primary, secondary, ghost, ai, danger, info, link), `size` sm/md/lg, `loading` |
 | `DevactionUI.Alert` | a short message with an icon and a title |
 | `DevactionUI.Breadcrumb` | where the page is |
-| `DevactionUI.Pagination` | page links with a window and gaps |
+| `DevactionUI.Pagination` | page links with a window and gaps, and the range of the page (`total`, `per_page`, `noun`, `summary_label`) |
 | `DevactionUI.PdfViewer` | a PDF viewer with a thumbnail rail, a toolbar, signature fields in percent of the page and a panel of signers; pdf.js draws the page in the hook (`pdfjs-dist`, loaded by `import()`, the worker URL from `worker_src`), and a server-rendered page slot is the fallback |
 | `DevactionUI.Stat` | a number with its caption, a trend and an inverted `highlight` |
 | `DevactionUI.Badge` | `count/1` bubble and `dot/1` status dot, optionally pulsing |
@@ -130,7 +130,7 @@ Requirements: Elixir 1.20 or newer, Phoenix 1.8, Phoenix LiveView 1.2, Tailwind 
 | `DevactionUI.Slider` | a native range input and a two-thumb range slider whose thumbs never cross, with the fill and the value following the drag; a value `bubble` over the thumb and a `:vertical` orientation |
 | `DevactionUI.SignatureField` | draw or type a signature; the pad stays mounted when the mode changes, and the SVG of the stroke is safe to keep. The typed name is set in the Caveat font (weight 500), which you load yourself |
 | `DevactionUI.Combobox` | a select with a search field, accent-insensitive filtering and the ARIA combobox keys |
-| `DevactionUI.DataTable` | sticky header, sortable columns (`aria-sort`, the server sorts), row selection with a tri-state header checkbox and a bulk bar that shows while something is ticked, two densities; `toolbar` and `footer` slots, a density toggle, `loading` (skeleton rows) and `error` states, and a default empty text through an attr |
+| `DevactionUI.DataTable` | sticky header, sortable columns (`aria-sort`, the server sorts), row selection with a tri-state header checkbox and a bulk bar that shows while something is ticked, two densities; `toolbar` and `footer` slots, a density toggle, `loading` (skeleton rows) and `error` states, and a default empty text through an attr; variations that add up: `variant={:minimal}`, `striped`, `expanded` rows, `group_by`, a `tfoot` for totals, `stack` (cards on the phone), an `action` slot for the row menu, `sticky_actions`, `align` and `mono` columns, and Shift+click range selection |
 | `DevactionUI.Kanban` | columns with WIP limits and cards that move by drag or Alt + arrows, announced to screen readers; the LiveView gets one `move_card` event; dragging works with mouse, pen and touch (pointer events); the keyboard keeps Alt + arrows |
 | `DevactionUI.FileTree` | the tree of changed files of a review: status letters, findings badges, search, filter pills and a legend; arrows, ← → and Home End move and open it; sends `select_file` and a folder toggle |
 | `DevactionUI.DiffView` | the unified diff of one file with old and new line numbers, a comment button on every line, tinted added and removed rows and the conversation (`line_thread`) with a suggested change and a reply field |

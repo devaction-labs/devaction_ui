@@ -1479,3 +1479,151 @@
   .composer[data-size=sm] .composer-input   { @apply px-3.5 py-3 text-sm; }
   .composer[data-size=sm] .composer-actions { @apply p-1.5; }
 }
+
+/* DevactionUI.DataTable variations: bands, alignment, figures, the cell of the row menu and the group row.
+   Tokens only. */
+@layer components {
+  .data-table-root[data-striped] .data-table tbody tr[data-row]:nth-child(even of [data-row]) {
+    background: color-mix(in srgb, var(--wrap) 55%, var(--card));
+  }
+  .data-table-root[data-striped] .data-table tbody tr[data-row]:nth-child(even of [data-row]) > td[data-sticky] {
+    background: color-mix(in srgb, var(--wrap) 55%, var(--card));
+  }
+  .data-table-root[data-striped] .data-table tbody tr[data-row]:hover > td[data-sticky] { background: var(--wrap); }
+  .data-table-root[data-striped][data-density="compact"] .data-table td { border-bottom-color: transparent; }
+
+  .data-table [data-align="start"] { text-align: start; }
+  .data-table [data-align="center"] { text-align: center; }
+  .data-table [data-align="end"] { text-align: end; }
+  .data-table td[data-mono] {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .data-table [data-actions]:not([data-sticky]) { box-shadow: none; }
+
+  .data-table tfoot td {
+    border-top: 1px solid var(--line);
+    background: var(--wrap);
+    font-weight: 600;
+  }
+  .data-table tfoot tr:last-child td { border-bottom: 0; }
+
+  .data-table tr[data-expanded-row][hidden] { display: none; }
+  .data-table tr[data-group-row] [data-group-meta] {
+    margin-left: 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--muted);
+  }
+}
+
+/* The same table as cards under 640px. These rules sit in the utilities layer so they win over the padding,
+   border and nowrap utilities of the cells. */
+@layer utilities {
+  @media (max-width: 639.98px) {
+    .data-table-root[data-stack] .data-table { display: block; width: 100%; min-width: 0; }
+    .data-table-root[data-stack] .data-table thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+    .data-table-root[data-stack] .data-table tbody {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 10px;
+    }
+    .data-table-root[data-stack] .data-table tbody[hidden] { display: none; }
+    .data-table-root[data-stack] .data-table tr[data-row] {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 6px 10px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--card);
+    }
+    .data-table-root[data-stack] .data-table tr[data-row] > td {
+      position: static;
+      display: flex;
+      grid-column: 1 / -1;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      width: auto;
+      height: auto;
+      min-width: 0;
+      padding: 0;
+      border: 0;
+      background: none;
+      box-shadow: none;
+      font-size: 12px;
+      text-align: end;
+      white-space: normal;
+    }
+    .data-table-root[data-stack] .data-table tr[data-row] > td[data-label]::before {
+      content: attr(data-label);
+      flex: none;
+      color: var(--muted);
+      text-align: start;
+      font-family: var(--font-sans);
+    }
+    .data-table-root[data-stack] .data-table tr[data-row] > td[data-primary] {
+      display: block;
+      padding-right: 36px;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: start;
+    }
+    .data-table-root[data-stack] .data-table tr[data-row] > td[data-actions] {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      display: block;
+    }
+    .data-table-root[data-stack] .data-table tr[data-row] > td[data-select-cell] {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      display: block;
+      width: 16px;
+      height: 16px;
+    }
+    .data-table-root[data-stack] .data-table tr[data-row]:has(> td[data-select-cell]) > td[data-primary] {
+      padding-left: 30px;
+    }
+    .data-table-root[data-stack] .data-table tr[data-row] > td[data-expand-cell] {
+      position: absolute;
+      right: 8px;
+      bottom: 8px;
+      display: block;
+    }
+    .data-table-root[data-stack] .data-table tr[data-row][data-open] {
+      border-bottom-right-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+    .data-table-root[data-stack] .data-table tr[data-expanded-row] {
+      display: block;
+      margin-top: -11px;
+      border: 1px solid var(--line);
+      border-top: 0;
+      border-radius: 0 0 14px 14px;
+      background: var(--wrap);
+    }
+    .data-table-root[data-stack] .data-table tr[data-expanded-row][hidden] { display: none; }
+    .data-table-root[data-stack] .data-table tr[data-expanded-row] > td {
+      display: block;
+      padding: 12px 14px;
+      border: 0;
+    }
+    .data-table-root[data-stack] .data-table tr[data-group-row] { display: block; }
+    .data-table-root[data-stack] .data-table tr[data-group-row] > td { display: block; border: 0; }
+    .data-table-root[data-stack] .data-table tfoot { display: block; }
+  }
+}
