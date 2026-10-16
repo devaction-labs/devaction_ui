@@ -21,15 +21,19 @@ defmodule DevactionUISite.AppTemplateTest do
     assert ScreenHTML.source("app", "projects") =~ "Shell.shell"
   end
 
-  test "the projects screen draws the shell, the page head and the pinned table" do
+  test "the projects screen draws the shell, the page head and the table" do
     {:ok, view, _html} = live(build_conn(), "/screens/app/projects")
 
     assert has_element?(view, "#app-shell .shell-sidebar", "DevAction Labs")
     assert has_element?(view, "#app-shell .sidebar-user", "alex@devaction.com.br")
     assert has_element?(view, "#app-projects-head h1", "Projects")
     assert has_element?(view, "#app-projects-tabs [role=tab]", "Findings")
-    assert has_element?(view, "#app-projects-table th[data-sticky=start]", "Project")
-    assert has_element?(view, "#app-projects-table th[data-sticky=end]")
+    assert has_element?(view, "#app-projects-table th", "Owner")
+    assert has_element?(view, "#app-projects-table td", "Carlos André")
+    assert has_element?(view, "#app-projects-table td", "12 min ago")
+    assert has_element?(view, "#app-projects-table td[data-actions]")
+    refute has_element?(view, "#app-projects-table th", "Milestone")
+    refute has_element?(view, "#app-projects-table th[data-sticky]")
     assert has_element?(view, "#app-projects-table [role=progressbar]")
     assert has_element?(view, "#app-row-menu-sge", "Review with AI")
     assert has_element?(view, "#app-projects-head", "8 of 8")
@@ -59,5 +63,16 @@ defmodule DevactionUISite.AppTemplateTest do
     {:ok, view, _html} = live(build_conn(), "/c/data_table")
 
     assert has_element?(view, "#topic-data_table", "Progress cells and a row menu")
+
+    for title <- [
+          "Minimal, compact and striped",
+          "Expandable rows",
+          "Grouped rows and totals",
+          "Cards on the phone",
+          "Row menu in the action slot",
+          "Footer with pagination"
+        ] do
+      assert has_element?(view, "#topic-data_table", title)
+    end
   end
 end

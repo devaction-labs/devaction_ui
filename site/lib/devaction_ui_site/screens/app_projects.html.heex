@@ -192,8 +192,10 @@
     rows={TemplateData.rows(@projects, @risk, @sort)}
     sort={@sort}
     on_sort="sort"
-    max_height="max-h-[540px] min-h-[540px]"
-    class="mt-4"
+    variant={:minimal}
+    action_label="Actions"
+    max_height="max-h-[600px]"
+    class="mt-2"
     empty_text="No project with this risk"
     select_all_label="Select all"
     select_row_label="Select project"
@@ -203,7 +205,7 @@
     <:sort_asc_icon><.icon name="arrow-up-02" class="size-3" /></:sort_asc_icon>
     <:sort_desc_icon><.icon name="arrow-down-01" class="size-3" /></:sort_desc_icon>
     <:sort_none_icon><.icon name="sorting-01" class="size-3" /></:sort_none_icon>
-    <:col :let={row} label="Project" sticky={:start} class="min-w-[220px] whitespace-nowrap">
+    <:col :let={row} label="Project" class="whitespace-nowrap">
       <span class="flex items-center gap-2.5 font-medium text-ink">
         <Avatar.avatar
           name={row.name}
@@ -215,37 +217,41 @@
         {row.name}
       </span>
     </:col>
-    <:col :let={row} label="Client" class="min-w-[220px] whitespace-nowrap text-ink-2">
-      {row.client}
-    </:col>
-    <:col :let={row} label="Current milestone" class="min-w-[160px] whitespace-nowrap text-ink-2">
-      {row.milestone}
-    </:col>
-    <:col :let={row} label="Risk" key="risk" sortable class="min-w-[120px]">
+    <:col :let={row} label="Client" class="text-ink-2">{row.client}</:col>
+    <:col :let={row} label="Risk" key="risk" sortable>
       <.tag size={:sm} variant={TemplateData.risk(row.risk).variant} class="gap-1">
         <.icon name={TemplateData.risk(row.risk).icon} class="size-3" />
         {TemplateData.risk(row.risk).label}
       </.tag>
     </:col>
-    <:col :let={row} label="PRs" class="min-w-[100px] whitespace-nowrap">
-      <span class="font-mono text-[13px]">{row.prs} open</span>
-    </:col>
-    <:col :let={row} label="Hours this month" class="min-w-[200px] whitespace-nowrap">
+    <:col :let={row} label="Hours this month" class="whitespace-nowrap">
       <span class="flex items-center gap-3">
         <Progress.progress
           variant={:thin}
           tone={row.tone}
           value={TemplateData.percent(row)}
           label={"Hours of #{row.name}"}
-          class="w-24"
+          class="w-20"
         />
         <span class="font-mono text-[12px] text-ink-2">{row.hours} / {row.budget} h</span>
       </span>
     </:col>
-    <:col :let={row} label="Updated" class="min-w-[110px] whitespace-nowrap text-ink-2">
+    <:col :let={row} label="Owner" class="whitespace-nowrap">
+      <span class="flex items-center gap-2 text-ink">
+        <Avatar.avatar
+          name={row.owner}
+          initials={row.owner_initials}
+          tone={row.owner_tone}
+          size={:xs}
+          shape={:square}
+        />
+        {row.owner}
+      </span>
+    </:col>
+    <:col :let={row} label="Updated" class="whitespace-nowrap text-ink-2">
       {row.updated}
     </:col>
-    <:col :let={row} label="Actions" hide_label sticky={:end}>
+    <:action :let={row}>
       <RowMenu.row_menu
         id={"app-row-menu-#{row.id}"}
         label={"Actions for #{row.name}"}
@@ -265,6 +271,6 @@
           <.icon name="delete-02" class="size-4" /> Archive
         </:item>
       </RowMenu.row_menu>
-    </:col>
+    </:action>
   </DataTable.data_table>
 </Shell.shell>

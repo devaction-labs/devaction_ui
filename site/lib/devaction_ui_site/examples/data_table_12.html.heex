@@ -1,0 +1,49 @@
+<%!-- title: Grouped rows and totals | text: `group_by` puts consecutive rows with the same key under a group row, drawn by the `group` slot; the `tfoot` slot is the totals row. --%>
+<DataTable.data_table
+  select_all_label="Select all"
+  select_row_label="Select row"
+  selected_label="__COUNT__ selected"
+  clear_label="Clear"
+  id="data-table-grouped"
+  label="Pull requests by status"
+  group_by={& &1.status}
+  max_height="max-h-[480px]"
+  rows={[
+    %{
+      id: "142",
+      title: "Tithe in transaction",
+      author: "carlos-andre",
+      changes: 187,
+      status: "open"
+    },
+    %{
+      id: "145",
+      title: "Refunds and CSV export",
+      author: "carlos-andre",
+      changes: 120,
+      status: "open"
+    },
+    %{
+      id: "63",
+      title: "Search with filters",
+      author: "alex-nogueira",
+      changes: 33,
+      status: "merged"
+    },
+    %{id: "58", title: "Webhook retries", author: "alex-nogueira", changes: 74, status: "merged"}
+  ]}
+>
+  <:group :let={{status, rows}}>
+    <span class="capitalize">{status}</span>
+    <span data-group-meta>{length(rows)}</span>
+  </:group>
+  <:col :let={row} label="PR" mono>#{row.id}</:col>
+  <:col :let={row} label="Title">{row.title}</:col>
+  <:col :let={row} label="Changes" align={:end} mono>{row.changes}</:col>
+  <:tfoot>
+    <tr>
+      <td colspan="2" class="px-3 py-2.5">Total</td>
+      <td class="px-3 py-2.5 text-right font-mono">414</td>
+    </tr>
+  </:tfoot>
+</DataTable.data_table>

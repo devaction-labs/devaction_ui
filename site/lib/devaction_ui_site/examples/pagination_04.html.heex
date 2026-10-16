@@ -1,0 +1,15 @@
+<%!-- title: With the range | text: `total`, `per_page`, `noun` and `summary_label` (with `__FROM__`, `__TO__`, `__TOTAL__` and `__NOUN__`) draw the range of the page before the links. --%>
+<div class="flex w-full flex-wrap items-center justify-between gap-3 text-[13px] text-muted">
+  <Pagination.pagination
+    page={4}
+    pages={12}
+    total={143}
+    per_page={12}
+    noun="reviews"
+    summary_label="__FROM__–__TO__ of __TOTAL__ __NOUN__"
+    path={&"/c/pagination?page=#{&1}"}
+    label="Pages"
+    previous="Previous"
+    next="Next"
+  />
+</div>

@@ -12,13 +12,14 @@ defmodule DevactionUISite.TemplateData do
       name: "SGE · Church Management",
       avatar: :risk,
       client: "Igreja Batista de Campo Limpo",
-      milestone: "M3 · Reports",
       risk: "high",
-      prs: 3,
       hours: 124,
       budget: 160,
-      tone: :risk,
-      updated: "2 h ago"
+      tone: :neutral,
+      owner: "Carlos André",
+      owner_initials: "CA",
+      owner_tone: :info,
+      updated: "12 min ago"
     },
     %{
       id: "ayram",
@@ -26,13 +27,14 @@ defmodule DevactionUISite.TemplateData do
       name: "AYRAM web",
       avatar: :warn,
       client: "AYRAM Parcerias",
-      milestone: "Retainer · out",
       risk: "medium",
-      prs: 1,
-      hours: 90,
-      budget: 120,
+      hours: 38,
+      budget: 40,
       tone: :risk,
-      updated: "5 h ago"
+      owner: "Alex",
+      owner_initials: "AN",
+      owner_tone: :ink,
+      updated: "1 h ago"
     },
     %{
       id: "hub",
@@ -40,13 +42,14 @@ defmodule DevactionUISite.TemplateData do
       name: "Hub API",
       avatar: :ok,
       client: "[CLIENT]",
-      milestone: "M2 · Webhooks",
       risk: "low",
-      prs: 2,
       hours: 62,
-      budget: 120,
+      budget: 80,
       tone: :neutral,
-      updated: "1 d ago"
+      owner: "Alex",
+      owner_initials: "AN",
+      owner_tone: :ink,
+      updated: "3 h ago"
     },
     %{
       id: "mesh",
@@ -54,13 +57,14 @@ defmodule DevactionUISite.TemplateData do
       name: "Mesh API",
       avatar: :neutral,
       client: "[CLIENT]",
-      milestone: "M1 · Contract",
       risk: "medium",
-      prs: 0,
-      hours: 8,
-      budget: 40,
+      hours: 18,
+      budget: 80,
       tone: :neutral,
-      updated: "1 d ago"
+      owner: "Carlos André",
+      owner_initials: "CA",
+      owner_tone: :info,
+      updated: "yesterday"
     },
     %{
       id: "app",
@@ -68,13 +72,14 @@ defmodule DevactionUISite.TemplateData do
       name: "DevAction IA · App",
       avatar: :warn,
       client: "Internal",
-      milestone: "Store beta",
       risk: "high",
-      prs: 4,
       hours: 210,
       budget: 240,
       tone: :risk,
-      updated: "2 d ago"
+      owner: "Alex",
+      owner_initials: "AN",
+      owner_tone: :ink,
+      updated: "2 days"
     },
     %{
       id: "site",
@@ -82,13 +87,14 @@ defmodule DevactionUISite.TemplateData do
       name: "Company website",
       avatar: :neutral,
       client: "[CLIENT]",
-      milestone: "Maintenance",
       risk: "low",
-      prs: 0,
       hours: 6,
       budget: 20,
       tone: :neutral,
-      updated: "5 d ago"
+      owner: "Fernando Pinto",
+      owner_initials: "FP",
+      owner_tone: :warn,
+      updated: "5 days"
     },
     %{
       id: "ui",
@@ -96,13 +102,14 @@ defmodule DevactionUISite.TemplateData do
       name: "DevAction UI",
       avatar: :neutral,
       client: "Internal",
-      milestone: "v0.2",
       risk: "low",
-      prs: 2,
       hours: 46,
       budget: 60,
       tone: :neutral,
-      updated: "3 d ago"
+      owner: "Alex",
+      owner_initials: "AN",
+      owner_tone: :ink,
+      updated: "3 days"
     },
     %{
       id: "crm",
@@ -110,13 +117,14 @@ defmodule DevactionUISite.TemplateData do
       name: "Agency CRM",
       avatar: :info,
       client: "Internal",
-      milestone: "Discovery",
       risk: "medium",
-      prs: 0,
       hours: 4,
       budget: 30,
       tone: :neutral,
-      updated: "1 w ago"
+      owner: "Fernando Pinto",
+      owner_initials: "FP",
+      owner_tone: :warn,
+      updated: "1 week"
     }
   ]
 

@@ -20,7 +20,7 @@ defmodule DevactionUISite.Changelog do
 
   @improved_next [
     {"data_table",
-     "`sticky={:start}` and `sticky={:end}` pin the first column and the actions while the table scrolls sideways, with a shadow only on the side that has content behind it."},
+     "`sticky={:start}` and `sticky={:end}` pin the first column and the actions while the table scrolls sideways, with a shadow only on the side that has content behind it. Variations that add up: `variant={:minimal}`, `striped`, `expanded` detail rows, `group_by`, a `tfoot` for totals, `stack` (cards under 640px), an `action` slot for the row menu with `sticky_actions`, `align` and `mono` on a column, and Shift+click range selection. `Pagination` draws the range of the page with `total`, `per_page`, `noun` and `summary_label`."},
     {"breadcrumb",
      "`home`, `home_label` and a `home_icon` slot put a link to the start of the app before the first item; `underline={false}` quiets the links of the trail in a shell header."},
     {"page_header",
