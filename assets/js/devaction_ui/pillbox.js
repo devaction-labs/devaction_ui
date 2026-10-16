@@ -1,5 +1,6 @@
+import {notify} from "./dom.js"
 import {runKey} from "./keys.js"
-import {clean, fillLabel, isTaken} from "./pillbox_logic.js"
+import {clean, fillLabel, isTaken} from "./text.js"
 
 /**
  * A field of removable pills. Enter or a comma adds what was typed, Backspace on an empty field removes the
@@ -72,6 +73,6 @@ export default {
   },
 
   changed() {
-    this.input.dispatchEvent(new Event("input", {bubbles: true}))
+    notify(this.input)
   },
 }

@@ -1,4 +1,5 @@
 import {fill, hexToHsv, hsvToHex, nudged, pointToSv, withAlpha} from "./color_logic.js"
+import {notify} from "./dom.js"
 import {runKey} from "./keys.js"
 
 /**
@@ -136,7 +137,7 @@ export default {
 
   emit() {
     this.emitting = true
-    this.input.dispatchEvent(new Event("input", {bubbles: true}))
+    notify(this.input)
     this.emitting = false
   },
 }

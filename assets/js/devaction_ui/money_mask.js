@@ -1,4 +1,4 @@
-import {caretAfter, formatMoney, moneyOptions} from "./money.js"
+import {caretAfter, formatMoney, moneyOptions} from "./numbers.js"
 
 /**
  * A text field that formats what is typed as money (`1.234,56` by default; `data-decimal`, `data-group`,

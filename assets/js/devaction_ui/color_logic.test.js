@@ -1,6 +1,6 @@
 import test from "node:test"
 import assert from "node:assert/strict"
-import {clamp, fill, hexToHsv, hsvToHex, nudged, pointToSv, withAlpha} from "./color_logic.js"
+import {fill, hexToHsv, hsvToHex, nudged, pointToSv, withAlpha} from "./color_logic.js"
 
 test("a hex colour goes to hsv and back unchanged", () => {
   for (const hex of ["#2563EB", "#DC2626", "#16A34A", "#FFFFFF", "#000000", "#D29A1E"]) {
@@ -40,12 +40,6 @@ test("an opaque colour keeps its six digits and a translucent one gets two more"
   assert.equal(withAlpha("#2563EB", 100), "#2563EB")
   assert.equal(withAlpha("#2563EB", 50), "#2563EB80")
   assert.equal(withAlpha("#2563EB", 0), "#2563EB00")
-})
-
-test("clamp keeps a number inside its ends", () => {
-  assert.equal(clamp(5, 0, 1), 1)
-  assert.equal(clamp(-5, 0, 1), 0)
-  assert.equal(clamp(0.4, 0, 1), 0.4)
 })
 
 test("a template is filled by name and an unknown name is empty", () => {

@@ -5,8 +5,8 @@
  *     import {hooks as devactionUI} from "./devaction_ui"
  *     new LiveSocket("/live", Socket, {hooks: {...devactionUI}})
  *
- * The logic that needs no DOM sits in `*_logic.js`, `dates.js`, `keys.js` and `text.js`, with a test beside
- * it (`npm test`, which is Node's own runner and installs nothing).
+ * The logic that needs no DOM sits in `*_logic.js`, `dates.js`, `keys.js`, `numbers.js`, `placement.js` and
+ * `text.js`, with a test beside it (`npm test`, which is Node's own runner and installs nothing).
  */
 import Autocomplete from "./autocomplete.js"
 import Calendar from "./calendar.js"
@@ -17,22 +17,17 @@ import Dropdown from "./dropdown.js"
 import Editor from "./editor.js"
 import Dropzone from "./dropzone.js"
 import MoneyMask from "./money_mask.js"
-import NumberInput from "./number_input.js"
 import DataTable from "./data_table.js"
 import DateInput from "./date_input.js"
 import DatePicker from "./date_picker.js"
 import FilterMenu from "./filter_menu.js"
-import Indeterminate from "./indeterminate.js"
+import {Indeterminate, NumberInput, Range, RangePair, Segmented, Switch} from "./controls.js"
 import Kanban from "./kanban.js"
 import Overlay from "./overlay.js"
 import Pillbox from "./pillbox.js"
 import Popover from "./popover.js"
 import ProgressToast from "./progress_toast.js"
-import Range from "./range.js"
-import RangePair from "./range_pair.js"
 import Signature from "./signature.js"
-import Segmented from "./segmented.js"
-import Switch from "./switch.js"
 import Tabs from "./tabs.js"
 import Timer from "./timer.js"
 import ToastGroup from "./toast_group.js"

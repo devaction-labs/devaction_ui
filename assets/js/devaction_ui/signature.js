@@ -1,3 +1,4 @@
+import {notify} from "./dom.js"
 import {signaturePath, statusText, toPoint, toSvg} from "./signature_logic.js"
 
 /**
@@ -50,6 +51,6 @@ export default {
     this.path.setAttribute("d", d)
     this.input.value = d
     this.status && (this.status.textContent = statusText(this.strokes, this.status.dataset))
-    this.input.dispatchEvent(new Event("input", {bubbles: true}))
+    notify(this.input)
   },
 }

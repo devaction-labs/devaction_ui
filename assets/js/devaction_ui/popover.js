@@ -1,5 +1,5 @@
-import {runKey} from "./keys.js"
-import {arrowShift, clampShift, fixedCorner, flipSide, tabExit} from "./popover_logic.js"
+import {runKey, tabExit} from "./keys.js"
+import {arrowShift, clampShift, fixedCorner, flipSide, roomAround, screenSize} from "./placement.js"
 import {FOCUSABLE} from "./tooltip_logic.js"
 
 /** Above the modal (70), because a panel in a portal is usually opened from inside one. */
@@ -132,17 +132,12 @@ export default {
 
   place() {
     const anchor = this.el.getBoundingClientRect()
-    const screen = {width: window.innerWidth, height: window.innerHeight}
+    const screen = screenSize()
     this.panel.style.translate = ""
     this.arrow.style.translate = ""
     this.portal && this.pin()
     const size = this.panel.getBoundingClientRect()
-    const side = flipSide(this.el.dataset.placement, size, {
-      top: anchor.top,
-      bottom: screen.height - anchor.bottom,
-      left: anchor.left,
-      right: screen.width - anchor.right,
-    })
+    const side = flipSide(this.el.dataset.placement, size, roomAround(anchor, screen))
     this.panel.dataset.side = side
     this.arrow.dataset.side = side
     const vertical = side === "top" || side === "bottom"

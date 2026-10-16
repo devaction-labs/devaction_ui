@@ -1,4 +1,5 @@
 import {nextDensity, selectionState} from "./data_table_logic.js"
+import {notify} from "./dom.js"
 
 /**
  * Row selection for `DataTable`: the header checkbox ticks them all and shows a mixed state when only some
@@ -59,7 +60,7 @@ export default {
 
   changed() {
     this.sync()
-    this.el.dispatchEvent(new Event("input", {bubbles: true}))
+    notify(this.el)
   },
 
   sync() {

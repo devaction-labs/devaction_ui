@@ -1,5 +1,6 @@
 import {clampMin, monthOf, moveFocus, pick, sameDayIn, shiftMonth} from "./dates.js"
 import {renderCalendar} from "./date_picker_view.js"
+import {notify} from "./dom.js"
 import {runKey} from "./keys.js"
 
 const UTC = {timeZone: "UTC"}
@@ -92,7 +93,7 @@ export default {
     const from = this.writeInputs()
 
     this.draw({refocus: true})
-    from.dispatchEvent(new Event("input", {bubbles: true}))
+    notify(from)
   },
 
   title() {

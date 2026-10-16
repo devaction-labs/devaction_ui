@@ -1,4 +1,4 @@
-export const clamp = (value, min, max) => Math.min(max, Math.max(min, value))
+import {clamp} from "./numbers.js"
 
 const channel = (h, s, v, n) => {
   const k = (n + h / 60) % 6

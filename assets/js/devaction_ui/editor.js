@@ -1,3 +1,4 @@
+import {notify} from "./dom.js"
 import {
   commands,
   styles,
@@ -120,7 +121,7 @@ export default {
     const input = this.el.querySelector(selector)
     if (input.value === value) return
     input.value = value
-    input.dispatchEvent(new Event("input", {bubbles: true}))
+    notify(input)
   },
 
   refresh() {

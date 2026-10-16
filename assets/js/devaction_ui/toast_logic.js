@@ -1,4 +1,8 @@
-import {decide} from "./rules.js"
+/**
+ * The toasts without a DOM: how a group of them is laid out, what Escape does in it, and when the notice of a
+ * finished job leaves by itself.
+ */
+import {decide} from "./keys.js"
 
 /**
  * How a group of toasts is laid out. With more than one it is either a stack of layers (collapsed) or a
@@ -13,13 +17,13 @@ export const planLayout = ({count, expanded}) => {
 }
 
 /** A toast behind the front one of a collapsed stack is not drawn: the blocks of the group stand for it. */
-export const hiddenStyle = {display: "none", position: "", zIndex: ""}
+const hiddenStyle = {display: "none", position: "", zIndex: ""}
 
 /** The front toast of a stack, above the blocks behind it. */
-export const leadStyle = {display: "", position: "relative", zIndex: "20"}
+const leadStyle = {display: "", position: "relative", zIndex: "20"}
 
 /** A toast in a list (or alone): back to the normal flow. */
-export const flowStyle = {display: "", position: "", zIndex: ""}
+const flowStyle = {display: "", position: "", zIndex: ""}
 
 /** The style of the toast at `index`: hidden behind the first, the first of a stack, or a normal one. */
 export const styleFor = ({index, stacked}) =>
@@ -49,3 +53,24 @@ export const escapeStep = ({expanded, focused}) =>
     ],
     {expanded, focused},
   )
+
+/** How long a finished job's toast stays before it leaves, and how long its exit animation gets. */
+export const LINGER_MS = 1600
+export const EXIT_MS = 400
+
+/**
+ * What the toast should do now. A job that is done leaves after LINGER_MS, with the time the pointer or
+ * focus spent on it not counted; one that is running or failed stays.
+ *
+ * `remaining` is what is left of the wait (LINGER_MS when it has not started), `paused` whether the
+ * pointer or the focus is on it. The answer is `{wait: ms}` to leave after that time, or `{wait: null}`
+ * to stay where it is.
+ */
+export function plan({state, remaining = LINGER_MS, paused = false}) {
+  return state === "done" && !paused ? {wait: Math.max(0, remaining)} : {wait: null}
+}
+
+/** What is left of a wait that started at `startedAt` and is being interrupted at `now`. */
+export function leftAfter(remaining, startedAt, now) {
+  return Math.max(0, remaining - (now - startedAt))
+}

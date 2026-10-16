@@ -1,6 +1,6 @@
 import {runKey, wrap} from "./keys.js"
-import {closesOnSelect, extendBuffer, isTypeahead, matchIndex} from "./dropdown_logic.js"
-import {chooseSide} from "./popover_logic.js"
+import {closesOnSelect, extendBuffer, isTypeahead, matchIndex} from "./menu_logic.js"
+import {chooseSide, screenSize} from "./placement.js"
 
 const ITEM = '[role^="menuitem"]:not([aria-disabled="true"])'
 
@@ -80,7 +80,7 @@ export default {
 
   place() {
     const {top, bottom} = this.trigger.getBoundingClientRect()
-    const room = {panel: this.menu.offsetHeight, above: top, below: window.innerHeight - bottom}
+    const room = {panel: this.menu.offsetHeight, above: top, below: screenSize().height - bottom}
     this.menu.dataset.side = chooseSide("bottom", room)
   },
 
