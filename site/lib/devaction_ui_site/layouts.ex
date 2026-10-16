@@ -11,6 +11,7 @@ defmodule DevactionUISite.Layouts do
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="csrf-token" content={Plug.CSRFProtection.get_csrf_token()} />
         <.live_title default="DevactionUI">{assigns[:page_title]}</.live_title>
+        <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
         <link rel="stylesheet" href="/assets/css/site.css" />
         <script src="/assets/js/theme.js">
         </script>
