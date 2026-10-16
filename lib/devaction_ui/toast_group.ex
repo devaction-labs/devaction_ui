@@ -79,24 +79,13 @@ defmodule DevactionUI.ToastGroup do
       data-count-label={@count_label}
       data-heading={@heading}
       class={[
-        "group relative flex flex-col gap-2 data-[stacked=true]:cursor-pointer data-[stacked=true]:pt-4 data-[expanded=true]:rounded-2xl data-[expanded=true]:bg-wrap data-[expanded=true]:p-3",
+        "group flex flex-col gap-2 data-[stacked=true]:grid data-[stacked=true]:cursor-pointer data-[stacked=true]:pt-5",
+        "data-[expanded=true]:flex-col-reverse data-[expanded=true]:rounded-2xl data-[expanded=true]:bg-wrap data-[expanded=true]:p-3",
         @class
       ]}
       {@rest}
     >
-      <span
-        data-layer="2"
-        hidden={@count < 3}
-        aria-hidden="true"
-        class="pointer-events-none absolute inset-x-7 top-0 bottom-0 rounded-[14px] bg-toast-layer-2 group-data-[stacked=false]:hidden"
-      />
-      <span
-        data-layer="1"
-        hidden={@count < 2}
-        aria-hidden="true"
-        class="pointer-events-none absolute inset-x-3.5 top-2 bottom-0 rounded-[14px] bg-toast-layer-1 group-data-[stacked=false]:hidden"
-      />
-      <div data-bar hidden class="flex items-center justify-between text-[13px]">
+      <div data-bar hidden class="order-last flex items-center justify-between text-[13px]">
         <span data-count class="font-semibold" />
         <span class="flex gap-1">
           <button type="button" data-collapse class={bar_button()}>{@collapse_label}</button>
@@ -110,11 +99,17 @@ defmodule DevactionUI.ToastGroup do
         data-duration={Map.get(toast, :duration, 5000)}
         role={role(Map.get(toast, :kind))}
         class={[
-          "flex items-start gap-3 rounded-[14px] px-4 py-3.5 text-sm group-data-[stacked=true]:relative group-data-[stacked=true]:z-20 group-data-[stacked=true]:data-[behind]:hidden",
+          "flex items-start gap-3 rounded-[14px] px-4 py-3.5 text-sm transition-[transform,opacity] duration-300 ease-out *:transition-opacity *:duration-200 motion-reduce:transition-none",
+          "group-data-[stacked=true]:col-start-1 group-data-[stacked=true]:row-start-1 group-data-[stacked=true]:origin-bottom group-data-[stacked=true]:self-end",
+          "group-data-[stacked=true]:[z-index:calc(10-var(--i))] group-data-[stacked=true]:[transform:translateY(calc(var(--i)*-10px))_scale(calc(1-var(--i)*0.06))]",
+          "group-data-[stacked=true]:data-[behind]:h-(--front-h) group-data-[stacked=true]:data-[behind]:overflow-hidden group-data-[stacked=true]:data-[behind]:*:opacity-0",
+          "group-data-[stacked=true]:data-[deep]:pointer-events-none group-data-[stacked=true]:data-[deep]:opacity-0",
           kind_class(Map.get(toast, :kind, :dark))
         ]}
+        style={"--i: #{index}"}
         data-index={index}
         data-behind={index > 0}
+        data-deep={index > 2}
       >
         <span :if={@icon != []} class="shrink-0" aria-hidden="true">
           {render_slot(@icon, Map.get(toast, :kind, :dark))}
