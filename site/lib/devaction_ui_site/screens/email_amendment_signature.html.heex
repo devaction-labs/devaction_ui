@@ -1,0 +1,33 @@
+<Email.styles dark_scope="[data-theme=dark]" />
+<Email.layout
+  preheader="3 new scope items and a new date for Milestone 2."
+  brand_name="DevAction IA"
+  brand_href="#"
+  logo_src="/images/email-logo.png"
+  signature="DevAction Labs · Feira de Santana, BA"
+>
+  <Email.paragraph lead>Hello, Marina.</Email.paragraph>
+  <Email.paragraph>
+    DevAction Labs sent you
+    <Email.emphasis>Amendment 03 · Billing module</Email.emphasis>
+    to the contract Church Management to review and sign.
+  </Email.paragraph>
+  <EmailTable.details>
+    <:row label="New scope">3 items</:row>
+    <:row label="Effort">+ 48 hours</:row>
+    <:row label="New date for Milestone 2">Dec 05, 2026</:row>
+  </EmailTable.details>
+  <Email.caption>WHAT ENTERS THE SCOPE</Email.caption>
+  <EmailTable.code_list>
+    <:item code="3.1">Export invoices as CSV with the client and the period.</:item>
+    <:item code="3.2">Filter the contract list by renewal date.</:item>
+    <:item code="3.3">E-mail the finance team when an invoice is late.</:item>
+  </EmailTable.code_list>
+  <Email.button href="#">Review and sign</Email.button>
+  <Email.paragraph size={:small} flush>
+    Sent by Alex Nunes, DevAction Labs. The signature is electronic and is recorded with date, time and IP.
+  </Email.paragraph>
+  <:footer>
+    Sent by DevAction Labs through DevAction IA. Questions? Reply to this e-mail to reach whoever sent it.
+  </:footer>
+</Email.layout>

@@ -1,0 +1,26 @@
+<Email.styles dark_scope="[data-theme=dark]" />
+<Email.layout
+  preheader="Click to sign in. The link works for 15 minutes."
+  brand_name="DevAction IA"
+  brand_href="#"
+  logo_src="/images/email-logo.png"
+  signature="DevAction Labs · Feira de Santana, BA"
+>
+  <Email.heading>Sign in to DevAction IA</Email.heading>
+  <Email.paragraph>
+    Hi, Alex. Click the button to sign in. The link works for
+    <Email.emphasis>15 minutes</Email.emphasis>
+    and only once.
+  </Email.paragraph>
+  <Email.button href="#">Sign in to DevAction IA</Email.button>
+  <Email.link_fallback href="https://app.devaction.com.br/users/log-in/Kq2x9Tn4Zr">
+    If the button does not work, copy and paste this address in your browser:
+  </Email.link_fallback>
+  <Email.divider />
+  <Email.paragraph size={:small} flush>
+    Asked on Oct 16 at 09:12 from Firefox on Linux. If it was not you, ignore this e-mail: no one signs in without clicking the link.
+  </Email.paragraph>
+  <:footer>
+    You got this e-mail because you have a DevAction IA account. It is automatic: replies are not read.
+  </:footer>
+</Email.layout>

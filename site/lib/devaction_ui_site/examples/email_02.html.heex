@@ -1,0 +1,9 @@
+<%!-- title: Buttons | text: The primary button is ink (light in dark mode) and the secondary is outlined. A button row puts two side by side with a narrower padding. --%>
+<div class="flex flex-col">
+  <Email.button href="#primary">Confirm and sign in</Email.button>
+  <Email.button href="#secondary" variant={:secondary}>Reset password</Email.button>
+  <Email.button_row>
+    <:button href="#draft">Draft the renewal with AI</:button>
+    <:button href="#contract" variant={:secondary}>Open contract</:button>
+  </Email.button_row>
+</div>

@@ -1,0 +1,29 @@
+<Email.styles dark_scope="[data-theme=dark]" />
+<Email.layout
+  preheader="One click left to get started."
+  brand_name="DevAction IA"
+  brand_href="#"
+  logo_src="/images/email-logo.png"
+  signature="DevAction Labs · Feira de Santana, BA"
+>
+  <Email.heading>Welcome, Alex</Email.heading>
+  <Email.paragraph>
+    Just confirm your e-mail. After that, connect GitHub and your PRs start to be reviewed.
+  </Email.paragraph>
+  <Email.button href="#">Confirm and sign in</Email.button>
+  <EmailTable.steps>
+    <:step title="Confirm your e-mail" current>You are here.</:step>
+    <:step title="Connect GitHub">Pick the repositories the AI reviews.</:step>
+    <:step title="Create the first project">With a contract, milestones and a scope.</:step>
+  </EmailTable.steps>
+  <Email.link_fallback href="https://app.devaction.com.br/users/confirm/Jd7sP1aQw0">
+    If the button does not work, copy and paste this address in your browser:
+  </Email.link_fallback>
+  <Email.divider />
+  <Email.paragraph size={:small} flush>
+    If you did not create an account, ignore this e-mail.
+  </Email.paragraph>
+  <:footer>
+    You got this e-mail because you have a DevAction IA account. It is automatic: replies are not read.
+  </:footer>
+</Email.layout>

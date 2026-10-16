@@ -1,0 +1,17 @@
+<%!-- title: Layout | text: The 600px column of every e-mail: a hidden preheader, the brand, the white card and a footer with its signature. Each footer slot is one paragraph. --%>
+<Email.layout
+  preheader="Click to sign in. The link works for 15 minutes."
+  brand_name="DevAction IA"
+  brand_href="https://app.devaction.test"
+  logo_src="/images/email-logo.png"
+  signature="DevAction Labs · Feira de Santana, BA"
+>
+  <Email.heading>Sign in to DevAction IA</Email.heading>
+  <Email.paragraph>
+    Hi, Alex. Click the button to sign in. The link works for
+    <Email.emphasis>15 minutes</Email.emphasis>
+    and only once.
+  </Email.paragraph>
+  <Email.button href="#sign-in">Sign in to DevAction IA</Email.button>
+  <:footer>You got this e-mail because you have an account. Replies are not read.</:footer>
+</Email.layout>
