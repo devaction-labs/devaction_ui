@@ -70,7 +70,7 @@ defmodule DevactionUISite.DocsLiveTest do
 
     assert has_element?(view, "#fn-tag-tag")
     assert has_element?(view, "#fn-tag-tag th", "variant")
-    assert has_element?(view, "#fn-tag-tag td span", ":risk")
+    assert has_element?(view, "#fn-tag-tag td", ":risk")
   end
 
   test "searching narrows the sidebar and enter opens the first match" do
