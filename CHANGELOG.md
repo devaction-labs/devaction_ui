@@ -2,6 +2,26 @@
 
 Every release lists new components, improvements, fixes and breaking changes. While the version is 0.x a minor release may break compatibility, and every break is listed with the step to follow.
 
+## 0.3.1
+
+0.3.0 shipped a stylesheet with a block left open, which stops Tailwind in the host app: use 0.3.1.
+
+### Fixed
+
+- The stylesheet closes every block (a test now counts the braces).
+- On the documentation site, an open drawer, modal or palette in an example card stays over the page rail.
+
+### New
+
+- The "App" template (Projects): a full app page with the shell, the page header with tabs, the toolbar and a table with pinned columns, progress cells and a row menu.
+
+### Improved
+
+- `Composer`: `suggest_event` with a `suggestions` slot for `/` commands and `@` mentions, `edit_last_event` for ↑ with an empty field, the mode picker as `Dropdown variant={:chip}`, file chips with `kind` and `detail`.
+- `Shell`: `sidebar_search/1` and `sidebar_user/1`.
+- `Tabs`: an `icon` slot, `counts={:chip}` and `size={:sm}`.
+- `Breadcrumb`: `underline={false}`. `PageHeader`: `size={:md}`. `Avatar`: `initials` and the `:ink` tone.
+
 ## 0.3.0
 
 ### New components

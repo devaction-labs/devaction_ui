@@ -90,8 +90,15 @@ defmodule DevactionUISite.Changelog do
         "The Blade version of the kit for Laravel and Livewire projects, starting with the color picker, the slider and the filter menu."
     },
     %{
-      version: "v0.3.0",
+      version: "v0.3.1",
       status: "current",
+      tag: "v0.3.1",
+      summary:
+        "Fixes the stylesheet of 0.3.0, which left a block open, and completes the layout theme: the App template, the new table, and a Composer with commands, mentions and a mode picker."
+    },
+    %{
+      version: "v0.3.0",
+      status: "archived",
       tag: "v0.3.0",
       summary:
         "The layout theme: a shell with a collapsing sidebar and six layouts, a scroll area, the composer and the row menu, with a pinned first column and actions in the data table."
@@ -147,6 +154,16 @@ defmodule DevactionUISite.Changelog do
   ]
 
   @patches %{
+    "v0.3.1" => [
+      {"fixed", "Fixes", "stylesheet",
+       "0.3.0 shipped a stylesheet with a block left open, which stops Tailwind in the host app; every block is closed now and a test counts the braces."},
+      {"fixed", "Fixes", "example_cards",
+       "An open drawer, modal or palette in an example card stays over the page rail."},
+      {"improved", "Improvements", "composer",
+       "Commands with `/` and mentions with `@` through `suggest_event` and a `suggestions` slot, `edit_last_event` for the up arrow, a mode picker chip and file chips with a kind and a detail."},
+      {"improved", "Improvements", "shell",
+       "`sidebar_search/1` and `sidebar_user/1`; `Tabs` takes an icon slot, chip counts and a small size."}
+    ],
     "v0.2.6" => [
       {"improved", "Improvements", "site_version",
        "The header chips and the component history show the full version, and the footer dedication has a soft glow."}
