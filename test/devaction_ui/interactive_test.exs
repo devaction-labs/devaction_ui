@@ -84,7 +84,7 @@ defmodule DevactionUI.InteractiveTest do
     end
   end
 
-  test "Tooltip describes its trigger and says it with role tooltip" do
+  test "Tooltip is tied to its trigger by the hook and says it with role tooltip" do
     assigns = %{}
 
     html =
@@ -92,7 +92,9 @@ defmodule DevactionUI.InteractiveTest do
       <Tooltip.tooltip id="tip" text="Opens GitHub"><a href="/x">GH</a></Tooltip.tooltip>
       """)
 
-    assert html =~ ~s(aria-describedby="tip-tip")
+    assert html =~ ~s(phx-hook="DevactionUI.Tooltip")
+    assert html =~ ~s(data-tip="tip-tip")
+    refute html =~ "aria-describedby"
     assert html =~ ~s(role="tooltip")
     assert html =~ "Opens GitHub"
     assert html =~ "group-focus-within/tip:opacity-100"

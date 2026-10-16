@@ -86,6 +86,8 @@
   --tag-neutral-line: light-dark(#E4E4E7, #383846);
   --tag-neutral-bg: light-dark(#F4F4F5, #2A2A36);
   --tag-neutral-text: light-dark(#3F3F46, #C9C9D6);
+  --kbd-inverse: light-dark(#3F3F46, #C9C9D6);
+  --kbd-inverse-fg: light-dark(#E4E4E7, #2C2C38);
 }
 
 @theme inline {
@@ -135,6 +137,8 @@
   --color-neutral-bg: var(--tag-neutral-bg);
   --color-neutral-fg: var(--tag-neutral-text);
   --color-on-ink: var(--on-primary);
+  --color-kbd-inverse: var(--kbd-inverse);
+  --color-kbd-inverse-fg: var(--kbd-inverse-fg);
   --color-done: var(--done-cell);
   --color-learn: var(--learn);
   --color-add: var(--add-bg);
@@ -150,6 +154,10 @@
   --radius-wrap: 1.25rem;
   --radius-panel: 1.375rem;
   --shadow-pop: 0 16px 40px rgb(24 24 27 / 0.12);
+  --shadow-menu: 0 16px 40px rgb(24 24 27 / 0.14);
+  --shadow-cmdk: 0 24px 60px rgb(24 24 27 / 0.16);
+  --shadow-tip: 0 6px 16px rgb(24 24 27 / 0.2);
+  --shadow-tip-rich: 0 10px 30px rgb(24 24 27 / 0.2);
 }
 
 @keyframes drawer-in-right { from { opacity: 0; transform: translateX(24px); } }
@@ -304,9 +312,6 @@
   .modal-footer { @apply flex justify-end gap-2 border-t border-line-soft bg-wrap/60 px-5 py-3.5; }
   .modal-icon   { @apply grid size-11 shrink-0 place-items-center rounded-xl border; }
   .btn-danger-solid { @apply bg-risk-fg text-white hover:bg-risk-fg/90 aria-disabled:cursor-not-allowed aria-disabled:opacity-40; }
-  .tooltip { @apply pointer-events-none z-50 inline-flex items-center gap-2 rounded-lg bg-ink px-2.5 py-1.5 text-xs whitespace-nowrap text-on-ink shadow-md; }
-  .tooltip kbd { @apply rounded bg-ink-2 px-1.5 font-mono text-[10px] text-on-ink; }
-  .tooltip-rich { @apply max-w-72 flex-col items-start gap-1 rounded-xl px-3.5 py-3 whitespace-normal; }
 
   /* ---------- Vazios, stepper e progresso (prancha 16) ---------- */
   .empty        { @apply relative flex flex-col items-center gap-3 overflow-hidden rounded-card border border-line bg-card px-7 pt-10 pb-8 text-center; }
@@ -324,7 +329,7 @@
   .progress-bar { @apply rounded-full bg-ink transition-[width]; }
 
   /* ---------- Paleta, segmentado e shell (prancha 17) ---------- */
-  .cmdk        { @apply w-[min(40rem,calc(100vw-2rem))] overflow-hidden rounded-card border border-line bg-card shadow-pop; }
+  .cmdk        { @apply w-[min(40rem,calc(100vw-2rem))] overflow-hidden rounded-card border border-line bg-card shadow-cmdk; }
   .cmdk-input  { @apply flex h-14 items-center gap-3 border-b border-line-soft px-4 text-base; }
   .cmdk-group  { @apply px-2.5 pt-2.5 pb-1 font-mono text-[10px] tracking-[0.08em] text-muted; }
   .cmdk-item   { @apply flex min-h-11 items-center gap-3 rounded-[10px] px-2.5 text-sm aria-selected:bg-wrap; }
