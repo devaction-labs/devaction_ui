@@ -13,7 +13,7 @@ defmodule DevactionUISite.Shell do
 
   import DevactionUISite.Icon
 
-  alias DevactionUI.{Kbd, Tag}
+  alias DevactionUI.Kbd
   alias DevactionUISite.{Catalog, Project, Templates}
   alias Phoenix.LiveView.JS
 
@@ -66,7 +66,7 @@ defmodule DevactionUISite.Shell do
         <aside
           id="sidebar"
           aria-label="Components"
-          class="sticky top-16 hidden h-[calc(100vh-4rem)] overflow-y-auto border-r border-line px-3.5 py-5 lg:block"
+          class="sticky hidden overflow-y-auto border-r border-line px-3.5 py-5 lg:block"
         >
           <.sidebar
             live_action={@live_action}
@@ -113,17 +113,17 @@ defmodule DevactionUISite.Shell do
   def logo(assigns) do
     ~H"""
     <span
-      class={["grid shrink-0 place-items-center rounded-lg bg-bubble-mark", @class]}
+      class={["grid shrink-0 place-items-center rounded-lg bg-[var(--site-logo-tile)]", @class]}
       style={"width: #{@size}px; height: #{@size}px"}
     >
       <svg width={@size} height={@size} viewBox="50 50 1154 1154" aria-hidden="true">
         <path
           d="M395 303 H728 L912 492 Q968 552 968 628 Q968 706 905 770 L828 832 Q834 800 812 776 L392 330 Q380 314 395 303 Z"
-          fill="#FFFFFF"
+          class="fill-[var(--site-logo-mark)]"
         />
         <path
           d="M628 662 Q641 650 654 662 L797 808 Q812 826 797 843 L722 935 Q712 945 698 945 H388 Q366 945 380 925 Z"
-          fill="#D29A1E"
+          class="fill-ai"
         />
       </svg>
     </span>
@@ -136,50 +136,74 @@ defmodule DevactionUISite.Shell do
   attr :sidebar, :boolean, required: true
 
   defp topbar(assigns) do
+    assigns = assign(assigns, variant: variant(assigns.live_action))
+
     ~H"""
-    <header id="topbar" class="sticky top-0 z-40 border-b border-line bg-card">
-      <div class="flex h-16 items-center gap-4 px-4 sm:px-7 lg:gap-7">
-        <.link patch="/" class="flex shrink-0 items-center gap-2.5 no-underline">
-          <.logo />
-          <span class="text-base font-semibold text-ink">DevAction UI</span>
-          <span class="hidden sm:inline-flex">
-            <Tag.tag variant={:neutral} surface={:plain} case={:normal}>
-              v{Project.short_version()}
-            </Tag.tag>
-          </span>
-        </.link>
+    <header id="topbar" class="site-head" data-variant={@variant}>
+      <.link patch="/" class="site-head-brand">
+        <.logo size={logo_size(@variant)} />
+        <span class="site-head-name">DevAction UI</span>
+        <span :if={@variant != :changelog} class="site-head-chip hidden sm:inline-block">
+          v{Project.short_version()}
+        </span>
+      </.link>
 
-        <.main_links
-          live_action={@live_action}
-          class="hidden items-center gap-5 text-sm lg:flex"
-          label="Main"
-          mobile={false}
-        />
+      <.main_links
+        live_action={@live_action}
+        variant={@variant}
+        class="site-head-nav hidden lg:flex"
+        label="Main"
+        mobile={false}
+      />
 
-        <div class="ml-auto flex min-w-0 items-center gap-2.5">
-          <.search query={@query} groups={@groups} sidebar={@sidebar} />
-
-          <a
-            href={Project.repo_url()}
-            aria-label="DevAction UI on GitHub"
-            class="hidden size-9 shrink-0 place-items-center rounded-[10px] border border-line text-ink-2 hover:text-ink sm:grid"
-          >
-            <.icon name="github" class="size-[18px]" />
-          </a>
-
-          <button
-            id="theme-toggle"
-            type="button"
-            aria-label="Switch between light and dark"
-            phx-click={JS.dispatch("phx:toggle-theme")}
-            class="grid size-9 shrink-0 cursor-pointer place-items-center rounded-[10px] border border-line text-ink-2 hover:text-ink"
-          >
-            <.icon name="moon-02" class="size-[18px] dark:hidden" />
-            <.icon name="sun-03" class="hidden size-[18px] dark:block" />
-          </button>
-        </div>
+      <div class="site-head-tools">
+        <.search :if={@variant != :changelog} query={@query} groups={@groups} sidebar={@sidebar} />
+        <.head_buttons variant={@variant} />
       </div>
     </header>
+    """
+  end
+
+  defp variant(:home), do: :home
+  defp variant(:changelog), do: :changelog
+  defp variant(_action), do: :docs
+
+  defp logo_size(:home), do: 30
+  defp logo_size(_variant), do: 28
+
+  attr :variant, :atom, required: true
+
+  defp head_buttons(%{variant: :changelog} = assigns) do
+    ~H"""
+    <a href={Project.repo_url() <> "/releases"} class="site-head-link">
+      <.icon name="github" class="size-4" /> Releases
+    </a>
+    <a href={Project.repo_url() <> "/releases.atom"} class="site-head-link">
+      <.icon name="notification-01" class="size-4" /> RSS
+    </a>
+    """
+  end
+
+  defp head_buttons(assigns) do
+    ~H"""
+    <a
+      href={Project.repo_url()}
+      aria-label="DevAction UI on GitHub"
+      class="site-head-icon hidden sm:grid"
+    >
+      <.icon name="github" class="size-[18px]" />
+    </a>
+
+    <button
+      id="theme-toggle"
+      type="button"
+      aria-label="Switch between light and dark"
+      phx-click={JS.dispatch("phx:toggle-theme")}
+      class="site-head-icon cursor-pointer"
+    >
+      <.icon name="moon-02" class="size-[18px] dark:hidden" />
+      <.icon name="sun-03" class="hidden size-[18px] dark:block" />
+    </button>
     """
   end
 
@@ -197,7 +221,7 @@ defmodule DevactionUISite.Shell do
       phx-change="nav_search"
       phx-submit="nav_go"
       role="search"
-      class="relative min-w-0 flex-1 sm:w-[280px] sm:flex-none"
+      class="site-head-search"
     >
       <label for="site-search" class="sr-only">Search components</label>
       <.icon
@@ -212,11 +236,9 @@ defmodule DevactionUISite.Shell do
         placeholder="Search components"
         autocomplete="off"
         phx-debounce="80"
-        class="h-9 w-full rounded-[10px] border border-line bg-wrap pr-14 pl-9 text-sm text-ink outline-none placeholder:text-muted focus-visible:border-ink focus-visible:ring-2 focus-visible:ring-ink/20"
+        class="site-head-input"
       />
-      <Kbd.kbd class="pointer-events-none absolute top-1/2 right-2.5 hidden -translate-y-1/2 sm:block">
-        ⌘K
-      </Kbd.kbd>
+      <Kbd.kbd tone={:bare} class="site-head-kbd hidden sm:block">⌘K</Kbd.kbd>
 
       <div
         :if={@query != ""}
@@ -246,9 +268,14 @@ defmodule DevactionUISite.Shell do
   attr :class, :string, default: nil
   attr :label, :string, default: "Main menu"
   attr :mobile, :boolean, default: true
+  attr :variant, :atom, default: :home
 
   defp main_links(assigns) do
-    assigns = assign(assigns, current: current_section(assigns.live_action), links: links())
+    assigns =
+      assign(assigns,
+        current: current_section(assigns.live_action, assigns.variant),
+        links: links(assigns.variant)
+      )
 
     ~H"""
     <nav aria-label={@label} class={@class}>
@@ -262,13 +289,20 @@ defmodule DevactionUISite.Shell do
         ]}
       >
         {label}
-        <span :if={key == :changelog} aria-hidden="true" class="size-1.5 rounded-full bg-dot-warn"></span>
+        <span
+          :if={key == :changelog and @variant == :home}
+          aria-hidden="true"
+          class="size-1.5 rounded-full bg-dot-warn"
+        ></span>
       </.link>
     </nav>
     """
   end
 
-  defp links do
+  defp links(variant) when variant in [:docs, :changelog],
+    do: Enum.reject(links(:home), &(elem(&1, 0) == :components))
+
+  defp links(:home) do
     [
       {:docs, "Documentation", "/docs"},
       {:components, "Components", "/c/#{hd(Catalog.all()).slug}"},
@@ -278,12 +312,15 @@ defmodule DevactionUISite.Shell do
     ]
   end
 
-  defp current_section(action) when action in [:overview, :installation], do: :docs
-  defp current_section(:topic), do: :components
-  defp current_section(:tokens), do: :tokens
-  defp current_section(:templates), do: :templates
-  defp current_section(:changelog), do: :changelog
-  defp current_section(_action), do: nil
+  defp current_section(:topic, :home), do: :components
+
+  defp current_section(action, _variant) when action in [:overview, :installation, :topic],
+    do: :docs
+
+  defp current_section(:tokens, _variant), do: :tokens
+  defp current_section(:templates, _variant), do: :templates
+  defp current_section(:changelog, _variant), do: :changelog
+  defp current_section(_action, _variant), do: nil
 
   attr :live_action, :atom, required: true
   attr :topic, :map, default: nil
@@ -295,18 +332,23 @@ defmodule DevactionUISite.Shell do
     ~H"""
     <nav aria-label="Documentation" class="flex flex-col gap-[18px] text-sm">
       <div class="flex flex-col gap-px">
-        <.side_link to="/docs" current={@live_action == :overview} class="h-8">Introduction</.side_link>
-        <.side_link to="/installation" current={@live_action == :installation} class="h-8">
+        <.side_link to="/docs" current={@live_action == :overview} class="h-8" tone="text-ink-2">Introduction</.side_link>
+        <.side_link
+          to="/installation"
+          current={@live_action == :installation}
+          class="h-8"
+          tone="text-ink-2"
+        >
           Installation
         </.side_link>
-        <.side_link to="/tokens" current={@live_action == :tokens} class="h-8">
+        <.side_link to="/tokens" current={@live_action == :tokens} class="h-8" tone="text-ink-2">
           Colors and tokens
         </.side_link>
-        <.side_link to="/changelog" current={@live_action == :changelog} class="h-8">
+        <.side_link to="/changelog" current={@live_action == :changelog} class="h-8" tone="text-ink-2">
           Changelog
-          <Tag.tag variant={:warn} size={:xs} case={:normal} class="ml-auto">
+          <span class="ml-auto rounded-[5px] border border-tag-warn-line bg-tag-warn-bg px-1.5 py-0.5 font-mono text-[10px] leading-[normal] text-tag-warn-text">
             v{Project.short_version()}
-          </Tag.tag>
+          </span>
         </.side_link>
       </div>
 
@@ -315,7 +357,7 @@ defmodule DevactionUISite.Shell do
       </p>
 
       <div :for={{group, topics} <- @groups} class="flex flex-col gap-px">
-        <h2 class="m-0 flex px-2.5 pb-1.5 font-mono text-[11px] font-normal tracking-[0.08em] text-muted uppercase">
+        <h2 class="m-0 flex px-2.5 pb-1.5 font-mono text-[11px] leading-[normal] font-normal tracking-[0.08em] text-muted uppercase">
           {group}
           <span class="ml-auto">{length(topics)}</span>
         </h2>
@@ -323,21 +365,21 @@ defmodule DevactionUISite.Shell do
           :for={topic <- topics}
           to={"/c/#{topic.slug}"}
           current={@live_action == :topic and @topic.slug == topic.slug}
-          class="h-[30px]"
+          class="box-content h-[30px]"
         >
           {topic.title}
         </.side_link>
       </div>
 
       <div :if={@query == ""} class="flex flex-col gap-px">
-        <h2 class="m-0 flex px-2.5 pb-1.5 font-mono text-[11px] font-normal tracking-[0.08em] text-muted uppercase">
+        <h2 class="m-0 flex px-2.5 pb-1.5 font-mono text-[11px] leading-[normal] font-normal tracking-[0.08em] text-muted uppercase">
           Templates <span class="ml-auto">{length(Templates.groups())}</span>
         </h2>
         <.side_link
           :for={group <- Templates.groups()}
           to={"/templates/#{group.slug}"}
           current={@live_action == :templates and @template.slug == group.slug}
-          class="h-[30px]"
+          class="box-content h-[30px]"
         >
           {group.title}
         </.side_link>
@@ -349,6 +391,7 @@ defmodule DevactionUISite.Shell do
   attr :to, :string, required: true
   attr :current, :boolean, default: false
   attr :class, :any, default: nil
+  attr :tone, :string, default: "text-soft"
   slot :inner_block, required: true
 
   defp side_link(assigns) do
@@ -357,7 +400,8 @@ defmodule DevactionUISite.Shell do
       patch={@to}
       aria-current={@current && "page"}
       class={[
-        "flex items-center rounded-lg border border-transparent px-2.5 text-soft no-underline transition-colors hover:bg-card hover:text-ink aria-[current=page]:border-line aria-[current=page]:bg-card aria-[current=page]:font-medium aria-[current=page]:text-ink",
+        "flex items-center rounded-lg border border-transparent px-2.5 no-underline transition-colors hover:bg-card hover:text-ink aria-[current=page]:border-line aria-[current=page]:bg-card aria-[current=page]:font-medium aria-[current=page]:text-ink",
+        @tone,
         @class
       ]}
     >

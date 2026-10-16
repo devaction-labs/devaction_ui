@@ -35,6 +35,11 @@
   "label": "Aprendizado"
  },
  {
+  "name": "notification-01",
+  "group": "Navegação",
+  "label": "Alertas"
+ },
+ {
   "name": "notification-03",
   "group": "Navegação",
   "label": "Notificações"
