@@ -113,6 +113,51 @@ defmodule DevactionUI.InteractiveTest do
       assert html =~ ~s(phx-update="ignore")
       assert html =~ ~s(aria-label="Remove")
       assert html =~ ~s(aria-label="Labels")
+      assert html =~ "border border-line bg-wrap"
+      assert html =~ "min-w-[90px]"
+    end
+
+    test "names each × by its pill and keeps the pattern for the new ones" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Pillbox.pillbox
+          id="pb"
+          name="labels"
+          values={["a", "b"]}
+          label="Labels"
+          remove_label="Remove %{label}"
+          added_label="%{label} added"
+        />
+        """)
+
+      assert html =~ ~s(aria-label="Remove a")
+      assert html =~ ~s(aria-label="Remove b")
+      assert html =~ ~s(data-remove-label="Remove %{label}")
+      assert html =~ ~s(data-added-label="%{label} added")
+      assert html =~ ~s(role="status")
+    end
+
+    test "the field's own attributes and disabled reach the input and the pills" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Pillbox.pillbox
+          id="pb"
+          name="labels"
+          values={["a"]}
+          label="Labels"
+          remove_label="Remove"
+          disabled
+          input_rest={%{"aria-describedby" => "pb-error", "aria-invalid" => "true"}}
+        />
+        """)
+
+      assert html =~ ~r/<input[^>]*type="text"[^>]*aria-describedby="pb-error"/s
+      assert html =~ ~s(aria-invalid="true")
+      assert length(Regex.scan(~r/<(input|button)[^>]* disabled/, html)) >= 3
     end
   end
 

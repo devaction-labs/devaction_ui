@@ -1,6 +1,13 @@
 import test from "node:test"
 import assert from "node:assert/strict"
-import {clean, isTaken} from "./pillbox_logic.js"
+import {clean, fillLabel, isTaken} from "./pillbox_logic.js"
+
+test("a label pattern is filled with the pill's text", () => {
+  assert.equal(fillLabel("Remove %{label}", "docs"), "Remove docs")
+  assert.equal(fillLabel("%{label} added", "a b"), "a b added")
+  assert.equal(fillLabel("Remove", "docs"), "Remove")
+  assert.equal(fillLabel(undefined, "docs"), undefined)
+})
 
 test("cleaning trims and drops the comma that ended the word", () => {
   assert.equal(clean("  docs, "), "docs")

@@ -1,15 +1,18 @@
 import {runKey} from "./keys.js"
-import {clean, isTaken} from "./pillbox_logic.js"
+import {clean, fillLabel, isTaken} from "./pillbox_logic.js"
 
 /**
  * A field of removable pills. Enter or a comma adds what was typed, Backspace on an empty field removes the
- * last pill, the × removes the one it sits on, and a repeat is ignored. Every pill carries a hidden input
- * `name[]`, so the form submits the list as the page shows it; each change fires `input` on the field so a
- * `phx-change` hears it. The element is `phx-update="ignore"`: the browser owns the pills after mount.
+ * last pill, the × removes the one it sits on, and a repeat is ignored. Text left in the field when it loses
+ * focus is added too. Every pill carries a hidden input `name[]`, so the form submits the list as the page
+ * shows it; each change fires `input` on the field so a `phx-change` hears it. The element is
+ * `phx-update="ignore"`: the browser owns the pills after mount. The `data-remove-label` pattern names each
+ * new pill's ×, and `data-added-label` / `data-removed-label` are announced in the live region.
  */
 export default {
   mounted() {
     this.input = this.el.querySelector('input[type="text"]')
+    this.live = this.el.querySelector("[data-live]")
     this.el.addEventListener("click", (event) => this.onClick(event))
     this.input.addEventListener("keydown", (event) => this.onKey(event))
     this.input.addEventListener("blur", () => this.add(this.input.value))
@@ -25,8 +28,7 @@ export default {
 
   onClick(event) {
     const remove = event.target.closest("[data-remove]")
-    remove?.closest("[data-pill-item]").remove()
-    remove && this.changed()
+    remove && this.remove(remove.closest("[data-pill-item]"))
     this.input.focus()
   },
 
@@ -36,8 +38,7 @@ export default {
       const last = this.pills().at(-1)
       // With text typed, Backspace is for the text.
       if (this.input.value !== "" || !last) return false
-      last.remove()
-      this.changed()
+      this.remove(last)
     }
 
     runKey({Enter: add, ",": add, Backspace: removeLast}, event)
@@ -51,8 +52,22 @@ export default {
     const pill = this.el.querySelector("template[data-pill]").content.firstElementChild.cloneNode(true)
     pill.querySelector("[data-label]").textContent = value
     pill.querySelector('input[type="hidden"]').value = value
+    const remove = pill.querySelector("[data-remove]")
+    remove.setAttribute("aria-label", fillLabel(this.el.dataset.removeLabel, value) ?? "")
     this.el.insertBefore(pill, this.input)
+    this.announce(this.el.dataset.addedLabel, value)
     this.changed()
+  },
+
+  remove(pill) {
+    const label = pill.querySelector("[data-label]").textContent
+    pill.remove()
+    this.announce(this.el.dataset.removedLabel, label)
+    this.changed()
+  },
+
+  announce(pattern, label) {
+    this.live.textContent = fillLabel(pattern, label) ?? ""
   },
 
   changed() {
