@@ -374,7 +374,7 @@
   .stepper { @apply grid list-none grid-cols-[repeat(auto-fit,minmax(0,1fr))] gap-2 p-0; }
   .step    { @apply flex flex-col gap-2.5 before:h-1 before:rounded-full before:bg-line
                     data-[state=done]:before:bg-ink data-[state=current]:before:bg-ai data-[state=error]:before:bg-missing; }
-  .step-dot { @apply grid size-7 shrink-0 place-items-center rounded-full border-[1.5px] border-line-strong font-mono text-xs text-muted
+  .step-dot { @apply grid size-7 shrink-0 place-items-center rounded-full border-[1.5px] border-done-cell font-mono text-xs text-muted
                      [[data-state=done]_&]:border-ink [[data-state=done]_&]:bg-ink [[data-state=done]_&]:text-on-ink
                      [[data-state=current]_&]:border-2 [[data-state=current]_&]:border-ink [[data-state=current]_&]:text-ink
                      [[data-state=error]_&]:border-2 [[data-state=error]_&]:border-missing [[data-state=error]_&]:text-missing; }

@@ -6,7 +6,9 @@ defmodule DevactionUI.Stepper do
   assistive technology.
 
   A step that failed keeps its number in the dot (or the `error_icon`) and its label turns red; when the failed
-  step is also the one the wizard is at, `states/3` gives `:error`, never `:current`. `state_labels` must carry
+  step is also the one the wizard is at, `states/3` gives `:error`, never `:current`. The vertical checklist
+  has no numbers: its dots hold the check of a finished step, the `error_icon` of a failed one, and are
+  otherwise empty rings (the state is still written out for assistive technology). `state_labels` must carry
   the four keys, or the component raises.
   """
   use Phoenix.Component
@@ -88,7 +90,7 @@ defmodule DevactionUI.Stepper do
       >
         <span class="relative flex flex-col items-center">
           <span class="step-dot size-6" data-state={step.state}>
-            <.mark state={step.state} index={index} done_icon={@done_icon} error_icon={@error_icon} />
+            <.rail_mark state={step.state} done_icon={@done_icon} error_icon={@error_icon} />
           </span>
           <span
             :if={index < length(@step)}
@@ -132,6 +134,24 @@ defmodule DevactionUI.Stepper do
     {@index}
     """
   end
+
+  attr :state, :atom, required: true
+  attr :done_icon, :list, required: true
+  attr :error_icon, :list, required: true
+
+  defp rail_mark(%{state: :done} = assigns) do
+    ~H"""
+    {render_slot(@done_icon) || "✓"}
+    """
+  end
+
+  defp rail_mark(%{state: :error, error_icon: [_ | _]} = assigns) do
+    ~H"""
+    {render_slot(@error_icon)}
+    """
+  end
+
+  defp rail_mark(assigns), do: ~H""
 
   defp label_class(:current), do: "font-semibold text-ink"
   defp label_class(:error), do: "font-medium text-tag-risk-text"
