@@ -83,15 +83,22 @@ defmodule DevactionUISite.Changelog do
 
   @releases [
     %{
-      version: "v0.4",
+      version: "v0.5",
       status: "next",
       tag: nil,
       summary:
         "The Blade version of the kit for Laravel and Livewire projects, starting with the color picker, the slider and the filter menu."
     },
     %{
-      version: "v0.3.3",
+      version: "v0.4.0",
       status: "current",
+      tag: "v0.4.0",
+      summary:
+        "The e-mail components: a 600px frame, buttons, tags, callouts and tables built as inline-styled tables with a dark mode, and eleven e-mail templates made only with them."
+    },
+    %{
+      version: "v0.3.3",
+      status: "archived",
       tag: "v0.3.3",
       summary:
         "The audit of the layout theme: keyboard and focus fixes in the shell, tabs, pagination, composer and tables, a breadcrumb that closes, readable text in the light and dark themes, and an editor that no longer needs TipTap to build."
@@ -345,7 +352,9 @@ defmodule DevactionUISite.Changelog do
     total = length(Catalog.all())
     added = Enum.count(Catalog.all(), &(Catalog.since(&1) == "0.2"))
 
-    Repo.delete_all(from(version in Version, where: version.version in ["v0.1", "v0.2", "v0.3"]))
+    Repo.delete_all(
+      from(version in Version, where: version.version in ["v0.1", "v0.2", "v0.3", "v0.4"])
+    )
 
     versions =
       for {release, index} <- Enum.with_index(@releases, 1) do
@@ -386,7 +395,7 @@ defmodule DevactionUISite.Changelog do
   defp code_entries(ids, now) do
     planned =
       for {{name, summary}, index} <- Enum.with_index(@planned, 1),
-          do: row(ids["v0.4"], "planned", "Planned", name, summary, index, now)
+          do: row(ids["v0.5"], "planned", "Planned", name, summary, index, now)
 
     components =
       for {category, topics} <- Catalog.groups(), topic <- topics do

@@ -1,0 +1,52 @@
+<Email.styles dark_scope="[data-theme=dark]" />
+<Email.layout
+  preheader="2 risks and 1 suggestion before the merge."
+  brand_name="DevAction IA"
+  brand_href="#"
+  logo_src="/images/email-logo.png"
+  signature="DevAction Labs · Feira de Santana, BA"
+>
+  <EmailTag.chip>sge-api · #142</EmailTag.chip>
+  <Email.heading>The AI reviewed PR #142</Email.heading>
+  <Email.paragraph>
+    <Email.emphasis>Move billing totals to a single query</Email.emphasis>, by carlos-andre. It is a draft: it only goes to GitHub after you approve.
+  </Email.paragraph>
+  <EmailTag.tag_row>
+    <:tag tone={:risk}>2 RISKS</:tag>
+    <:tag tone={:info}>1 SUGGESTION</:tag>
+    <:tag tone={:ok}>TESTS OK</:tag>
+  </EmailTag.tag_row>
+  <Email.caption>WHAT TO LOOK AT</Email.caption>
+  <EmailTable.finding_list>
+    <:item
+      tone={:risk}
+      tag="RISK"
+      title="The query is not scoped to the tenant"
+      location="lib/sge/billing.ex:112"
+    />
+    <:item
+      tone={:risk}
+      tag="RISK"
+      title="The retry on the payment call has no limit"
+      location="lib/sge/payments/client.ex:48"
+    />
+    <:item
+      tone={:info}
+      tag="SUGGESTION"
+      title="Extract the date helper to its own module"
+      location="lib/sge/billing.ex:140"
+    />
+  </EmailTable.finding_list>
+  <Email.button href="#">Open review</Email.button>
+  <EmailCallout.highlight
+    label="SUGGESTED LESSON"
+    title="Idempotent jobs in Oban"
+    href="#"
+    meta="12 min · Elixir · Intermediate"
+  />
+  <:footer>
+    You get these notices because you turned on PR and contract notifications.
+    <Email.footer_link href="#">E-mail preferences</Email.footer_link>
+    · <Email.footer_link href="#">Unsubscribe</Email.footer_link>
+  </:footer>
+</Email.layout>
