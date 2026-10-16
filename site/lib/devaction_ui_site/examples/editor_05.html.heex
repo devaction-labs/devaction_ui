@@ -1,0 +1,43 @@
+<%!-- title: Mentions and commands | text: The popup of the @ and / menus as a component: a group label, rows with a mark, a title and a hint, and the active row with the Enter key cap. --%>
+<div class="flex max-w-[360px] flex-col gap-3">
+  <Segmented.segmented id="suggest-mode" label="Menu" value={@suggest.mode} event="suggest_mode">
+    <:option value="mention" label="@ Mention" />
+    <:option value="slash" label="/ Command" />
+  </Segmented.segmented>
+  <div class="rounded-xl border border-ink bg-card px-3.5 py-3 text-[15px] leading-relaxed shadow-[0_0_0_3px_color-mix(in_oklab,var(--ink)_8%,transparent)]">
+    <span :if={@suggest.mode == "mention"}>
+      Can you look at the migration before tomorrow,
+      <span class="rounded-[5px] bg-wrap px-1 py-px font-medium">@al</span>
+    </span>
+    <span :if={@suggest.mode == "slash"}>
+      Weekly summary for SGE <span class="rounded-[5px] bg-wrap px-1 py-px font-medium">/ta</span>
+    </span>
+    <span class="inline-block h-[18px] w-0.5 align-[-3px] bg-ink"></span>
+  </div>
+  <Editor.suggest
+    :if={@suggest.mode == "mention"}
+    id="suggest-people"
+    label="People"
+    heading="PEOPLE"
+  >
+    <:option title="Alex" hint="Dev · online now">AN</:option>
+    <:option title="Carlos André" hint="Dev · SGE" tone={:info}>CA</:option>
+    <:option title="DevAction Reviewer" hint="AI · answers on the PR" tone={:warn}>AI</:option>
+  </Editor.suggest>
+  <Editor.suggest
+    :if={@suggest.mode == "slash"}
+    id="suggest-commands"
+    label="Commands"
+    heading="COMMANDS"
+  >
+    <:option title="/task" hint="Create a task from the text" tone={:neutral}>
+      <.icon name="task-01" class="size-3.5" />
+    </:option>
+    <:option title="/table" hint="Insert a 3 × 3 table" tone={:neutral}>
+      <.icon name="dashboard-square-01" class="size-3.5" />
+    </:option>
+    <:option title="/tag" hint="Mark with a label" tone={:neutral}>
+      <.icon name="flag-02" class="size-3.5" />
+    </:option>
+  </Editor.suggest>
+</div>

@@ -1,0 +1,23 @@
+<%!-- title: The active row | text: The highlighted row carries the Enter key cap and follows the choice; a row can send an event. --%>
+<div class="flex max-w-[360px] flex-col gap-3">
+  <Editor.suggest id="suggest-pick" label="Blocks" heading="BLOCKS" active={@suggest.active}>
+    <:option
+      :for={
+        {title, hint, index} <- [
+          {"Heading 2", "A section title", 0},
+          {"Bulleted list", "A simple list", 1},
+          {"Task list", "Items with a checkbox", 2},
+          {"Quote", "A passage set apart", 3}
+        ]
+      }
+      title={title}
+      hint={hint}
+      tone={:neutral}
+      event="suggest_pick"
+      value={to_string(index)}
+    >
+      {index + 1}
+    </:option>
+  </Editor.suggest>
+  <p class="m-0 text-sm text-muted" aria-live="polite">Active row: {@suggest.active + 1} of 4</p>
+</div>

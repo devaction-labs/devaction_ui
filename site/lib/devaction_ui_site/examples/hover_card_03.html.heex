@@ -1,0 +1,28 @@
+<%!-- title: On a link | text: The card adds information, never the only way: the link inside the trigger still goes to the page. A shorter delay and the card above. | layout: center --%>
+<div class="pt-36">
+  <p class="m-0 text-[15px] leading-[1.7]">
+    Read the
+    <HoverCard.card
+      id="hover-card-link"
+      label="Release notes"
+      placement={:top}
+      open_delay={150}
+      underline={false}
+      card_class="w-72 p-3.5"
+    >
+      <:trigger>
+        <a
+          href="#"
+          class="font-medium text-ink underline decoration-dotted underline-offset-4 outline-none focus-visible:ring-4 focus-visible:ring-ink/10"
+        >
+          release notes
+        </a>
+      </:trigger>
+      <span class="block font-semibold">Release notes · v0.2</span>
+      <span class="mt-1 block text-[13px] text-ink-2">
+        Context menu, hover card, sortable list and resizable panels. It opens after 150 ms here; on a touch screen a tap opens the card.
+      </span>
+    </HoverCard.card>
+    before upgrading.
+  </p>
+</div>

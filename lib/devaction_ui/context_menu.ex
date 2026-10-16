@@ -72,41 +72,45 @@ defmodule DevactionUI.ContextMenu do
         aria-haspopup="menu"
         phx-mounted={JS.ignore_attributes(["data-open"])}
         class={[
-          "relative outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ink data-[open]:bg-wrap data-[open]:outline-2 data-[open]:-outline-offset-2 data-[open]:outline-ink",
+          "relative outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-inset data-[open]:bg-wrap data-[open]:ring-2 data-[open]:ring-ink data-[open]:ring-inset",
           @more != [] && "pr-12",
           @target_class
         ]}
       >
         {render_slot(@area)}
-        <Dropdown.dropdown
+        <span
           :if={@more != [] and @more_label != nil}
-          id={"#{@id}-more"}
-          label={@label}
-          variant={:icon}
-          size={:sm}
-          align={:end}
-          trigger_label={@more_label}
-          target={@target}
           class="absolute top-1/2 right-2 -translate-y-1/2"
         >
-          <:trigger>{render_slot(@more)}</:trigger>
-          <:item
-            :for={item <- @item}
-            event={Map.get(item, :event)}
-            value={Map.get(item, :value)}
-            values={Map.get(item, :values)}
-            navigate={Map.get(item, :navigate)}
-            patch={Map.get(item, :patch)}
-            href={Map.get(item, :href)}
-            danger={Map.get(item, :danger)}
-            disabled={Map.get(item, :disabled)}
-            separator={Map.get(item, :separator)}
-            heading={Map.get(item, :heading)}
-            shortcut={Map.get(item, :shortcut)}
+          <Dropdown.dropdown
+            id={"#{@id}-more"}
+            label={@label}
+            variant={:icon}
+            size={:sm}
+            align={:end}
+            trigger_label={@more_label}
+            target={@target}
+            trigger_class="bg-transparent!"
           >
-            {render_slot(item)}
-          </:item>
-        </Dropdown.dropdown>
+            <:trigger>{render_slot(@more)}</:trigger>
+            <:item
+              :for={item <- @item}
+              event={Map.get(item, :event)}
+              value={Map.get(item, :value)}
+              values={Map.get(item, :values)}
+              navigate={Map.get(item, :navigate)}
+              patch={Map.get(item, :patch)}
+              href={Map.get(item, :href)}
+              danger={Map.get(item, :danger)}
+              disabled={Map.get(item, :disabled)}
+              separator={Map.get(item, :separator)}
+              heading={Map.get(item, :heading)}
+              shortcut={Map.get(item, :shortcut)}
+            >
+              {render_slot(item)}
+            </:item>
+          </Dropdown.dropdown>
+        </span>
       </div>
       <div
         id={"#{@id}-menu"}

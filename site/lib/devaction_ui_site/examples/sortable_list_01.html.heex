@@ -1,0 +1,25 @@
+<%!-- title: Basic | text: Drag a row by its handle, or press Space on the handle and use the arrows; the up and down buttons are off at the ends. The server keeps the order. --%>
+<SortableList.list
+  id="sortable-basic"
+  label="Milestones"
+  handle_label="Reorder"
+  up_label="Move up"
+  down_label="Move down"
+  hint_label="Press Space to pick up, the arrow keys to move, Space or Enter to drop, Escape to cancel"
+  picked_label="__ITEM__ picked up, position __POS__ of __TOTAL__"
+  moved_label="__ITEM__ moved to position __POS__ of __TOTAL__"
+  dropped_label="__ITEM__ dropped at position __POS__ of __TOTAL__"
+  cancelled_label="__ITEM__ moved back, position __POS__ of __TOTAL__"
+  class="max-w-xl"
+>
+  <:handle_icon><.icon name="drag-drop-vertical" class="size-4" /></:handle_icon>
+  <:up_icon><.icon name="arrow-down-01" class="size-3.5 rotate-180" /></:up_icon>
+  <:down_icon><.icon name="arrow-down-01" class="size-3.5" /></:down_icon>
+  <:row
+    :for={id <- @sortable.order}
+    id={id}
+    label={elem(@sortable.items[id], 1)}
+    code={elem(@sortable.items[id], 0)}
+    status={elem(@sortable.items[id], 2)}
+  />
+</SortableList.list>

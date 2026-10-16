@@ -1,0 +1,38 @@
+<%!-- title: The server owns the order | text: The rows are drawn in the order the server gives. When it changes the order itself (here, a button), the list follows. --%>
+<div class="flex max-w-xl flex-col gap-3">
+  <SortableList.list
+    id="sortable-server"
+    label="Milestones"
+    handle_label="Reorder"
+    up_label="Move up"
+    down_label="Move down"
+    hint_label="Press Space to pick up, the arrow keys to move, Space or Enter to drop, Escape to cancel"
+    picked_label="__ITEM__ picked up, position __POS__ of __TOTAL__"
+    moved_label="__ITEM__ moved to position __POS__ of __TOTAL__"
+    dropped_label="__ITEM__ dropped at position __POS__ of __TOTAL__"
+    cancelled_label="__ITEM__ moved back, position __POS__ of __TOTAL__"
+  >
+    <:handle_icon><.icon name="drag-drop-vertical" class="size-4" /></:handle_icon>
+    <:up_icon><.icon name="arrow-down-01" class="size-3.5 rotate-180" /></:up_icon>
+    <:down_icon><.icon name="arrow-down-01" class="size-3.5" /></:down_icon>
+    <:row
+      :for={id <- @sortable.order}
+      id={id}
+      code={elem(@sortable.items[id], 0)}
+      label={elem(@sortable.items[id], 1)}
+      status={elem(@sortable.items[id], 2)}
+    />
+  </SortableList.list>
+  <div class="flex gap-2">
+    <button
+      type="button"
+      phx-click="sortable_sort"
+      class="h-9 rounded-[10px] border border-line-strong bg-card px-3 text-sm text-ink hover:bg-wrap focus-visible:ring-4 focus-visible:ring-ink/10 outline-none"
+    >Sort by code</button>
+    <button
+      type="button"
+      phx-click="sortable_reverse"
+      class="h-9 rounded-[10px] border border-line-strong bg-card px-3 text-sm text-ink hover:bg-wrap focus-visible:ring-4 focus-visible:ring-ink/10 outline-none"
+    >Reverse</button>
+  </div>
+</div>

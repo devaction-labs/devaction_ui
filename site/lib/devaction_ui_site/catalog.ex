@@ -11,11 +11,11 @@ defmodule DevactionUISite.Catalog do
     {"Base",
      ~w(Accordion Alert Avatar Badge Button Callout CodeBlock EmptyState Kbd Panel Progress Skeleton Spinner Stat Tabs Tag Timeline)},
     {"Overlay",
-     ~w(CommandPalette ConfirmDialog DangerDialog Drawer Dropdown Modal Popover ProgressToast ToastGroup Tooltip)},
+     ~w(CommandPalette ConfirmDialog ContextMenu DangerDialog Drawer Dropdown HoverCard Modal Popover ProgressToast ToastGroup Tooltip)},
     {"Form",
      ~w(Autocomplete Choice ColorPicker Combobox DatePicker Dropzone Editor FilterMenu FilterPill InputGroup MoneyInput NumberInput PasswordStrength Pillbox Segmented SignatureField Slider Switch Textarea Timer)},
     {"Navigation", ~w(Breadcrumb PageHeader Pagination Sidebar Stepper Steps)},
-    {"Data", ~w(Calendar Chart DataTable Kanban)},
+    {"Data", ~w(Calendar Chart DataTable Kanban Resizable SortableList)},
     {"AI", ~w(AiPrompt Aura ChatBubble)}
   ]
 

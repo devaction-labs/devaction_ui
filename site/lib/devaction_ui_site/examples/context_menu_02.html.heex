@@ -1,0 +1,28 @@
+<%!-- title: Same items in the ··· menu | text: The items are given once; with a `more` slot the row also gets a button that opens them as a dropdown, for whoever has no right button. --%>
+<div class="rounded-xl border border-line text-sm">
+  <ContextMenu.menu
+    :for={
+      {id, title} <- [
+        {"a", "Milestone M1 · Members"},
+        {"b", "Milestone M2 · Tithes and offerings"}
+      ]
+    }
+    id={"context-menu-more-#{id}"}
+    label="Milestone actions"
+    more_label="More actions"
+    class="border-b border-line-soft last:border-b-0"
+    target_class="flex h-12 items-center gap-2.5 px-3.5"
+  >
+    <:area>{title}</:area>
+    <:more><.icon name="more-horizontal" class="size-4" /></:more>
+    <:item event="context_pick" value="open" shortcut="↵">
+      <.icon name="view" class="size-4" /> Open
+    </:item>
+    <:item event="context_pick" value="copy" shortcut="⌘C">
+      <.icon name="copy-01" class="size-4" /> Copy link
+    </:item>
+    <:item event="context_pick" value="archive" separator danger>
+      <.icon name="delete-02" class="size-4" /> Archive
+    </:item>
+  </ContextMenu.menu>
+</div>
