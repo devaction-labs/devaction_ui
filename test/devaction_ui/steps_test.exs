@@ -28,7 +28,7 @@ defmodule DevactionUI.StepsTest do
   end
 
   test "a step to come has the pending border" do
-    assert render_steps(1) =~ "border border-done-cell"
+    assert render_steps(1) =~ "border border-line-dashed"
   end
 
   test "a current past the last finishes every step and below 1 leaves them all to come" do
@@ -53,5 +53,54 @@ defmodule DevactionUI.StepsTest do
 
     assert html =~ "OK"
     refute html =~ "✓"
+  end
+
+  defp render_error(error) do
+    assigns = %{error: error}
+
+    rendered_to_string(~H"""
+    <.steps labels={["A", "B", "C"]} current={2} error={@error} error_label="Failed" />
+    """)
+  end
+
+  test "the failed step has a red ring, keeps its number and reads out that it failed" do
+    html = render_error(2)
+
+    assert html =~ "border-2 border-missing text-missing"
+    assert html =~ "text-tag-risk-text"
+    assert html =~ "Failed"
+    refute html =~ "aria-current"
+    assert html =~ ">2<"
+  end
+
+  test "the error wins over done and over to come" do
+    done = render_error(1)
+    assert done =~ "border-missing"
+    assert length(String.split(done, "✓")) == 1
+
+    todo = render_error(3)
+    assert todo =~ "border-missing"
+    assert todo =~ "aria-current"
+  end
+
+  test "without an error nothing is red and no label is read" do
+    html = render_steps(2)
+
+    refute html =~ "border-missing"
+    refute html =~ "sr-only"
+  end
+
+  test "the error icon slot replaces the number of the failed step" do
+    assigns = %{}
+
+    html =
+      rendered_to_string(~H"""
+      <.steps labels={["A", "B"]} current={1} error={2}>
+        <:error_icon>BANG</:error_icon>
+      </.steps>
+      """)
+
+    assert html =~ "BANG"
+    refute html =~ ">2<"
   end
 end
