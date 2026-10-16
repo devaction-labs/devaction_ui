@@ -581,5 +581,25 @@
   "name": "mail-open-01",
   "group": "Dispositivos",
   "label": "mail-open-01"
+ },
+ {
+  "name": "panel-right",
+  "group": "Site",
+  "label": "Painel lateral"
+ },
+ {
+  "name": "chart-line-data-01",
+  "group": "Site",
+  "label": "Gráfico"
+ },
+ {
+  "name": "plug-socket",
+  "group": "Site",
+  "label": "Conexão"
+ },
+ {
+  "name": "globe-02",
+  "group": "Site",
+  "label": "Idioma"
  }
 ]

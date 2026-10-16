@@ -10,5 +10,7 @@ config :devaction_ui_site, DevactionUISite.Repo,
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: 5
 
+config :devaction_ui_site, :sync_changelog, false
+
 config :logger, level: :warning
 config :phoenix, :plug_init_mode, :runtime

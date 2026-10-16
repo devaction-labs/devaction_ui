@@ -81,3 +81,97 @@
   mask-image: radial-gradient(ellipse 70% 90% at 50% 50%, #000 25%, transparent 85%);
 }
 /* end of the site chrome */
+
+/* home and changelog: the pixel grid of the hero and of the showcase cards, its glow, the card and the dark surfaces */
+:root {
+  --site-check: light-dark(#EFEFF1, #262630);
+  --site-code: light-dark(#18181B, #0E0E13);
+  --site-eyebrow: light-dark(#A16207, #E3A72F);
+}
+
+.site-grid {
+  position: absolute;
+  inset: 0 0 auto 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px),
+    repeating-conic-gradient(var(--site-check) 0 25%, transparent 0 50%);
+  background-size: 44px 44px, 44px 44px, 88px 88px;
+  background-position: center top;
+}
+
+.site-grid-top {
+  height: 760px;
+  mask-image: radial-gradient(ellipse 55% 80% at 50% 0%, #000 30%, transparent 78%);
+}
+
+.site-grid-changelog {
+  height: 420px;
+  mask-image: radial-gradient(ellipse 50% 90% at 50% 0%, #000 25%, transparent 80%);
+}
+
+.site-grid-card {
+  height: 150px;
+  background-size: 24px 24px, 24px 24px, 48px 48px;
+  mask-image: radial-gradient(ellipse 80% 100% at 50% 0%, #000 20%, transparent 80%);
+}
+
+.site-glow {
+  position: absolute;
+  left: 50%;
+  top: -180px;
+  width: 900px;
+  max-width: 100vw;
+  height: 620px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, rgb(210 154 30 / 0.2), rgb(210 154 30 / 0) 62%);
+}
+
+.site-card {
+  position: relative;
+  overflow: hidden;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+
+.site-card:hover {
+  border-color: var(--line-strong);
+}
+
+.site-next,
+.site-code {
+  background: var(--site-code);
+}
+
+.site-next {
+  border-color: var(--site-code);
+}
+
+.site-eyebrow {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--site-eyebrow);
+}
+
+.site-contained {
+  transform: translateZ(0);
+  overflow: hidden;
+}
+
+.site-contained > div {
+  padding-top: 12px;
+  padding-bottom: 0;
+}
+
+.site-contained .modal-backdrop {
+  display: none;
+}
+
+.site-contained .cmdk {
+  width: min(26rem, 100%);
+}
