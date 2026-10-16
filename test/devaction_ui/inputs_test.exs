@@ -123,6 +123,54 @@ defmodule DevactionUI.InputsTest do
       assert html =~ "All"
     end
 
+    test "the marks fall in equal columns and the nearest one is stressed" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H|<Slider.slider
+  id="s"
+  name="h"
+  label="Rigor"
+  value={3}
+  min={1}
+  max={5}
+  ticks={["Bugs", "Default", "All"]}
+/>|)
+
+      assert html =~ "grid-template-columns: repeat(3, minmax(0, 1fr))"
+      assert html =~ ~r/data-active="true"[^>]*>\s*Default/
+      assert length(Regex.scan(~r/data-active="true"/, html)) == 1
+      assert html =~ "text-left"
+      assert html =~ "text-right"
+      assert Slider.active_tick(0.0, 3) == 0
+      assert Slider.active_tick(100.0, 3) == 2
+      assert Slider.active_tick(30.0, 1) == 0
+    end
+
+    test "the value can be a float, read aloud as text, and follows the thumb when it has a template" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H|<Slider.slider
+  id="s"
+  name="h"
+  label="Cover"
+  value={0.5}
+  min={0.0}
+  max={2.0}
+  step={0.1}
+  value_text="Half"
+  format_text="%{value} x"
+/>|)
+
+      assert html =~ ~s(step="0.1")
+      assert html =~ ~s(aria-valuetext="Half")
+      assert html =~ "0.5 x"
+      assert html =~ ~s(data-format-text="%{value} x")
+      assert html =~ "--p: 25.0%"
+      assert html =~ "text-ink-2"
+    end
+
     test "the percent is where the value sits between the ends" do
       assert Slider.percent(50, 0, 100) == 50.0
       assert Slider.percent(75, 50, 100) == 50.0
@@ -150,6 +198,34 @@ defmodule DevactionUI.InputsTest do
       assert html =~ ~s(aria-label="To")
       assert html =~ "left: 20.0%; width: 50.0%"
       assert html =~ "20 – 70"
+      assert html =~ ~s(phx-hook="DevactionUI.RangePair")
+      assert html =~ "data-fill"
+      refute html =~ "range-pair"
+    end
+
+    test "a range slider takes floats and a text template for its values" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Slider.range_slider
+          id="r"
+          name_low="a"
+          name_high="b"
+          label_low="From"
+          label_high="To"
+          low={0.5}
+          high={1.5}
+          min={0.0}
+          max={2.0}
+          step={0.5}
+          format_text="%{value} h"
+        />
+        """)
+
+      assert html =~ "left: 25.0%; width: 50.0%"
+      assert html =~ "0.5 h – 1.5 h"
+      assert html =~ ~s(data-format-text="%{value} h")
     end
 
     test "the pair is put in order and inside the limits" do

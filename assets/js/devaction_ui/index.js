@@ -25,6 +25,7 @@ import Pillbox from "./pillbox.js"
 import Popover from "./popover.js"
 import ProgressToast from "./progress_toast.js"
 import Range from "./range.js"
+import RangePair from "./range_pair.js"
 import Signature from "./signature.js"
 import Tabs from "./tabs.js"
 import Timer from "./timer.js"
@@ -47,6 +48,7 @@ export const hooks = {
   "DevactionUI.Pillbox": Pillbox,
   "DevactionUI.Popover": Popover,
   "DevactionUI.Range": Range,
+  "DevactionUI.RangePair": RangePair,
   "DevactionUI.ProgressToast": ProgressToast,
   "DevactionUI.Signature": Signature,
   "DevactionUI.Tabs": Tabs,
