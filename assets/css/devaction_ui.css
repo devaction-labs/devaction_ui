@@ -334,8 +334,11 @@
   .cmdk-item   { @apply flex min-h-11 items-center gap-3 rounded-[10px] px-2.5 text-sm aria-selected:bg-wrap; }
   .cmdk-footer { @apply flex items-center gap-4 border-t border-line-soft bg-wrap/60 px-4 py-2.5 text-xs text-muted; }
   .segmented   { @apply inline-flex rounded-[11px] border border-line bg-wrap p-[3px]; }
-  .segment     { @apply inline-flex h-8.5 items-center justify-center gap-1.5 rounded-lg px-3 text-sm font-medium text-ink-2
-                        aria-pressed:bg-card aria-pressed:text-ink aria-pressed:shadow-sm; }
+  .segment     { @apply inline-flex h-8.5 items-center justify-center gap-1.5 rounded-lg border border-transparent px-3 text-sm font-medium text-ink-2
+                        disabled:cursor-not-allowed disabled:opacity-40
+                        aria-pressed:border-line aria-pressed:bg-card aria-pressed:text-ink aria-pressed:shadow-xs; }
+  .segmented-sm { @apply rounded-[9px]; }
+  .segmented-sm > .segment { @apply h-7 rounded-md px-2.5 text-[13px]; }
   .segmented-full { @apply flex w-full [&>.segment]:flex-1; }
   .app-shell   { @apply flex min-h-dvh flex-wrap gap-4 bg-frame p-4; }
   .sidebar     { @apply flex w-59 shrink-0 flex-col gap-5 px-1 py-3 transition-[width] data-[collapsed=true]:w-16 max-md:hidden; }

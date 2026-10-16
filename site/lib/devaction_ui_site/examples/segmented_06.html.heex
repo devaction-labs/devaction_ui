@@ -1,0 +1,6 @@
+<%!-- title: Disabled option | text: An option that is not available yet, with a count beside the others. | layout: center --%>
+<Segmented.segmented id="segmented-disabled" label="View" value={@shell.view} event="shell_view">
+  <:option value="list" label="List" count="12" />
+  <:option value="board" label="Board" count="4" />
+  <:option value="calendar" label="Calendar" disabled />
+</Segmented.segmented>
