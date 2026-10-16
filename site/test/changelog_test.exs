@@ -23,7 +23,8 @@ defmodule DevactionUISite.ChangelogTest do
 
     assert Enum.map(versions, &{&1.version, &1.status}) == [
              {"v0.4", "next"},
-             {"v0.3.1", "current"},
+             {"v0.3.2", "current"},
+             {"v0.3.1", "archived"},
              {"v0.3.0", "archived"},
              {"v0.2.6", "archived"},
              {"v0.2.5", "archived"},
@@ -35,8 +36,8 @@ defmodule DevactionUISite.ChangelogTest do
              {"v0.1.0", "archived"}
            ]
 
-    assert Changelog.current().version == "v0.3.1"
-    assert Changelog.current().tag == "v0.3.1"
+    assert Changelog.current().version == "v0.3.2"
+    assert Changelog.current().tag == "v0.3.2"
   end
 
   test "sync writes every component of the catalog as a new entry of the release it came with" do

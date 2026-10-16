@@ -90,8 +90,15 @@ defmodule DevactionUISite.Changelog do
         "The Blade version of the kit for Laravel and Livewire projects, starting with the color picker, the slider and the filter menu."
     },
     %{
-      version: "v0.3.1",
+      version: "v0.3.2",
       status: "current",
+      tag: "v0.3.2",
+      summary:
+        "Variations of the data table (minimal, striped, expandable, grouped, phone cards, a row action cell), a pagination that shows the range, the new Projects template and a README without contradictions."
+    },
+    %{
+      version: "v0.3.1",
+      status: "archived",
       tag: "v0.3.1",
       summary:
         "Fixes the stylesheet of 0.3.0, which left a block open, and completes the layout theme: the App template, the new table, and a Composer with commands, mentions and a mode picker."
@@ -154,6 +161,16 @@ defmodule DevactionUISite.Changelog do
   ]
 
   @patches %{
+    "v0.3.2" => [
+      {"improved", "Improvements", "data_table_variants",
+       "`variant={:minimal}`, `striped`, an `expanded` slot, `group_by` with totals, `stack` for phone cards, an `action` slot for the row menu, `align` and `mono` on a column, and Shift+click to tick a range."},
+      {"improved", "Improvements", "pagination",
+       "`total`, `per_page`, `noun` and `summary_label` draw the range of the page before the links."},
+      {"improved", "Improvements", "app_template",
+       "The Projects template follows the new artboard: an owner column with avatar, hours with a bar, relative updates and the row menu in the action slot."},
+      {"improved", "Improvements", "readme",
+       "One rule for `@source` and the keyframes, `pdfjs-dist` and `worker_src` explained, the requirements and the fonts listed, and a row for every component."}
+    ],
     "v0.3.1" => [
       {"fixed", "Fixes", "stylesheet",
        "0.3.0 shipped a stylesheet with a block left open, which stops Tailwind in the host app; every block is closed now and a test counts the braces."},
