@@ -46,11 +46,20 @@ defmodule DevactionUISite.Catalog do
 
   @entries Enum.flat_map(@groups, fn {_category, entries} -> entries end)
 
+  @since_v02 ~w(Banner ContextMenu CookieConsent CopyField DateRange DescriptionList DiffView Field FileTree
+                FilterPill HoverCard NotificationCenter OtpInput PdfViewer Pricing Resizable Separator
+                SortableList TimeField)
+
   @doc "The components, grouped by category, in the order of the sidebar."
   def groups, do: @groups
 
   @doc "Every component in order."
   def all, do: @entries
+
+  @doc "The version a component came with: the ones added in v0.2 say 0.2, the rest say 0.1."
+  def since(%{module: module}), do: since(Reference.short(module))
+  def since(name) when name in @since_v02, do: "0.2"
+  def since(_name), do: "0.1"
 
   @doc "The category a component belongs to."
   def group_of(%{category: category}), do: category

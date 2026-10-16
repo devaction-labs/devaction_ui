@@ -201,13 +201,21 @@ defmodule DevactionUISite.DocsLiveTest do
   end
 
   describe "a component page" do
+    test "a component added in v0.2 says so" do
+      {:ok, view, _html} = live(build_conn(), "/c/file_tree")
+
+      assert has_element?(view, "#topic-file_tree", "since v0.2")
+      assert Catalog.since("FileTree") == "0.2"
+      assert Catalog.since("Button") == "0.1"
+    end
+
     test "has the breadcrumb, the status, the links and the history of the component" do
       {:ok, view, _html} = live(build_conn(), "/c/button")
 
       assert has_element?(view, "nav[aria-label=Breadcrumb] li[aria-current=page]", "Button")
       assert has_element?(view, "#topic-button h1", "Button")
       assert has_element?(view, "#topic-button", "Stable")
-      assert has_element?(view, "#topic-button", "since v#{Project.short_version()}")
+      assert has_element?(view, "#topic-button", "since v0.1")
       assert has_element?(view, "#topic-button [data-copy-text='alias DevactionUI.Button']")
 
       assert has_element?(

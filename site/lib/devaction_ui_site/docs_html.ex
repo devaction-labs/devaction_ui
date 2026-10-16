@@ -373,7 +373,7 @@ new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
           case={:normal}
           class="h-[26px]! rounded-[7px]! border-line! px-2! py-0! text-soft!"
         >
-          since v{Project.short_version()}
+          since v{Catalog.since(@topic)}
         </Tag.tag>
       </div>
 

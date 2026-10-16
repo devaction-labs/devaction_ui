@@ -644,14 +644,17 @@ defmodule DevactionUISite.HomeHTML do
 
   defp next_line(nil), do: "The next version is being planned"
 
-  defp next_line(%{version: version, entries: entries}) do
+  defp next_line(%{version: version, summary: summary, entries: entries}) do
     names =
       for %{name: name} <- entries,
           not String.contains?(name, "."),
           do: String.downcase(Changelog.humanize(name))
 
-    "#{version} brings #{join(names)}"
+    sentence(version, summary, names)
   end
+
+  defp sentence(version, summary, []), do: "#{version}: #{summary |> String.split(",") |> hd()}"
+  defp sentence(version, _summary, names), do: "#{version} brings #{join(names)}"
 
   defp join([only]), do: only
   defp join(names), do: Enum.join(Enum.drop(names, -1), ", ") <> " and " <> List.last(names)

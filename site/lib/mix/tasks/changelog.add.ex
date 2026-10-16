@@ -6,7 +6,7 @@ defmodule Mix.Tasks.Changelog.Add do
       mix changelog.add VERSION KIND GROUP NAME "summary"
 
   `KIND` is one of new, improved, fixed, breaking or planned. In a release, the same thing is
-  `bin/devaction_ui_site eval 'DevactionUISite.Release.add_entry("v0.1", "fixed", "Form", "slider", "Summary.")'`.
+  `bin/devaction_ui_site eval 'DevactionUISite.Release.add_entry("v0.2", "fixed", "Form", "slider", "Summary.")'`.
   """
   use Mix.Task
 

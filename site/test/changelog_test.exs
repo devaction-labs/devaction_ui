@@ -9,37 +9,44 @@ defmodule DevactionUISite.ChangelogTest do
     Changelog.sync!()
   end
 
-  test "sync writes every component of the catalog as a new entry of the current version" do
-    current = Changelog.current()
-    names = for %{kind: "new"} = entry <- current.entries, do: entry.name
+  defp new_names(version), do: for(%{kind: "new"} = entry <- version.entries, do: entry.name)
 
-    assert current.version == "v0.1"
-    assert current.tag == "v0.1.0"
+  test "sync writes every component of the catalog as a new entry of the version it came with" do
+    versions = Map.new(Changelog.versions(), &{&1.version, &1})
+    current = Changelog.current()
+
+    assert current.version == "v0.2"
+    assert current.tag == "v0.2.0"
 
     for topic <- Catalog.all() do
-      assert topic.slug in names
+      assert topic.slug in new_names(versions["v" <> Catalog.since(topic)])
     end
 
-    assert "auth" in names
+    assert "auth" in new_names(versions["v0.1"])
+    assert "file_tree" in new_names(versions["v0.2"])
+    refute "file_tree" in new_names(versions["v0.1"])
+    refute "button" in new_names(versions["v0.2"])
   end
 
   test "the summary of an entry is the first sentence of the moduledoc" do
-    entry = Enum.find(Changelog.current().entries, &(&1.name == "tabs"))
+    v01 = Enum.find(Changelog.versions(), &(&1.version == "v0.1"))
+    entry = Enum.find(v01.entries, &(&1.name == "tabs"))
     assert entry.summary == Catalog.summary(elem(Catalog.fetch("tabs"), 1))
     assert entry.summary != ""
   end
 
-  test "only what is truly missing is planned for the next version" do
-    [next, current] = Changelog.versions()
+  test "the next version plans only what is truly missing, and v0.1 is archived" do
+    [next, current, archived] = Changelog.versions()
 
-    assert next.version == "v0.2"
-    assert current.version == "v0.1"
-    assert Enum.map(next.entries, & &1.name) == ~w(file_tree pdf_viewer otp_input x-ui.*)
+    assert {next.version, next.status} == {"v0.3", "next"}
+    assert {current.version, current.status} == {"v0.2", "current"}
+    assert {archived.version, archived.status} == {"v0.1", "archived"}
+    assert Enum.map(next.entries, & &1.name) == ["x-ui.*"]
     assert Enum.all?(next.entries, &(&1.kind == "planned"))
   end
 
   test "sync is idempotent and leaves entries added by hand alone" do
-    {:ok, %Entry{}} = Changelog.add_entry("v0.1", "fixed", "Form", "slider-step", "A fix.")
+    {:ok, %Entry{}} = Changelog.add_entry("v0.2", "fixed", "Form", "slider-step", "A fix.")
     before = Changelog.counts(Changelog.versions())
 
     Changelog.sync!()
@@ -52,18 +59,18 @@ defmodule DevactionUISite.ChangelogTest do
   test "counts sum every kind for the filter pills" do
     counts = Changelog.counts(Changelog.versions())
 
-    assert counts["all"] == counts["new"] + counts["planned"]
+    assert counts["all"] ==
+             counts["new"] + counts["planned"] + counts["improved"] + counts["breaking"]
+
     assert counts["new"] == length(Catalog.all()) + 1
-    assert counts["planned"] == 4
-    assert counts["improved"] == 0
-    assert counts["breaking"] == 0
+    assert counts["planned"] == 1
+    assert counts["improved"] > 0
+    assert counts["breaking"] > 0
   end
 
   test "groups keep the order of the entries" do
-    current = Changelog.current()
-
-    assert Enum.map(Changelog.groups(current), &elem(&1, 0)) ==
-             ~w(Base Overlay Form Navigation Data AI Templates)
+    assert Enum.map(Changelog.groups(Changelog.current()), &elem(&1, 0)) ==
+             ["Base", "Overlay", "Form", "Data", "Improvements", "Breaking changes"]
   end
 
   test "highlights read the current version" do
@@ -73,6 +80,6 @@ defmodule DevactionUISite.ChangelogTest do
 
   test "an entry for an unknown version or kind is refused" do
     assert {:error, :unknown_version} = Changelog.add_entry("v9", "new", "Base", "x", "s")
-    assert {:error, :unknown_kind} = Changelog.add_entry("v0.1", "other", "Base", "x", "s")
+    assert {:error, :unknown_kind} = Changelog.add_entry("v0.2", "other", "Base", "x", "s")
   end
 end

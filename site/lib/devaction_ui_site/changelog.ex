@@ -1,9 +1,10 @@
 defmodule DevactionUISite.Changelog do
   @moduledoc """
   The changelog of the kit: the versions and what came with each, kept in SQLite. `sync!/0` writes what the code
-  itself knows (every component of the `Catalog` as a `new` entry of v0.1 with the first sentence of its module
-  documentation, and the `planned` entries of v0.2) and is safe to run on every boot: rows are keyed by
-  version, group and name, and rows added later by hand (improved, fixed, breaking) are left alone.
+  itself knows (every component of the `Catalog` as a `new` entry of the version it came with, with the first
+  sentence of its module documentation, the improvements and breaking changes of v0.2, and the `planned`
+  entries of v0.3) and is safe to run on every boot: rows are keyed by version, group and name, and rows added
+  later by hand are left alone.
   """
   import Ecto.Query
 
@@ -13,11 +14,56 @@ defmodule DevactionUISite.Changelog do
   @kinds ~w(new improved fixed breaking planned)
 
   @planned [
-    {"file_tree", "File tree of a pull request with +/− and the count of findings per file."},
-    {"pdf_viewer", "Zoom, page thumbnails and marked signature fields."},
-    {"otp_input", "A 6-digit code with automatic paste and a resend with a countdown."},
     {"x-ui.*",
      "Blade package for Laravel and Livewire, starting with color picker, slider and filter menu."}
+  ]
+
+  @improved [
+    {"toast_group",
+     "The notices pile up as soon as there are two, with layers peeking out above the newest; the pile opens on hover or focus."},
+    {"data_table",
+     "Takes a stream, with toolbar and footer slots, a density toggle, loading and error states and sort arrows through slots."},
+    {"dropzone", "`queue/1`: a file queue with progress, errors, retry and cancel."},
+    {"avatar",
+     "`group/1`: overlapped avatars with status dots and a +N chip; `tone: :auto` picks a colour from the name."},
+    {"editor",
+     "`suggest/1`, a compact variant with the toolbar at the bottom, and TipTap loaded only when an editor mounts."},
+    {"calendar", "The week view has an hours grid and the month and week take a legend."},
+    {"date_picker",
+     "A recurring due chip, and the range fields live in `date_range` and `date_input`."},
+    {"timer", "`timer_mini/1` for the app bar and `time_log/1` for what was logged today."},
+    {"kanban", "Cards move with touch and pen, and a move the server rejects is put back."},
+    {"popover",
+     "Left and right placements, edge clamping and a portal mode for scrolling containers."},
+    {"modal", "Body scroll lock, an inert page behind and Esc for the top overlay only."},
+    {"drawer", "A bottom sheet that closes by dragging, stacked with modals in a defined order."},
+    {"tooltip", "Hoverable and dismissible with Esc, and it flips at the edges of the screen."},
+    {"sidebar", "Search and user building blocks and collapsible groups."},
+    {"code_block",
+     "Copy button, line numbers, highlighted lines, diff lines and an Elixir lexer."},
+    {"tone", "Indigo, emerald and chart tones, with strong text tokens."},
+    {"spinner", "`dots/1`, a three-dot indicator."},
+    {"tabs", "Vertical orientation, and the server can set the selected tab."},
+    {"breadcrumb", "A collapsed middle for long paths and a separator as text or chevron."}
+  ]
+
+  @breaking [
+    {"confirm_dialog",
+     "Now a thin wrapper over `Modal`: `eyebrow` is gone and the close button is optional."},
+    {"danger_dialog", "`type_label` is a slot, so the name to type can be a `<code>` chip."},
+    {"modal", "Modal and drawer need the `DevactionUI.Overlay` hook: load the package hooks."},
+    {"command_palette", "The scopes are a tablist of their own and no longer use `Segmented`."},
+    {"chart",
+     "A line chart's second series is no longer dashed by default: pass `dashed: true`."},
+    {"tag", "The default size is 11px with `3px 8px`; the old size is `:lg`."},
+    {"callout", "The icon sits inline by default; `icon_layout: :box` is the old tile."},
+    {"avatar", "The sizes follow the canvas: `:md` is 40px, `:sm` 32px and `:xs` 22px."},
+    {"money_input", "The value no longer carries `R$`: the prefix is an add-on."},
+    {"switch", "The thumb is a real element instead of `::after`."},
+    {"dropdown", "The `check_icon` slot is gone: the chosen item shows a leading ring."},
+    {"panel", "`Panel.empty/1` is removed (use `EmptyState`) and `inner_class` has no default."},
+    {"required_texts",
+     "New required text attrs: `nav_label` (AuthLayout), `toolbar_label` (Editor), `hint_label` (Kanban), `meter_label` (PasswordStrength), and the labels of DataTable, Kanban and Editor no longer have English defaults."}
   ]
 
   @doc "The kinds of change, in the order the page shows them."
@@ -121,27 +167,40 @@ defmodule DevactionUISite.Changelog do
   @doc "Writes the versions and the entries the code knows. Idempotent: run it on every boot."
   def sync! do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
+    total = length(Catalog.all())
+    added = Enum.count(Catalog.all(), &(Catalog.since(&1) == "0.2"))
 
     versions = [
       %{
-        version: "v0.2",
+        version: "v0.3",
         status: "next",
         tag: nil,
         released_on: nil,
         summary:
-          "Components that the DevAction IA screens already ask for: a file tree and a PDF viewer for reviews and contracts, and a one-time code input. Includes the start of the Blade version for Laravel and Livewire projects.",
+          "The Blade version of the kit for Laravel and Livewire projects, starting with the color picker, the slider and the filter menu.",
         position: 1,
         inserted_at: now,
         updated_at: now
       },
       %{
-        version: "v0.1",
+        version: "v0.2",
         status: "current",
+        tag: "v0.2.0",
+        released_on: nil,
+        summary:
+          "#{added} new components for reviews, contracts and the app (file tree, diff view, PDF viewer, one-time code, date range, notifications, plans, cookies, menus and panels), and a round of fixes to the canvas and to the accessibility of the v0.1 components. #{total} components in all.",
+        position: 2,
+        inserted_at: now,
+        updated_at: now
+      },
+      %{
+        version: "v0.1",
+        status: "archived",
         tag: "v0.1.0",
         released_on: nil,
         summary:
-          "First public release: #{length(Catalog.all())} function components for Phoenix LiveView, with light and dark tokens, keyboard navigation and state on the server.",
-        position: 2,
+          "First public release: function components for Phoenix LiveView, with light and dark tokens, keyboard navigation and state on the server.",
+        position: 3,
         inserted_at: now,
         updated_at: now
       }
@@ -166,24 +225,30 @@ defmodule DevactionUISite.Changelog do
   defp code_entries(ids, now) do
     planned =
       for {{name, summary}, index} <- Enum.with_index(@planned, 1),
-          do: row(ids["v0.2"], "planned", "Planned", name, summary, index, now)
+          do: row(ids["v0.3"], "planned", "Planned", name, summary, index, now)
 
     components =
       for {category, topics} <- Catalog.groups(), topic <- topics do
-        {category, topic.slug, Reference.summary(topic.module)}
+        {Catalog.since(topic), category, topic.slug, Reference.summary(topic.module)}
       end
 
     templates =
-      for group <- Templates.groups(), do: {"Templates", group.slug, group.summary}
+      for group <- Templates.groups(), do: {"0.1", "Templates", group.slug, group.summary}
 
     released =
-      (components ++ templates)
-      |> Enum.with_index(1)
-      |> Enum.map(fn {{group, name, summary}, index} ->
-        row(ids["v0.1"], "new", group, name, summary, index, now)
-      end)
+      for {since, rows} <- Enum.group_by(components ++ templates, &elem(&1, 0)),
+          {{_since, group, name, summary}, index} <- Enum.with_index(rows, 1),
+          do: row(ids["v" <> since], "new", group, name, summary, index, now)
 
-    planned ++ released
+    improved =
+      for {{name, summary}, index} <- Enum.with_index(@improved, 1),
+          do: row(ids["v0.2"], "improved", "Improvements", name, summary, 1000 + index, now)
+
+    breaking =
+      for {{name, summary}, index} <- Enum.with_index(@breaking, 1),
+          do: row(ids["v0.2"], "breaking", "Breaking changes", name, summary, 2000 + index, now)
+
+    planned ++ released ++ improved ++ breaking
   end
 
   defp row(version_id, kind, group, name, summary, position, now) do
