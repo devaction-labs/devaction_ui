@@ -132,10 +132,35 @@ defmodule DevactionUISite.DocsLiveTest do
                  "Changelog"
                )
 
-        assert has_element?(view, "#topbar input[placeholder='Search components']")
-        assert has_element?(view, "#theme-toggle")
         refute has_element?(view, "#sidebar")
       end
+    end
+
+    test "the home header has the search, GitHub and the theme toggle" do
+      {:ok, view, _html} = live(build_conn(), "/")
+
+      assert has_element?(
+               view,
+               "#topbar[data-variant=home] input[placeholder='Search components']"
+             )
+
+      assert has_element?(view, "#topbar a[aria-label='DevAction UI on GitHub']")
+      assert has_element?(view, "#theme-toggle")
+      assert has_element?(view, "#topbar nav[aria-label=Main] a[href^='/c/']", "Components")
+    end
+
+    test "the changelog header has the Releases and RSS buttons instead of the search" do
+      {:ok, view, _html} = live(build_conn(), "/changelog")
+
+      assert has_element?(
+               view,
+               "#topbar[data-variant=changelog] a[href$='/releases']",
+               "Releases"
+             )
+
+      assert has_element?(view, "#topbar a[href$='/releases.atom']", "RSS")
+      refute has_element?(view, "#topbar input[type=search]")
+      refute has_element?(view, "#theme-toggle")
     end
 
     test "the header shows the version of the package" do
@@ -159,7 +184,7 @@ defmodule DevactionUISite.DocsLiveTest do
     end
 
     test "the search without a sidebar lists the matches under the field" do
-      {:ok, view, _html} = live(build_conn(), "/changelog")
+      {:ok, view, _html} = live(build_conn(), "/")
 
       view |> form("#search-form", %{q: "kanban"}) |> render_change()
 
