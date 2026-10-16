@@ -78,6 +78,37 @@ defmodule DevactionUI.AuthTest do
     test "the icons of the reasons are hidden from assistive technology" do
       assert layout() =~ ~r/aria-hidden="true"[^>]*>\s*I1/s
     end
+
+    test "the footer and the reasons take their colours from tokens, never a hex" do
+      html = layout()
+
+      assert html =~ "text-(--auth-foot)"
+      assert html =~ "bg-(--auth-feature)"
+      refute html =~ "#8A8A9C"
+      refute html =~ "#17171F"
+    end
+  end
+
+  describe "auth_brand/1" do
+    test "is the tile on the brand tokens, with the symbol hidden, and the name" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <AuthLayout.auth_brand name="DevAction IA" id="brand" data-x="1">
+          <:mark><svg id="mark" /></:mark>
+        </AuthLayout.auth_brand>
+        """)
+
+      assert html =~
+               ~r/<span[^>]*bg-\(--brand-tile\)[^>]*aria-hidden="true"[^>]*>\s*<svg id="mark"/s
+
+      assert html =~ "size-[34px]"
+      assert html =~ "border-(--brand-tile-line)"
+      assert html =~ "DevAction IA"
+      assert html =~ "text-lg font-semibold"
+      assert html =~ ~s(data-x="1")
+    end
   end
 
   describe "AuthCard" do
@@ -154,7 +185,10 @@ defmodule DevactionUI.AuthTest do
         </AuthCard.auth_card>
         """)
 
-      assert html =~ "border-t border-line bg-wrap px-7 py-[18px]"
+      assert html =~
+               "border-t border-(--auth-strip-line) bg-(--auth-strip) px-7 py-[18px]"
+
+      refute html =~ "#16161D"
     end
 
     test "without an icon or a footer neither is drawn" do
