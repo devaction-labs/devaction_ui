@@ -185,6 +185,54 @@ defmodule DevactionUI.InputsTest do
       assert html =~ "All"
     end
 
+    test "the marks fall in equal columns and the nearest one is stressed" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H|<Slider.slider
+  id="s"
+  name="h"
+  label="Rigor"
+  value={3}
+  min={1}
+  max={5}
+  ticks={["Bugs", "Default", "All"]}
+/>|)
+
+      assert html =~ "grid-template-columns: repeat(3, minmax(0, 1fr))"
+      assert html =~ ~r/data-active="true"[^>]*>\s*Default/
+      assert length(Regex.scan(~r/data-active="true"/, html)) == 1
+      assert html =~ "text-left"
+      assert html =~ "text-right"
+      assert Slider.active_tick(0.0, 3) == 0
+      assert Slider.active_tick(100.0, 3) == 2
+      assert Slider.active_tick(30.0, 1) == 0
+    end
+
+    test "the value can be a float, read aloud as text, and follows the thumb when it has a template" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H|<Slider.slider
+  id="s"
+  name="h"
+  label="Cover"
+  value={0.5}
+  min={0.0}
+  max={2.0}
+  step={0.1}
+  value_text="Half"
+  format_text="%{value} x"
+/>|)
+
+      assert html =~ ~s(step="0.1")
+      assert html =~ ~s(aria-valuetext="Half")
+      assert html =~ "0.5 x"
+      assert html =~ ~s(data-format-text="%{value} x")
+      assert html =~ "--p: 25.0%"
+      assert html =~ "text-ink-2"
+    end
+
     test "the percent is where the value sits between the ends" do
       assert Slider.percent(50, 0, 100) == 50.0
       assert Slider.percent(75, 50, 100) == 50.0
@@ -212,6 +260,34 @@ defmodule DevactionUI.InputsTest do
       assert html =~ ~s(aria-label="To")
       assert html =~ "left: 20.0%; width: 50.0%"
       assert html =~ "20 – 70"
+      assert html =~ ~s(phx-hook="DevactionUI.RangePair")
+      assert html =~ "data-fill"
+      refute html =~ "range-pair"
+    end
+
+    test "a range slider takes floats and a text template for its values" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Slider.range_slider
+          id="r"
+          name_low="a"
+          name_high="b"
+          label_low="From"
+          label_high="To"
+          low={0.5}
+          high={1.5}
+          min={0.0}
+          max={2.0}
+          step={0.5}
+          format_text="%{value} h"
+        />
+        """)
+
+      assert html =~ "left: 25.0%; width: 50.0%"
+      assert html =~ "0.5 h – 1.5 h"
+      assert html =~ ~s(data-format-text="%{value} h")
     end
 
     test "the pair is put in order and inside the limits" do
@@ -328,9 +404,16 @@ defmodule DevactionUI.InputsTest do
 
     test "the SVG is the drawing and nothing for an unsafe stroke" do
       svg = SignatureField.to_svg("M1 2 L3 4")
-      assert svg =~ ~s(viewBox="0 0 400 160")
+      assert svg =~ ~s(viewBox="0 0 360 170")
       assert svg =~ ~s(d="M1 2 L3 4")
+      assert svg =~ ~s(stroke="#18181B" stroke-width="2.2")
       assert SignatureField.to_svg("<bad>") == nil
+    end
+
+    test "the SVG takes the colour of the caller, as a hex or currentColor and nothing else" do
+      assert SignatureField.to_svg("M1 2 L3 4", "#FFFFFF") =~ ~s(stroke="#FFFFFF")
+      assert SignatureField.to_svg("M1 2 L3 4", "currentColor") =~ ~s(stroke="currentColor")
+      assert SignatureField.to_svg("M1 2 L3 4", ~s(red" onload="x)) == nil
     end
 
     defp field(mode) do
@@ -361,7 +444,57 @@ defmodule DevactionUI.InputsTest do
       assert html =~ ~s(name="signature[method]" value="draw")
       assert html =~ ~s(aria-pressed="true")
       assert html =~ "Use the mouse"
+      assert html =~ ~s(<line)
+      assert html =~ ~s(stroke-width="2.2")
       refute html =~ ~s(name="signature[typed]")
+      refute html =~ ~s(role="img")
+      assert html =~ ~s(aria-hidden="true")
+    end
+
+    test "the pad stays mounted, only hidden, when the mode is typing" do
+      draw = field(:draw)
+      type = field(:type)
+
+      refute draw =~ ~r/<div[^>]* hidden[^>]*>\s*<div id="sig-pad"/
+
+      assert type =~
+               ~r/<div[^>]* hidden[^>]*>\s*<div id="sig-pad"[^>]*phx-hook="DevactionUI.Signature"/s
+
+      assert type =~ ~s(name="signature[path]")
+    end
+
+    test "the pad has a name, a status, a clear icon, an error and a disabled state when asked for" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <SignatureField.signature_field
+          id="sig"
+          name="signature"
+          label="Sign"
+          mode_event="mode"
+          draw_label="Draw"
+          type_label="Type"
+          clear_label="Clear"
+          pad_label="Signature area"
+          empty_label="Empty"
+          ready_label="Ready"
+          error="Sign here"
+          disabled
+        >
+          <:clear_icon>ERASER</:clear_icon>
+        </SignatureField.signature_field>
+        """)
+
+      assert html =~ ~s(role="img")
+      assert html =~ ~s(aria-label="Signature area")
+      assert html =~ "ERASER"
+      assert html =~ ~s(data-empty="Empty")
+      assert html =~ ~s(data-ready="Ready")
+      assert html =~ ~s(role="alert")
+      assert html =~ "Sign here"
+      assert html =~ "pointer-events-none"
+      assert html =~ ~r/<button[^>]* disabled/
     end
 
     test "typing: the name field and its look, with no pad" do
@@ -371,7 +504,7 @@ defmodule DevactionUI.InputsTest do
       assert html =~ ~s(value="Maria")
       assert html =~ "signature-typed"
       assert html =~ ~s(name="signature[method]" value="type")
-      refute html =~ "DevactionUI.Signature"
+      assert html =~ "h-[110px]"
     end
   end
 end

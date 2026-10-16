@@ -6,5 +6,11 @@
   hint=".mp3, .m4a, .txt · up to 200 MB"
   class="max-w-lg"
 >
-  <:icon><.icon name="upload-04" class="size-5" /></:icon>
+  <:icon><.icon name="upload-04" class="size-5.5" /></:icon>
+  <:entry :let={entry}>
+    <div class="flex flex-col gap-1 text-left text-[13px]">
+      <span class="truncate">{entry.client_name}</span>
+      <.progress value={entry.progress} label={entry.client_name} />
+    </div>
+  </:entry>
 </Dropzone.dropzone>

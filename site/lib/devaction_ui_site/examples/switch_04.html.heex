@@ -17,5 +17,8 @@
     phx-click="switch_toggle"
     phx-value-key={key}
   />
-  <Switch.saved_note :if={@switches.saved} id="switch-saved">Saved now</Switch.saved_note>
+  <Switch.saved_note id="switch-saved" show={@switches.saved}>
+    <:icon><.icon name="checkmark-circle-02" class="size-4" /></:icon>
+    Saved now
+  </Switch.saved_note>
 </div>

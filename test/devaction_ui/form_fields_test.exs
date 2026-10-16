@@ -271,17 +271,29 @@ defmodule DevactionUI.FormFieldsTest do
 
       assert on =~ ~s(type="checkbox")
       assert on =~ "checked"
-      assert on =~ ~s(aria-checked="true")
+      refute on =~ "aria-checked"
       assert on =~ "choice-desc"
 
       partial = rendered_to_string(~H|<Choice.checkbox id="c" checked partial label="L" />|)
       assert partial =~ ~s(data-partial="true")
-      assert partial =~ ~s(aria-checked="mixed")
+      assert partial =~ ~s(phx-hook="DevactionUI.Indeterminate")
+      refute partial =~ "aria-checked"
       refute partial =~ ~r/<input[^>]* checked/
 
       bare = rendered_to_string(~H|<Choice.checkbox id="c" />|)
-      assert bare =~ ~s(aria-checked="false")
+      refute bare =~ "aria-checked"
       refute bare =~ "choice-desc"
+    end
+
+    test "a disabled box reaches the input and the label is medium weight" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H|<Choice.checkbox id="c" label="L" disabled form="f" />|)
+
+      assert html =~ ~r/<input[^>]* disabled/
+      assert html =~ ~s(form="f")
+      assert html =~ "font-medium"
     end
 
     test "a radio shares its name and shows its description" do
@@ -320,6 +332,23 @@ defmodule DevactionUI.FormFieldsTest do
 
       assert box =~ ~s(type="checkbox")
       assert box =~ ~s(class="checkbox")
+    end
+
+    test "a choice card is a row by default and a stack on request" do
+      assigns = %{}
+
+      row = rendered_to_string(~H|<Choice.choice_card id="c" name="p" value="v" label="L" />|)
+      assert row =~ "items-start"
+      refute row =~ "flex-col items-start"
+      refute row =~ "order-first"
+
+      stack =
+        rendered_to_string(
+          ~H|<Choice.choice_card id="c" name="p" value="v" label="L" layout={:stack} />|
+        )
+
+      assert stack =~ "flex-col items-start"
+      assert stack =~ "order-first"
     end
   end
 end

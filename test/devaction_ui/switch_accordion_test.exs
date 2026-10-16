@@ -46,10 +46,44 @@ defmodule DevactionUI.SwitchAccordionTest do
       assert saving =~ ~s(aria-busy="true")
       assert saving =~ ~s(aria-disabled="true")
       refute saving =~ "phx-click"
+      assert saving =~ "animate-spin"
 
       disabled = rendered_to_string(~H|<Switch.switch id="s" disabled phx-click="go" />|)
       assert disabled =~ ~s(aria-disabled="true")
       refute disabled =~ "phx-click"
+      refute disabled =~ "animate-spin"
+    end
+
+    test "a tone with disabled keeps its class and still ignores presses" do
+      assigns = %{}
+
+      html = rendered_to_string(~H|<Switch.switch id="s" tone={:ok} disabled phx-click="go" />|)
+
+      assert html =~ "switch-ok"
+      assert html =~ ~s(aria-disabled="true")
+      refute html =~ "phx-click"
+    end
+
+    test "the icon goes in the thumb with the state, and gives way to the spinner" do
+      assigns = %{}
+
+      on =
+        rendered_to_string(~H"""
+        <Switch.switch id="s" checked>
+          <:icon :let={state}>{to_string(state.checked)}-MARK</:icon>
+        </Switch.switch>
+        """)
+
+      assert on =~ ~r/switch-thumb[^>]*>[^<]*true-MARK/
+
+      saving =
+        rendered_to_string(~H"""
+        <Switch.switch id="s" saving>
+          <:icon :let={_state}>MARK</:icon>
+        </Switch.switch>
+        """)
+
+      refute saving =~ "MARK"
     end
 
     test "a row and a card are named by their label and keep the description" do
@@ -64,25 +98,57 @@ defmodule DevactionUI.SwitchAccordionTest do
       assert row =~ ~s(id="r-label")
       assert row =~ ~s(aria-labelledby="r-label")
       assert row =~ "On Monday"
+      assert row =~ ~s(<label for="r")
+      assert row =~ ~s(aria-describedby="r-description")
+      assert row =~ "leading-[1.45]"
+      refute row =~ "data-disabled"
+
+      dimmed = rendered_to_string(~H|<Switch.switch_row id="r" label="Weekly" disabled />|)
+      assert dimmed =~ ~s(data-disabled="true")
 
       card =
         rendered_to_string(~H"""
         <Switch.switch_card id="c" label="Lessons" checked>
           <:icon>ICON</:icon>
+          <:thumb_icon :let={state}>{to_string(state.checked)}-THUMB</:thumb_icon>
         </Switch.switch_card>
         """)
 
       assert card =~ "switch-card"
-      assert card =~ "ICON"
+      assert card =~ ~r/switch-card-mark[^>]*>\s*ICON/
+      assert card =~ "true-THUMB"
       assert card =~ ~s(aria-checked="true")
       refute card =~ "text-[13px] text-muted"
     end
 
-    test "the confirmation is a status" do
+    test "the confirmation is a status band with its icon" do
       assigns = %{}
-      html = rendered_to_string(~H|<Switch.saved_note id="n">Saved now</Switch.saved_note>|)
+
+      html =
+        rendered_to_string(~H"""
+        <Switch.saved_note id="n">
+          <:icon>TICK</:icon>
+          Saved now
+        </Switch.saved_note>
+        """)
+
       assert html =~ ~s(role="status")
       assert html =~ "Saved now"
+      assert html =~ "TICK"
+      assert html =~ "bg-ok-bg"
+    end
+
+    test "the live region is there even when the confirmation is not" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(
+          ~H|<Switch.saved_note id="n" show={false}>Saved now</Switch.saved_note>|
+        )
+
+      assert html =~ ~s(id="n")
+      assert html =~ ~s(role="status")
+      refute html =~ "Saved now"
     end
   end
 

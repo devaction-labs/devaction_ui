@@ -215,15 +215,19 @@
    DevactionUI component or a screen wears one class and both themes follow the tokens. */
 @layer components {
   /* Switch */
-  .switch    { @apply relative inline-flex h-6 w-10 shrink-0 cursor-pointer items-center rounded-full bg-done p-[3px] transition-colors
+  .switch    { @apply relative inline-flex h-6 w-10 shrink-0 cursor-pointer items-center rounded-full bg-line-strong p-[3px] transition-colors
                      aria-checked:bg-ink aria-disabled:cursor-not-allowed aria-disabled:opacity-40 focus-visible:ring-4 focus-visible:ring-ink/10
-                     after:size-4.5 after:rounded-full after:bg-white after:shadow-sm after:transition-transform aria-checked:after:translate-x-4; }
-  .switch-sm { @apply h-5 w-8 p-0.5 after:size-4 aria-checked:after:translate-x-3; }
-  .switch-lg { @apply h-7 w-12 after:size-5.5 aria-checked:after:translate-x-5; }
-  .switch-ai { @apply aria-checked:bg-chart-2; }
-  .switch-ok { @apply aria-checked:bg-ok-fg; }
-  .switch-row  { @apply flex items-start gap-3.5 border-t border-line-soft py-3 first:border-t-0; }
-  .switch-card { @apply flex items-center gap-3 rounded-[14px] border-[1.5px] border-line bg-card p-3.5 has-[[aria-checked=true]]:border-ink has-[[aria-checked=true]]:bg-wrap/70; }
+                     before:absolute before:-inset-x-1 before:-inset-y-2.5 before:content-['']
+                     *:grid *:size-4.5 *:place-items-center *:rounded-full *:bg-(--switch-thumb) *:text-ink-2 *:shadow-sm *:transition-transform
+                     aria-checked:*:translate-x-4 aria-checked:*:bg-on-primary;
+               --switch-thumb: light-dark(#fff, var(--muted)); }
+  .switch-sm { @apply h-5 w-8 p-0.5 *:size-4 aria-checked:*:translate-x-3; }
+  .switch-lg { @apply h-7 w-12 *:size-5.5 aria-checked:*:translate-x-5; }
+  .switch-ai { @apply aria-checked:bg-chart-2 *:text-chart-2 aria-checked:*:bg-white; }
+  .switch-ok { @apply aria-checked:bg-ok-fg *:text-ok-fg aria-checked:*:bg-white; }
+  .switch-row  { @apply flex items-start gap-3.5 border-t border-line-soft py-3 first:border-t-0 data-[disabled=true]:opacity-50 data-[disabled=true]:[&_.switch]:opacity-100; }
+  .switch-card { @apply flex items-center gap-3 rounded-[14px] border-[1.5px] border-line bg-card p-3.5 has-[[aria-checked=true]]:border-ink has-[[aria-checked=true]]:bg-wrap/70 data-[disabled=true]:opacity-50 data-[disabled=true]:[&_.switch]:opacity-100; }
+  .switch-card-mark { @apply grid size-10 shrink-0 place-items-center rounded-[11px] bg-wrap text-ink-2 [.switch-card:has([aria-checked=true])_&]:bg-ink [.switch-card:has([aria-checked=true])_&]:text-on-primary; }
 
   /* ---------- Formulários completos (prancha 10) ---------- */
   .input-group  { @apply flex h-11 w-full items-center gap-2.5 rounded-xl border border-line-strong bg-panel px-3.5 text-[15px] text-ink
@@ -252,7 +256,7 @@
                      disabled:border-line disabled:bg-wrap focus-visible:ring-4 focus-visible:ring-ink/10; }
   .radio    { @apply size-5 shrink-0 appearance-none rounded-full border-[1.5px] border-muted/70 bg-card
                      checked:border-[6px] checked:border-ink disabled:border-line disabled:bg-wrap focus-visible:ring-4 focus-visible:ring-ink/10; }
-  .choice-label { @apply flex min-h-11 cursor-pointer items-start gap-3 py-2 text-[15px]; }
+  .choice-label { @apply flex min-h-11 cursor-pointer items-start gap-3 py-2 text-[15px] text-ink has-disabled:cursor-not-allowed has-disabled:text-muted-2; }
   .choice-desc  { @apply text-[13px] text-muted; }
   .choice-card  { @apply flex cursor-pointer flex-col gap-2 rounded-[14px] border-[1.5px] border-line bg-card p-3.5 transition
                          hover:border-line-strong has-checked:border-ink has-checked:bg-wrap/70 has-focus-visible:ring-4 has-focus-visible:ring-ink/10; }
@@ -307,7 +311,7 @@
   .accordion-card       { @apply overflow-hidden rounded-[14px] border border-line bg-card open:border-line-strong [&[open]>summary]:bg-wrap/60; }
   .accordion-card > .accordion-panel { @apply border-t border-line-soft px-3.5 pt-1 pl-14; }
   .accordion-panel .accordion { @apply ml-7 border-l border-line; }
-  @media (prefers-reduced-motion: reduce) { .accordion-chevron, .switch, .switch::after { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .accordion-chevron, .switch, .switch > * { transition: none; } }
 
   /* ---------- Drawer flutuante (prancha 13) ---------- */
   .drawer-backdrop { @apply fixed inset-0 z-40 bg-zinc-950/[.42] backdrop-blur-[2px]; }
@@ -361,8 +365,11 @@
   .cmdk-item   { @apply flex min-h-11 items-center gap-3 rounded-[10px] px-2.5 text-sm aria-selected:bg-wrap; }
   .cmdk-footer { @apply flex items-center gap-4 border-t border-line-soft bg-wrap/60 px-4 py-2.5 text-xs text-muted; }
   .segmented   { @apply inline-flex rounded-[11px] border border-line bg-wrap p-[3px]; }
-  .segment     { @apply inline-flex h-8.5 items-center justify-center gap-1.5 rounded-lg px-3 text-sm font-medium text-ink-2
-                        aria-pressed:bg-card aria-pressed:text-ink aria-pressed:shadow-sm; }
+  .segment     { @apply inline-flex h-8.5 items-center justify-center gap-1.5 rounded-lg border border-transparent px-3 text-sm font-medium text-ink-2
+                        disabled:cursor-not-allowed disabled:opacity-40
+                        aria-pressed:border-line aria-pressed:bg-card aria-pressed:text-ink aria-pressed:shadow-xs; }
+  .segmented-sm { @apply rounded-[9px]; }
+  .segmented-sm > .segment { @apply h-7 rounded-md px-2.5 text-[13px]; }
   .segmented-full { @apply flex w-full [&>.segment]:flex-1; }
   .app-shell   { @apply flex min-h-dvh flex-wrap gap-4 bg-frame p-4; }
   .sidebar     { @apply flex w-59 shrink-0 flex-col gap-5 px-1 py-3 transition-[width] data-[collapsed=true]:w-16 data-[responsive=true]:max-md:hidden; }
@@ -379,7 +386,7 @@
   .calendar-event{ @apply flex items-center gap-1.5 truncate rounded-md px-1.5 py-0.5 text-[11px]; }
   .timer         { @apply flex flex-col items-center gap-1.5 rounded-card border border-line bg-wrap/60 p-4.5 data-[running=true]:border-ok-line data-[running=true]:bg-ok-bg/50; }
   .timer-time    { @apply font-mono text-[44px] font-medium tracking-tight tabular-nums; }
-  .signature-pad { @apply h-42 touch-none rounded-xl border border-dashed border-muted/60 bg-wrap/60; }
+  .signature-pad { @apply aspect-[360/170] w-full touch-none rounded-xl border border-dashed border-muted/60 bg-wrap/60; }
   .signature-typed { @apply font-['Caveat',cursive] text-4xl text-ink; }
 
   :root {
@@ -403,8 +410,9 @@
                  background: radial-gradient(closest-side, color-mix(in oklab, var(--ai) 16%, transparent), transparent); }
 
   .color-picker        { @apply relative w-full max-w-75; --cp-color: #2563EB; --cp-hue: #2563EB; }
-  .color-picker-field  { @apply flex h-11.5 items-center gap-2.5 rounded-xl border border-line-strong bg-card px-3 focus-within:border-ink focus-within:ring-4 focus-within:ring-ink/10 data-[invalid=true]:border-missing; }
-  .color-picker-swatch { @apply size-5.5 shrink-0 cursor-pointer rounded-md bg-(--cp-color) shadow-[inset_0_0_0_1px_rgb(0_0_0/0.12)]; }
+  .color-picker-field  { @apply flex h-11 items-center gap-2.5 rounded-xl border border-line-strong bg-card px-3 focus-within:border-ink focus-within:ring-4 focus-within:ring-ink/10 data-[invalid=true]:border-missing has-disabled:border-dashed has-disabled:bg-wrap has-disabled:text-muted; }
+  .color-picker-row    { @apply flex h-9.5 items-center rounded-[10px] bg-wrap px-2.5; }
+  .color-picker-swatch { @apply size-5.5 shrink-0 cursor-pointer disabled:cursor-not-allowed rounded-md bg-(--cp-color) shadow-[inset_0_0_0_1px_rgb(0_0_0/0.12)]; }
   .color-picker-input  { @apply h-full min-w-0 flex-1 bg-transparent font-mono text-sm uppercase outline-none; }
   .color-picker-panel  { @apply absolute top-full left-0 z-50 mt-2 flex w-76 flex-col gap-3 rounded-[14px] border border-line bg-card p-3 shadow-pop; }
   .color-picker-area   { @apply relative h-42 cursor-crosshair touch-none rounded-[10px] outline-none focus-visible:ring-4 focus-visible:ring-ink/15;
@@ -456,35 +464,9 @@
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M5.5 10h9'/%3E%3C/svg%3E");
 }
 
-@keyframes switch-saving {
-  from { opacity: 1; }
-  to { opacity: 0.35; }
-}
-
 .switch[aria-busy="true"] {
   cursor: progress;
-}
-
-.switch[aria-busy="true"]::after {
-  animation: switch-saving 0.8s ease-in-out infinite alternate;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .switch[aria-busy="true"]::after {
-    animation: none;
-    opacity: 0.5;
-  }
-}
-
-/* The thumb is white on a dark track; on the light track of the dark theme (ink flips) it takes the text colour on
-   the fill, and on the amber and green tracks it stays white. */
-.switch[aria-checked="true"]::after {
-  background-color: var(--on-primary);
-}
-
-.switch-ai[aria-checked="true"]::after,
-.switch-ok[aria-checked="true"]::after {
-  background-color: #fff;
+  opacity: 1;
 }
 
 .chart-tip-box {
@@ -621,4 +603,12 @@
   border-radius: 9999px;
   border: 3px solid #fff;
   background: var(--cp-color);
+}
+
+.color-picker-hue::-webkit-slider-thumb {
+  background: var(--cp-hue);
+}
+
+.color-picker-hue::-moz-range-thumb {
+  background: var(--cp-hue);
 }

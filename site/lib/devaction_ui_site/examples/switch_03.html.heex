@@ -1,7 +1,15 @@
-<%!-- title: Tones | text: Default, AI and success, off and on. | layout: center --%>
+<%!-- title: Tones | text: Default, AI and success, off and on, with a mark in the thumb. | layout: center --%>
 <div class="flex flex-wrap items-center gap-6">
   <div :for={tone <- [:default, :ai, :ok]} class="flex items-center gap-3">
-    <Switch.switch id={"switch-tone-#{tone}-off"} label={"#{tone} off"} tone={tone} />
-    <Switch.switch id={"switch-tone-#{tone}-on"} label={"#{tone} on"} tone={tone} checked />
+    <Switch.switch id={"switch-tone-#{tone}-off"} label={"#{tone} off"} tone={tone}>
+      <:icon :let={state}>
+        <.icon name={(state.checked && "tick-02") || "cancel-01"} class="size-3" />
+      </:icon>
+    </Switch.switch>
+    <Switch.switch id={"switch-tone-#{tone}-on"} label={"#{tone} on"} tone={tone} checked>
+      <:icon :let={state}>
+        <.icon name={(state.checked && "tick-02") || "cancel-01"} class="size-3" />
+      </:icon>
+    </Switch.switch>
   </div>
 </div>

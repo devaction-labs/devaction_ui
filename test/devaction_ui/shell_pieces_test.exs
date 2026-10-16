@@ -26,6 +26,8 @@ defmodule DevactionUI.ShellPiecesTest do
       assert html =~ ~s(phx-click="pick")
       assert html =~ ~s(phx-value-value="list")
       assert html =~ ~r/>\s*3\s*</
+      refute html =~ "bg-wrap"
+      assert html =~ "font-mono text-[11px] text-muted"
       assert html =~ ~s(class="segmented )
       refute html =~ "segmented-full"
     end
@@ -43,11 +45,45 @@ defmodule DevactionUI.ShellPiecesTest do
         """)
 
       assert html =~ "segmented-full"
-      assert html =~ "h-7"
+      assert html =~ "segmented-sm"
       assert html =~ ~s(aria-label="Rows")
       assert html =~ "ICON-a"
       assert html =~ "w-9"
       refute html =~ "<span>Rows</span>"
+    end
+
+    test "an option can be disabled, take a class, and patch or navigate instead of the event" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Segmented.segmented id="s" label="L" value="a">
+          <:option value="a" label="A" patch="/list" />
+          <:option value="b" label="B" navigate="/board" class="extra" disabled />
+          <:option value="c" label="C" />
+        </Segmented.segmented>
+        """)
+
+      assert html =~ "&quot;patch&quot;"
+      assert html =~ "/list"
+      assert html =~ "&quot;navigate&quot;"
+      assert html =~ "/board"
+      assert html =~ "extra"
+      assert html =~ ~r/<button[^>]* disabled/
+      refute html =~ "segmented-sm"
+    end
+
+    test "the target goes to every segment" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Segmented.segmented id="s" label="L" value="a" event="e" target="#box">
+          <:option value="a" label="A" />
+        </Segmented.segmented>
+        """)
+
+      assert html =~ ~s(phx-target="#box")
     end
   end
 

@@ -21,11 +21,13 @@ import NumberInput from "./number_input.js"
 import DataTable from "./data_table.js"
 import DatePicker from "./date_picker.js"
 import FilterMenu from "./filter_menu.js"
+import Indeterminate from "./indeterminate.js"
 import Kanban from "./kanban.js"
 import Pillbox from "./pillbox.js"
 import Popover from "./popover.js"
 import ProgressToast from "./progress_toast.js"
 import Range from "./range.js"
+import RangePair from "./range_pair.js"
 import Signature from "./signature.js"
 import Tabs from "./tabs.js"
 import Timer from "./timer.js"
@@ -45,10 +47,12 @@ export const hooks = {
   "DevactionUI.MoneyMask": MoneyMask,
   "DevactionUI.NumberInput": NumberInput,
   "DevactionUI.FilterMenu": FilterMenu,
+  "DevactionUI.Indeterminate": Indeterminate,
   "DevactionUI.Kanban": Kanban,
   "DevactionUI.Pillbox": Pillbox,
   "DevactionUI.Popover": Popover,
   "DevactionUI.Range": Range,
+  "DevactionUI.RangePair": RangePair,
   "DevactionUI.ProgressToast": ProgressToast,
   "DevactionUI.Signature": Signature,
   "DevactionUI.Tabs": Tabs,
