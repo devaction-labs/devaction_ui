@@ -1421,6 +1421,8 @@
   @media (prefers-reduced-motion: reduce) {
     .shell-sidebar, .sidebar-group-chevron, .shell-backdrop, .scroll-area::before, .scroll-area::after { transition: none; }
   }
+}
+
 /* DevactionUI.Composer: the message field of the AI chat, comments and notes. It grows with the text (the hook
    sets the height of the textarea), lights its border on focus, turns red over the limit and dashed amber
    while a file is dragged over it. */
