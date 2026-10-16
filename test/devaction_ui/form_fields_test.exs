@@ -76,7 +76,71 @@ defmodule DevactionUI.FormFieldsTest do
       refute loading =~ ~s(aria-label="Clear")
       refute loading =~ "false"
 
-      assert rendered_to_string(~H|<InputGroup.input_group id="a" loading />|) =~ "…"
+      assert_raise ArgumentError, ~r/loading_label/, fn ->
+        rendered_to_string(~H|<InputGroup.input_group id="a" loading />|)
+      end
+    end
+
+    test "passes the validation attributes and the description of the error to the input" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <InputGroup.input_group
+          id="a"
+          pattern="[a-z]+"
+          minlength="3"
+          form="f"
+          list="opts"
+          invalid
+          aria-describedby="a-error"
+        />
+        """)
+
+      assert html =~ ~s(pattern="[a-z]+")
+      assert html =~ ~s(minlength="3")
+      assert html =~ ~s(form="f")
+      assert html =~ ~s(list="opts")
+      assert html =~ ~s(aria-describedby="a-error")
+    end
+
+    test "an invalid and disabled field says both, a readonly one is plain readonly" do
+      assigns = %{}
+      html = rendered_to_string(~H|<InputGroup.input_group id="a" invalid disabled readonly />|)
+      assert html =~ ~s(aria-invalid="true")
+      assert html =~ "disabled"
+      assert html =~ "readonly"
+    end
+
+    test "add-ons are boxed unless loose, and mono when asked" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <InputGroup.input_group id="a">
+          <:prefix mono>R$</:prefix>
+          <:suffix loose>.devaction.app</:suffix>
+          <:suffix>por marco</:suffix>
+        </InputGroup.input_group>
+        """)
+
+      assert html =~ ~r/class="input-addon font-mono[^"]*">R\$/
+      assert html =~ ~r/class="input-note[^"]*">\.devaction\.app/
+      assert html =~ ~r/class="input-addon[^"]*">por marco/
+    end
+
+    test "the action keeps the phx-click given in rest" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(
+          ~H|<InputGroup.input_action label="Copy" phx-click="copy" phx-value-id="1">
+  X
+</InputGroup.input_action>|
+        )
+
+      assert html =~ ~s(phx-click="copy")
+      assert html =~ ~s(phx-value-id="1")
     end
   end
 

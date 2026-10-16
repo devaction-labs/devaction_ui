@@ -198,15 +198,17 @@
   .switch-card { @apply flex items-center gap-3 rounded-[14px] border-[1.5px] border-line bg-card p-3.5 has-[[aria-checked=true]]:border-ink has-[[aria-checked=true]]:bg-wrap/70; }
 
   /* ---------- Formulários completos (prancha 10) ---------- */
-  .input-group  { @apply flex h-11.5 w-full items-center gap-2.5 rounded-xl border border-line-strong bg-card px-3.5 text-[15px] text-ink
-                         focus-within:border-ink focus-within:ring-4 focus-within:ring-ink/10
-                         has-[[aria-invalid=true]]:border-missing has-[[aria-invalid=true]]:ring-missing/10
+  .input-group  { @apply flex h-11 w-full items-center gap-2.5 rounded-xl border border-line-strong bg-panel px-3.5 text-[15px] text-ink
+                         focus-within:border-ink focus-within:ring-4 focus-within:ring-ink/8
+                         has-[[aria-invalid=true]]:border-missing has-[[aria-invalid=true]]:bg-tag-risk-bg/40 has-[[aria-invalid=true]]:ring-missing/8
+                         has-[input[readonly]]:border-line has-[input[readonly]]:bg-wrap has-[input[readonly]]:font-mono has-[input[readonly]]:text-[13px] has-[input[readonly]]:text-ink-2
                          has-disabled:border-dashed has-disabled:bg-wrap has-disabled:text-muted; }
-  .input-group > input { @apply h-full min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted; }
+  .input-group > input { @apply h-full min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-2; }
   .input-icon   { @apply size-[18px] shrink-0 text-muted; }
   .input-action { @apply -mr-2.5 grid size-9 shrink-0 place-items-center rounded-[9px] text-ink-2 hover:bg-wrap; }
   .input-addon  { @apply -my-px flex h-[calc(100%+2px)] items-center gap-2 border-line-strong bg-wrap px-3 text-sm text-ink-2
                          first:-ml-3.5 first:rounded-l-xl first:border-r last:-mr-3.5 last:rounded-r-xl last:border-l; }
+  .input-note   { @apply shrink-0 text-sm text-muted; }
   .input-sm { @apply h-9 rounded-[10px] px-3 text-[13px]; }
   .input-lg { @apply h-13 rounded-[14px] px-4 text-base; }
 
