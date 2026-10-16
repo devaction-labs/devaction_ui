@@ -280,7 +280,7 @@
   .editor-toolbar-inline { @apply flex flex-wrap items-center gap-0.5; }
   .editor-bar .editor-btn:not([data-ai]) { @apply size-7.5; }
   .editor-sep      { @apply mx-1 h-4.5 w-px bg-line; }
-  .editor-btn      { @apply grid size-8.5 place-items-center rounded-lg text-ink-2 hover:bg-wrap aria-pressed:bg-line aria-pressed:text-ink; }
+  .editor-btn      { @apply grid size-8.5 place-items-center rounded-lg text-ink-2 hover:bg-wrap aria-pressed:bg-line-strong aria-pressed:text-ink; }
   .editor-content  { @apply min-h-40 px-5 py-4 leading-relaxed text-ink-2 outline-none
                             [&_h2]:mb-2 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:text-ink [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-ink
                             [&_ul]:mb-3 [&_ul]:list-disc [&_ul]:pl-5.5 [&_ol]:mb-3 [&_ol]:list-decimal [&_ol]:pl-5.5 [&_p]:mb-3
