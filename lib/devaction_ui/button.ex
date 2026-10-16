@@ -6,7 +6,7 @@ defmodule DevactionUI.Button do
   (what the AI offers), `:danger` (asking for changes), `:info` (leading to something to learn), `:link`.
   `size` is `:sm` (38px), `:md` (46px) or `:lg` (54px); `:sm` is under the 44px of a touch target, so use `:md` on touch screens. With `navigate`, `patch` or `href` it is a link
   that looks like a button; without, a real `<button>`. `loading` shows a spinner and sets `aria-busy`, on the link as well. A disabled link is taken out of the tab order
-  (`tabindex="-1"`) and ignores the pointer. `shape: :round` makes it a pill, or a circle with `icon_only` (44px at `:md`).
+  (`tabindex="-1"`) and ignores the pointer; a disabled button is flat grey in the regular weight. `shape: :round` makes it a pill, or a circle with `icon_only` (44px at `:md`).
 
   It is called as `<Button.button>` (`alias DevactionUI.Button`), not imported, so it does not collide
   with the `button/1` of another UI kit in the same app.
@@ -96,12 +96,15 @@ defmodule DevactionUI.Button do
       gap(assigns.loading),
       size(assigns.size, assigns.icon_only),
       radius(assigns.shape, assigns.size),
-      padding(assigns.size, assigns.icon_only, assigns.variant),
-      weight(assigns.size, assigns.variant),
+      padding(assigns.size, assigns.icon_only, face(assigns)),
+      weight(assigns.size, face(assigns)),
       look(assigns),
       assigns.class
     ]
   end
+
+  defp face(%{disabled: true, loading: false}), do: :flat
+  defp face(assigns), do: assigns.variant
 
   defp gap(true), do: "gap-2.5"
   defp gap(false), do: "gap-2"
@@ -109,8 +112,8 @@ defmodule DevactionUI.Button do
   defp look(%{disabled: true, loading: false}),
     do: "pointer-events-none cursor-not-allowed border border-transparent bg-line text-muted"
 
-  defp look(%{loading: true} = assigns), do: ["cursor-progress", variant(assigns.variant)]
-  defp look(assigns), do: variant(assigns.variant)
+  defp look(%{loading: true} = assigns), do: ["cursor-progress", variant(assigns)]
+  defp look(assigns), do: variant(assigns)
 
   defp size(:sm, false), do: "h-[38px] text-[13px]"
   defp size(:md, false), do: "h-[46px] text-[15px]"
@@ -132,14 +135,27 @@ defmodule DevactionUI.Button do
   defp padding(:lg, false, _variant), do: "px-6"
 
   defp weight(:lg, _variant), do: "font-semibold"
-  defp weight(_size, variant) when variant in [:secondary, :ghost], do: "font-normal"
+  defp weight(_size, variant) when variant in [:secondary, :ghost, :flat], do: "font-normal"
   defp weight(_size, _variant), do: "font-medium"
 
-  defp variant(:primary), do: "bg-ink text-on-primary hover:opacity-90"
-  defp variant(:secondary), do: "border border-line-strong bg-card text-ink hover:bg-wrap"
-  defp variant(:ghost), do: "text-ink-2 hover:bg-wrap"
-  defp variant(:ai), do: "border border-tag-warn-line bg-tag-warn-bg text-tag-warn-text"
-  defp variant(:danger), do: "border border-tag-risk-line bg-tag-risk-bg text-tag-risk-text"
-  defp variant(:info), do: "border border-tag-info-line bg-tag-info-bg text-tag-info-text"
-  defp variant(:link), do: "text-ink hover:text-ink-2"
+  defp variant(%{variant: :primary}), do: "bg-ink text-on-primary hover:opacity-90"
+
+  defp variant(%{variant: :secondary} = assigns),
+    do: ["border bg-card text-ink hover:bg-wrap", edge(assigns.shape, assigns.icon_only)]
+
+  defp variant(%{variant: :ghost}), do: "text-ink-2 hover:bg-wrap"
+
+  defp variant(%{variant: :ai}),
+    do: "border border-tag-warn-line bg-tag-warn-bg text-tag-warn-text"
+
+  defp variant(%{variant: :danger}),
+    do: "border border-tag-risk-line bg-tag-risk-bg text-tag-risk-text"
+
+  defp variant(%{variant: :info}),
+    do: "border border-tag-info-line bg-tag-info-bg text-tag-info-text"
+
+  defp variant(%{variant: :link}), do: "text-ink hover:text-ink-2"
+
+  defp edge(:round, true), do: "border-line"
+  defp edge(_shape, _icon_only), do: "border-line-strong"
 end
