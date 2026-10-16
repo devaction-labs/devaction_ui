@@ -487,7 +487,7 @@
 .chart-tip-box {
   fill: var(--card);
   stroke: var(--line);
-  filter: drop-shadow(0 10px 30px rgb(24 24 27 / 0.12));
+  filter: drop-shadow(0 10px 30px light-dark(rgb(24 24 27 / 0.12), rgb(0 0 0 / 0.5)));
 }
 
 .range {
