@@ -2,6 +2,11 @@ defmodule DevactionUI.Breadcrumb do
   @moduledoc """
   Where the page is: `Today / SGE / PR #142`. The last item is the current page and always carries
   `aria-current="page"`, whether it is a link or plain text.
+
+  The `separator` is text (`"/"` by default) or `:chevron`, a 14px chevron that mirrors itself when the page
+  is right-to-left (`dir="rtl"`); the row itself already runs from the right there. A long trail can be
+  shortened with `max`: it keeps the first item and the last `max - 1`, and the ones between become a `…` that
+  opens a list of them (a native `<details>`, so it needs no JavaScript). Name that `…` with `collapsed_label`.
   """
   use Phoenix.Component
 
@@ -14,23 +19,108 @@ defmodule DevactionUI.Breadcrumb do
     doc:
       "`%{label: ..., to: path}` each; `to` navigates to another LiveView, `patch` patches this one and `href` is a plain link. An item with none of them is plain text"
 
+  attr :separator, :any,
+    default: "/",
+    doc: "the text between items, or `:chevron` for a chevron that follows the reading direction"
+
+  attr :max, :integer,
+    default: nil,
+    doc:
+      "how many items are drawn at most (2 or more); the first and the last `max - 1` stay, the middle collapses"
+
+  attr :collapsed_label, :string,
+    default: nil,
+    doc: "the name of the `…` that holds the collapsed items; give it whenever `max` is set"
+
   attr :class, :any, default: nil
   attr :rest, :global
 
   @doc "The trail of pages up to the current one."
   @spec breadcrumb(map()) :: Phoenix.LiveView.Rendered.t()
   def breadcrumb(assigns) do
-    assigns = assign(assigns, :last, length(assigns.items) - 1)
+    assigns = assign(assigns, :entries, entries(assigns.items, assigns.max))
 
     ~H"""
     <nav aria-label={@label} class={["text-sm text-muted", @class]} {@rest}>
       <ol class="m-0 flex list-none flex-wrap items-center gap-2.5 p-0">
-        <li :for={{item, index} <- Enum.with_index(@items)} class="flex items-center gap-2.5">
-          <span :if={index > 0} aria-hidden="true">/</span>
-          <.crumb item={item} current={index == @last} />
+        <li :for={{entry, index} <- Enum.with_index(@entries)} class="flex items-center gap-2.5">
+          <.separator :if={index > 0} separator={@separator} />
+          <.entry entry={entry} collapsed_label={@collapsed_label} />
         </li>
       </ol>
     </nav>
+    """
+  end
+
+  defp entries(items, max) do
+    last = length(items) - 1
+    indexed = for {item, index} <- Enum.with_index(items), do: {:crumb, item, index == last}
+    collapse(indexed, max)
+  end
+
+  defp collapse(entries, max) when is_nil(max), do: entries
+  defp collapse(entries, max) when length(entries) <= max, do: entries
+
+  defp collapse([first | rest], max) do
+    keep = max(max, 2) - 1
+    {hidden, tail} = Enum.split(rest, length(rest) - keep)
+    more = for {:crumb, item, _current} <- hidden, do: item
+    [first, {:more, more} | tail]
+  end
+
+  attr :separator, :any, required: true
+
+  defp separator(%{separator: :chevron} = assigns) do
+    ~H"""
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+      class="size-3.5 shrink-0 rtl:-scale-x-100"
+    >
+      <path d="m9 6 6 6-6 6" />
+    </svg>
+    """
+  end
+
+  defp separator(assigns) do
+    ~H"""
+    <span aria-hidden="true">{@separator}</span>
+    """
+  end
+
+  attr :entry, :any, required: true
+  attr :collapsed_label, :string, required: true
+
+  defp entry(%{entry: {:crumb, item, current}} = assigns) do
+    assigns = assign(assigns, item: item, current: current)
+
+    ~H"""
+    <.crumb item={@item} current={@current} />
+    """
+  end
+
+  defp entry(%{entry: {:more, hidden}} = assigns) do
+    assigns = assign(assigns, :hidden, hidden)
+
+    ~H"""
+    <details class="group relative">
+      <summary
+        aria-label={@collapsed_label}
+        class="flex h-6 min-w-6 cursor-pointer list-none items-center justify-center rounded-sm outline-none marker:hidden hover:text-ink focus-visible:ring-4 focus-visible:ring-ink/10 [&::-webkit-details-marker]:hidden"
+      >
+        <span aria-hidden="true">…</span>
+      </summary>
+      <ol class="absolute start-0 z-40 mt-1.5 flex min-w-40 list-none flex-col gap-1 rounded-[14px] border border-line bg-card p-2 shadow-pop">
+        <li :for={item <- @hidden}>
+          <.crumb item={item} current={false} />
+        </li>
+      </ol>
+    </details>
     """
   end
 
