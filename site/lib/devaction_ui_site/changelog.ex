@@ -77,15 +77,22 @@ defmodule DevactionUISite.Changelog do
 
   @releases [
     %{
-      version: "v0.3",
+      version: "v0.4",
       status: "next",
       tag: nil,
       summary:
-        "The layout theme (a shell with a collapsing sidebar and a scroll area) and the Blade version of the kit for Laravel and Livewire projects, starting with the color picker, the slider and the filter menu."
+        "The Blade version of the kit for Laravel and Livewire projects, starting with the color picker, the slider and the filter menu."
+    },
+    %{
+      version: "v0.3.0",
+      status: "current",
+      tag: "v0.3.0",
+      summary:
+        "The layout theme: a shell with a collapsing sidebar and six layouts, a scroll area, the composer and the row menu, with a pinned first column and actions in the data table."
     },
     %{
       version: "v0.2.6",
-      status: "current",
+      status: "archived",
       tag: "v0.2.6",
       summary:
         "The site shows the full version in its chips, and the footer dedication is in English with a glow that passes between the letters."
@@ -275,7 +282,7 @@ defmodule DevactionUISite.Changelog do
     total = length(Catalog.all())
     added = Enum.count(Catalog.all(), &(Catalog.since(&1) == "0.2"))
 
-    Repo.delete_all(from(version in Version, where: version.version in ["v0.1", "v0.2"]))
+    Repo.delete_all(from(version in Version, where: version.version in ["v0.1", "v0.2", "v0.3"]))
 
     versions =
       for {release, index} <- Enum.with_index(@releases, 1) do
@@ -316,7 +323,7 @@ defmodule DevactionUISite.Changelog do
   defp code_entries(ids, now) do
     planned =
       for {{name, summary}, index} <- Enum.with_index(@planned, 1),
-          do: row(ids["v0.3"], "planned", "Planned", name, summary, index, now)
+          do: row(ids["v0.4"], "planned", "Planned", name, summary, index, now)
 
     components =
       for {category, topics} <- Catalog.groups(), topic <- topics do
@@ -346,12 +353,12 @@ defmodule DevactionUISite.Changelog do
 
     improved_next =
       for {{name, summary}, index} <- Enum.with_index(@improved_next, 1),
-          do: row(ids["v0.3"], "improved", "Improvements", name, summary, 1000 + index, now)
+          do: row(ids["v0.3.0"], "improved", "Improvements", name, summary, 1000 + index, now)
 
     planned ++ released ++ improved_next ++ improved ++ breaking ++ patches
   end
 
-  defp release_key("0.3"), do: "v0.3"
+  defp release_key("0.3"), do: "v0.3.0"
   defp release_key(since), do: "v#{since}.0"
 
   defp row(version_id, kind, group, name, summary, position, now) do

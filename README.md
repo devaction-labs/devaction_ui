@@ -46,7 +46,7 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 
 ## Using it in a project
 
-    {:devaction_ui, "~> 0.2.0"}
+    {:devaction_ui, "~> 0.3.0"}
 
 1. CSS: `@import "../../deps/devaction_ui/assets/css/devaction_ui.css";` in the app's Tailwind entry. The
    stylesheet itself tells Tailwind to read the components and the hooks (some classes live in the JS),
@@ -126,6 +126,7 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 | `DevactionUI.Avatar` | two letters in a circle (`initials/1`) and a stack that overlaps by 8px, named once as a group, and `group/1` (rounded squares overlapping by a quarter, status dots, a `+N` chip, a caption) |
 | `DevactionUI.ChatBubble` | one message with the AI (left, with its mark) or the person (right, in ink); amber when the AI did something |
 | `DevactionUI.AiPrompt` | the ink pill that talks to the AI: amber dot, required field, round send button; `loading`, `disabled`, `streaming` with a stop button, an `attachments` slot and a `target`; a form, so Enter sends |
+| `DevactionUI.Composer` | the message field of the AI chat, comments and notes: grows with the text up to `max_rows`, Enter sends and Shift + Enter breaks the line, a counter and a red card over `max_length`, `busy` turns send into stop (button or Esc, `stop_event`), files pasted or dropped go to a LiveView `upload` and show as `file/1` chips, `button/1` for the row of actions; the server empties it with `push_event("composer:clear", %{id: id})` |
 | `DevactionUI.Sidebar` | the app's side menu, 236 px or 64 px collapsed with tooltips; `aria-current`, a toned `count` per item, collapsible `group`s, `responsive` to keep it on small screens; `Sidebar.search` (with the key hint) and `Sidebar.user` (avatar, name, menu trigger) for its header and footer |
 | `DevactionUI.Shell` | the frame of an app: a sidebar that collapses to a rail (⌘B or Ctrl+B, the `dui_sidebar` cookie, a drawer below 1024px), a header and a panel; variants `classic`, `topbar`, `split`, `centered` and `docs`; `sidebar_head`, `sidebar_nav`, `sidebar_group`, `sidebar_item` and `sidebar_foot`; `Shell.SidebarCookie` (a plug) and `Shell.on_mount/4` render the saved state on the first paint (the `DevactionUI.Shell` hook) |
 | `DevactionUI.ScrollArea` | an area with its own thin scrollbar and a shadow only at the edges that still have content, which the `DevactionUI.ScrollArea` hook marks; `DataTable` columns take `sticky={:start}` or `sticky={:end}` and use it too |
@@ -135,6 +136,7 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 | `DevactionUI.MoneyInput` | a field masked as `R$ 1.234,56` (`DevactionUI.MoneyMask` hook); `parse/1` returns the cents |
 | `DevactionUI.Dropdown` | a button with a menu of actions or choices (radio items with a check), ↑ ↓ Home End Esc |
 | `DevactionUI.ContextMenu` | the menu of a right click or Shift + F10 on an area, placed at the pointer and kept inside the window, with the items of a `Dropdown` (icons, shortcuts, separators, danger), roving focus and typeahead; with a `more` slot the same items also open from a "···" button |
+| `DevactionUI.RowMenu` | the "..." menu of a table row: a `Dropdown` with `fixed` on, so it opens as `position: fixed` from the rectangle of the button and no `overflow` of a table or scroll area cuts it; above the button when there is no room below, closed by a scroll or a resize |
 | `DevactionUI.HoverCard` | a card on a dotted-underline trigger that opens after 400 ms of pointer or on focus, closes with a delay so the pointer can reach it, Esc dismisses it, a tap opens it on touch (WCAG 1.4.13) |
 | `DevactionUI.ConfirmDialog` | the modal that asks before something that cannot be taken back; focus trapped, Esc closes |
 | `DevactionUI.Dropzone` | the dashed area over a LiveView upload; lights up (and announces it) while a file is over it, writes the limits from the upload config, lists each file with a progress bar and a remove button; `queue/1` adds the gridded area and a row per file (sent, uploading, stopped with Try again, queued, refused), the summary and Clear finished |

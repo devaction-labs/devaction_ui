@@ -1,0 +1,19 @@
+<%!-- title: Basic | text: The field grows with the text up to `max_rows` lines. Enter sends, Shift + Enter breaks the line, and the server empties the field with `composer:clear`. --%>
+<div class="flex w-full max-w-xl flex-col gap-3">
+  <Composer.composer
+    id="composer-basic"
+    event="composer_send"
+    change_event="composer_change"
+    label="Message"
+    send_label="Send"
+    stop_label="Stop"
+    placeholder="Ask about the project..."
+    max_rows={6}
+  >
+    <:icon><.icon name="arrow-up-02" class="size-4" /></:icon>
+    <:stop><.icon name="stop" class="size-4" /></:stop>
+  </Composer.composer>
+  <ul class="m-0 flex list-none flex-col gap-1.5 p-0 text-sm text-ink-2" aria-live="polite">
+    <li :for={message <- @composer.sent} class="whitespace-pre-wrap">{message.text}</li>
+  </ul>
+</div>

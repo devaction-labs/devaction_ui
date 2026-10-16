@@ -1,0 +1,41 @@
+<%!-- title: Files | text: Paste or drop files on the card, or use the clip. LiveView uploads them (`allow_upload`) and each one is a chip in the `header` slot with a button to remove it. --%>
+<div class="flex w-full max-w-xl flex-col gap-3">
+  <Composer.composer
+    id="composer-files"
+    event="composer_send"
+    change_event="composer_change"
+    label="Message"
+    send_label="Send"
+    stop_label="Stop"
+    placeholder="Write a message, then paste or drop a file..."
+    upload={@uploads.attachments}
+  >
+    <:header :if={@uploads.attachments.entries != []}>
+      <Composer.file
+        :for={entry <- @uploads.attachments.entries}
+        entry={entry}
+        remove_label={"Remove #{entry.client_name}"}
+        cancel_event="composer_cancel"
+      >
+        <:icon><.icon name="cancel-01" class="size-2.5" /></:icon>
+      </Composer.file>
+    </:header>
+    <:leading>
+      <Composer.button label="Attach a file" upload={@uploads.attachments}>
+        <:icon><.icon name="attachment-01" /></:icon>
+      </Composer.button>
+    </:leading>
+    <:trailing>
+      <Composer.button label="Dictate" variant={:filled}>
+        <:icon><.icon name="mic-01" /></:icon>
+      </Composer.button>
+    </:trailing>
+    <:icon><.icon name="arrow-up-02" class="size-4" /></:icon>
+    <:stop><.icon name="stop" class="size-4" /></:stop>
+  </Composer.composer>
+  <ul class="m-0 flex list-none flex-col gap-1.5 p-0 text-sm text-ink-2" aria-live="polite">
+    <li :for={message <- @composer.sent}>
+      {message.text} <span class="text-muted">{Enum.join(message.files, ", ")}</span>
+    </li>
+  </ul>
+</div>
