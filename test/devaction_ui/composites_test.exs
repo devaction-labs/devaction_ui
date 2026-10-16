@@ -152,7 +152,6 @@ defmodule DevactionUI.CompositesTest do
           <:item event="export" separator shortcut="⌘E">Export</:item>
           <:item event="drop" danger>Archive</:item>
           <:item navigate="/somewhere">Go</:item>
-          <:check_icon>✓</:check_icon>
         </Dropdown.dropdown>
         """)
 
@@ -172,14 +171,57 @@ defmodule DevactionUI.CompositesTest do
       assert length(Regex.scan(~r/role="menuitem"/, html)) == 3
     end
 
-    test "the chosen item has the check, a separator and a shortcut are drawn, a link goes", %{
-      html: html
-    } do
-      assert html =~ "✓"
+    test "a choice has the 16px ring that fills when chosen, a separator and a shortcut are drawn, a link goes",
+         %{html: html} do
+      assert html =~ "group-aria-checked/item:border-[5px]"
       assert html =~ ~s(role="separator")
       assert html =~ "⌘E"
       assert html =~ ~s(href="/somewhere")
       assert html =~ "text-tag-risk-text"
+    end
+
+    test "the menu is 220px with the menu shadow and opens below", %{html: html} do
+      assert html =~ "w-55"
+      assert html =~ "shadow-menu"
+      assert html =~ ~s(data-side="bottom")
+      assert html =~ "h-[42px]"
+    end
+
+    defp render_dropdown(attrs) do
+      assigns = %{attrs: attrs}
+
+      rendered_to_string(~H"""
+      <Dropdown.dropdown id="d" label="Menu" {@attrs}>
+        <:trigger>Menu</:trigger>
+        <:item event="a" heading="Group">A</:item>
+        <:item event="b" disabled>B</:item>
+        <:item patch="/p">P</:item>
+        <:item href="https://example.com">H</:item>
+      </Dropdown.dropdown>
+      """)
+    end
+
+    test "the small button is 38px with radius 10 and align end puts the menu at the right" do
+      html = render_dropdown(size: :sm, align: :end)
+      assert html =~ "h-[38px]"
+      assert html =~ "rounded-[10px]"
+      assert html =~ "right-0"
+    end
+
+    test "the trigger can be an icon-only square with its own name and classes" do
+      html = render_dropdown(variant: :icon, trigger_label: "More", trigger_class: "extra")
+      assert html =~ ~s(aria-label="More")
+      assert html =~ "size-[42px]"
+      assert html =~ "extra"
+      refute html =~ "border-line-strong px-3.5"
+    end
+
+    test "a heading captions the item, a disabled one is out of the keys, links go to patch and href" do
+      html = render_dropdown([])
+      assert html =~ ~r/role="presentation"[^>]*>\s*Group/
+      assert html =~ ~r/aria-disabled="true"[^>]*disabled|disabled[^>]*aria-disabled="true"/
+      assert html =~ ~s(data-phx-link="patch")
+      assert html =~ ~s(href="https://example.com")
     end
   end
 

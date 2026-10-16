@@ -1,10 +1,14 @@
 import {runKey, wrap} from "./keys.js"
+import {chooseSide} from "./popover_logic.js"
+
+const ITEM = '[role^="menuitem"]:not([aria-disabled="true"])'
 
 /**
  * The keys and the opening of `Dropdown`: the button opens the menu and puts the focus on the chosen item
  * (or the first); ↑ ↓ move round the items, Home and End go to the ends, Esc closes and gives the focus
  * back to the button, Tab closes, a click outside closes, and choosing an item closes it. Items are the
- * `[role^="menuitem"]` buttons and links; the server draws which one is checked.
+ * `[role^="menuitem"]` buttons and links that are not disabled; the server draws which one is checked. The
+ * menu opens above the button when there is no room below it.
  */
 export default {
   mounted() {
@@ -14,7 +18,7 @@ export default {
     this.trigger.addEventListener("click", () => (this.menu.hidden ? this.open() : this.close(true)))
     this.trigger.addEventListener("keydown", (event) => this.onTriggerKey(event))
     this.menu.addEventListener("keydown", (event) => this.onMenuKey(event))
-    this.menu.addEventListener("click", (event) => event.target.closest('[role^="menuitem"]') && this.close(true))
+    this.menu.addEventListener("click", (event) => event.target.closest(ITEM) && this.close(true))
     this.outside = (event) => !this.el.contains(event.target) && this.close(false)
     document.addEventListener("mousedown", this.outside)
   },
@@ -24,7 +28,7 @@ export default {
   },
 
   items() {
-    return [...this.menu.querySelectorAll('[role^="menuitem"]')]
+    return [...this.menu.querySelectorAll(ITEM)]
   },
 
   focusItem(index) {
@@ -60,8 +64,15 @@ export default {
     )
   },
 
+  place() {
+    const {top, bottom} = this.trigger.getBoundingClientRect()
+    const room = {panel: this.menu.offsetHeight, above: top, below: window.innerHeight - bottom}
+    this.menu.dataset.side = chooseSide("bottom", room)
+  },
+
   open() {
     this.menu.hidden = false
+    this.place()
     this.trigger.setAttribute("aria-expanded", "true")
     const chosen = this.items().findIndex((item) => item.getAttribute("aria-checked") === "true")
     this.focusItem(Math.max(chosen, 0))
