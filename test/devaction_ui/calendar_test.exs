@@ -38,9 +38,9 @@ defmodule DevactionUI.CalendarTest do
     end
 
     test "the title is neutral for a month and a week" do
-      assert Calendar.title(~D[2026-10-15], :month) == "2026-10"
-      assert Calendar.title(~D[2026-10-15], :week) == "2026-10-11 – 2026-10-17"
-      assert Calendar.title(~D[2026-10-15], :week, :monday) == "2026-10-12 – 2026-10-18"
+      assert Calendar.title(~D[2026-10-15], :month) == "10/2026"
+      assert Calendar.title(~D[2026-10-15], :week) == "11/10 – 17/10/2026"
+      assert Calendar.title(~D[2026-10-15], :week, :monday) == "12/10 – 18/10/2026"
     end
   end
 
@@ -51,6 +51,7 @@ defmodule DevactionUI.CalendarTest do
           %{
             date: ~D[2026-10-15],
             view: :month,
+            cell_label: nil,
             selected: nil,
             today: ~D[2026-10-15],
             events: [
@@ -74,6 +75,7 @@ defmodule DevactionUI.CalendarTest do
         today={@today}
         selected={@selected}
         events={@events}
+        cell_label={@cell_label}
         weekdays={~w(S M T W T F S)}
         more_label="+%{count} more"
         prev_label="Previous"
@@ -120,9 +122,9 @@ defmodule DevactionUI.CalendarTest do
 
       assert html =~ ~r/id="c-day-2026-10-15"[^>]*aria-current="date"/s
       assert html =~ "bg-ink font-semibold"
-      assert html =~ "bg-wrap/40 text-muted"
-      assert html =~ ~s(aria-label="2026-10-15: M3, Invoice, Review, Extra")
-      assert html =~ ~s(aria-label="2026-10-03")
+      assert html =~ "bg-wrap/40 text-muted-2"
+      assert html =~ ~s(aria-label="15/10/2026: M3, Invoice, Review, Extra")
+      assert html =~ ~s(aria-label="03/10/2026")
     end
 
     test "events are chips coloured by kind, three at most with the rest counted" do
@@ -135,6 +137,22 @@ defmodule DevactionUI.CalendarTest do
       assert html =~ "tag-warn"
       assert html =~ "tag-info"
       assert html =~ "tag-risk"
+    end
+
+    test "a cell is named by the function of the caller" do
+      html = calendar(%{cell_label: fn day, events -> "#{day.day}/#{length(events)}" end})
+
+      assert html =~ ~s(aria-label="15/4")
+      assert html =~ ~s(aria-label="2/1")
+    end
+
+    test "days of the other months show no events, and the dot is nearly square" do
+      html =
+        calendar(%{events: [%{id: "x", date: ~D[2026-09-29], label: "Out", kind: :ok}]})
+
+      refute html =~ ~s(data-event="x")
+      refute html =~ "Out"
+      assert calendar() =~ "rounded-[2px]"
     end
 
     test "the week view lists every event of its days" do
