@@ -212,9 +212,11 @@
   .input-sm { @apply h-9 rounded-[10px] px-3 text-[13px]; }
   .input-lg { @apply h-13 rounded-[14px] px-4 text-base; }
 
-  .textarea        { @apply overflow-hidden rounded-[14px] border border-line-strong bg-card focus-within:border-ink focus-within:ring-4 focus-within:ring-ink/10; }
-  .textarea > textarea { @apply block w-full resize-y bg-transparent px-3.5 py-3 leading-relaxed outline-none [field-sizing:content] min-h-24 max-h-80; }
-  .textarea-footer { @apply flex items-center gap-1 border-t border-line-soft bg-wrap/60 px-2 py-1.5; }
+  .textarea        { @apply overflow-hidden rounded-xl border border-line-strong bg-panel has-[.textarea-footer]:rounded-[14px] focus-within:border-ink focus-within:ring-4 focus-within:ring-ink/8
+                         has-[[aria-invalid=true]]:border-missing has-[[aria-invalid=true]]:bg-tag-risk-bg/40 has-[[aria-invalid=true]]:ring-missing/8
+                         has-disabled:border-dashed has-disabled:bg-wrap has-disabled:text-muted; }
+  .textarea > textarea { @apply block w-full resize-y bg-transparent px-3.5 py-3 text-[15px] leading-[1.55] outline-none placeholder:text-muted-2 [field-sizing:content] min-h-[calc(var(--rows,3)*1lh+1.5rem)] max-h-[calc(12*1lh+1.5rem)]; }
+  .textarea-footer { @apply flex items-center gap-1 border-t border-line-soft bg-wrap/60 py-1.5 pr-2 pl-2.5; }
   .textarea-count  { @apply ml-auto font-mono text-xs text-muted data-[over=true]:text-risk-fg; }
 
   .checkbox { @apply grid size-5 shrink-0 appearance-none place-content-center rounded-md border-[1.5px] border-muted/70 bg-card

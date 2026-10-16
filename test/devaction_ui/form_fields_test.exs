@@ -190,13 +190,67 @@ defmodule DevactionUI.FormFieldsTest do
       refute html =~ "textarea-count"
     end
 
-    test "says it is wrong and looks disabled" do
+    test "the error is on the textarea only, for the frame to draw the ring" do
       assigns = %{}
       html = rendered_to_string(~H|<Textarea.textarea id="t" invalid disabled />|)
 
-      assert html =~ ~s(aria-invalid="true")
-      assert html =~ "border-missing"
-      assert html =~ "border-dashed"
+      assert [_] = Regex.scan(~r/aria-invalid="true"/, html)
+      assert html =~ ~r/<textarea[^>]*aria-invalid="true"/
+      refute html =~ ~r/<div[^>]*aria-invalid/
+      assert html =~ "disabled"
+    end
+
+    test "rows is the least height" do
+      assigns = %{}
+      assert rendered_to_string(~H|<Textarea.textarea id="t" rows={2} />|) =~ "--rows: 2"
+    end
+
+    test "the counter describes the field and joins the description the caller gives" do
+      assigns = %{}
+
+      html = rendered_to_string(~H|<Textarea.textarea id="t" maxlength={10} />|)
+      assert html =~ ~s(aria-describedby="t-count")
+      assert html =~ ~s(aria-live="off")
+
+      html =
+        rendered_to_string(
+          ~H|<Textarea.textarea id="t" maxlength={10} value="123456789" aria-describedby="t-help" />|
+        )
+
+      assert html =~ ~s(aria-describedby="t-help t-count")
+      assert html =~ ~s(aria-live="polite")
+      assert [_] = Regex.scan(~r/aria-describedby/, html)
+
+      refute rendered_to_string(~H|<Textarea.textarea id="t" />|) =~ "aria-describedby"
+    end
+
+    test "takes minlength, form and wrap" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H|<Textarea.textarea id="t" minlength="5" form="f" wrap="soft" />|)
+
+      assert html =~ ~s(minlength="5")
+      assert html =~ ~s(form="f")
+      assert html =~ ~s(wrap="soft")
+    end
+
+    test "a footer button is 34px, with an AI look and what the caller gives in rest" do
+      assigns = %{}
+
+      plain =
+        rendered_to_string(
+          ~H|<Textarea.footer_button label="Attach" phx-click="attach">A</Textarea.footer_button>|
+        )
+
+      ai =
+        rendered_to_string(
+          ~H|<Textarea.footer_button label="Improve" variant={:ai}>I</Textarea.footer_button>|
+        )
+
+      assert plain =~ "h-[34px]"
+      assert plain =~ ~s(phx-click="attach")
+      assert ai =~ "tag-warn-bg"
     end
   end
 
