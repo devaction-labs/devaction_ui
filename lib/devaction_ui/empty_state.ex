@@ -60,7 +60,7 @@ defmodule DevactionUI.EmptyState do
       >
         {@title}
       </.heading>
-      <p :if={@text} class="relative m-0 max-w-[400px] text-sm leading-normal text-ink-2">{@text}</p>
+      <p :if={@text} class="relative m-0 max-w-[400px] text-sm leading-[1.55] text-ink-2">{@text}</p>
       <span
         :if={@action != [] or @secondary != []}
         class="relative mt-1.5 flex flex-wrap justify-center gap-2"
@@ -100,7 +100,7 @@ defmodule DevactionUI.EmptyState do
       <span :if={@icon != []} class="size-5.5 text-muted" aria-hidden="true">
         {render_slot(@icon)}
       </span>
-      <span class="font-medium text-ink">{@title}</span>
+      <span class="text-sm font-medium text-ink">{@title}</span>
       <span :if={@text} class="text-[13px] text-muted">{@text}</span>
       <div :if={@action != []} class="mt-1.5">{render_slot(@action)}</div>
     </div>
