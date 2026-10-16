@@ -1,4 +1,4 @@
-import {clampMin, daysInMonth, leadingDays, toIso} from "./dates.js"
+import {bandCell, clampMin, daysInMonth, leadingDays, toIso, weekdayIndex} from "./dates.js"
 
 const ESCAPES = {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}
 
@@ -58,6 +58,68 @@ export const renderCalendar = (state, text) => {
     `<div role="group" aria-label="${escapeHtml(text.title)}" class="mt-2 grid grid-cols-7 gap-0.5 text-center">` +
     text.weekdays.map((name) => `<span class="py-1 font-mono text-[11px] text-muted">${escapeHtml(name)}</span>`).join("") +
     "<span></span>".repeat(leadingDays(view, weekStart)) +
+    days.join("") +
+    "</div>"
+  )
+}
+
+const RANGE_NAV =
+  "grid size-7 shrink-0 place-items-center rounded-lg border border-line bg-card text-ink outline-none hover:bg-wrap focus-visible:ring-2 focus-visible:ring-ink/20"
+
+/** The classes of a day of the range calendar: an end of the range is inverted, a day out of reach is dimmed. */
+export const rangeDayClass = ({edge, off}) =>
+  [
+    "relative size-[38px] rounded-[10px] text-[13px] outline-none focus-visible:ring-2 focus-visible:ring-ink/30",
+    edge && "bg-ink font-semibold text-on-primary",
+    !edge && !off && "text-ink hover:outline hover:outline-1 hover:outline-done",
+    !edge && off && "cursor-not-allowed text-muted-2",
+  ]
+    .filter(Boolean)
+    .join(" ")
+
+/** The classes of the band behind a day: painted between the ends of the range, rounded at them and at the ends of the week. */
+export const bandClass = ({paints, roundStart, roundEnd}) =>
+  [paints && "bg-wrap", roundStart && "rounded-l-[10px]", roundEnd && "rounded-r-[10px]"].filter(Boolean).join(" ")
+
+const dayCell = (state, text, iso, number) => {
+  const {from, to, today, min, weekStart} = state
+  const focus = clampMin(state.focus, min)
+  const band = bandCell({from, to}, iso, weekdayIndex(iso, weekStart))
+  const off = min !== null && min !== undefined && iso < min
+  const dot = iso === today ? `<span class="absolute bottom-[5px] left-1/2 -ml-0.5 size-1 rounded-full ${band.edge ? "bg-on-primary" : "bg-ai"}"></span>` : ""
+
+  return (
+    `<span class="flex h-[38px] items-center justify-center ${bandClass(band)}">` +
+    `<button type="button" data-day="${iso}" ${off ? "disabled" : ""} aria-pressed="${band.edge}" ` +
+    `aria-label="${escapeHtml(text.dayLabel(iso))}" tabindex="${iso === focus ? 0 : -1}" ` +
+    `${iso === today ? 'aria-current="date"' : ""} class="${rangeDayClass({edge: band.edge, off})}">${number}${dot}</button></span>`
+  )
+}
+
+/**
+ * One month of the range calendar as HTML: its title with the month button on its outer side (`state.previous`
+ * on the first month, `state.next` on the second), the weekday names and a cell per day with the band of the
+ * range behind it. `state.from` and `state.to` are the range as shown (the preview while the pointer hovers a day);
+ * the words come in `text`, already formatted, as for `renderCalendar`.
+ *
+ * @param {{view: {year: number, month: number}, from: ?string, to: ?string, focus: string, today: string, min: ?string, weekStart: number, previous?: boolean, next?: boolean}} state
+ * @param {{title: string, weekdays: string[], previousLabel: string, nextLabel: string, dayLabel: (iso: string) => string, previousIcon?: string, nextIcon?: string}} text
+ */
+export const renderRangeMonth = (state, text) => {
+  const {view, weekStart} = state
+  const nav = (direction, label, icon, fallback) =>
+    `<button type="button" data-nav="${direction}" aria-label="${escapeHtml(label)}" class="${RANGE_NAV}">${icon ?? fallback}</button>`
+  const days = [...Array(daysInMonth(view))].map((_, index) => dayCell(state, text, toIso(view.year, view.month, index + 1), index + 1))
+
+  return (
+    `<div class="flex h-[30px] items-center">` +
+    (state.previous ? nav(-1, text.previousLabel, text.previousIcon, "‹") : "") +
+    `<span class="flex-1 text-center text-sm font-semibold" aria-live="polite">${escapeHtml(text.title)}</span>` +
+    (state.next ? nav(1, text.nextLabel, text.nextIcon, "›") : "") +
+    `</div>` +
+    `<div role="group" aria-label="${escapeHtml(text.title)}" class="mt-2.5 grid grid-cols-7 gap-y-0.5 text-center">` +
+    text.weekdays.map((name) => `<span class="h-7 text-[11px] leading-7 text-muted">${escapeHtml(name)}</span>`).join("") +
+    '<span class="h-[38px]"></span>'.repeat(leadingDays(view, weekStart)) +
     days.join("") +
     "</div>"
   )

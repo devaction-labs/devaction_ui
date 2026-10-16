@@ -1,0 +1,19 @@
+<%!-- title: Disabled | text: A locked entry takes neither typing nor a pick. --%>
+<div class="max-w-[300px]">
+  <TimeField.input
+    id="time-field-disabled"
+    start_name="locked_start"
+    end_name="locked_end"
+    start_value="08:30"
+    end_value="12:00"
+    start_label="Start"
+    end_label="End"
+    list_label="Times"
+    duration_label="Duration"
+    hours_label="%{count} h"
+    minutes_label="%{count} min"
+    disabled
+  >
+    <:icon><.icon name="clock-01" class="size-[15px]" /></:icon>
+  </TimeField.input>
+</div>

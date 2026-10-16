@@ -44,6 +44,39 @@ defmodule DevactionUISite.ExampleLive do
     "done" => [{"c4", "Importar planilha"}]
   }
 
+  @queue [
+    %{ref: "1", name: "Contract SGE · Addendum 02.pdf", size: 1_800_000, state: :sent},
+    %{
+      ref: "2",
+      name: "M3 reports specification.pdf",
+      size: 6_100_000,
+      state: :uploading,
+      progress: 64
+    },
+    %{
+      ref: "3",
+      name: "finance-screenshot.png",
+      size: 3_400_000,
+      state: :failed,
+      progress: 38,
+      message: "Connection dropped"
+    },
+    %{ref: "4", name: "Meeting minutes 10-14.pdf", size: 420_000, state: :queued},
+    %{ref: "5", name: "hours-sheet.xlsx", size: 88_000, state: :rejected}
+  ]
+
+  @otp_states %{
+    "empty" => %{state: "empty", value: "", status: :idle, helper: "6 digits"},
+    "typing" => %{state: "typing", value: "482", status: :idle, helper: "3 digits to go"},
+    "error" => %{
+      state: "error",
+      value: "482913",
+      status: :error,
+      helper: "Wrong code. 2 tries left."
+    },
+    "ok" => %{state: "ok", value: "482913", status: :ok, helper: "Verified. Signing in…"}
+  }
+
   @impl true
   def mount(_params, %{"example" => example}, socket) do
     {:ok,
@@ -58,6 +91,11 @@ defmodule DevactionUISite.ExampleLive do
        toast_seq: 0,
        job: nil,
        order: "deadline",
+       queue: @queue,
+       otp: @otp_states["typing"],
+       otp_form: %{value: "", status: :idle, helper: "Try 482913"},
+       range_applied: nil,
+       times: %{start: "09:00", stop: "11:15"},
        editor: %{
          markdown: "",
          sent: nil,
@@ -403,6 +441,27 @@ defmodule DevactionUISite.ExampleLive do
   def handle_event("cancel_upload", %{"ref" => ref}, socket),
     do: {:noreply, cancel_upload(socket, :transcript, ref)}
 
+  def handle_event("queue_retry", %{"ref" => ref}, socket),
+    do: {:noreply, update(socket, :queue, &Enum.map(&1, fn row -> retry_row(row, ref) end))}
+
+  def handle_event("queue_cancel", %{"ref" => ref}, socket),
+    do: {:noreply, update(socket, :queue, &Enum.reject(&1, fn row -> row.ref == ref end))}
+
+  def handle_event("queue_clear", _params, socket),
+    do: {:noreply, update(socket, :queue, &Enum.reject(&1, fn row -> row.state == :sent end))}
+
+  def handle_event("otp_state", %{"value" => state}, socket) when is_map_key(@otp_states, state),
+    do: {:noreply, assign(socket, :otp, Map.fetch!(@otp_states, state))}
+
+  def handle_event("otp_check", %{"code" => code}, socket),
+    do: {:noreply, assign(socket, :otp_form, check_code(code))}
+
+  def handle_event("range_change", %{"period_from" => from, "period_to" => to}, socket),
+    do: {:noreply, assign(socket, :range_applied, {from, to})}
+
+  def handle_event("time_change", %{"entry" => %{"start" => start, "end" => stop}}, socket),
+    do: {:noreply, assign(socket, :times, %{start: start, stop: stop})}
+
   def handle_event(_event, _params, socket), do: {:noreply, socket}
 
   @lessons [
@@ -482,6 +541,18 @@ defmodule DevactionUISite.ExampleLive do
       :error -> default
     end
   end
+
+  defp retry_row(%{ref: ref, state: :failed} = row, ref),
+    do: %{row | state: :uploading, progress: 12}
+
+  defp retry_row(row, _ref), do: row
+
+  defp check_code("482913"), do: %{value: "482913", status: :ok, helper: "Verified. Signing in…"}
+
+  defp check_code(code) when byte_size(code) == 6,
+    do: %{value: code, status: :error, helper: "Wrong code. Try 482913."}
+
+  defp check_code(code), do: %{value: code, status: :idle, helper: "Try 482913"}
 
   defp update_shell(socket, changes),
     do: update(socket, :shell, &Map.merge(&1, Map.new(changes)))

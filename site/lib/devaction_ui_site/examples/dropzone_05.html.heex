@@ -1,0 +1,51 @@
+<%!-- title: States of a file | text: Sent (green bar), uploading (ink bar with its percent), stopped (red bar and a Try again button), queued (empty bar) and refused (type not accepted). --%>
+<Dropzone.queue
+  id="dropzone-states"
+  title="Drop files or click to choose"
+  hint="PDF, PNG or JPG · up to 25 MB each · at most 10"
+  summary="5 files · 1 uploading · 1 with an error"
+  clear_label="Clear finished"
+  clear_event="noop"
+  retry_event="noop"
+  cancel_event="noop"
+  entries={[
+    %{ref: "1", name: "Contract SGE · Addendum 02.pdf", size: 1_800_000, state: :sent},
+    %{
+      ref: "2",
+      name: "M3 reports specification.pdf",
+      size: 6_100_000,
+      state: :uploading,
+      progress: 64
+    },
+    %{
+      ref: "3",
+      name: "finance-screenshot.png",
+      size: 3_400_000,
+      state: :failed,
+      progress: 38,
+      message: "Connection dropped"
+    },
+    %{ref: "4", name: "Meeting minutes 10-14.pdf", size: 420_000, state: :queued},
+    %{ref: "5", name: "hours-sheet.xlsx", size: 88_000, state: :rejected}
+  ]}
+  labels={
+    %{
+      sent: "Sent",
+      uploading: "uploading · %{size}",
+      queued: "Queued",
+      failed: "Connection dropped",
+      stopped: "stopped at %{percent}%",
+      rejected: "Type not accepted",
+      rejected_hint: "use PDF, PNG or JPG",
+      retry: "Try again",
+      cancel: "Cancel %{name}",
+      remove: "Remove %{name}"
+    }
+  }
+  class="max-w-xl"
+>
+  <:icon><.icon name="arrow-up-02" class="size-5.5" /></:icon>
+  <:retry_icon><.icon name="refresh" class="size-3.5" /></:retry_icon>
+  <:cancel_icon><.icon name="cancel-01" class="size-[15px]" /></:cancel_icon>
+  <:remove_icon><.icon name="delete-02" class="size-[15px]" /></:remove_icon>
+</Dropzone.queue>

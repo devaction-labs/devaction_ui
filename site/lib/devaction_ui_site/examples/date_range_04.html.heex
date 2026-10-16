@@ -1,0 +1,36 @@
+<%!-- title: In a form | text: Apply writes two hidden inputs, `period_from` and `period_to`, and fires `input`, so the form's `phx-change` hears one event per applied range. --%>
+<div class="flex flex-col gap-3 pb-4">
+  <form phx-change="range_change" class="m-0">
+    <DateRange.picker
+      id="date-range-form"
+      name="period"
+      label="Choose the period"
+      today="2026-10-15"
+      portal
+      placeholder="Choose the period"
+      previous_label="Previous month"
+      next_label="Next month"
+      presets_label="Ready-made ranges"
+      count_label="%{count} days selected"
+      one_label="1 day selected"
+      pending_label="Pick the end date"
+      cancel_label="Cancel"
+      apply_label="Apply"
+    >
+      <:icon><.icon name="calendar-03" class="size-4" /></:icon>
+      <:prev_icon><.icon name="arrow-left-01" class="size-3.5" /></:prev_icon>
+      <:next_icon><.icon name="arrow-right-01" class="size-3.5" /></:next_icon>
+      <:preset from="2026-10-15" to="2026-10-15">Today</:preset>
+      <:preset from="2026-10-09" to="2026-10-15">Last 7 days</:preset>
+      <:preset from="2026-10-01" to="2026-10-15">This month</:preset>
+      <:preset>Custom</:preset>
+    </DateRange.picker>
+  </form>
+  <p class="m-0 text-sm text-ink-2">
+    Applied:
+    <span class="font-mono text-ink">
+      {(@range_applied && "#{elem(@range_applied, 0)} → #{elem(@range_applied, 1)}") ||
+        "nothing yet"}
+    </span>
+  </p>
+</div>

@@ -84,6 +84,39 @@ const rangeRules = [
 export const pick = (selection, iso, mode) =>
   mode === "range" ? decide(rangeRules, selection, iso) : {from: iso, to: null}
 
+/** The range as the pointer shows it: with only the start picked, hovering a day draws the band up to it (either side of the start). */
+export const previewRange = ({from, to}, hover) =>
+  from && !to && hover ? {from: hover < from ? hover : from, to: hover < from ? from : hover} : {from, to}
+
+/** How many days a range holds, both ends counted; 0 until it has both. */
+export const countDays = ({from, to}) => (from && to ? Math.round((parse(to) - parse(from)) / 864e5) + 1 : 0)
+
+/**
+ * What the band of a range does in the cell of `iso`, `column` being its place in the week (0 first): whether it
+ * paints, and which sides are rounded (the ends of the range and the ends of the week). One day alone has no band.
+ */
+export const bandCell = ({from, to}, iso, column) => {
+  const edge = iso === from || iso === to
+  const paints = Boolean(from && to && from !== to && iso >= from && iso <= to)
+  return {paints, roundStart: paints && (iso === from || column === 0), roundEnd: paints && (iso === to || column === 6), edge}
+}
+
+/** Whether two ranges are the same days. */
+export const sameRange = (a, b) => (a.from ?? null) === (b.from ?? null) && (a.to ?? null) === (b.to ?? null)
+
+/**
+ * The text of a range from two writers of the caller's language: `day(iso)` for `1 Oct` and `year(iso)` for `2026`.
+ * `1 Oct – 15 Oct 2026`; a range across two years gives each end its year; an open end is `…`.
+ */
+export const rangeLabel = (range, text) => decide(labelRules, range, text)
+
+const labelRules = [
+  [({from}) => !from, () => ""],
+  [({to}) => !to, ({from}, {day}) => `${day(from)} – …`],
+  [({from, to}, {year}) => year(from) === year(to), ({from, to}, {day, year}) => `${day(from)} – ${day(to)} ${year(to)}`],
+  [() => true, ({from, to}, {day, year}) => `${day(from)} ${year(from)} – ${day(to)} ${year(to)}`],
+]
+
 /**
  * The text of a date field: a mask that takes only digits and puts the separators in, and the reading of the
  * text back into an ISO date (`"2026-10-16"`). `order` is `"dmy"`, `"mdy"` or `"ymd"`; `separator` is the

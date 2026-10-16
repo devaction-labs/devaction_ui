@@ -1,6 +1,6 @@
 import assert from "node:assert/strict"
 import test from "node:test"
-import {addDays, addMonths, clampMin, daysInMonth, formatIso, leadingDays, maskDate, monthOf, moveFocus, pick, readDate, sameDayIn, shiftMonth, weekdayIndex} from "./dates.js"
+import {bandCell, countDays, previewRange, rangeLabel, sameRange, addDays, addMonths, clampMin, daysInMonth, formatIso, leadingDays, maskDate, monthOf, moveFocus, pick, readDate, sameDayIn, shiftMonth, weekdayIndex} from "./dates.js"
 
 test("adding days and months crosses month and year ends", () => {
   assert.equal(addDays("2026-10-31", 1), "2026-11-01")
@@ -55,6 +55,44 @@ test("a range starts, closes, restarts earlier and starts anew", () => {
 
   assert.deepEqual(pick(start, "2026-10-11", "range"), {from: "2026-10-11", to: null})
   assert.deepEqual(pick(closed, "2026-10-25", "range"), {from: "2026-10-25", to: null})
+})
+
+test("hovering a day while only the start is picked previews the range, on either side", () => {
+  assert.deepEqual(previewRange({from: "2026-10-05", to: null}, "2026-10-09"), {from: "2026-10-05", to: "2026-10-09"})
+  assert.deepEqual(previewRange({from: "2026-10-05", to: null}, "2026-10-02"), {from: "2026-10-02", to: "2026-10-05"})
+  assert.deepEqual(previewRange({from: "2026-10-05", to: "2026-10-09"}, "2026-10-12"), {from: "2026-10-05", to: "2026-10-09"})
+  assert.deepEqual(previewRange({from: null, to: null}, "2026-10-12"), {from: null, to: null})
+})
+
+test("the days of a range are counted with both ends", () => {
+  assert.equal(countDays({from: "2026-10-01", to: "2026-10-15"}), 15)
+  assert.equal(countDays({from: "2026-10-01", to: "2026-10-01"}), 1)
+  assert.equal(countDays({from: "2026-10-01", to: null}), 0)
+  assert.equal(countDays({from: "2026-10-30", to: "2026-11-02"}), 4)
+})
+
+test("the band paints between the ends and rounds at the ends of the range and of the week", () => {
+  const range = {from: "2026-10-01", to: "2026-10-15"}
+  assert.deepEqual(bandCell(range, "2026-10-01", 4), {paints: true, roundStart: true, roundEnd: false, edge: true})
+  assert.deepEqual(bandCell(range, "2026-10-04", 0), {paints: true, roundStart: true, roundEnd: false, edge: false})
+  assert.deepEqual(bandCell(range, "2026-10-10", 6), {paints: true, roundStart: false, roundEnd: true, edge: false})
+  assert.deepEqual(bandCell(range, "2026-10-15", 4), {paints: true, roundStart: false, roundEnd: true, edge: true})
+  assert.equal(bandCell(range, "2026-10-16", 5).paints, false)
+  assert.equal(bandCell({from: "2026-10-01", to: "2026-10-01"}, "2026-10-01", 4).paints, false)
+})
+
+test("two ranges are the same when their ends are", () => {
+  assert.equal(sameRange({from: "2026-10-01", to: "2026-10-15"}, {from: "2026-10-01", to: "2026-10-15"}), true)
+  assert.equal(sameRange({from: "2026-10-01"}, {from: "2026-10-01", to: null}), true)
+  assert.equal(sameRange({from: "2026-10-01", to: "2026-10-15"}, {from: "2026-10-02", to: "2026-10-15"}), false)
+})
+
+test("a range is written with the caller's day and year, once the year when it is shared", () => {
+  const text = {day: (iso) => `${iso.slice(8)}/${iso.slice(5, 7)}`, year: (iso) => iso.slice(0, 4)}
+  assert.equal(rangeLabel({from: "2026-10-01", to: "2026-10-15"}, text), "01/10 – 15/10 2026")
+  assert.equal(rangeLabel({from: "2025-12-20", to: "2026-01-05"}, text), "20/12 2025 – 05/01 2026")
+  assert.equal(rangeLabel({from: "2026-10-01", to: null}, text), "01/10 – …")
+  assert.equal(rangeLabel({from: null, to: null}, text), "")
 })
 
 test("clampMin holds a day to the minimum", () => {

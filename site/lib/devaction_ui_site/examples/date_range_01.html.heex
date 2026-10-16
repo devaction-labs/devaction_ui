@@ -1,0 +1,30 @@
+<%!-- title: Basic | text: A trigger that shows the range, and a panel with ready-made ranges, two months with the band, the days picked and Cancel / Apply. Nothing is applied until Apply. --%>
+<div class="pb-4">
+  <DateRange.picker
+    id="date-range-basic"
+    name="period"
+    label="Choose the period"
+    value={{"2026-10-01", "2026-10-15"}}
+    today="2026-10-15"
+    portal
+    placeholder="Choose the period"
+    previous_label="Previous month"
+    next_label="Next month"
+    presets_label="Ready-made ranges"
+    count_label="%{count} days selected"
+    one_label="1 day selected"
+    pending_label="Pick the end date"
+    cancel_label="Cancel"
+    apply_label="Apply"
+  >
+    <:icon><.icon name="calendar-03" class="size-4" /></:icon>
+    <:prev_icon><.icon name="arrow-left-01" class="size-3.5" /></:prev_icon>
+    <:next_icon><.icon name="arrow-right-01" class="size-3.5" /></:next_icon>
+    <:preset from="2026-10-15" to="2026-10-15">Today</:preset>
+    <:preset from="2026-10-09" to="2026-10-15">Last 7 days</:preset>
+    <:preset from="2026-10-01" to="2026-10-15">This month</:preset>
+    <:preset from="2026-09-01" to="2026-09-30">Last month</:preset>
+    <:preset from="2026-10-01" to="2026-10-31">M3 milestone</:preset>
+    <:preset>Custom</:preset>
+  </DateRange.picker>
+</div>

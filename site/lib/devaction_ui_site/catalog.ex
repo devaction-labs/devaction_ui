@@ -13,7 +13,7 @@ defmodule DevactionUISite.Catalog do
     {"Overlay",
      ~w(CommandPalette ConfirmDialog DangerDialog Drawer Dropdown Modal Popover ProgressToast ToastGroup Tooltip)},
     {"Form",
-     ~w(Autocomplete Choice ColorPicker Combobox DatePicker Dropzone Editor FilterMenu FilterPill InputGroup MoneyInput NumberInput PasswordStrength Pillbox Segmented SignatureField Slider Switch Textarea Timer)},
+     ~w(Autocomplete Choice ColorPicker Combobox DatePicker DateRange Dropzone Editor FilterMenu FilterPill InputGroup MoneyInput NumberInput OtpInput PasswordStrength Pillbox Segmented SignatureField Slider Switch Textarea TimeField Timer)},
     {"Navigation", ~w(Breadcrumb PageHeader Pagination Sidebar Stepper Steps)},
     {"Data", ~w(Calendar Chart DataTable Kanban)},
     {"AI", ~w(AiPrompt Aura ChatBubble)}

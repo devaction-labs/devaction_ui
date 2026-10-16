@@ -1,0 +1,11 @@
+<%!-- title: Basic | text: Six boxes with a numeric keyboard and `autocomplete="one-time-code"`; the helper says what is left and the resend line is a slot. | layout: center --%>
+<OtpInput.input
+  id="otp-basic"
+  name="otp_basic"
+  label="Verification code"
+  box_label="Digit %{n} of %{total}"
+  value="482"
+  helper="3 digits to go"
+>
+  <:resend>Didn't arrive? <span class="font-medium text-muted-2">Resend in 0:24</span></:resend>
+</OtpInput.input>
