@@ -284,15 +284,15 @@ defmodule DevactionUI.DataTest do
       assert html =~ "border-muted-2"
     end
 
-    test "a card is draggable, focusable and carries the id the event reports" do
+    test "a card is focusable, dragged by pointer events and carries the id the event reports" do
       assigns = %{}
       html = rendered_to_string(~H|<Kanban.card id="card-9">Do it</Kanban.card>|)
-      assert html =~ ~s(draggable="true")
+      refute html =~ "draggable"
       assert html =~ ~s(tabindex="0")
       assert html =~ ~s(data-card-id="card-9")
       assert html =~ ~s(id="card-9")
-      assert html =~ "data-[dragging]:shadow-pop"
-      assert html =~ "data-[dragging]:opacity-60"
+      assert html =~ "touch-manipulation"
+      assert html =~ "data-[dragging]:opacity-40"
       refute html =~ "rgba"
     end
 

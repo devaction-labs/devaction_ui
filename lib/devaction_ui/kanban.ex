@@ -1,7 +1,7 @@
 defmodule DevactionUI.Kanban do
   @moduledoc """
-  A board of columns with cards that move: drag a card to another column or to another place in its own,
-  or focus it and press Alt + arrow keys (←→ between columns, ↑↓ within one). The hook moves the card in the
+  A board of columns with cards that move: drag a card (with a mouse, a pen or a finger) to another column or
+  to another place in its own, or focus it and press Alt + arrow keys (←→ between columns, ↑↓ within one). The hook moves the card in the
   page at once and tells the LiveView, which stays the source of truth: it receives the event with
   `%{"card" => id, "from" => column, "to" => column, "index" => position}` and re-renders. To refuse a move,
   answer with `{:reply, %{rejected: true}, socket}` and the hook puts the card back where it was.
@@ -15,8 +15,12 @@ defmodule DevactionUI.Kanban do
   A column may carry a `tone` (a dot of that colour before its title) and a `footer` slot for what goes under its
   cards, such as a "new task" button. The columns are lists and the cards their items.
 
-  Dragging uses the browser's HTML5 drag and drop, which a touch screen does not always start: on a tablet the
-  keyboard (Alt + arrows) is the way that always works.
+  Dragging uses pointer events, so it works the same on a touch screen: a mouse or a pen starts after a few
+  pixels, a finger after holding still for a moment (moving first scrolls the page, as it should). The card in
+  hand is a floating copy that follows the pointer while the original stays dimmed in place, the board and the
+  window scroll by themselves near their edges, and Esc gives the drag up. Buttons, links and fields inside a card
+  do not start a drag. The keyboard (Alt + arrows) keeps working, with the board's `hint_label` read after each
+  card. `count` of a column is what its meter shows until the hook runs: give it the number of cards.
   """
   use Phoenix.Component
 
@@ -129,11 +133,10 @@ defmodule DevactionUI.Kanban do
       data-kanban-card
       data-card-id={@id}
       role="listitem"
-      draggable="true"
       tabindex="0"
       class={[
-        "flex cursor-grab flex-col gap-2.5 rounded-xl border border-line bg-card p-3.5 text-sm outline-none transition-shadow",
-        "focus-visible:ring-4 focus-visible:ring-ink/10 data-[dragging]:rotate-2 data-[dragging]:cursor-grabbing data-[dragging]:opacity-60 data-[dragging]:shadow-pop motion-reduce:data-[dragging]:rotate-0",
+        "flex cursor-grab touch-manipulation flex-col gap-2.5 rounded-xl border border-line bg-card p-3.5 text-sm outline-none",
+        "focus-visible:ring-4 focus-visible:ring-ink/10 data-[dragging]:opacity-40",
         @class
       ]}
       {@rest}
