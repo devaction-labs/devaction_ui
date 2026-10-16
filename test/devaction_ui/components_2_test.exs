@@ -202,7 +202,7 @@ defmodule DevactionUI.Components2Test do
         """)
 
       assert html =~ "Approved"
-      assert html =~ "text-missing"
+      assert html =~ "text-tag-risk-text"
       assert html =~ "+6"
       assert html =~ ~s(id="s")
     end

@@ -5,7 +5,15 @@
       {item.index + 1}
     </span>
   </:lead>
-  <:actions><.icon name="sparkles" class="size-4 text-muted" /></:actions>
+  <:actions :let={item}>
+    <button
+      type="button"
+      aria-label={"More actions for #{item.title}"}
+      class="grid size-[34px] place-items-center rounded-lg border border-line text-muted hover:text-ink"
+    >
+      <.icon name="sparkles" class="size-4" />
+    </button>
+  </:actions>
   <:item title="M1 · Members" subtitle="Delivered on 02/10" tag="PAID" tone={:ok} open>
     Registration and search of members.
   </:item>

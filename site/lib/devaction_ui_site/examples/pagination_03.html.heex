@@ -1,0 +1,13 @@
+<%!-- title: Icons and links | text: The arrows are slots, and `kind` chooses patch, navigate or a plain href. --%>
+<Pagination.pagination
+  page={3}
+  pages={9}
+  kind={:navigate}
+  path={&"/c/pagination?page=#{&1}"}
+  label="Pages"
+  previous="Previous page"
+  next="Next page"
+>
+  <:previous_icon><.icon name="arrow-left-01" class="size-3.5" /></:previous_icon>
+  <:next_icon><.icon name="arrow-right-01" class="size-3.5" /></:next_icon>
+</Pagination.pagination>

@@ -2,10 +2,11 @@
 <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
   <Stat.stat label="Current milestone" highlight>M3</Stat.stat>
   <Stat.stat label="Delivered" highlight>
-    78<span class="text-base opacity-70">%</span>
+    78<:unit>%</:unit>
     <:trend>
       <.tag variant={:ok} size={:sm} surface={:plain}>+6 pts</.tag>
     </:trend>
+    <:hint>since Monday</:hint>
   </Stat.stat>
-  <Stat.stat label="Approved">168</Stat.stat>
+  <Stat.stat label="Approved" bordered={false}>168</Stat.stat>
 </div>

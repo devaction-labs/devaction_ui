@@ -284,12 +284,6 @@
   /* ---------- Avatar (prancha 11) ---------- */
   .avatar     { @apply relative inline-grid size-10 shrink-0 place-items-center rounded-full bg-info-bg font-mono text-xs text-info-fg; }
   .avatar-xs  { @apply size-6 text-[9px]; }
-  .avatar-sm  { @apply size-8 text-[11px]; }
-  .avatar-lg  { @apply size-14 text-base; }
-  .avatar-xl  { @apply size-18 text-xl; }
-  .avatar-square { @apply rounded-[11px] font-sans font-semibold; }
-  .avatar-ai  { @apply border-[1.5px] border-ai bg-warn-bg text-warn-fg; }
-  .avatar-group  { @apply flex -space-x-2 [&>.avatar]:border-2 [&>.avatar]:border-card; }
 
   /* ---------- Gráficos (prancha 12) ---------- */
   .chart-grid    { @apply stroke-line-soft [stroke-width:1]; }
@@ -311,9 +305,8 @@
   .accordion-chevron    { @apply size-4.5 text-muted transition-transform duration-200 [details[open]>summary_&]:rotate-180; }
   .accordion-panel      { @apply pr-8 pb-4.5 text-sm leading-relaxed text-ink-2; }
   .accordion-card       { @apply overflow-hidden rounded-[14px] border border-line bg-card open:border-line-strong [&[open]>summary]:bg-wrap/60; }
-  .accordion-card > summary { @apply px-3.5; }
   .accordion-card > .accordion-panel { @apply border-t border-line-soft px-3.5 pt-1 pl-14; }
-  .accordion-flush .accordion-panel { @apply ml-3 border-l border-line pl-3; }
+  .accordion-panel .accordion { @apply ml-7 border-l border-line; }
   @media (prefers-reduced-motion: reduce) { .accordion-chevron, .switch, .switch::after { transition: none; } }
 
   /* ---------- Drawer flutuante (prancha 13) ---------- */

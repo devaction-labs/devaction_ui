@@ -22,57 +22,74 @@ defmodule DevactionUI.Avatar do
   defp pick([only]), do: String.slice(only, 0, 2)
   defp pick([first | rest]), do: String.first(first) <> String.first(List.last(rest))
 
-  attr :name, :string, required: true
+  attr :name, :string,
+    required: true,
+    doc: "the person (or the workspace); the letters come from it"
+
   attr :tone, :atom, values: [:ok, :warn, :risk, :info, :neutral], default: :neutral
 
   attr :size, :atom,
     values: [:xs, :sm, :md, :lg, :xl],
     default: :md,
-    doc: "22, 34 (default), 24, 56 and 72 px"
+    doc: "22 (for stacks), 32, 40 (default), 56 and 72 px, with letters of 9, 11, 12, 16 and 20px"
 
   attr :shape, :atom,
     values: [:round, :square],
     default: :round,
-    doc: "square is for a workspace, a repository, a client"
+    doc:
+      "square is for a workspace, a repository, a client; it sets its letters in the sans, semibold"
 
   attr :status, :atom, values: [nil, :online, :away, :busy, :offline], default: nil
   attr :status_label, :string, default: nil, doc: "what the status says, read by screen readers"
+
+  attr :ring, :boolean,
+    default: false,
+    doc:
+      "the 2px ring of the card colour that separates avatars in a stack, instead of the tone's line"
+
   attr :class, :any, default: nil
   attr :rest, :global
+  slot :icon, doc: "replaces the letters, such as the mark of a repository"
 
+  @doc "A person as their initials, or an icon, in a circle or a square."
+  @spec avatar(map()) :: Phoenix.LiveView.Rendered.t()
   def avatar(assigns) do
     ~H"""
     <span
       title={@name}
       class={[
-        "relative inline-flex shrink-0 items-center justify-center border-2 border-card font-mono",
+        "relative inline-flex shrink-0 items-center justify-center",
         shape_class(@shape, @size),
         size_class(@size),
-        Tone.surface(@tone),
+        edge_class(@ring, @tone),
         Tone.text(@tone),
         @class
       ]}
       {@rest}
     >
-      <span aria-hidden="true">{initials(@name)}</span><span class="sr-only">{@name}</span>
+      <span :if={@icon != []} aria-hidden="true" class="size-1/2 [&>*]:size-full">
+        {render_slot(@icon)}
+      </span>
+      <span :if={@icon == []} aria-hidden="true">{initials(@name)}</span><span class="sr-only">{@name}</span>
       <.status_dot :if={@status} status={@status} label={@status_label} size={@size} />
     </span>
     """
   end
 
-  attr :name, :string, required: true
+  attr :name, :string, required: true, doc: "the agent's name, read out"
   attr :size, :atom, values: [:xs, :sm, :md, :lg, :xl], default: :md
   attr :class, :any, default: nil
   attr :rest, :global
   slot :inner_block, required: true, doc: "the mark of the agent, an icon"
 
   @doc "The AI agent: amber, with its own mark instead of letters."
+  @spec agent(map()) :: Phoenix.LiveView.Rendered.t()
   def agent(assigns) do
     ~H"""
     <span
       title={@name}
       class={[
-        "inline-flex shrink-0 items-center justify-center rounded-full border-2 border-ai bg-tag-warn-bg text-tag-warn-text",
+        "inline-flex shrink-0 items-center justify-center rounded-full border-[1.5px] border-ai bg-tag-warn-bg text-tag-warn-text",
         size_class(@size),
         @class
       ]}
@@ -91,6 +108,7 @@ defmodule DevactionUI.Avatar do
   slot :inner_block, required: true, doc: "a plus icon"
 
   @doc "The empty place at the end of a group, to invite someone."
+  @spec avatar_invite(map()) :: Phoenix.LiveView.Rendered.t()
   def avatar_invite(assigns) do
     ~H"""
     <button
@@ -116,14 +134,14 @@ defmodule DevactionUI.Avatar do
     ~H"""
     <span
       data-status={@status}
+      role="img"
+      aria-label={@label || to_string(@status)}
       class={[
         "absolute -right-px -bottom-px rounded-full border-2 border-card",
         dot_size(@size),
         dot_color(@status)
       ]}
-    >
-      <span class="sr-only">{@label || to_string(@status)}</span>
-    </span>
+    />
     """
   end
 
@@ -136,25 +154,39 @@ defmodule DevactionUI.Avatar do
   defp dot_color(:busy), do: "bg-missing"
   defp dot_color(:offline), do: "bg-done-cell"
 
-  defp shape_class(:round, _size), do: "rounded-full"
-  defp shape_class(:square, size) when size in [:xs, :sm], do: "rounded-md"
-  defp shape_class(:square, :md), do: "rounded-[10px]"
-  defp shape_class(:square, _large), do: "rounded-[14px]"
+  defp shape_class(:round, _size), do: "rounded-full font-mono"
 
-  defp size_class(:xs), do: "size-6 text-[9px]"
-  defp size_class(:sm), do: "size-[22px] text-[10px]"
-  defp size_class(:md), do: "size-[34px] text-[11px]"
+  defp shape_class(:square, size) when size in [:xs, :sm],
+    do: "rounded-md font-sans font-semibold"
+
+  defp shape_class(:square, :md), do: "rounded-[11px] font-sans font-semibold"
+  defp shape_class(:square, _large), do: "rounded-[14px] font-sans font-semibold"
+
+  defp edge_class(true, tone), do: ["border-2 border-card", tint(tone)]
+  defp edge_class(false, tone), do: ["border", Tone.surface(tone)]
+
+  defp tint(:risk), do: "bg-tag-risk-bg"
+  defp tint(:warn), do: "bg-tag-warn-bg"
+  defp tint(:ok), do: "bg-tag-ok-bg"
+  defp tint(:info), do: "bg-tag-info-bg"
+  defp tint(:neutral), do: "bg-tag-neutral-bg"
+
+  defp size_class(:xs), do: "size-[22px] text-[9px]"
+  defp size_class(:sm), do: "size-8 text-[11px]"
+  defp size_class(:md), do: "size-10 text-xs"
   defp size_class(:lg), do: "size-14 text-base"
   defp size_class(:xl), do: "size-[72px] text-xl"
 
   attr :people, :list, required: true, doc: "`%{name: ..., tone: ...}` each, the first on top"
   attr :label, :string, required: true, doc: "what the group is, e.g. `Reviewers`"
   attr :max, :integer, default: nil, doc: "how many are drawn; the rest become a `+N` chip"
-  attr :size, :atom, values: [:xs, :sm, :md, :lg, :xl], default: :md
+  attr :size, :atom, values: [:xs, :sm, :md, :lg, :xl], default: :sm
   attr :class, :any, default: nil
   attr :rest, :global
   slot :extra, doc: "after the people, such as an `avatar_invite/1`"
 
+  @doc "The people overlapping by 8px, with a `+N` chip for those past `max`."
+  @spec avatar_stack(map()) :: Phoenix.LiveView.Rendered.t()
   def avatar_stack(assigns) do
     {shown, hidden} = split(assigns.people, assigns.max)
     assigns = assign(assigns, shown: shown, hidden: hidden)
@@ -166,6 +198,7 @@ defmodule DevactionUI.Avatar do
         name={person.name}
         tone={Map.get(person, :tone, :neutral)}
         size={@size}
+        ring
         class={index > 0 && "-ml-2"}
       />
       <span

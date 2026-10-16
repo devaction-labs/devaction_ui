@@ -28,11 +28,11 @@ defmodule DevactionUI.AvatarTest do
     assigns = %{}
 
     for {size, expected} <- [
-          xs: "size-6",
-          sm: "size-[22px]",
-          md: "size-[34px]",
+          xs: "size-[22px] text-[9px]",
+          sm: "size-8 text-[11px]",
+          md: "size-10 text-xs",
           lg: "size-14",
-          xl: "size-[72px]"
+          xl: "size-[72px] text-xl"
         ] do
       assert rendered_to_string(~H|<Avatar.avatar name="A B" size={size} />|) =~ expected
     end
@@ -42,7 +42,7 @@ defmodule DevactionUI.AvatarTest do
     large = rendered_to_string(~H|<Avatar.avatar name="W" shape={:square} size={:xl} />|)
 
     assert small =~ "rounded-md"
-    assert middle =~ "rounded-[10px]"
+    assert middle =~ "rounded-[11px]"
     assert large =~ "rounded-[14px]"
     refute middle =~ "rounded-full"
   end
@@ -79,7 +79,7 @@ defmodule DevactionUI.AvatarTest do
     html =
       rendered_to_string(~H|<Avatar.agent name="DevAction IA" size={:lg}>MARK</Avatar.agent>|)
 
-    assert html =~ "border-ai"
+    assert html =~ "border-[1.5px] border-ai"
     assert html =~ "MARK"
     assert html =~ "DevAction IA"
     assert html =~ "size-14"
@@ -130,5 +130,62 @@ defmodule DevactionUI.AvatarTest do
 
     enough = rendered_to_string(~H|<Avatar.avatar_stack label="M" people={@people} max={9} />|)
     refute enough =~ "data-more"
+  end
+
+  test "a lone avatar takes its border from the tone and no card ring" do
+    assigns = %{}
+    html = rendered_to_string(~H|<Avatar.avatar name="A B" tone={:ok} />|)
+
+    assert html =~ "border-tag-ok-line"
+    refute html =~ "border-card"
+  end
+
+  test "a person in a stack has the card ring and only the tone's fill" do
+    assigns = %{people: [%{name: "A One", tone: :ok}]}
+    html = rendered_to_string(~H|<Avatar.avatar_stack label="M" people={@people} />|)
+
+    assert html =~ "border-2 border-card"
+    assert html =~ "bg-tag-ok-bg"
+    refute html =~ "border-tag-ok-line"
+  end
+
+  test "a stack is 32px by default" do
+    assigns = %{people: [%{name: "A One"}]}
+    assert rendered_to_string(~H|<Avatar.avatar_stack label="M" people={@people} />|) =~ "size-8"
+  end
+
+  test "the square sets its letters in the semibold sans and the round in the mono" do
+    assigns = %{}
+    square = rendered_to_string(~H|<Avatar.avatar name="Work Space" shape={:square} />|)
+    round = rendered_to_string(~H|<Avatar.avatar name="Work Space" />|)
+
+    assert square =~ "font-sans font-semibold"
+    refute square =~ "font-mono"
+    assert round =~ "font-mono"
+  end
+
+  test "the icon slot replaces the letters" do
+    assigns = %{}
+
+    html =
+      rendered_to_string(~H"""
+      <Avatar.avatar name="sge-api" shape={:square}>
+        <:icon>MARK</:icon>
+      </Avatar.avatar>
+      """)
+
+    assert html =~ "MARK"
+    refute html =~ ">SA<"
+    assert html =~ "sge-api"
+  end
+
+  test "the status dot is an image with its label" do
+    assigns = %{}
+
+    html =
+      rendered_to_string(~H|<Avatar.avatar name="A B" status={:online} status_label="Online" />|)
+
+    assert html =~ ~s(role="img")
+    assert html =~ ~s(aria-label="Online")
   end
 end
