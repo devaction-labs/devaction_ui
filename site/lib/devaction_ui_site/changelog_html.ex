@@ -42,18 +42,18 @@ defmodule DevactionUISite.ChangelogHTML do
     <div
       id="changelog"
       phx-hook="SiteChangelog"
-      class="relative isolate overflow-hidden bg-wrap text-ink"
+      class="relative isolate overflow-hidden bg-wrap text-[15px] leading-[normal] text-ink"
     >
-      <div class="site-grid site-grid-changelog" aria-hidden="true"></div>
-      <div class="site-glow" aria-hidden="true"></div>
+      <div class="site-grid cl-grid" aria-hidden="true"></div>
+      <div class="cl-glow" aria-hidden="true"></div>
 
       <main class="relative">
-        <header class="mx-auto max-w-[1120px] px-5 pt-14 sm:px-10 sm:pt-[72px]">
-          <p class="site-eyebrow">CHANGELOG</p>
-          <h1 class="m-0 mt-2.5 text-balance text-4xl font-semibold tracking-[-0.035em] sm:text-[52px]">
+        <header class="mx-auto max-w-[1200px] px-5 pt-14 sm:px-10 sm:pt-[72px]">
+          <p class="site-eyebrow leading-[normal]">CHANGELOG</p>
+          <h1 class="m-0 mt-2.5 text-balance text-4xl font-semibold leading-[normal] tracking-[-0.035em] sm:text-[52px]">
             What changed in DevAction UI
           </h1>
-          <p class="m-0 mt-3.5 max-w-[640px] text-lg leading-[1.55] text-ink-2">
+          <p class="m-0 mt-3.5 max-w-[640px] text-lg leading-[1.55] text-(--cl-ink-2)">
             Each version lists new components, improvements, fixes and breaking changes, with the migration step beside it.
           </p>
           <div
@@ -68,21 +68,26 @@ defmodule DevactionUISite.ChangelogHTML do
               data-filter={id}
               aria-pressed={to_string(id == "all")}
               class={[
-                "inline-flex h-9 cursor-pointer items-center gap-2 rounded-[10px] border border-line bg-card px-3 text-sm font-medium text-ink-2 outline-none",
+                "group/pill inline-flex h-9 cursor-pointer items-center gap-2 rounded-[10px] border border-line bg-card px-3 font-sans text-sm font-medium leading-[normal] text-ink-2 outline-none",
                 "focus-visible:ring-4 focus-visible:ring-ink/10",
-                "aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-on-primary",
+                "aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-(--cl-on)",
                 @counts[id] == 0 && "opacity-50"
               ]}
             >
               <span class={["size-2 rounded-[2px]", dot(id)]} aria-hidden="true"></span>
               {label}
-              <span class="font-mono text-[11px] opacity-70">{@counts[id]}</span>
+              <span class={[
+                "font-mono text-[11px] text-muted",
+                "group-aria-pressed/pill:text-(--cl-on-count)"
+              ]}>
+                {@counts[id]}
+              </span>
             </button>
           </div>
         </header>
 
-        <div class="mx-auto grid max-w-[1120px] grid-cols-1 gap-10 px-5 pb-[72px] pt-11 sm:px-10 lg:grid-cols-[200px_1fr] lg:gap-12">
-          <aside class="text-sm">
+        <div class="mx-auto grid max-w-[1200px] grid-cols-1 gap-10 px-5 pb-[72px] pt-11 sm:px-10 lg:grid-cols-[200px_1fr] lg:gap-12">
+          <aside class="text-sm leading-[normal]">
             <div class="lg:sticky lg:top-6">
               <p class="m-0 font-mono text-[11px] tracking-[0.08em] text-muted">VERSIONS</p>
               <nav aria-label="Versions" class="mt-3 flex flex-col gap-0.5">
@@ -90,18 +95,21 @@ defmodule DevactionUISite.ChangelogHTML do
                   :for={version <- @versions}
                   href={"#" <> anchor(version)}
                   class={[
-                    "flex h-[34px] items-center gap-2 rounded-lg border px-2.5 no-underline outline-none focus-visible:ring-4 focus-visible:ring-ink/10",
+                    "box-content flex h-[34px] items-center gap-2 rounded-lg px-2.5 no-underline outline-none focus-visible:ring-4 focus-visible:ring-ink/10",
                     side_class(version.status)
                   ]}
                 >
-                  <span class={["size-2 rounded-full", side_dot(version.status)]} aria-hidden="true"></span>
+                  <span
+                    class={["box-content size-2 rounded-full", side_dot(version.status)]}
+                    aria-hidden="true"
+                  ></span>
                   {version.version}
                   <span class={["ml-auto text-[11px] font-normal", side_note_class(version.status)]}>
                     {side_note(version.status)}
                   </span>
                 </a>
               </nav>
-              <div class="mt-7 rounded-xl border border-line bg-card p-3.5 text-[13px] leading-[1.5] text-ink-2">
+              <div class="mt-7 rounded-xl border border-line bg-card p-3.5 text-[13px] leading-[1.5] text-(--cl-ink-2)">
                 <p class="m-0 font-semibold text-ink">How we version</p>
                 <p class="m-0 mt-1.5">
                   SemVer. While it is 0.x, a minor version may break compatibility, and every break is marked with the migration step.
@@ -118,11 +126,11 @@ defmodule DevactionUISite.ChangelogHTML do
                 id="entry-format"
                 class="rounded-[14px] border border-line bg-card px-5 py-[18px]"
               >
-                <h2 class="m-0 text-base font-semibold">Format of each entry</h2>
+                <h2 class="m-0 text-[15px] font-semibold leading-[normal]">Format of each entry</h2>
                 <ul class="m-0 mt-3 grid list-none grid-cols-1 gap-2.5 p-0 sm:grid-cols-2 lg:grid-cols-4">
                   <li
                     :for={{kind, text} <- @legend}
-                    class="flex flex-col gap-1.5 text-[13px] leading-[1.45] text-ink-2"
+                    class="flex flex-col gap-1.5 text-[13px] leading-[1.45] text-(--cl-ink-2)"
                   >
                     <.kind_badge kind={kind} />
                     {text}
@@ -147,36 +155,37 @@ defmodule DevactionUISite.ChangelogHTML do
       id={anchor(@version)}
       data-release
       class={[
-        "relative scroll-mt-6 border-l pb-12 pl-6 sm:pl-8",
-        (@version.status == "next" && "border-dashed border-line-strong") ||
-          "border-solid border-line-strong"
+        "relative scroll-mt-6 border-l border-(--cl-rail) pb-12 pl-6 sm:pl-8",
+        (@version.status == "next" && "border-dashed") || "border-solid"
       ]}
     >
       <span
         class={[
-          "absolute -left-[7px] top-1.5 size-3 rounded-full border shadow-[0_0_0_4px_var(--wrap)]",
+          "absolute -left-[7px] top-1.5 box-content size-3 rounded-full border shadow-[0_0_0_4px_var(--wrap)]",
           timeline_dot(@version.status)
         ]}
         aria-hidden="true"
       ></span>
       <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-        <h2 class="m-0 text-[28px] font-semibold tracking-[-0.02em]">{@version.version}</h2>
-        <Tag.tag variant={status_variant(@version.status)} size={:lg}>
+        <h2 class="m-0 text-[28px] font-semibold leading-[normal] tracking-[-0.02em]">
+          {@version.version}
+        </h2>
+        <Tag.tag variant={status_variant(@version.status)} class="h-[26px] py-0 tracking-normal!">
           {status_label(@version.status)}
         </Tag.tag>
-        <span class="ml-auto font-mono text-xs text-muted">{released(@version)}</span>
+        <span class="ml-auto font-mono text-xs leading-[normal] text-muted">{released(@version)}</span>
       </div>
       <p class="m-0 mt-2.5 max-w-[720px] text-base leading-[1.6] text-ink-2">{@version.summary}</p>
 
       <div
         :if={@install}
-        class="mt-4 inline-flex max-w-full items-center gap-3 overflow-x-auto rounded-[10px] bg-[#18181B] py-1 pl-3.5 pr-1.5 font-mono text-[13px] text-[#E4E4E7]"
+        class="mt-4 box-content inline-flex h-10 max-w-full items-center gap-3 overflow-x-auto rounded-[10px] bg-(--site-code) pl-3.5 pr-1.5 font-mono text-[13px] text-(--cl-code-ink)"
       >
-        <code id={"install-" <> anchor(@version)} class="whitespace-nowrap">{@install}</code>
+        <code id={"install-" <> anchor(@version)} class="whitespace-nowrap font-[inherit]">{@install}</code>
         <button
           type="button"
           data-copy-text={@install}
-          class="group inline-flex h-7 shrink-0 cursor-pointer items-center gap-1.5 rounded-[7px] border border-white/15 bg-white/10 px-2.5 font-sans text-xs text-[#E4E4E7] outline-none hover:bg-white/15 focus-visible:ring-2 focus-visible:ring-white/40"
+          class="group inline-flex h-[30px] shrink-0 cursor-pointer items-center gap-1.5 rounded-[7px] border border-(--cl-copy-line) bg-(--cl-copy-bg) px-2.5 font-sans text-xs leading-[normal] text-(--cl-code-ink) outline-none hover:brightness-125 focus-visible:ring-2 focus-visible:ring-white/40"
         >
           <span class="group-data-[copied]:hidden">Copy</span>
           <span class="hidden group-data-[copied]:inline" role="status">Copied</span>
@@ -191,30 +200,30 @@ defmodule DevactionUISite.ChangelogHTML do
           open={index == 0}
           class="group/details overflow-hidden rounded-[14px] border border-line bg-card"
         >
-          <summary class="flex cursor-pointer list-none items-center gap-3 px-4 py-3.5 outline-none focus-visible:ring-4 focus-visible:ring-ink/10 [&::-webkit-details-marker]:hidden">
+          <summary class="flex cursor-pointer list-none items-center gap-3 px-4 py-3.5 text-[15px] outline-none focus-visible:ring-4 focus-visible:ring-ink/10 [&::-webkit-details-marker]:hidden">
             <span class="font-semibold">{group}</span>
-            <span data-count class="font-mono text-xs text-muted">{length(entries)}</span>
+            <span data-count class="font-mono text-xs leading-[normal] text-muted">{length(entries)}</span>
             <.icon
               name="arrow-down-01"
               class="ml-auto size-4 text-muted transition-transform group-open/details:rotate-180"
             />
           </summary>
-          <ul class="m-0 list-none border-t border-line-soft p-0">
+          <ul class="m-0 list-none border-t border-(--cl-soft) p-0">
             <li
               :for={entry <- entries}
               data-kind={entry.kind}
-              class="grid grid-cols-1 items-baseline gap-x-3 gap-y-1 border-b border-line-soft px-4 py-[11px] text-sm last:border-b-0 md:grid-cols-[96px_170px_1fr]"
+              class="grid grid-cols-1 items-baseline gap-x-3 gap-y-1 border-b border-(--cl-soft) px-4 py-[11px] text-sm leading-[normal] md:grid-cols-[96px_170px_1fr]"
             >
               <.kind_badge kind={entry.kind} />
               <.entry_name entry={entry} />
-              <span class="leading-[1.5] text-ink-2">{entry.summary}</span>
+              <span class="leading-[1.5] text-(--cl-ink-2)">{entry.summary}</span>
             </li>
           </ul>
         </details>
         <p
           data-empty
           hidden
-          class="m-0 rounded-[14px] border border-dashed border-line-strong p-[18px] text-sm text-muted"
+          class="m-0 rounded-[14px] border border-dashed border-(--cl-rail) p-[18px] text-sm text-muted"
         >
           No change of this kind in this version.
         </p>
@@ -227,7 +236,12 @@ defmodule DevactionUISite.ChangelogHTML do
 
   defp kind_badge(assigns) do
     ~H"""
-    <Tag.tag variant={kind_variant(@kind)} class="justify-self-start">{@kind}</Tag.tag>
+    <Tag.tag
+      variant={kind_variant(@kind)}
+      class={["h-6 justify-self-start self-start py-0 tracking-normal!", kind_class(@kind)]}
+    >
+      {@kind}
+    </Tag.tag>
     """
   end
 
@@ -281,15 +295,15 @@ defmodule DevactionUISite.ChangelogHTML do
   defp status_variant("current"), do: :ok
   defp status_variant(_status), do: :neutral
 
-  defp timeline_dot("next"), do: "border-dashed border-muted-2 bg-wrap"
-  defp timeline_dot("current"), do: "border-dot-ok bg-dot-ok"
+  defp timeline_dot("next"), do: "border-dashed border-(--cl-dashed) bg-wrap"
+  defp timeline_dot("current"), do: "border-tag-ok-text bg-tag-ok-text"
   defp timeline_dot(_status), do: "border-line-strong bg-line-strong"
 
-  defp side_class("current"), do: "border-line bg-card font-medium text-ink"
-  defp side_class(_status), do: "border-transparent text-ink-2 hover:text-ink"
+  defp side_class("current"), do: "border border-line bg-card font-medium text-ink"
+  defp side_class(_status), do: "text-(--cl-ink-2) hover:text-ink"
 
-  defp side_dot("next"), do: "border-[1.5px] border-dashed border-muted-2"
-  defp side_dot("current"), do: "bg-dot-ok"
+  defp side_dot("next"), do: "border-[1.5px] border-dashed border-(--cl-dashed)"
+  defp side_dot("current"), do: "bg-tag-ok-text"
   defp side_dot(_status), do: "bg-dot-neutral"
 
   defp side_note("next"), do: "next"
@@ -305,10 +319,14 @@ defmodule DevactionUISite.ChangelogHTML do
   defp kind_variant("breaking"), do: :risk
   defp kind_variant("planned"), do: :warn
 
-  defp dot("all"), do: "bg-current"
-  defp dot("new"), do: "bg-dot-ok"
-  defp dot("improved"), do: "bg-dot-info"
-  defp dot("fixed"), do: "bg-dot-neutral"
-  defp dot("breaking"), do: "bg-dot-risk"
-  defp dot("planned"), do: "bg-dot-warn"
+  defp dot("all"), do: "bg-ink"
+  defp dot("new"), do: "bg-tag-ok-text"
+  defp dot("improved"), do: "bg-(--cl-info-text)"
+  defp dot("fixed"), do: "bg-tag-neutral-text"
+  defp dot("breaking"), do: "bg-tag-risk-text"
+  defp dot("planned"), do: "bg-tag-warn-text"
+
+  defp kind_class("improved"), do: "text-(--cl-info-text)!"
+  defp kind_class("fixed"), do: "border-(--cl-neutral-line)! bg-(--cl-neutral-bg)!"
+  defp kind_class(_kind), do: nil
 end
