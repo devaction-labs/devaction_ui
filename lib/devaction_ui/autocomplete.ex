@@ -1,16 +1,26 @@
 defmodule DevactionUI.Autocomplete do
   @moduledoc """
   Suggestions while you type, in groups (lessons, pull requests, tasks), with the part that matched in bold
-  and an optional last row that asks the AI. The server owns the search: the field sends `event` (debounced)
-  with the text, and the caller answers with `groups`; this component draws the field and the list and
-  moves the active row with ↑ ↓, opens it with Enter (the row is a link) and runs the AI row with ⌘ + Enter
-  (or Ctrl + Enter). Esc closes the list, typing opens it again.
+  and an optional last row that asks the AI. The server owns the search: the field sends `event` (debounced by
+  `debounce` ms) with the text, and the caller answers with `groups`; this component draws the field and the
+  list and moves the active row with ↑ ↓, opens it with Enter and runs the AI row with ⌘ + Enter (or Ctrl +
+  Enter). Esc closes the list, typing opens it again. The list also closes when the focus leaves the whole
+  component, a moment after, so the click that chose a row still lands.
 
-  A group is `%{label: "Lessons", items: [%{id: ..., label: ..., to: path, hint: "30", tone: :warn}]}`;
-  `hint` is a small mono badge, `tone` colors it. `highlight/2` splits a label around the query, ignoring
-  case and accents, for the bold part.
+  A group is `%{label: "Lessons", items: [%{id: ..., label: ..., to: path, hint: "30", tone: :warn}]}`; each
+  group is a `role="group"` named by its label. A row goes where `to` (a LiveView navigation), `patch` or
+  `href` says; `hint` is a small mono badge, `tone` colors it. The AI row sends `ask_event` with the typed text
+  in the `q` parameter (`phx-value-q`). `highlight/2` splits a label around the query, ignoring case and
+  accents, for the bold part.
+
+  The field tells assistive technology the list is open only when there is a row in it: not for a query that
+  found nothing and has no AI row. Icons are slots (`search_icon`, with a `⌕` when there is none) and the
+  key caps are `DevactionUI.Kbd`: `ask_kbd` is the key of the AI row, written by the caller (`⌘↵` on a Mac,
+  `Ctrl ↵` elsewhere).
   """
   use Phoenix.Component
+
+  import DevactionUI.Kbd
 
   alias DevactionUI.Tone
 
@@ -20,35 +30,56 @@ defmodule DevactionUI.Autocomplete do
   attr :label, :string, required: true, doc: "what is being searched, for assistive technology"
   attr :placeholder, :string, default: nil
   attr :event, :string, required: true, doc: "the event the field sends with the text, debounced"
-  attr :groups, :list, default: []
+  attr :debounce, :integer, default: 150, doc: "milliseconds the field waits before sending"
+
+  attr :groups, :list,
+    default: [],
+    doc: "`%{label, items: [%{id, label, to | patch | href, hint, tone}]}`"
+
   attr :empty, :string, required: true, doc: "shown when a query finds nothing"
 
   attr :ask_label, :string,
     default: nil,
     doc: "the text of the AI row, e.g. `Ask the AI about \"ecto\"`; no row when nil"
 
-  attr :ask_event, :string, default: nil, doc: "the event the AI row sends with the text"
+  attr :ask_event, :string, default: nil, doc: "the event the AI row sends with the text, as `q`"
+
+  attr :ask_kbd, :string,
+    default: nil,
+    doc: "the key of the AI row, as a key cap: `⌘↵`; none when nil"
+
   attr :class, :any, default: nil
 
   attr :rest, :global
+  slot :search_icon, doc: "the magnifier in the field"
 
+  @spec autocomplete(map()) :: Phoenix.LiveView.Rendered.t()
   def autocomplete(assigns) do
+    assigns =
+      assign(
+        assigns,
+        :expanded,
+        assigns.value != "" and (assigns.groups != [] or assigns.ask_label != nil)
+      )
+
     ~H"""
     <div id={@id} phx-hook="DevactionUI.Autocomplete" class={["relative", @class]} {@rest}>
       <form id={"#{@id}-form"} phx-change={@event} phx-submit={@event} autocomplete="off" class="m-0">
-        <label class="flex h-[46px] items-center gap-2.5 rounded-xl border border-line-strong bg-card px-3.5 focus-within:border-ink focus-within:ring-4 focus-within:ring-ink/10">
+        <label class="flex h-11 items-center gap-2.5 rounded-xl border border-line-strong bg-card px-3.5 focus-within:border-ink focus-within:ring-4 focus-within:ring-ink/10">
           <span class="sr-only">{@label}</span>
-          <span class="text-muted" aria-hidden="true">⌕</span>
+          <span class="size-4 shrink-0 text-muted" aria-hidden="true">
+            {render_slot(@search_icon)}<span :if={@search_icon == []}>⌕</span>
+          </span>
           <input
             type="search"
             name={@name}
             value={@value}
             role="combobox"
-            aria-expanded={to_string(@value != "")}
+            aria-expanded={to_string(@expanded)}
             aria-controls={"#{@id}-list"}
             aria-autocomplete="list"
             placeholder={@placeholder}
-            phx-debounce="150"
+            phx-debounce={@debounce}
             class="min-w-0 flex-1 border-0 bg-transparent p-0 text-[15px] text-ink outline-none placeholder:text-muted focus:ring-0"
           />
         </label>
@@ -59,19 +90,25 @@ defmodule DevactionUI.Autocomplete do
         id={"#{@id}-list"}
         role="listbox"
         aria-label={@label}
-        class="absolute z-40 mt-1.5 flex w-full flex-col rounded-[14px] border border-line bg-card p-1.5 shadow-[0_16px_40px_rgba(24,24,27,0.12)]"
+        class="absolute z-40 mt-1.5 flex w-full flex-col rounded-[14px] border border-line bg-card p-1.5 shadow-pop"
       >
         <p :if={@groups == []} class="m-0 px-2.5 py-3 text-sm text-muted">{@empty}</p>
-        <%= for group <- @groups do %>
-          <span class="px-2.5 pt-2 pb-1 font-mono text-[11px] uppercase tracking-[0.08em] text-muted">
+        <div
+          :for={{group, index} <- Enum.with_index(@groups)}
+          role="group"
+          aria-labelledby={"#{@id}-group-#{index}"}
+          class="flex flex-col"
+        >
+          <span
+            id={"#{@id}-group-#{index}"}
+            class="px-2.5 pt-2 pb-1 font-mono text-[11px] uppercase tracking-[0.08em] text-muted"
+          >
             {group.label}
           </span>
-          <.link
+          <.option
             :for={item <- group.items}
             id={"#{@id}-item-#{item.id}"}
-            role="option"
-            navigate={item.to}
-            data-option
+            item={item}
             class="group flex min-h-10 items-center gap-2.5 rounded-[9px] px-2.5 text-sm text-ink no-underline data-[active]:bg-wrap"
           >
             <span
@@ -84,21 +121,82 @@ defmodule DevactionUI.Autocomplete do
               {item.hint}
             </span>
             <span>{marked(item.label, @value)}</span>
-            <kbd
-              class="ml-auto hidden font-mono text-[11px] text-muted group-data-[active]:inline"
-              aria-hidden="true"
-            >↵</kbd>
-          </.link>
-        <% end %>
-        <.ask_row :if={@ask_label} id={@id} label={@ask_label} event={@ask_event} query={@value} />
+            <.kbd tone={:bare} class="ml-auto hidden group-data-[active]:inline" aria-hidden="true">
+              ↵
+            </.kbd>
+          </.option>
+        </div>
+        <.ask_row
+          :if={@ask_label}
+          id={@id}
+          label={@ask_label}
+          event={@ask_event}
+          kbd={@ask_kbd}
+          query={@value}
+        />
       </div>
     </div>
     """
   end
 
   attr :id, :string, required: true
+
+  attr :item, :map,
+    required: true,
+    doc: "`%{to | patch | href}` goes there; `%{event}` sends it with the item's `id`"
+
+  attr :class, :any, default: nil
+  attr :rest, :global
+  slot :inner_block, required: true
+
+  @doc """
+  One row of the list, for `DevactionUI.Autocomplete` and `DevactionUI.CommandPalette`: a link when the item has
+  `to` (a LiveView navigation), `patch` or `href`, and a button that sends `event` with the item's `id` (as
+  `id`) when it has `event`. It is a `role="option"` the hook can move over.
+  """
+  @spec option(map()) :: Phoenix.LiveView.Rendered.t()
+  def option(%{item: %{event: event}} = assigns) do
+    assigns = assign(assigns, :event, event)
+
+    ~H"""
+    <button
+      type="button"
+      id={@id}
+      role="option"
+      aria-selected="false"
+      data-option
+      phx-click={@event}
+      phx-value-id={@item.id}
+      class={[@class, "w-full text-left outline-none"]}
+      {@rest}
+    >
+      {render_slot(@inner_block)}
+    </button>
+    """
+  end
+
+  def option(assigns) do
+    ~H"""
+    <.link
+      id={@id}
+      role="option"
+      aria-selected="false"
+      navigate={Map.get(@item, :to)}
+      patch={Map.get(@item, :patch)}
+      href={Map.get(@item, :href)}
+      data-option
+      class={@class}
+      {@rest}
+    >
+      {render_slot(@inner_block)}
+    </.link>
+    """
+  end
+
+  attr :id, :string, required: true
   attr :label, :string, required: true
   attr :event, :string, required: true
+  attr :kbd, :string, default: nil
   attr :query, :string, required: true
 
   defp ask_row(assigns) do
@@ -108,6 +206,7 @@ defmodule DevactionUI.Autocomplete do
       type="button"
       id={"#{@id}-ask"}
       role="option"
+      aria-selected="false"
       data-ask
       data-option
       phx-click={@event}
@@ -116,12 +215,13 @@ defmodule DevactionUI.Autocomplete do
     >
       <span class="size-2.5 rounded-full bg-ai" aria-hidden="true" />
       <span>{@label}</span>
-      <kbd class="ml-auto font-mono text-[11px]" aria-hidden="true">⌘↵</kbd>
+      <.kbd :if={@kbd} tone={:bare} class="ml-auto" aria-hidden="true">{@kbd}</.kbd>
     </button>
     """
   end
 
-  defp marked(label, query) do
+  @doc false
+  def marked(label, query) do
     label
     |> highlight(query)
     |> Enum.map(fn
@@ -133,12 +233,15 @@ defmodule DevactionUI.Autocomplete do
 
   defp escape(text), do: text |> Phoenix.HTML.html_escape() |> Phoenix.HTML.safe_to_string()
 
-  defp tone_class(tone), do: [Tone.text(tone), tone_bg(tone)]
-  defp tone_bg(:warn), do: "bg-tag-warn-bg"
-  defp tone_bg(:info), do: "bg-tag-info-bg"
-  defp tone_bg(:ok), do: "bg-tag-ok-bg"
-  defp tone_bg(:risk), do: "bg-tag-risk-bg"
-  defp tone_bg(:neutral), do: "bg-tag-neutral-bg"
+  @doc false
+  def tone_class(tone), do: [Tone.text(tone), tone_bg(tone)]
+
+  @doc false
+  def tone_bg(:warn), do: "bg-tag-warn-bg"
+  def tone_bg(:info), do: "bg-tag-info-bg"
+  def tone_bg(:ok), do: "bg-tag-ok-bg"
+  def tone_bg(:risk), do: "bg-tag-risk-bg"
+  def tone_bg(:neutral), do: "bg-tag-neutral-bg"
 
   @doc """
   Splits `label` around the first place `query` appears, ignoring case and accents:

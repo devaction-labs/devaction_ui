@@ -21,6 +21,7 @@
                 id: "p142",
                 label: "Wrap tithes in a transaction",
                 to: "/",
+                sub: "Open for 3 days",
                 hint: "#142",
                 tone: :risk
               },
@@ -48,6 +49,7 @@
   empty="Nothing found."
   ask_label={@shell.query != "" && "Ask the AI about \"#{@shell.query}\""}
   ask_event="ask"
+  ask_kbd="⌘↵"
   scopes={[
     %{value: "all", label: "All"},
     %{value: "prs", label: "PRs"},
@@ -58,4 +60,5 @@
   keys={[{"↑↓", "move"}, {"↵", "open"}, {"⌘↵", "ask the AI"}, {"esc", "close"}]}
 >
   <:search_icon><.icon name="search-01" class="size-[18px]" /></:search_icon>
+  <:item_icon><.icon name="task-01" class="size-4" /></:item_icon>
 </CommandPalette.palette>
