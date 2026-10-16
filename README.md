@@ -80,7 +80,7 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 | `DevactionUI.Tone` | the five tones (`risk`, `warn`, `ok`, `info`, `neutral`) as class strings, and the canvas's kinds (`note`, `ai`, `tip`, `warning`, `decision`) mapped to them |
 | `DevactionUI.Tag` | the mono label; `variant`, `size: :md \| :sm`, `surface: :tinted \| :plain` |
 | `DevactionUI.Callout` | a tinted block with title, icon, body and actions |
-| `DevactionUI.CodeBlock` | code in mono: the dark suggestion block and the tinted "your code" / "idiomatic" ones |
+| `DevactionUI.CodeBlock` | code in mono: the dark suggestion block and the tinted "your code" / "idiomatic" ones; a `label` makes it a focusable region, `copy_label` adds a copy button; `lang: :heex` colours it |
 | `DevactionUI.Kbd` | a key cap |
 | `DevactionUI.Panel` | the canvas card (a soft wrap around a bordered panel), `eyebrow/1` and `empty/1` |
 | `DevactionUI.Button` | button or link, `variant` (primary, secondary, ghost, ai, danger, info, link), `size` sm/md/lg, `loading` |
