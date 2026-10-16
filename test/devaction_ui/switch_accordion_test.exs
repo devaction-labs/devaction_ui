@@ -121,6 +121,56 @@ defmodule DevactionUI.SwitchAccordionTest do
       refute card =~ "text-[13px] text-muted"
     end
 
+    test "without a name it writes no field and no hook" do
+      assigns = %{}
+
+      html = rendered_to_string(~H|<Switch.switch id="s" label="Auto" />|)
+      refute html =~ ~s(type="hidden")
+      refute html =~ "phx-hook"
+    end
+
+    test "with a name it carries the state in a hidden field the hook keeps" do
+      assigns = %{}
+
+      off = rendered_to_string(~H|<Switch.switch id="s" label="Auto" name="user[auto]" />|)
+      assert off =~ ~s(phx-hook="DevactionUI.Switch")
+      assert off =~ ~r/<input[^>]*type="hidden"/
+      assert off =~ ~s(id="s-field")
+      assert off =~ ~s(name="user[auto]")
+      assert off =~ ~s(value="false")
+
+      on = rendered_to_string(~H|<Switch.switch id="s" label="Auto" name="user[auto]" checked />|)
+      assert on =~ ~s(value="true")
+    end
+
+    test "a disabled switch does not submit its field" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H|<Switch.switch id="s" label="Auto" name="user[auto]" disabled />|)
+
+      assert html =~ ~r/<input[^>]*id="s-field"[^>]* disabled/
+    end
+
+    test "a row and a card pass the name on to the switch" do
+      assigns = %{}
+
+      row = rendered_to_string(~H|<Switch.switch_row id="r" label="Weekly" name="n[r]" />|)
+      assert row =~ ~s(id="r-field")
+      assert row =~ ~s(name="n[r]")
+
+      card = rendered_to_string(~H|<Switch.switch_card id="c" label="Lessons" name="n[c]" />|)
+      assert card =~ ~s(id="c-field")
+      assert card =~ ~s(name="n[c]")
+    end
+
+    test "the track takes touch without a double-tap zoom and has a hit area of 44px" do
+      css = File.read!("assets/css/devaction_ui.css")
+
+      assert css =~ ~r/\.switch\s+\{[^}]*touch-manipulation/
+      assert css =~ ~r/\.switch\s+\{[^}]*before:-inset-y-2\.5/
+    end
+
     test "the confirmation is a status band with its icon" do
       assigns = %{}
 

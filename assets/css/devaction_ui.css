@@ -223,7 +223,7 @@
    DevactionUI component or a screen wears one class and both themes follow the tokens. */
 @layer components {
   /* Switch */
-  .switch    { @apply relative inline-flex h-6 w-10 shrink-0 cursor-pointer items-center rounded-full bg-line-strong p-[3px] transition-colors
+  .switch    { @apply relative inline-flex h-6 w-10 shrink-0 touch-manipulation cursor-pointer items-center rounded-full bg-line-strong p-[3px] transition-colors
                      aria-checked:bg-ink aria-disabled:cursor-not-allowed aria-disabled:opacity-40 focus-visible:ring-4 focus-visible:ring-ink/10
                      before:absolute before:-inset-x-1 before:-inset-y-2.5 before:content-['']
                      *:grid *:size-4.5 *:place-items-center *:rounded-full *:bg-(--switch-thumb) *:text-ink-2 *:shadow-sm *:transition-transform
