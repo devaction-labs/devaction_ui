@@ -1,9 +1,10 @@
 defmodule DevactionUI.Highlight do
   @moduledoc """
   Splits HEEx source into tokens a code block can colour: `{kind, text}` pairs whose texts, joined, are the
-  source again. It reads the shapes of a template (tags, components, slots, attributes, strings, `{}` and
-  `<% %>` expressions, comments), not the Elixir inside them, so it is cheap and never fails: what it does not
-  know is plain `:text`.
+  source again. It reads the shapes of a template (tags, components, slots, attributes, strings in single or
+  double quotes, `{}` and `<% %>` expressions, `<!-- -->` and `<%!-- --%>` comments), not the Elixir inside
+  them, so it is cheap and never fails: what it does not know, or what is cut short, is plain `:text`.
+  It only knows HEEx: it is what `CodeBlock` runs for `lang: :heex`.
 
   Kinds: `:punct`, `:html`, `:component`, `:slot`, `:attr`, `:string`, `:expr`, `:comment`, `:text`.
   """
@@ -12,13 +13,14 @@ defmodule DevactionUI.Highlight do
 
   @tag_name ~r/\A\/?[.:A-Za-z][\w.:\-]*/
   @attr_name ~r/\A[\w:@.\-\[\]]+/
-  @string ~r/\A"[^"]*"/
+  @string ~r/\A(?:"[^"]*"|'[^']*')/
 
   @doc "The tokens of a HEEx source."
   @spec heex(String.t()) :: [{kind(), String.t()}]
   def heex(source), do: source |> scan([]) |> Enum.reverse() |> merge([])
 
   defp scan("", acc), do: acc
+  defp scan("<!--" <> _ = rest, acc), do: until(rest, "-->", :comment, acc)
   defp scan("<%!--" <> _ = rest, acc), do: until(rest, "--%>", :comment, acc)
   defp scan("<%" <> _ = rest, acc), do: until(rest, "%>", :expr, acc)
   defp scan("{" <> _ = rest, acc), do: braces(rest, :expr, acc)

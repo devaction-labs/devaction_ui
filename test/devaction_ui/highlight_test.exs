@@ -51,6 +51,24 @@ defmodule DevactionUI.HighlightTest do
     assert {:expr, "<%= @x %>"} in tokens
   end
 
+  test "single-quoted attribute values are strings" do
+    tokens = kinds(~S|<a href='x "y"' id="z">|)
+
+    assert {:string, ~S|'x "y"'|} in tokens
+    assert {:string, ~S|"z"|} in tokens
+  end
+
+  test "html comments are whole tokens" do
+    assert {:comment, "<!-- a <b> -->"} in kinds("<!-- a <b> --><p>")
+    assert {:html, "p"} in kinds("<!-- a --><p>")
+  end
+
+  test "truncated input still round-trips" do
+    for source <- ["<!-- open", "<%!-- open", "<div class=\"x", "<div class='x", "<a b={ {", "<"] do
+      assert Highlight.heex(source) |> Enum.map_join(&elem(&1, 1)) == source
+    end
+  end
+
   test "a lone less-than sign is text" do
     assert kinds("1 < 2") == []
   end
