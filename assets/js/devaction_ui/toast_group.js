@@ -1,9 +1,10 @@
 import {runKey} from "./keys.js"
-import {countText, escapeStep, HOVER_CLOSE_MS, hoverStep, layerCount, planLayout, stackPadding, styleFor} from "./toast_logic.js"
+import {countText, escapeStep, GLIDE_MS, glideSteps, HOVER_CLOSE_MS, hoverStep, planLayout} from "./toast_logic.js"
 
 /**
- * Notices that pile up without covering the screen: a toast with up to two layers peeking out above it
- * while there are several, a panel with a heading, "Collapse" and "Clear" when opened. The pile opens by
+ * Notices that pile up without covering the screen: the toasts overlap as a pile, each one a little behind
+ * and smaller than the one in front, while there are several; a panel with a heading, "Collapse" and "Clear"
+ * when opened. Each toast glides from its place in the pile to its place in the list, and back. The pile opens by
  * itself while the pointer or the focus is on it and closes a moment after they leave; a click opens it for
  * good (until "Collapse"), which is also what a tap does. A toast closes by itself after its `data-duration` (0
  * keeps it), the timers pausing while the pointer or the focus is in the group or the list is open. Closing
@@ -75,8 +76,32 @@ export default {
   },
 
   expand(open) {
+    const before = this.places()
     this.el.dataset.expanded = String(open)
     this.layout()
+    this.glide(before)
+  },
+
+  places() {
+    return new Map(
+      this.toasts().map((toast) => {
+        const box = toast.getBoundingClientRect()
+        return [toast.id, {x: box.left, y: box.top}]
+      }),
+    )
+  },
+
+  glide(before) {
+    const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    const after = this.places()
+    const toasts = new Map(this.toasts().map((toast) => [toast.id, toast]))
+    calm ||
+      glideSteps(before, after).forEach(({id, dx, dy}) =>
+        toasts.get(id).animate(
+          [{transform: `translate(${dx}px, ${dy}px)`}, {transform: "translate(0, 0)"}],
+          {duration: GLIDE_MS, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)"},
+        ),
+      )
   },
 
   pause(on) {
@@ -109,18 +134,15 @@ export default {
       label: this.el.dataset.countLabel,
       count: toasts.length,
     })
-    const layers = plan.stacked ? layerCount(toasts.length) : 0
     this.el.dataset.stacked = String(plan.stacked)
-    this.el.querySelectorAll("[data-layer]").forEach((layer) => (layer.hidden = Number(layer.dataset.layer) > layers))
+    this.el.style.setProperty("--front-h", plan.stacked ? `${toasts[0]?.offsetHeight ?? 0}px` : "")
 
     toasts.forEach((toast, index) => this.style(toast, index, plan.stacked))
-    this.el.style.paddingTop = plan.stacked ? stackPadding(toasts.length) : ""
     this.schedule()
   },
 
   style(toast, index, stacked) {
     const behind = stacked && index > 0
-    Object.assign(toast.style, styleFor({index, stacked}))
     toast.toggleAttribute("aria-hidden", behind)
     toast.inert = behind
   },

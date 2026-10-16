@@ -1,6 +1,6 @@
 import assert from "node:assert/strict"
 import test from "node:test"
-import {countText, escapeStep, EXIT_MS, HOVER_CLOSE_MS, hoverStep, layerCount, leftAfter, LINGER_MS, plan, planLayout, stackPadding, styleFor} from "./toast_logic.js"
+import {countText, escapeStep, EXIT_MS, GLIDE_MS, glideSteps, HOVER_CLOSE_MS, hoverStep, leftAfter, LINGER_MS, plan, planLayout} from "./toast_logic.js"
 
 test("one toast is never a stack, and opening it changes nothing", () => {
   assert.deepEqual(planLayout({count: 1, expanded: true}), {expanded: false, stacked: false, showBar: false, showExpand: false})
@@ -10,28 +10,6 @@ test("one toast is never a stack, and opening it changes nothing", () => {
 test("several toasts are a stack until opened", () => {
   assert.deepEqual(planLayout({count: 3, expanded: false}), {expanded: false, stacked: true, showBar: false, showExpand: true})
   assert.deepEqual(planLayout({count: 3, expanded: true}), {expanded: true, stacked: false, showBar: true, showExpand: false})
-})
-
-test("behind the front toast of a stack nothing is drawn: the blocks of the group stand for it", () => {
-  assert.equal(styleFor({index: 1, stacked: true}).display, "none")
-  assert.equal(styleFor({index: 4, stacked: true}).display, "none")
-})
-
-test("a stack leaves room above for the layers that peek out over it, and a lone toast none", () => {
-  assert.equal(stackPadding(2), "16px")
-  assert.equal(stackPadding(9), "16px")
-  assert.equal(stackPadding(1), "")
-})
-
-test("a stack shows one layer per toast behind the front one, at most two", () => {
-  assert.deepEqual([0, 1, 2, 3, 9].map(layerCount), [0, 0, 1, 2, 2])
-})
-
-test("the style follows the toast's place: hidden, the lead of a stack, or a normal one", () => {
-  assert.equal(styleFor({index: 0, stacked: true}).zIndex, "20")
-  assert.equal(styleFor({index: 0, stacked: true}).display, "")
-  assert.equal(styleFor({index: 0, stacked: false}).position, "")
-  assert.equal(styleFor({index: 3, stacked: false}).display, "")
 })
 
 test("the bar reads the heading, then the count", () => {
@@ -76,4 +54,12 @@ test("pointing at a collapsed stack opens it, and it closes again only if it ope
   assert.equal(hoverStep({...stack, event: "leave", expanded: true, auto: true}), "close")
   assert.equal(hoverStep({...stack, event: "leave", expanded: true, auto: false}), null)
   assert.equal(HOVER_CLOSE_MS, 250)
+})
+
+test("a toast glides from where it was drawn to where the layout puts it, and one that did not move stays put", () => {
+  const before = new Map([["a", {x: 10, y: 100}], ["b", {x: 10, y: 90}], ["c", {x: 10, y: 80}]])
+  const after = new Map([["a", {x: 10, y: 100}], ["b", {x: 10, y: 40}], ["d", {x: 10, y: 0}]])
+
+  assert.deepEqual(glideSteps(before, after), [{id: "b", dx: 0, dy: 50}])
+  assert.equal(GLIDE_MS, 320)
 })

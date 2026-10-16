@@ -1,5 +1,5 @@
 <%!-- title: Heading and dots | text: The pile with a heading and a dot for each notice; opened it is a panel with a card for each --%>
-<div class="h-44 max-w-[380px]">
+<div class="relative h-60 w-[380px] max-w-full">
   <ToastGroup.toast_group
     id="toast-group-panel"
     label="AI review"
@@ -11,6 +11,7 @@
     clear_label="Clear"
     dismiss_label="Close"
     count_label="__COUNT__"
+    class="absolute inset-x-0 bottom-0"
   >
     <:toast id="toast-panel-3" dot={:warn} title="Review of #142 is ready" duration={0}>
       +2 notices
