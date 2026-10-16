@@ -444,6 +444,11 @@ defmodule DevactionUI.FeedbackTonesTest do
       refute html =~ "data-stack-count"
     end
 
+    test "the button that opens the pile takes no room, so the layers end at the front toast" do
+      html = rendered_to_string(stack(%{}))
+      assert html =~ ~r/<button[^>]*data-expand[^>]*class="sr-only"/s
+    end
+
     test "a toast can carry its dot, 10px and 8px when opened" do
       html = rendered_to_string(stack(%{}))
 

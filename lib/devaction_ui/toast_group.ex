@@ -146,7 +146,7 @@ defmodule DevactionUI.ToastGroup do
         type="button"
         data-expand
         hidden
-        class="rounded-lg px-2 py-1 text-center text-[13px] text-muted outline-none hover:text-ink focus-visible:ring-2 focus-visible:ring-ink/20"
+        class="sr-only"
       >
         {@expand_label}
       </button>
