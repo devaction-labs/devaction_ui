@@ -2,7 +2,7 @@
 
 Every release lists new components, improvements, fixes and breaking changes. While the version is 0.x a minor release may break compatibility, and every break is listed with the step to follow.
 
-## Unreleased
+## 0.3.3
 
 Found by the audit of the 0.3.x components against the artboards (issues 74 to 80).
 
