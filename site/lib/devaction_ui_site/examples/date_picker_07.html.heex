@@ -1,0 +1,35 @@
+<%!-- title: Date Range Field | text: Two linked fields and one calendar in range mode; the end cannot be before the start. Below, a field in its error state. --%>
+<div class="flex w-full max-w-md flex-col gap-6">
+  <DatePicker.date_range
+    id="date-range"
+    name="milestone"
+    label="Milestone period"
+    value={{"2026-10-13", nil}}
+    today="2026-10-14"
+    placeholder="dd/mm/yyyy"
+    from_label="Start"
+    to_label="End"
+    inside_label="in the range"
+    calendar_label="Choose the period"
+    previous_label="Previous month"
+    next_label="Next month"
+  >
+    <:icon><.icon name="calendar-03" class="size-full" /></:icon>
+    <:prev_icon><.icon name="arrow-down-01" class="size-3 rotate-90" /></:prev_icon>
+    <:next_icon><.icon name="arrow-down-01" class="size-3 -rotate-90" /></:next_icon>
+  </DatePicker.date_range>
+  <DatePicker.date_input
+    id="date-input-error"
+    name="task[start]"
+    label="Start date"
+    value={nil}
+    today="2026-10-14"
+    placeholder="dd/mm/yyyy"
+    error="Pick a day from today on."
+    calendar_label="Choose a date"
+    previous_label="Previous month"
+    next_label="Next month"
+  >
+    <:icon><.icon name="calendar-03" class="size-full" /></:icon>
+  </DatePicker.date_input>
+</div>

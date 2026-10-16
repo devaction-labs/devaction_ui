@@ -3,6 +3,7 @@ import {renderCalendar} from "./date_picker_view.js"
 import {runKey} from "./keys.js"
 
 const UTC = {timeZone: "UTC"}
+const SET_EVENT = "devaction:date-picker-set"
 
 /**
  * A month calendar for one day or a range. The server gives it what only the server knows (`data-today` in
@@ -10,8 +11,9 @@ const UTC = {timeZone: "UTC"}
  * browser's `Intl`. A pick goes into the hidden inputs as ISO dates and fires `input` so `phx-change` hears
  * it. Keys: ← → a day, ↑ ↓ a week, PageUp/PageDown a month, Home/End the ends of the week, Enter picks.
  * The element is `phx-update="ignore"`: a new `value` from the server is not shown until the element gets a new
- * id. The month title is capitalised unless `data-capitalize="false"`; the arrows come from the `<template>`s
- * of the icon slots.
+ * id, unless something sends it a `devaction:date-picker-set` event with `{from, to}` in its `detail` (a
+ * `Phoenix.LiveView.JS.dispatch/3` from the server, or the date field that owns it). The month title is
+ * capitalised unless `data-capitalize="false"`; the arrows come from the `<template>`s of the icon slots.
  */
 export default {
   mounted() {
@@ -31,7 +33,24 @@ export default {
 
     this.el.addEventListener("click", (event) => this.onClick(event))
     this.el.addEventListener("keydown", (event) => this.onKey(event))
+    this.el.addEventListener(SET_EVENT, (event) => this.set(event.detail))
     this.draw()
+  },
+
+  set({from = null, to = null} = {}) {
+    this.selection = {from, to}
+    this.focus = clampMin(from ?? this.focus, this.min)
+    this.view = monthOf(this.focus)
+    this.writeInputs()
+    this.draw()
+  },
+
+  writeInputs() {
+    const from = this.el.querySelector("[data-from-input]")
+    const to = this.el.querySelector("[data-to-input]")
+    from.value = this.selection.from ?? ""
+    to && (to.value = this.selection.to ?? "")
+    return from
   },
 
   onClick(event) {
@@ -70,10 +89,7 @@ export default {
     this.focus = iso
     this.view = jump ? monthOf(iso) : this.view
 
-    const from = this.el.querySelector("[data-from-input]")
-    const to = this.el.querySelector("[data-to-input]")
-    from.value = this.selection.from ?? ""
-    to && (to.value = this.selection.to ?? "")
+    const from = this.writeInputs()
 
     this.draw({refocus: true})
     from.dispatchEvent(new Event("input", {bubbles: true}))
