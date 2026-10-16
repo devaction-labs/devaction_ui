@@ -11,7 +11,7 @@ defmodule DevactionUISite.ExampleLive do
   alias DevactionUISite.TopicHTML
 
   @forms_repos ~w(sge-api ayram-web hub-api)
-  @overlays ~w(drawer_floating drawer_docked drawer_left drawer_wide modal_confirm modal_form modal_success danger)
+  @overlays ~w(drawer_floating drawer_docked drawer_left drawer_wide modal_confirm modal_form modal_success modal_tall danger drawer_sheet drawer_stack confirm_locked)
 
   @rows [
     %{
@@ -119,7 +119,7 @@ defmodule DevactionUISite.ExampleLive do
          model: "fixed",
          publish: "draft"
        },
-       overlays: %{kind: nil, typed: "", done: false},
+       overlays: %{kind: nil, typed: "", done: false, nested: false},
        switches: %{on: ["auto_review", "card_ai", "repo-sge-api"], saving: nil, saved: false},
        confirming: false,
        published: false,
@@ -185,12 +185,19 @@ defmodule DevactionUISite.ExampleLive do
     do: {:noreply, update_forms(socket, &Map.put(&1, :publish, publish))}
 
   def handle_event("overlay_open", %{"kind" => kind}, socket) when kind in @overlays,
-    do: {:noreply, assign(socket, :overlays, %{kind: kind, typed: "", done: false})}
+    do:
+      {:noreply, assign(socket, :overlays, %{kind: kind, typed: "", done: false, nested: false})}
 
   def handle_event("overlay_open", _params, socket), do: {:noreply, socket}
 
   def handle_event("overlay_close", _params, socket),
-    do: {:noreply, update(socket, :overlays, &%{&1 | kind: nil, typed: ""})}
+    do: {:noreply, update(socket, :overlays, &%{&1 | kind: nil, typed: "", nested: false})}
+
+  def handle_event("overlay_nested", _params, socket),
+    do: {:noreply, update(socket, :overlays, &%{&1 | nested: true})}
+
+  def handle_event("overlay_unnest", _params, socket),
+    do: {:noreply, update(socket, :overlays, &%{&1 | nested: false})}
 
   def handle_event("overlay_type", %{"value" => typed}, socket),
     do: {:noreply, update(socket, :overlays, &%{&1 | typed: typed})}
@@ -437,7 +444,9 @@ defmodule DevactionUISite.ExampleLive do
   defp toggle(list, item, true), do: List.delete(list, item)
   defp toggle(list, item, false), do: [item | list]
 
-  defp confirm(socket, true), do: assign(socket, :overlays, %{kind: nil, typed: "", done: true})
+  defp confirm(socket, true),
+    do: assign(socket, :overlays, %{kind: nil, typed: "", done: true, nested: false})
+
   defp confirm(socket, false), do: socket
 
   defp job_state(100), do: :done

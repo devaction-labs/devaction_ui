@@ -7,8 +7,26 @@ defmodule DevactionUI.Modal do
   The LiveView decides when it is there (`:if={@open}`). It takes the focus in, keeps it inside, closes with Esc
   and, unless it is `dismissible={false}`, with a click outside; the focus goes back to the button that opened it
   when that button used `open/1`. Sizes: `:sm` 400, `:md` 520 (default), `:lg` 720. A tall body scrolls inside
-  the panel, between the header and the footer. The page behind is not locked from scrolling and the rest of
-  the page is not made inert: only the focus is kept inside.
+  the panel, between the header and the footer.
+
+  While it is open the `DevactionUI.Overlay` hook locks the scroll of the page and makes everything around it
+  `inert` (put `data-overlay-keep` on what has to stay usable, such as a toast region). Overlays stack: Esc
+  closes only the one on top. The stacking order, from the bottom: a popover in place `z-40`, a tooltip
+  `z-50`, a `DevactionUI.Drawer` `z-60`, a modal `z-70` (so a modal opened from a drawer is over it), a popover
+  with `portal` `z-80`; a toast region of the app has to be above that.
+
+  The body is whatever goes in the default slot and the actions go in `footer`:
+
+      <Modal.modal id="rename" on_close="close" close_label="Close">
+        <:close_icon><.icon name="x" /></:close_icon>
+        <:title>Rename the project</:title>
+        <:subtitle>The new name shows to the whole team.</:subtitle>
+        <input name="name" />
+        <:footer><button>Cancel</button><button>Save</button></:footer>
+      </Modal.modal>
+
+  With `centered` the icon tile, the title and the text sit in the middle and the footer buttons too: the
+  success variant, usually with `tone={:ok}`.
   """
   use Phoenix.Component
 
@@ -26,7 +44,8 @@ defmodule DevactionUI.Modal do
   def close(event) when is_binary(event), do: JS.pop_focus() |> JS.push(event)
 
   attr :id, :string, required: true
-  attr :size, :atom, values: [:sm, :md, :lg], default: :md
+
+  attr :size, :atom, values: [:sm, :md, :lg], default: :md, doc: "400, 520 or 720 px wide"
 
   attr :tone, :atom,
     values: [:neutral, :info, :ok, :warn, :risk],
@@ -65,10 +84,10 @@ defmodule DevactionUI.Modal do
     ~H"""
     <div
       id={@id}
-      class="fixed inset-0 z-50 flex items-center justify-center p-4"
+      class="fixed inset-0 z-[70] flex items-center justify-center p-4"
+      phx-hook="DevactionUI.Overlay"
+      data-close={close(@on_close)}
       phx-mounted={focus(@focus, @id)}
-      phx-window-keydown={close(@on_close)}
-      phx-key="escape"
       {@rest}
     >
       <div

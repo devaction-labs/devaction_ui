@@ -1,0 +1,17 @@
+<%!-- title: Portal | text: Inside a box that clips and scrolls; the panel is drawn at the level of the page --%>
+<div class="h-24 overflow-auto rounded-xl border border-line p-3">
+  <div class="flex flex-col gap-3">
+    <p class="m-0 text-sm text-ink-2">The box below clips whatever leaves it.</p>
+    <Popover.popover id="popover-portal" label="Details" portal>
+      <:trigger>
+        <Button.button variant={:secondary} size={:sm}>Open in the portal</Button.button>
+      </:trigger>
+      <p class="m-0 font-semibold text-ink">Not clipped</p>
+      <p class="m-0 mt-1 text-sm text-ink-2">
+        The panel moves to the body and follows the trigger on scroll and resize.
+      </p>
+    </Popover.popover>
+    <p class="m-0 text-sm text-ink-2">More content, so the box scrolls.</p>
+    <p class="m-0 text-sm text-ink-2">And more.</p>
+  </div>
+</div>

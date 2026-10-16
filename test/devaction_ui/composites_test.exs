@@ -292,7 +292,7 @@ defmodule DevactionUI.CompositesTest do
       assert html =~ ~s(aria-modal="true")
       assert html =~ ~s(aria-labelledby="c-title")
       assert html =~ ~s(aria-describedby="c-subtitle")
-      assert html =~ ~s(phx-key="escape")
+      assert html =~ ~s(phx-hook="DevactionUI.Overlay")
       assert html =~ "modal-md"
       assert html =~ "modal-icon"
       assert html =~ "pop_focus"

@@ -328,6 +328,58 @@ defmodule DevactionUI.MoreTest do
     assert html =~ "mb-1.5"
   end
 
+  test "Popover opens on any of the four sides, with the arrow and the alignment following the side" do
+    assigns = %{}
+
+    html =
+      rendered_to_string(~H"""
+      <Popover.popover id="p" label="Details" placement={:right} align={:end}>
+        <:trigger><a href="#">Open</a></:trigger>
+        Body
+      </Popover.popover>
+      """)
+
+    assert html =~ ~s(data-placement="right")
+    assert html =~ ~s(data-align="end")
+    assert html =~ "data-[side=right]:left-full"
+    assert html =~ "data-[side=left]:right-full"
+    assert html =~ "data-[side=right]:bottom-0"
+    assert html =~ "data-[side=left]:-right-[6px]"
+    assert html =~ "data-[side=right]:-left-[6px]"
+    assert html =~ "data-[side=right]:bottom-7"
+    refute html =~ "data-portal"
+  end
+
+  test "Popover with portal tells the hook to take the panel out of its box" do
+    assigns = %{}
+
+    html =
+      rendered_to_string(~H"""
+      <Popover.popover id="p" label="Details" portal>
+        <:trigger><a href="#">Open</a></:trigger>
+        Body
+      </Popover.popover>
+      """)
+
+    assert html =~ ~r/<div[^>]*id="p"[^>]*data-portal/s
+    assert html =~ ~s(phx-hook="DevactionUI.Popover")
+  end
+
+  test "Popover keeps what the hook sets on the panel and on the arrow across updates" do
+    assigns = %{}
+
+    html =
+      rendered_to_string(~H"""
+      <Popover.popover id="p" label="Details">
+        <:trigger><a href="#">Open</a></:trigger>
+        Body
+      </Popover.popover>
+      """)
+
+    assert length(Regex.scan(~r/ignore_attrs/, html)) == 2
+    assert html =~ "style"
+  end
+
   describe "ToastGroup" do
     defp group(assigns) do
       ~H"""

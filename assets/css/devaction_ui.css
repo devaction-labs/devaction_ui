@@ -359,6 +359,7 @@
   @media (prefers-reduced-motion: reduce) { .accordion-chevron, .switch, .switch > * { transition: none; } }
 
   /* ---------- Drawer flutuante (prancha 13) ---------- */
+  .drawer-root     { @apply relative z-[60]; }
   .drawer-backdrop { @apply fixed inset-0 z-40 bg-zinc-950/[.42] backdrop-blur-[2px]; }
   .drawer          { @apply fixed z-50 flex flex-col bg-card shadow-modal
                             inset-y-3 right-3 w-[min(30rem,calc(100vw-1.5rem))] rounded-card border border-line
