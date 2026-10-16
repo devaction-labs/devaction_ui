@@ -83,6 +83,68 @@ defmodule DevactionUI.InputsTest do
       assert length(Regex.scan(~r/ disabled[ >]/, html)) >= 3
       assert html =~ "opacity-60"
     end
+
+    test "the unit is shown and read with the value, and the help describes the field" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <NumberInput.number_input
+          id="n"
+          name="x"
+          value={8}
+          label="L"
+          unit="h"
+          event="e"
+          decrease_label="a"
+          increase_label="b"
+        >
+          <:minus_icon>-</:minus_icon>
+          <:plus_icon>+</:plus_icon>
+          <:help>Between 1 and 12</:help>
+        </NumberInput.number_input>
+        """)
+
+      assert html =~ ~s(aria-valuetext="8 h")
+      assert html =~ ~s(aria-describedby="n-help")
+      assert html =~ ~s(id="n-help")
+      assert html =~ "Between 1 and 12"
+    end
+
+    test "without unit, help and limits those attributes are left out" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <NumberInput.number_input
+          id="n"
+          name="x"
+          value={1}
+          label="L"
+          event="e"
+          decrease_label="a"
+          increase_label="b"
+        >
+          <:minus_icon>-</:minus_icon>
+          <:plus_icon>+</:plus_icon>
+        </NumberInput.number_input>
+        """)
+
+      refute html =~ "aria-valuetext"
+      refute html =~ "aria-valuemin"
+      refute html =~ "aria-valuemax"
+      refute html =~ "aria-describedby"
+      refute html =~ ~s(id="n-help")
+    end
+
+    test "hands the hook the event, the step and the limits" do
+      html = number(3)
+      assert html =~ ~s(phx-hook="DevactionUI.NumberInput")
+      assert html =~ ~s(data-event="step")
+      assert html =~ ~s(data-step="2")
+      assert html =~ ~s(data-min="1")
+      assert html =~ ~s(data-max="5")
+    end
   end
 
   describe "Slider" do
