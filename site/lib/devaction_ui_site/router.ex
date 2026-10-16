@@ -25,9 +25,11 @@ defmodule DevactionUISite.Router do
     pipe_through :browser
 
     live_session :docs do
-      live "/", DocsLive, :overview
+      live "/", DocsLive, :home
+      live "/docs", DocsLive, :overview
       live "/installation", DocsLive, :installation
       live "/tokens", DocsLive, :tokens
+      live "/changelog", DocsLive, :changelog
       live "/c/:slug", DocsLive, :topic
       live "/preview/:slugs", DocsLive, :preview
       live "/templates/:group", DocsLive, :templates
