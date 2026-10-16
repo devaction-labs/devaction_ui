@@ -639,6 +639,20 @@ new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
     |> JS.set_attribute({"aria-selected", "true"}, to: "#tab-code-" <> id)
   end
 
+  defp frame_theme(group, slug, theme) do
+    Enum.reduce(
+      ~w(light dark),
+      JS.set_attribute({"src", "/screens/#{group}/#{slug}?theme=#{theme}"},
+        to: "#frame-#{group}-#{slug} iframe"
+      ),
+      fn other, js ->
+        JS.set_attribute(js, {"aria-pressed", to_string(other == theme)},
+          to: "#theme-#{other}-#{group}-#{slug}"
+        )
+      end
+    )
+  end
+
   defp flip_preview_theme(id) do
     JS.toggle_attribute({"data-flip", "true", "false"}, to: "#pv-" <> id)
     |> JS.toggle_attribute({"aria-pressed", "true", "false"}, to: "#theme-" <> id)
@@ -682,14 +696,32 @@ new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
                 style={"width: #{@width}px; height: #{screen.height}px; transform: scale(var(--fit-scale, 0.5))"}
               ></iframe>
             </div>
-            <a
-              href={"/screens/#{@group.slug}/#{screen.slug}"}
-              target="_blank"
-              rel="noopener"
-              class="self-end text-sm text-ink-2 hover:text-ink"
-            >
-              Open full screen ↗
-            </a>
+            <div class="flex items-center justify-between gap-3">
+              <span
+                role="group"
+                aria-label="Theme of the preview"
+                class="inline-flex gap-1 rounded-[10px] border border-line bg-wrap p-1"
+              >
+                <button
+                  :for={theme <- ~w(light dark)}
+                  id={"theme-#{theme}-#{@group.slug}-#{screen.slug}"}
+                  type="button"
+                  aria-pressed={to_string(theme == "light")}
+                  phx-click={frame_theme(@group.slug, screen.slug, theme)}
+                  class="h-7 cursor-pointer rounded-md border border-transparent px-2.5 text-[12px] text-muted aria-pressed:border-line aria-pressed:bg-card aria-pressed:text-ink"
+                >
+                  {String.capitalize(theme)}
+                </button>
+              </span>
+              <a
+                href={"/screens/#{@group.slug}/#{screen.slug}"}
+                target="_blank"
+                rel="noopener"
+                class="text-sm text-ink-2 hover:text-ink"
+              >
+                Open full screen ↗
+              </a>
+            </div>
           </:preview>
         </.code_card>
       </.section>

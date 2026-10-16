@@ -14,8 +14,11 @@ Every release lists new components, improvements, fixes and breaking changes. Wh
 ### Improved
 
 - `DataTable`: `sticky={:start}` and `sticky={:end}` on a `:col` pin the first column and the actions.
-- `Breadcrumb`: `home`, `home_label` and a `home_icon` slot.
-- `PageHeader`: `toolbar` and `toolbar_end` slots.
+- `Breadcrumb`: `home`, `home_label` and a `home_icon` slot; `underline={false}` for the quiet trail of a shell header.
+- `PageHeader`: `toolbar` and `toolbar_end` slots; `size={:md}` for the title of a page inside an app shell.
+- `Shell`: `sidebar_search/1` and `sidebar_user/1`.
+- `Tabs`: an `icon` slot, `counts={:chip}`, `size={:sm}`, and a tab without content.
+- `Avatar`: `initials` and the `:ink` tone.
 - `Dropdown` takes `fixed`: the menu opens with `position: fixed` from the rectangle of its button.
 
 ## 0.2.6

@@ -1,0 +1,270 @@
+<Shell.shell
+  id="app-shell"
+  sidebar_label="Main"
+  open_label="Open the menu"
+  close_label="Collapse the menu"
+  content_width="read"
+>
+  <:toggle_icon><.icon name="sidebar-left-01" class="size-[18px]" /></:toggle_icon>
+  <:sidebar>
+    <Shell.sidebar_head name="DevAction Labs" subtitle="Agency · 3 people">
+      <:logo>
+        <svg width="30" height="30" viewBox="0 0 1254 1254" aria-hidden="true">
+          <rect width="1254" height="1254" fill="#060C1F" />
+          <path
+            d="M395 303 H728 L912 492 Q968 552 968 628 Q968 706 905 770 L828 832 Q834 800 812 776 L392 330 Q380 314 395 303 Z"
+            fill="#FFFFFF"
+          />
+          <path
+            d="M628 662 Q641 650 654 662 L797 808 Q812 826 797 843 L722 935 Q712 945 698 945 H388 Q366 945 380 925 Z"
+            fill="#E3A72F"
+          />
+        </svg>
+      </:logo>
+      <:menu><.icon name="unfold-more" class="size-4 text-muted" /></:menu>
+    </Shell.sidebar_head>
+    <Shell.sidebar_search>
+      <InputGroup.input_group
+        id="app-search"
+        size={:sm}
+        type="search"
+        placeholder="Search"
+        aria-label="Search"
+      >
+        <:icon><.icon name="search-01" /></:icon>
+        <:hint>
+          <.kbd>⌘K</.kbd>
+        </:hint>
+      </InputGroup.input_group>
+    </Shell.sidebar_search>
+    <Shell.sidebar_nav>
+      <Shell.sidebar_item tip="Today" href="#today" badge={5}>
+        <:icon><.icon name="home-01" class="size-full" /></:icon>
+        Today
+      </Shell.sidebar_item>
+      <Shell.sidebar_item tip="Inbox" href="#inbox" badge={3} badge_tone="ai">
+        <:icon><.icon name="mail-01" class="size-full" /></:icon>
+        Inbox
+      </Shell.sidebar_item>
+      <Shell.sidebar_group id="app-work" label="Work">
+        <:icon><.icon name="arrow-down-01" class="size-full" /></:icon>
+        <Shell.sidebar_item tip="Projects" href="#projects" badge={6} current>
+          <:icon><.icon name="folder-01" class="size-full" /></:icon>
+          Projects
+        </Shell.sidebar_item>
+        <Shell.sidebar_item tip="Tasks" href="#tasks">
+          <:icon><.icon name="task-01" class="size-full" /></:icon>
+          Tasks
+        </Shell.sidebar_item>
+        <Shell.sidebar_item tip="Learning" href="#learning">
+          <:icon><.icon name="mortarboard-02" class="size-full" /></:icon>
+          Learning
+        </Shell.sidebar_item>
+      </Shell.sidebar_group>
+      <Shell.sidebar_group id="app-review" label="Code review">
+        <:icon><.icon name="arrow-down-01" class="size-full" /></:icon>
+        <Shell.sidebar_item tip="Pull requests" href="#prs" badge={2} badge_tone="ai">
+          <:icon><.icon name="git-pull-request" class="size-full" /></:icon>
+          Pull requests
+          <:sub>
+            <Shell.sidebar_item tip="Blocked" href="#blocked">Blocked</Shell.sidebar_item>
+            <Shell.sidebar_item tip="My PRs" href="#mine">My PRs</Shell.sidebar_item>
+          </:sub>
+        </Shell.sidebar_item>
+      </Shell.sidebar_group>
+      <Shell.sidebar_group id="app-finance" label="Finance">
+        <:icon><.icon name="arrow-down-01" class="size-full" /></:icon>
+        <Shell.sidebar_item tip="Contracts" href="#contracts" badge={4}>
+          <:icon><.icon name="contracts" class="size-full" /></:icon>
+          Contracts
+        </Shell.sidebar_item>
+        <Shell.sidebar_item tip="Hours bank" href="#hours">
+          <:icon><.icon name="clock-01" class="size-full" /></:icon>
+          Hours bank
+        </Shell.sidebar_item>
+        <Shell.sidebar_item tip="Invoices" href="#invoices">
+          <:icon><.icon name="invoice-03" class="size-full" /></:icon>
+          Invoices
+        </Shell.sidebar_item>
+      </Shell.sidebar_group>
+    </Shell.sidebar_nav>
+    <Shell.sidebar_foot>
+      <Shell.sidebar_item tip="Settings" href="#settings">
+        <:icon><.icon name="settings-01" class="size-full" /></:icon>
+        Settings
+      </Shell.sidebar_item>
+    </Shell.sidebar_foot>
+    <div class="px-2.5 pb-2.5">
+      <Shell.sidebar_user name="Alex" email="alex@devaction.com.br" href="#account">
+        <:avatar>
+          <Avatar.avatar name="Alex Nogueira" tone={:ink} size={:sm} shape={:square} />
+        </:avatar>
+        <:icon><.icon name="arrow-up-02" class="size-full" /></:icon>
+      </Shell.sidebar_user>
+    </div>
+  </:sidebar>
+  <:header>
+    <Breadcrumb.breadcrumb
+      label="You are here"
+      separator={:chevron}
+      underline={false}
+      home="#home"
+      home_label="Home"
+      items={[%{label: "Work", href: "#work"}, %{label: "Projects"}]}
+    >
+      <:home_icon><.icon name="home-01" class="size-4" /></:home_icon>
+    </Breadcrumb.breadcrumb>
+  </:header>
+  <:header_actions>
+    <Avatar.group
+      label="Online now"
+      size={:xs}
+      people={[%{name: "Alex Nogueira", tone: :ink}, %{name: "Carlos André", tone: :info}]}
+    />
+    <button type="button" class="shell-icon-btn relative" aria-label="Notifications, 3 new">
+      <.icon name="notification-03" />
+      <span class="absolute top-1.5 right-1.5 size-2 rounded-full border-2 border-card bg-ai"></span>
+    </button>
+  </:header_actions>
+
+  <PageHeader.page_header id="app-projects-head" size={:md}>
+    <:title>Projects</:title>
+    <:subtitle>6 active projects across 4 clients · 2 with a milestone at risk</:subtitle>
+    <:actions>
+      <Button.button variant={:secondary} size={:sm}>
+        <.icon name="download-04" class="size-4" /> Export
+      </Button.button>
+      <Button.button variant={:primary} size={:sm}>
+        <.icon name="add-01" class="size-4" /> New project
+      </Button.button>
+    </:actions>
+    <:tabs>
+      <Tabs.tabs
+        id="app-projects-tabs"
+        variant={:line}
+        size={:sm}
+        counts={:chip}
+        label="Sections"
+        class="[&_[role=tabpanel]]:hidden"
+      >
+        <:icon :let={tab}>
+          <.icon name={@tab_icons[tab.id]} />
+        </:icon>
+        <:tab id="overview" label="Overview" />
+        <:tab id="projects" label="Projects" count="6" selected />
+        <:tab id="reviews" label="Reviews" count="5" />
+        <:tab id="findings" label="Findings" count="12" />
+        <:tab id="documents" label="Documents" />
+      </Tabs.tabs>
+    </:tabs>
+    <:toolbar>
+      <InputGroup.input_group
+        id="app-projects-search"
+        size={:sm}
+        type="search"
+        placeholder="Search project or client…"
+        aria-label="Search projects"
+        class="w-[280px]"
+      >
+        <:icon><.icon name="search-01" /></:icon>
+      </InputGroup.input_group>
+      <Segmented.segmented
+        id="app-projects-risk"
+        label="Risk"
+        size={:sm}
+        value={@risk}
+        event="risk"
+      >
+        <:option value="all" label="All" />
+        <:option value="high" label="High" />
+        <:option value="medium" label="Medium" />
+        <:option value="low" label="Low" />
+      </Segmented.segmented>
+    </:toolbar>
+    <:toolbar_end>
+      {length(TemplateData.rows(@projects, @risk, @sort))} of {length(@projects)}
+    </:toolbar_end>
+  </PageHeader.page_header>
+
+  <DataTable.data_table
+    id="app-projects-table"
+    label="Projects"
+    rows={TemplateData.rows(@projects, @risk, @sort)}
+    sort={@sort}
+    on_sort="sort"
+    max_height="max-h-[540px] min-h-[540px]"
+    class="mt-4"
+    empty_text="No project with this risk"
+    select_all_label="Select all"
+    select_row_label="Select project"
+    selected_label="__COUNT__ selected"
+    clear_label="Clear"
+  >
+    <:sort_asc_icon><.icon name="arrow-up-02" class="size-3" /></:sort_asc_icon>
+    <:sort_desc_icon><.icon name="arrow-down-01" class="size-3" /></:sort_desc_icon>
+    <:sort_none_icon><.icon name="sorting-01" class="size-3" /></:sort_none_icon>
+    <:col :let={row} label="Project" sticky={:start} class="min-w-[220px] whitespace-nowrap">
+      <span class="flex items-center gap-2.5 font-medium text-ink">
+        <Avatar.avatar
+          name={row.name}
+          initials={row.letter}
+          tone={row.avatar}
+          size={:xs}
+          shape={:square}
+        />
+        {row.name}
+      </span>
+    </:col>
+    <:col :let={row} label="Client" class="min-w-[220px] whitespace-nowrap text-ink-2">
+      {row.client}
+    </:col>
+    <:col :let={row} label="Current milestone" class="min-w-[160px] whitespace-nowrap text-ink-2">
+      {row.milestone}
+    </:col>
+    <:col :let={row} label="Risk" key="risk" sortable class="min-w-[120px]">
+      <.tag size={:sm} variant={TemplateData.risk(row.risk).variant} class="gap-1">
+        <.icon name={TemplateData.risk(row.risk).icon} class="size-3" />
+        {TemplateData.risk(row.risk).label}
+      </.tag>
+    </:col>
+    <:col :let={row} label="PRs" class="min-w-[100px] whitespace-nowrap">
+      <span class="font-mono text-[13px]">{row.prs} open</span>
+    </:col>
+    <:col :let={row} label="Hours this month" class="min-w-[200px] whitespace-nowrap">
+      <span class="flex items-center gap-3">
+        <Progress.progress
+          variant={:thin}
+          tone={row.tone}
+          value={TemplateData.percent(row)}
+          label={"Hours of #{row.name}"}
+          class="w-24"
+        />
+        <span class="font-mono text-[12px] text-ink-2">{row.hours} / {row.budget} h</span>
+      </span>
+    </:col>
+    <:col :let={row} label="Updated" class="min-w-[110px] whitespace-nowrap text-ink-2">
+      {row.updated}
+    </:col>
+    <:col :let={row} label="Actions" hide_label sticky={:end}>
+      <RowMenu.row_menu
+        id={"app-row-menu-#{row.id}"}
+        label={"Actions for #{row.name}"}
+        trigger_label={"Actions for #{row.name}"}
+      >
+        <:trigger><.icon name="more-horizontal" class="size-4" /></:trigger>
+        <:item event="row_action" value={"edit-#{row.id}"}>
+          <.icon name="pencil-edit-02" class="size-4" /> Edit
+        </:item>
+        <:item event="row_action" value={"view-#{row.id}"}>
+          <.icon name="view" class="size-4" /> View details
+        </:item>
+        <:item event="row_action" value={"review-#{row.id}"}>
+          <.icon name="sparkles" class="size-4" /> Review with AI
+        </:item>
+        <:item event="row_action" value={"archive-#{row.id}"} separator danger>
+          <.icon name="delete-02" class="size-4" /> Archive
+        </:item>
+      </RowMenu.row_menu>
+    </:col>
+  </DataTable.data_table>
+</Shell.shell>

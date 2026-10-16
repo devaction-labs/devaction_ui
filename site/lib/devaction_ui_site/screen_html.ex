@@ -6,6 +6,8 @@ defmodule DevactionUISite.ScreenHTML do
   """
   use DevactionUISite.UI
 
+  alias DevactionUISite.TemplateData
+
   @paths Path.wildcard(Path.join(__DIR__, "screens/*.html.heex"))
   for path <- @paths, do: @external_resource(path)
 

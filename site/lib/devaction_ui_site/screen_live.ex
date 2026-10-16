@@ -6,14 +6,16 @@ defmodule DevactionUISite.ScreenLive do
   """
   use Phoenix.LiveView
 
-  alias DevactionUISite.{ScreenHTML, Templates}
+  alias DevactionUISite.{ScreenHTML, TemplateData, Templates}
 
   @impl true
   def mount(%{"group" => group, "slug" => slug}, _session, socket) do
     case Templates.screen(group, slug) do
       {:ok, _group, screen} ->
         {:ok,
-         assign(socket, key: "#{group}_#{slug}", page_title: "#{screen.title} · DevactionUI")}
+         socket
+         |> assign(TemplateData.assigns(group, slug))
+         |> assign(key: "#{group}_#{slug}", page_title: "#{screen.title} · DevactionUI")}
 
       :error ->
         {:ok, redirect(socket, to: "/")}
@@ -24,5 +26,11 @@ defmodule DevactionUISite.ScreenLive do
   def render(assigns), do: ScreenHTML.render(assigns.key, assigns)
 
   @impl true
+  def handle_event("risk", %{"value" => risk}, socket),
+    do: {:noreply, assign(socket, :risk, risk)}
+
+  def handle_event("sort", %{"key" => key}, socket),
+    do: {:noreply, update(socket, :sort, &TemplateData.next_sort(key, &1))}
+
   def handle_event(_event, _params, socket), do: {:noreply, socket}
 end

@@ -22,7 +22,13 @@ defmodule DevactionUISite.HomeChangelogTest do
       assert html =~ "#{count} components published"
       assert has_element?(view, "#numbers", "#{count}")
       assert has_element?(view, "#numbers", "UI dependencies")
-      assert has_element?(view, "#catalog h2", "#{count} components in 7 groups")
+
+      assert has_element?(
+               view,
+               "#catalog h2",
+               "#{count} components in #{length(Catalog.groups()) + length(Templates.groups())} groups"
+             )
+
       assert has_element?(view, "#latest a[href='/changelog']", "See full changelog")
       assert has_element?(view, "footer", "made by DevAction Labs")
     end

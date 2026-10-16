@@ -13,8 +13,8 @@ defmodule DevactionUI.Shell do
   narrow centred column) and `"docs"` (a `toc` column at the end). `content_width="read"` limits the page to the
   reading width. The shell is as tall as the screen; to put it in a box, set `--shell-h` (`style="--shell-h: 460px"`).
 
-  The slots are `sidebar` (built from `sidebar_head/1`, `sidebar_nav/1`, `sidebar_group/1`, `sidebar_item/1` and
-  `sidebar_foot/1`), `header` (usually a `DevactionUI.Breadcrumb`), `header_actions`, `list`, `toc`, and the
+  The slots are `sidebar` (built from `sidebar_head/1`, `sidebar_search/1`, `sidebar_nav/1`, `sidebar_group/1`,
+  `sidebar_item/1`, `sidebar_foot/1` and `sidebar_user/1`), `header` (usually a `DevactionUI.Breadcrumb`), `header_actions`, `list`, `toc`, and the
   page itself. A shell with a `sidebar` needs `sidebar_label`, `open_label` and `close_label` (the toggle button
   says which one by its state); without them it raises, so the library carries no language of its own. The
   toggle's icon is the `toggle_icon` slot.
@@ -163,6 +163,21 @@ defmodule DevactionUI.Shell do
 
   attr :class, :any, default: nil
   attr :rest, :global
+
+  slot :inner_block,
+    required: true,
+    doc: "a search field, such as an `InputGroup` with a `⌘K` hint"
+
+  @doc "A row under the head for a search field; it goes away in the rail."
+  @spec sidebar_search(map()) :: Phoenix.LiveView.Rendered.t()
+  def sidebar_search(assigns) do
+    ~H"""
+    <div class={["sidebar-search", @class]} {@rest}>{render_slot(@inner_block)}</div>
+    """
+  end
+
+  attr :class, :any, default: nil
+  attr :rest, :global
   slot :inner_block, required: true
 
   @doc "The scrolling list of the sidebar's groups and items."
@@ -182,6 +197,30 @@ defmodule DevactionUI.Shell do
   def sidebar_foot(assigns) do
     ~H"""
     <div class={["sidebar-foot", @class]} {@rest}>{render_slot(@inner_block)}</div>
+    """
+  end
+
+  attr :name, :string, required: true
+  attr :email, :string, required: true
+  attr :class, :any, default: nil
+  attr :rest, :global, include: ~w(navigate patch href method)
+  slot :avatar, required: true, doc: "the person's avatar, 32px"
+  slot :icon, doc: "the end of the card, such as a chevron; it goes away in the rail"
+
+  @doc "The account card at the foot of the sidebar: avatar, name and e-mail. Only the avatar stays in the rail."
+  @spec sidebar_user(map()) :: Phoenix.LiveView.Rendered.t()
+  def sidebar_user(assigns) do
+    ~H"""
+    <.link class={["sidebar-user", @class]} aria-label={@name} {@rest}>
+      <span class="sidebar-user-avatar">{render_slot(@avatar)}</span>
+      <span class="sidebar-user-text">
+        <span class="sidebar-user-name">{@name}</span>
+        <span class="sidebar-user-email">{@email}</span>
+      </span>
+      <span :if={@icon != []} class="sidebar-user-icon" aria-hidden="true">
+        {render_slot(@icon)}
+      </span>
+    </.link>
     """
   end
 
