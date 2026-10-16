@@ -1,3 +1,4 @@
+import {notify} from "./dom.js"
 import {counts, pendingCount, resetAction} from "./menu_logic.js"
 import {runKey, wrap} from "./keys.js"
 import {roomAround, screenSize, submenuSide} from "./placement.js"
@@ -141,7 +142,7 @@ export default {
     const form = this.el.querySelector("form")
     const actions = {
       submit: () => form.requestSubmit(),
-      change: () => form.dispatchEvent(new Event("change", {bubbles: true})),
+      change: () => notify(form, "change"),
     }
     actions[resetAction(this.el.dataset.reset)]()
   },
@@ -180,7 +181,7 @@ export default {
       const input = event.target.querySelector?.("input[type=checkbox], input[type=radio]")
       if (!input) return false
       input.checked = input.type === "radio" ? true : !input.checked
-      input.dispatchEvent(new Event("change", {bubbles: true}))
+      notify(input, "change")
     }
 
     runKey(

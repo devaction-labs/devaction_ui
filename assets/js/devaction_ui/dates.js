@@ -20,7 +20,7 @@ export const monthOf = (iso) => {
   return {year: date.getUTCFullYear(), month: date.getUTCMonth()}
 }
 
-export const dayOf = (iso) => parse(iso).getUTCDate()
+const dayOf = (iso) => parse(iso).getUTCDate()
 
 export const addDays = (iso, days) => {
   const date = parse(iso)

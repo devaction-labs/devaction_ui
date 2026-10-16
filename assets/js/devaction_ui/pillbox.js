@@ -1,3 +1,4 @@
+import {notify} from "./dom.js"
 import {runKey} from "./keys.js"
 import {clean, fillLabel, isTaken} from "./text.js"
 
@@ -72,6 +73,6 @@ export default {
   },
 
   changed() {
-    this.input.dispatchEvent(new Event("input", {bubbles: true}))
+    notify(this.input)
   },
 }

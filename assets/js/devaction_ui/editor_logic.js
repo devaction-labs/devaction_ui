@@ -46,7 +46,7 @@ export function safeHref(text) {
   return value && allowed.test(withScheme) ? withScheme : null
 }
 
-export const imageTypes = ["image/png", "image/jpeg", "image/gif", "image/webp"]
+const imageTypes = ["image/png", "image/jpeg", "image/gif", "image/webp"]
 
 /** Why an image cannot be sent, as a key of the errors the page gives (`unsupported`, `too_large`), or `null` when it can. */
 export function imageProblem(file, maxBytes) {

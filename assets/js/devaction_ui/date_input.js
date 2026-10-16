@@ -1,4 +1,5 @@
 import {formatIso, maskDate, readDate} from "./dates.js"
+import {notify} from "./dom.js"
 
 const SET_EVENT = "devaction:date-picker-set"
 const PICKER_INPUTS = "[data-from-input], [data-to-input]"
@@ -79,7 +80,7 @@ export default {
     const value = this.fields[side].value
     const changed = value.value !== iso
     value.value = iso
-    changed && value.dispatchEvent(new Event("input", {bubbles: true}))
+    changed && notify(value)
   },
 
   flag(text, invalid) {

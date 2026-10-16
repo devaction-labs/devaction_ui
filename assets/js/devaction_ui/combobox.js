@@ -1,3 +1,4 @@
+import {notify} from "./dom.js"
 import {buttonView} from "./menu_logic.js"
 import {runKey, wrap} from "./keys.js"
 import {matches} from "./text.js"
@@ -121,7 +122,7 @@ export default {
   commit(option) {
     this.options().forEach((other) => other.setAttribute("aria-selected", String(other === option)))
     this.hidden.value = option?.dataset.value ?? ""
-    this.hidden.dispatchEvent(new Event("input", {bubbles: true}))
+    notify(this.hidden)
   },
 
   choose(option) {
