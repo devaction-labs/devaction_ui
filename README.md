@@ -53,7 +53,10 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
    so there is no `@source` to add.
 2. JS: `import {hooks as devactionUI} from "../../deps/devaction_ui/assets/js/devaction_ui"` and merge into
    the LiveSocket `hooks`.
-3. Fonts: Geist and Geist Mono are named in the tokens; the host app serves them.
+3. Editor only: `DevactionUI.Editor` needs TipTap. Copy the `dependencies` of `deps/devaction_ui/assets/package.json`
+   (the `@tiptap/*` packages, pinned to 3.32.0) into the app's `package.json` and `npm install`. The hook loads
+   TipTap with a dynamic `import()` when an editor is mounted, so an app that renders none can skip this.
+4. Fonts: Geist and Geist Mono are named in the tokens; the host app serves them.
 
 ## The rules that keep it extractable
 
@@ -98,6 +101,7 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 | `DevactionUI.Combobox` | a select with a search field, accent-insensitive filtering and the ARIA combobox keys |
 | `DevactionUI.DataTable` | sticky header, sortable columns (`aria-sort`, the server sorts), row selection with a tri-state header checkbox and a bulk bar that shows while something is ticked, two densities |
 | `DevactionUI.Kanban` | columns with WIP limits and cards that move by drag or Alt + arrows, announced to screen readers; the LiveView gets one `move_card` event |
+| `DevactionUI.Editor` | a TipTap toolbar and surface that sends HTML and Markdown in hidden inputs; `/` blocks, `@` mentions, image upload, an AI tool, a compact comment form, visible label, error and disabled |
 | `DevactionUI.Autocomplete` | a field with grouped suggestions (the server searches), the match in bold, ↑ ↓ Enter, ⌘↵ for an "ask the AI" row |
 | `DevactionUI.DatePicker` | a month calendar for one day or a range, keyboard grid, shortcuts, dates as ISO in hidden inputs; plus `due_chip/1` (late, today, later) |
 | `DevactionUI.Calendar` | a month or a week of days with coloured event chips, a keyboard grid (arrows, Home, End, Page keys); `title` and `cell_label` come from the caller; no hours grid |

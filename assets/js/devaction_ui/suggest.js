@@ -1,12 +1,19 @@
-import {nextIndex} from "./editor_logic.js"
+import {nextIndex, rowParts} from "./editor_logic.js"
+
+const cell = ({text, className}) => {
+  const span = document.createElement("span")
+  span.className = className
+  span.textContent = text
+  return span
+}
 
 /**
  * The popup of a suggestion (the "/" menu and the @mentions): a `role="listbox"` of `role="option"` rows near
  * the caret. It takes the TipTap suggestion props, keeps the highlighted row, and answers the keys the
  * menu owns (arrows, Home, End, Enter, Tab, Escape) so the editor leaves them alone while it is open.
- * `row(item)` returns the text of a row.
+ * A row is the `icon` (a glyph), the `label` and the `hint` of its item.
  */
-export function popup(id, row) {
+export function popup(id) {
   let box = null
   let items = []
   let index = 0
@@ -28,7 +35,7 @@ export function popup(id, row) {
         option.id = `${id}-option-${at}`
         option.setAttribute("aria-selected", String(at === index))
         option.className = "cmdk-item"
-        option.textContent = row(item)
+        option.replaceChildren(...rowParts(item).map(cell))
         option.addEventListener("mousedown", (event) => {
           event.preventDefault()
           command(item)
@@ -62,7 +69,7 @@ export function popup(id, row) {
       box.setAttribute("role", "listbox")
       field = props.editor.view.dom
       field.setAttribute("aria-controls", id)
-      box.className = "absolute z-[2000] w-64 overflow-hidden rounded-xl border border-line bg-card p-1 shadow-pop"
+      box.className = "absolute z-[2000] w-[270px] overflow-hidden rounded-xl border border-line bg-card p-1 shadow-pop"
       document.body.appendChild(box)
       index = 0
       update(props)

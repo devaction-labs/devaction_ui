@@ -14,8 +14,17 @@ defmodule DevactionUI.Editor do
   `paragraph`, `h2`, `h3`, `bulletList`, `orderedList`, `taskList`, `blockquote`, `codeBlock` or `divider`),
   and `@` opens the members (`mentions`, each `%{id, label}`); a chosen member stays in the text as
   `<span data-type="mention" data-id="...">`, which is what the server reads to know who was mentioned.
-  `compact` is the comment form: a short surface, usually without a toolbar, and with `send_on_enter` the
-  command (or control) and Enter submit the form the editor is in.
+  Each `slash` and `mentions` entry may also carry an `icon` (a glyph) and a `hint` (what is written at the end
+  of the row, such as `#`). `compact` is the comment form: a short surface, usually without a toolbar, and with
+  `send_on_enter` the command (or control) and Enter submit the form the editor is in; its `footer` slot is for
+  the buttons under the surface.
+
+  The field has a visible label (`show_label`), a `hint` slot beside the word count, an `error` and a `disabled`
+  state. The label and the error sit outside the ignored root and the flags are `data-*` attributes, so they
+  follow the server; the toolbar, the `hint` and the `footer` are drawn once.
+
+  TipTap is loaded by the hook only when an editor is mounted (a dynamic `import()`), so an app that never
+  renders one does not need its npm packages: see `assets/package.json` for the list and the versions.
 
   Buttons come from the `:tool` slot, each with the command it runs (`bold`, `italic`, `strike`, `code`,
   `bulletList`, `orderedList`, `taskList`, `blockquote`, `indent`, `outdent`, `alignLeft`, `alignCenter`,
@@ -32,7 +41,15 @@ defmodule DevactionUI.Editor do
     doc: "prefix of the two inputs: `name[html]` and `name[markdown]`"
 
   attr :value, :string, default: "", doc: "the initial content, as HTML"
-  attr :label, :string, required: true, doc: "the accessible name of the text area"
+  attr :label, :string, required: true, doc: "the name of the text area, shown when `show_label`"
+
+  attr :toolbar_label, :string,
+    required: true,
+    doc: "the name of the toolbar, distinct from the text area's (e.g. `Formatting`)"
+
+  attr :show_label, :boolean, default: false, doc: "draw `label` above the editor"
+  attr :error, :string, default: nil, doc: "what is wrong; marks the field invalid"
+  attr :disabled, :boolean, default: false, doc: "the text cannot be edited and the tools are off"
   attr :placeholder, :string, default: ""
 
   attr :styles, :list,
@@ -69,6 +86,9 @@ defmodule DevactionUI.Editor do
     include: ~w(phx-target),
     doc: "`phx-target`: where the `ai` tool sends `improve`"
 
+  slot :hint, doc: "text on the left of the word count, e.g. what Markdown is understood"
+  slot :footer, doc: "a bar under the surface, e.g. the send button of a comment"
+
   slot :tool do
     attr :name, :string, required: true
     attr :label, :string, required: true
@@ -76,96 +96,111 @@ defmodule DevactionUI.Editor do
   end
 
   def editor(assigns) do
+    assigns = assign(assigns, :described_by, described_by(assigns))
+
     ~H"""
-    <div
-      id={@id}
-      phx-hook="DevactionUI.Editor"
-      phx-update="ignore"
-      data-label={@label}
-      data-placeholder={@placeholder}
-      data-slash={Jason.encode!(@slash)}
-      data-mentions={Jason.encode!(@mentions)}
-      data-send={to_string(@send_on_enter)}
-      data-ai-labels={Jason.encode!(@ai_labels)}
-      data-upload-url={@upload_url}
-      data-upload-max={@upload_max}
-      data-upload-errors={Jason.encode!(@upload_errors)}
-      class={["flex flex-col", @class]}
-      {@rest}
-    >
-      <div class={["editor", @compact && "editor-compact"]}>
-        <div
-          :if={@tool != [] or @styles != []}
-          role="toolbar"
-          aria-label={@label}
-          class="editor-toolbar"
-        >
-          <select
-            :if={@styles != []}
-            id={"#{@id}-style"}
-            data-style
-            aria-label={@style_label}
-            class="h-8.5 rounded-lg border border-line bg-card px-2 text-sm text-ink outline-none focus-visible:ring-4 focus-visible:ring-ink/10"
+    <div id={"#{@id}-field"} class={["flex flex-col gap-1.5", @class]}>
+      <span :if={@show_label} id={"#{@id}-label"} class="text-sm font-medium text-ink">{@label}</span>
+      <div
+        id={@id}
+        phx-hook="DevactionUI.Editor"
+        phx-update="ignore"
+        data-label={@label}
+        data-labelledby={@show_label && "#{@id}-label"}
+        data-described-by={@described_by}
+        data-invalid={to_string(@error != nil)}
+        data-disabled={to_string(@disabled)}
+        data-placeholder={@placeholder}
+        data-slash={Jason.encode!(@slash)}
+        data-mentions={Jason.encode!(@mentions)}
+        data-send={to_string(@send_on_enter)}
+        data-ai-labels={Jason.encode!(@ai_labels)}
+        data-upload-url={@upload_url}
+        data-upload-max={@upload_max}
+        data-upload-errors={Jason.encode!(@upload_errors)}
+        class="editor-root flex flex-col"
+        {@rest}
+      >
+        <div class={["editor", @compact && "editor-compact"]}>
+          <div
+            :if={@tool != [] or @styles != []}
+            role="toolbar"
+            aria-label={@toolbar_label}
+            class="editor-toolbar"
           >
-            <option :for={{label, value} <- @styles} value={value}>{label}</option>
-          </select>
-          <%= for tool <- @tool do %>
-            <span :if={tool[:separator]} class="editor-sep" aria-hidden="true" />
-            <button
-              type="button"
-              id={"#{@id}-tool-#{tool.name}"}
-              aria-label={tool.label}
-              title={tool.label}
-              aria-pressed="false"
-              {tool_data(tool.name)}
-              class="editor-btn outline-none focus-visible:ring-4 focus-visible:ring-ink/10"
+            <select
+              :if={@styles != []}
+              id={"#{@id}-style"}
+              data-style
+              aria-label={@style_label}
+              class="h-8.5 rounded-lg border border-line bg-card px-2 text-sm text-ink outline-none focus-visible:ring-4 focus-visible:ring-ink/10"
             >
-              {render_slot(tool)}
-            </button>
-          <% end %>
-        </div>
-        <div
-          id={"#{@id}-link-bar"}
-          data-link-bar
-          hidden
-          class="flex items-center gap-2 border-b border-line bg-wrap/40 px-3 py-2"
-        >
+              <option :for={{label, value} <- @styles} value={value}>{label}</option>
+            </select>
+            <%= for tool <- @tool do %>
+              <span :if={tool[:separator]} class="editor-sep" aria-hidden="true" />
+              <button
+                type="button"
+                id={"#{@id}-tool-#{tool.name}"}
+                aria-label={tool.label}
+                title={tool.label}
+                aria-pressed="false"
+                {tool_data(tool.name)}
+                class="editor-btn outline-none focus-visible:ring-4 focus-visible:ring-ink/10"
+              >
+                {render_slot(tool)}
+              </button>
+            <% end %>
+          </div>
+          <div
+            id={"#{@id}-link-bar"}
+            data-link-bar
+            hidden
+            class="flex items-center gap-2 border-b border-line bg-wrap/40 px-3 py-2"
+          >
+            <input
+              id={"#{@id}-link-input"}
+              type="text"
+              data-link-input
+              aria-label={@link_label}
+              placeholder="https://"
+              class="h-8.5 flex-1 rounded-lg border border-line bg-card px-3 text-sm text-ink outline-none focus-visible:ring-4 focus-visible:ring-ink/10"
+            />
+          </div>
           <input
-            id={"#{@id}-link-input"}
-            type="text"
-            data-link-input
-            aria-label={@link_label}
-            placeholder="https://"
-            class="h-8.5 flex-1 rounded-lg border border-line bg-card px-3 text-sm text-ink outline-none focus-visible:ring-4 focus-visible:ring-ink/10"
+            :if={@upload_url}
+            id={"#{@id}-image-input"}
+            type="file"
+            data-image-input
+            accept="image/png,image/jpeg,image/gif,image/webp"
+            hidden
+            tabindex="-1"
           />
+          <p
+            id={"#{@id}-status"}
+            data-editor-status
+            role="alert"
+            hidden
+            class="m-0 px-4 py-2 text-xs text-tag-risk-text"
+          >
+          </p>
+          <div id={"#{@id}-content"} data-editor-content class="editor-content-host"></div>
+          <input type="hidden" name={"#{@name}[html]"} data-html value={@value} />
+          <input type="hidden" name={"#{@name}[markdown]"} data-markdown value="" />
+          <div :if={@footer != []} class="editor-footer">{render_slot(@footer)}</div>
         </div>
-        <input
-          :if={@upload_url}
-          id={"#{@id}-image-input"}
-          type="file"
-          data-image-input
-          accept="image/png,image/jpeg,image/gif,image/webp"
-          hidden
-          tabindex="-1"
-        />
-        <p
-          id={"#{@id}-status"}
-          data-editor-status
-          role="alert"
-          hidden
-          class="m-0 px-4 py-2 text-xs text-tag-risk-text"
-        >
+        <p class="editor-meta">
+          <span :if={@hint != []} id={"#{@id}-hint"}>{render_slot(@hint)}</span>
+          <span class="ml-auto"><span id={"#{@id}-count"} data-count>0</span> {@words_label}</span>
         </p>
-        <div id={"#{@id}-content"} data-editor-content class="editor-content-host"></div>
-        <input type="hidden" name={"#{@name}[html]"} data-html value={@value} />
-        <input type="hidden" name={"#{@name}[markdown]"} data-markdown value="" />
       </div>
-      <p class="editor-meta">
-        <span><span id={"#{@id}-count"} data-count>0</span> {@words_label}</span>
-      </p>
+      <p :if={@error} id={"#{@id}-error"} class="m-0 text-sm text-tag-risk-text">{@error}</p>
     </div>
     """
   end
+
+  defp described_by(%{error: nil}), do: nil
+  defp described_by(%{id: id}), do: "#{id}-error"
 
   defp tool_data("link"), do: %{"data-link": true}
   defp tool_data("image"), do: %{"data-image": true}

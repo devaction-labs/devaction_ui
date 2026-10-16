@@ -1,77 +1,35 @@
-import {Editor} from "@tiptap/core"
-import StarterKit from "@tiptap/starter-kit"
-import {TaskList, TaskItem} from "@tiptap/extension-list"
-import Placeholder from "@tiptap/extension-placeholder"
-import CharacterCount from "@tiptap/extension-character-count"
-import TextAlign from "@tiptap/extension-text-align"
-import Mention from "@tiptap/extension-mention"
-import Suggestion from "@tiptap/suggestion"
-import {Extension} from "@tiptap/core"
-import Image from "@tiptap/extension-image"
-import {Markdown} from "@tiptap/markdown"
 import {
   commands,
   styles,
   currentStyle,
   safeHref,
   wordCount,
-  blocks,
-  filterItems,
-  sends,
   imageProblem,
   uploadError,
   toolbarTarget,
+  textboxAttributes,
 } from "./editor_logic.js"
-import {popup} from "./suggest.js"
-
-const list = (el, name) => JSON.parse(el.dataset[name] ?? "[]")
-
-const slashMenu = (items) =>
-  Extension.create({
-    name: "slashMenu",
-    addProseMirrorPlugins() {
-      return [
-        Suggestion({
-          editor: this.editor,
-          char: "/",
-          startOfLine: true,
-          items: ({query}) => filterItems(items, query),
-          command: ({editor, range, props}) => blocks[props.key]?.(editor.chain().focus().deleteRange(range)).run(),
-          render: () => popup(`${this.editor.options.element.id}-slash`, (item) => item.label),
-        }),
-      ]
-    },
-  })
 
 /**
  * The rich text editor: `phx-hook="DevactionUI.Editor"` on the root, with `[data-editor-content]` for the
  * text, `[data-command]` buttons, an optional `[data-style]` select, a link bar (`[data-link-bar]`) and a
  * `[data-count]` for the words. The text goes out as HTML and as Markdown in the two hidden inputs
  * (`[data-html]`, `[data-markdown]`), which fire `input` so a form with `phx-change` hears it.
+ *
+ * TipTap is loaded by `import("./editor_tiptap.js")` when the hook mounts, so a host that never renders an
+ * editor does not need the TipTap packages installed. `data-invalid`, `data-disabled`, `data-labelledby` and
+ * `data-described-by` are read on mount and on every update.
  */
 export default {
-  mounted() {
-    this.editor = new Editor({
-      element: this.el.querySelector("[data-editor-content]"),
-      content: this.el.querySelector("[data-html]").value,
-      contentType: "html",
-      extensions: [
-        StarterKit.configure({link: {openOnClick: false, autolink: true}}),
-        TaskList,
-        TaskItem.configure({nested: true}),
-        TextAlign.configure({types: ["heading", "paragraph"]}),
-        Placeholder.configure({placeholder: this.el.dataset.placeholder ?? ""}),
-        CharacterCount,
-        Image.configure({inline: false}),
-        Markdown,
-        ...this.suggestions(),
-      ],
-      editorProps: {
-        attributes: {class: "editor-content", role: "textbox", "aria-multiline": "true", "aria-label": this.el.dataset.label ?? ""},
-        handleKeyDown: (_view, event) => this.el.dataset.send === "true" && sends(event) && (this.send(), true),
-      },
+  async mounted() {
+    const {createEditor} = await import("./editor_tiptap.js")
+    if (!this.el.isConnected) return
+
+    this.editor = createEditor({
+      el: this.el,
       onUpdate: () => this.save(),
       onTransaction: () => this.refresh(),
+      onSend: () => this.send(),
     })
 
     this.on("click", "[data-command]", (button) => this.run(button.dataset.command))
@@ -85,6 +43,28 @@ export default {
     this.on("keydown", "[data-link-input]", (input, event) => this.linkKey(input, event))
     this.setupToolbar()
     this.refresh()
+    this.sync()
+  },
+
+  updated() {
+    this.editor && this.sync()
+  },
+
+  sync() {
+    const data = this.el.dataset
+    const disabled = data.disabled === "true"
+    this.editor.setEditable(!disabled)
+    this.tools().forEach((tool) => (tool.disabled = disabled))
+    const attributes = textboxAttributes({
+      label: data.label,
+      labelledby: data.labelledby,
+      invalid: data.invalid === "true",
+      describedby: data.describedBy,
+      disabled,
+    })
+    Object.entries(attributes).forEach(([name, value]) =>
+      value === null ? this.editor.view.dom.removeAttribute(name) : this.editor.view.dom.setAttribute(name, value),
+    )
   },
 
   tools() {
@@ -104,23 +84,6 @@ export default {
       const next = toolbarTarget(event.key, tools.indexOf(tool), tools.length)
       next !== null && (tools[next].focus(), event.preventDefault())
     })
-  },
-
-  suggestions() {
-    const slash = list(this.el, "slash")
-    const mentions = list(this.el, "mentions")
-    const id = this.el.id
-    const mention = Mention.extend({
-      renderMarkdown: (node) => `@[${node.attrs.label}](mention:${node.attrs.id})`,
-    }).configure({
-      HTMLAttributes: {class: "rounded bg-info-bg px-1 text-info-fg"},
-      suggestion: {
-        char: "@",
-        items: ({query}) => filterItems(mentions, query).slice(0, 8),
-        render: () => popup(`${id}-mention`, (item) => item.label),
-      },
-    })
-    return [...(slash.length ? [slashMenu(slash)] : []), ...(mentions.length ? [mention] : [])]
   },
 
   send() {
