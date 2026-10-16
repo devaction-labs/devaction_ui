@@ -14,7 +14,7 @@ defmodule DevactionUISite.Shell do
   import DevactionUISite.Icon
 
   alias DevactionUI.Kbd
-  alias DevactionUISite.{Catalog, Project, Templates}
+  alias DevactionUISite.{Catalog, Dedication, Project, Templates}
   alias Phoenix.LiveView.JS
 
   attr :page, :map, required: true, doc: "the assigns of the LiveView"
@@ -80,9 +80,7 @@ defmodule DevactionUISite.Shell do
         <main id="main" class="min-w-0 px-5 pt-9 pb-16 sm:px-12">
           <div class="mx-auto max-w-[900px]">
             {render_slot(@inner_block)}
-            <p class="m-0 mt-16 border-t border-line pt-6 text-center text-[13px] text-muted">
-              Toda honra e glória ao Senhor Jesus.
-            </p>
+            <Dedication.dedication class="mt-16 border-t border-line pt-6 text-center text-[13px]" />
           </div>
         </main>
 
@@ -147,7 +145,7 @@ defmodule DevactionUISite.Shell do
         <.logo size={logo_size(@variant)} />
         <span class="site-head-name">DevAction UI</span>
         <span :if={@variant != :changelog} class="site-head-chip hidden sm:inline-block">
-          v{Project.short_version()}
+          v{Project.version()}
         </span>
       </.link>
 
@@ -350,7 +348,7 @@ defmodule DevactionUISite.Shell do
         <.side_link to="/changelog" current={@live_action == :changelog} class="h-8" tone="text-ink-2">
           Changelog
           <span class="ml-auto rounded-[5px] border border-tag-warn-line bg-tag-warn-bg px-1.5 py-0.5 font-mono text-[10px] leading-[normal] text-tag-warn-text">
-            v{Project.short_version()}
+            v{Project.version()}
           </span>
         </.side_link>
       </div>

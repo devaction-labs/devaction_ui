@@ -75,8 +75,15 @@ defmodule DevactionUISite.Changelog do
         "The Blade version of the kit for Laravel and Livewire projects, starting with the color picker, the slider and the filter menu."
     },
     %{
-      version: "v0.2.5",
+      version: "v0.2.6",
       status: "current",
+      tag: "v0.2.6",
+      summary:
+        "The site shows the full version in its chips, and the footer dedication is in English with a glow that passes between the letters."
+    },
+    %{
+      version: "v0.2.5",
+      status: "archived",
       tag: "v0.2.5",
       summary:
         "The install instructions use Hex (`{:devaction_ui, \"~> 0.2.0\"}`) now that the package is published; the package itself is unchanged since 0.2.3."
@@ -118,6 +125,10 @@ defmodule DevactionUISite.Changelog do
   ]
 
   @patches %{
+    "v0.2.6" => [
+      {"improved", "Improvements", "site_version",
+       "The header chips and the component history show the full version, and the footer dedication has a soft glow."}
+    ],
     "v0.2.5" => [
       {"improved", "Improvements", "install",
        "The install instructions use the Hex requirement instead of the GitHub repository."}
