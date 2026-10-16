@@ -5,14 +5,21 @@ defmodule DevactionUI.Aura do
 
   `tone` picks the color (`:ai` amber, `:learning` violet, `:ok`, `:risk`). `variant` is `:spin` (one light
   going round), `:dual` (two tones going round, the second one `learning`) or `:glow` (no ring, a halo that
-  breathes). `size` is the ring's width. The animation stops under `prefers-reduced-motion`, leaving the
-  ring still.
+  breathes). `size` is the ring's width (`:xs` 1px, `:sm` 1.5px, `:md` 2px, `:lg` 2.5px). `shape` is the
+  outline of the ring and of the content it hugs: `:card` rounded corners, `:pill` and `:circle` fully round
+  (a `:circle` needs square content). The animation stops under `prefers-reduced-motion`, leaving the ring
+  still.
+
+  The ring is decoration. When it marks work in progress, say so on the wrapper with `aria-busy="true"`
+  (it goes through `rest`). The spin needs the `@property --aura-angle` rule of `devaction_ui.css`: without
+  it the angle cannot be animated and the ring stays still.
   """
   use Phoenix.Component
 
   attr :tone, :atom, values: [:ai, :learning, :ok, :risk], default: :ai
   attr :variant, :atom, values: [:spin, :dual, :glow], default: :spin
-  attr :size, :atom, values: [:xs, :sm, :lg], default: :sm
+  attr :size, :atom, values: [:xs, :sm, :md, :lg], default: :sm
+  attr :shape, :atom, values: [:card, :pill, :circle], default: :card
   attr :class, :any, default: nil
   attr :rest, :global
   slot :inner_block, required: true
@@ -21,9 +28,10 @@ defmodule DevactionUI.Aura do
     ~H"""
     <div
       class={[
-        "relative motion-reduce:animate-none [&>*]:rounded-[14px]",
+        "relative motion-reduce:animate-none",
         tone(@tone),
         look(@variant),
+        outline(@shape, @variant, @size),
         width(@variant, @size),
         @class
       ]}
@@ -48,11 +56,18 @@ defmodule DevactionUI.Aura do
       "animate-aura-spin-slow bg-[conic-gradient(from_var(--aura-angle),var(--line)_0_10%,currentColor_22%,var(--line)_34%_60%,var(--aura-2,var(--color-learning))_72%,var(--line)_84%)]"
 
   defp look(:glow),
-    do:
-      "animate-aura-glow rounded-[14px] [--aura-g:color-mix(in_oklab,currentColor_55%,transparent)]"
+    do: "animate-aura-glow [--aura-g:color-mix(in_oklab,currentColor_55%,transparent)]"
+
+  defp outline(:card, :glow, _size), do: "rounded-[14px] [&>*]:rounded-[14px]"
+  defp outline(:card, _variant, :xs), do: "rounded-[15px] [&>*]:rounded-[14px]"
+  defp outline(:card, _variant, :sm), do: "rounded-[15.5px] [&>*]:rounded-[14px]"
+  defp outline(:card, _variant, :md), do: "rounded-2xl [&>*]:rounded-[14px]"
+  defp outline(:card, _variant, :lg), do: "rounded-[16.5px] [&>*]:rounded-[14px]"
+  defp outline(_round, _variant, _size), do: "rounded-full [&>*]:rounded-full"
 
   defp width(:glow, _size), do: nil
-  defp width(_variant, :xs), do: "rounded-[15px] p-px"
-  defp width(_variant, :sm), do: "rounded-[15.5px] p-[1.5px]"
-  defp width(_variant, :lg), do: "rounded-[16.5px] p-[2.5px]"
+  defp width(_variant, :xs), do: "p-px"
+  defp width(_variant, :sm), do: "p-[1.5px]"
+  defp width(_variant, :md), do: "p-0.5"
+  defp width(_variant, :lg), do: "p-[2.5px]"
 end

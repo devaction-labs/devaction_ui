@@ -49,6 +49,33 @@ defmodule DevactionUI.AuraTest do
       refute has?(glow, "#a.p-px, #a.p-\\[1\\.5px\\]")
     end
 
+    test "the shape rounds the ring and the content, and the size is the ring width" do
+      assigns = %{}
+
+      for {shape, ring, inner} <- [
+            {:card, "rounded-[15.5px]", "\\[\\&\\>\\*\\]\\:rounded-\\[14px\\]"},
+            {:pill, "rounded-full", "\\[\\&\\>\\*\\]\\:rounded-full"},
+            {:circle, "rounded-full", "\\[\\&\\>\\*\\]\\:rounded-full"}
+          ] do
+        assigns = Map.put(assigns, :shape, shape)
+
+        html =
+          rendered_to_string(~H"""
+          <Aura.aura id="a" shape={@shape} aria-busy="true">x</Aura.aura>
+          """)
+
+        assert html =~ ring, "#{shape}"
+        assert has?(html, "#a.#{inner}[aria-busy=true]"), "#{shape}"
+      end
+
+      md =
+        rendered_to_string(~H"""
+        <Aura.aura id="a" size={:md}>x</Aura.aura>
+        """)
+
+      assert has?(md, "#a.p-0\\.5")
+    end
+
     test "all of it stops under reduced motion" do
       assigns = %{}
 
