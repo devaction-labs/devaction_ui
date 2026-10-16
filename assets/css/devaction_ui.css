@@ -497,19 +497,19 @@
 }
 
 .range::-webkit-slider-runnable-track {
-  height: 6px;
+  block-size: 6px;
   border-radius: 9999px;
   background: linear-gradient(90deg, var(--ink) var(--p), var(--line) var(--p));
 }
 
 .range::-moz-range-track {
-  height: 6px;
+  block-size: 6px;
   border-radius: 9999px;
   background: var(--line);
 }
 
 .range::-moz-range-progress {
-  height: 6px;
+  block-size: 6px;
   border-radius: 9999px;
   background: var(--ink);
 }
@@ -521,13 +521,13 @@
   height: 20px;
   border-radius: 9999px;
   border: 2px solid var(--ink);
-  background: #fff;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
+  background: var(--card);
+  box-shadow: 0 1px 3px var(--picker-shadow-sm);
   cursor: grab;
 }
 
 .range::-webkit-slider-thumb {
-  margin-top: -7px;
+  margin-block-start: -7px;
 }
 
 .range::-moz-range-thumb,
@@ -536,7 +536,7 @@
   height: 16px;
   border-radius: 9999px;
   border: 2px solid var(--ink);
-  background: #fff;
+  background: var(--card);
   cursor: grab;
 }
 
@@ -557,6 +557,56 @@
 .range:disabled {
   cursor: not-allowed;
   opacity: 0.5;
+}
+
+/* A vertical slider: the track stands up with the minimum at the bottom, and its fill grows upwards. */
+.range-vertical {
+  writing-mode: vertical-lr;
+  direction: rtl;
+  width: 24px;
+  height: 100%;
+}
+
+.range.range-vertical::-webkit-slider-runnable-track {
+  background: linear-gradient(to top, var(--ink) var(--p), var(--line) var(--p));
+}
+
+/* The value over a thumb: dark, mono, and shown while the slider is hovered, focused or dragged. `--f`
+   (0 to 1) is where the thumb sits; the 20px is the width of a thumb, which the bubble's centre follows. */
+.slider-bubble {
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: calc(10px + (100% - 20px) * var(--f, 0));
+  translate: -50% 0;
+  padding: 2px 8px;
+  border-radius: 7px;
+  background: var(--ink);
+  color: var(--on-primary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+.slider-bubble-vertical {
+  bottom: calc(10px + (100% - 20px) * var(--f, 0));
+  left: calc(100% + 6px);
+  translate: 0 50%;
+}
+
+.group\/slider:hover > .slider-bubble,
+.group\/slider:focus-within > .slider-bubble,
+.group\/slider:active > .slider-bubble {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slider-bubble {
+    transition: none;
+  }
 }
 
 /* Two range inputs on one track: only the thumbs take the pointer, so both can be dragged. */

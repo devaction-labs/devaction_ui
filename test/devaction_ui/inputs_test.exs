@@ -290,6 +290,157 @@ defmodule DevactionUI.InputsTest do
       assert html =~ ~s(data-format-text="%{value} h")
     end
 
+    test "a slider has no bubble unless asked" do
+      assigns = %{}
+
+      html = rendered_to_string(~H|<Slider.slider id="s" name="h" label="Hours" value={12} />|)
+
+      refute html =~ "data-bubble"
+      refute html =~ "slider-bubble"
+      refute html =~ "aria-orientation"
+    end
+
+    test "the bubble shows the value over the thumb, is hidden from assistive technology and follows the fraction" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Slider.slider
+          id="s"
+          name="h"
+          label="Hours"
+          value={10}
+          max={40}
+          bubble
+          format_text="%{value} h"
+          value_text="Ten hours"
+        />
+        """)
+
+      assert html =~ ~r/<span[^>]*data-bubble[^>]*aria-hidden="true"/
+      assert html =~ "slider-bubble"
+      assert html =~ "--f: 0.25"
+      assert html =~ ~r/slider-bubble[^>]*>\s*10 h\s*</
+      assert html =~ ~s(aria-valuetext="Ten hours")
+      assert html =~ "group/slider"
+      refute html =~ "slider-bubble-vertical"
+    end
+
+    test "a vertical slider stands the track up with the value on top and the label below" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Slider.slider
+          id="s"
+          name="w"
+          label="Weight"
+          value={30}
+          orientation={:vertical}
+          bubble
+          ticks={["a", "b"]}
+        />
+        """)
+
+      assert html =~ ~s(aria-orientation="vertical")
+      assert html =~ "range range-vertical"
+      assert html =~ "h-40"
+      assert html =~ "order-first"
+      assert html =~ "order-last"
+      assert html =~ "slider-bubble-vertical"
+      refute html =~ "grid-template-columns"
+      assert html =~ ~s(<label for="s")
+    end
+
+    test "the height of a vertical track is a class of the caller's" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(
+          ~H|<Slider.slider id="s" name="w" label="W" value={1} orientation={:vertical} length_class="h-56" />|
+        )
+
+      assert html =~ "h-56"
+      refute html =~ "h-40"
+    end
+
+    test "the fraction is the percent over a hundred" do
+      assert Slider.fraction(25, 0, 100) == 0.25
+      assert Slider.fraction(1, 0, 3) == 0.3333
+      assert Slider.fraction(5, 5, 5) == 0.0
+    end
+
+    test "a range slider has a bubble per thumb when asked, each at its own fraction" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Slider.range_slider
+          id="r"
+          name_low="a"
+          name_high="b"
+          label_low="From"
+          label_high="To"
+          low={20}
+          high={70}
+          bubble
+          format_text="{%{value}}"
+        />
+        """)
+
+      assert html =~ ~r/<span[^>]*data-bubble-low/
+      assert html =~ ~r/<span[^>]*data-bubble-high/
+      assert html =~ "--f: 0.2"
+      assert html =~ "--f: 0.7"
+      assert length(Regex.scan(~r/slider-bubble/, html)) == 2
+
+      refute rendered_to_string(~H|<Slider.range_slider
+  id="r"
+  name_low="a"
+  name_high="b"
+  label_low="F"
+  label_high="T"
+  low={1}
+  high={2}
+/>|) =~
+               "data-bubble"
+    end
+
+    test "a vertical range slider fills from the bottom and says its orientation" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Slider.range_slider
+          id="r"
+          name_low="a"
+          name_high="b"
+          label_low="From"
+          label_high="To"
+          low={20}
+          high={70}
+          orientation={:vertical}
+        />
+        """)
+
+      assert html =~ "bottom: 20.0%; height: 50.0%"
+      refute html =~ "left: 20.0%"
+      assert html =~ ~s(data-orientation="vertical")
+      assert length(Regex.scan(~r/aria-orientation="vertical"/, html)) == 2
+      assert length(Regex.scan(~r/range-vertical/, html)) == 2
+      assert html =~ "h-40"
+    end
+
+    test "the stylesheet stands the track up, themes the thumb and shows the bubble on hover and focus" do
+      css = File.read!("assets/css/devaction_ui.css")
+
+      assert css =~ ~r/\.range-vertical\s+\{[^}]*writing-mode: vertical-lr/
+      assert css =~ ~r/\.range\.range-vertical::-webkit-slider-runnable-track\s+\{[^}]*to top/
+      assert css =~ ~r/\.slider-bubble\s+\{[^}]*var\(--f/
+      assert css =~ ~r/group\\\/slider:focus-within > \.slider-bubble/
+      assert css =~ ~r/\.range::-webkit-slider-thumb[^{]*\{[^}]*background: var\(--card\)/
+    end
+
     test "the pair is put in order and inside the limits" do
       assert Slider.range(0, 100, {70, 20}) == {20, 70}
       assert Slider.range(0, 100, {-5, 120}) == {0, 100}

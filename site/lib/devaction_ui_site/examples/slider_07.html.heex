@@ -1,0 +1,27 @@
+<%!-- title: Vertical | text: The track stands up, with the value on top and the name below; the arrow keys work as on any slider. --%>
+<form id="slider-vertical-form" phx-change="noop" class="m-0 flex gap-6 pr-14">
+  <Slider.slider
+    id="slider-vertical-risk"
+    name="weights[risk]"
+    label="Risk"
+    value={70}
+    orientation={:vertical}
+    bubble
+  />
+  <Slider.slider
+    id="slider-vertical-cost"
+    name="weights[cost]"
+    label="Cost"
+    value={40}
+    orientation={:vertical}
+    bubble
+  />
+  <Slider.slider
+    id="slider-vertical-time"
+    name="weights[time]"
+    label="Time"
+    value={20}
+    orientation={:vertical}
+    bubble
+  />
+</form>
