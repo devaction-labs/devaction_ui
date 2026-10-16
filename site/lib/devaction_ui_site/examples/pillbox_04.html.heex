@@ -1,0 +1,12 @@
+<%!-- title: Empty list marker | text: With empty_sentinel the form always sends the field, as [""] when every pill is gone; Pillbox.clean_values/1 drops the marker. --%>
+<div class="max-w-md">
+  <Pillbox.pillbox
+    id="pillbox-sentinel"
+    name="stack"
+    values={["elixir"]}
+    label="Stack"
+    placeholder="Add a technology"
+    remove_label="Remove %{label}"
+    empty_sentinel
+  />
+</div>

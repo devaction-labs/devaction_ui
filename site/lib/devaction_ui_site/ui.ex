@@ -44,6 +44,7 @@ defmodule DevactionUISite.UI do
         Editor,
         EmptyState,
         FilterMenu,
+        FilterPill,
         InputGroup,
         Kanban,
         Modal,

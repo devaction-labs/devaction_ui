@@ -7,7 +7,8 @@ import {clean, fillLabel, isTaken} from "./pillbox_logic.js"
  * focus is added too. Every pill carries a hidden input `name[]`, so the form submits the list as the page
  * shows it; each change fires `input` on the field so a `phx-change` hears it. The element is
  * `phx-update="ignore"`: the browser owns the pills after mount. The `data-remove-label` pattern names each
- * new pill's ×, and `data-added-label` / `data-removed-label` are announced in the live region.
+ * new pill's ×, and `data-added-label` / `data-removed-label` are announced in the live region. The blank
+ * `data-sentinel` input of `empty_sentinel` is not a pill and is never counted.
  */
 export default {
   mounted() {
@@ -23,7 +24,7 @@ export default {
   },
 
   values() {
-    return [...this.el.querySelectorAll('input[type="hidden"]')].map((input) => input.value)
+    return [...this.el.querySelectorAll('[data-pill-item] input[type="hidden"]')].map((input) => input.value)
   },
 
   onClick(event) {
