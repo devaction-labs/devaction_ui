@@ -15,7 +15,7 @@ defmodule DevactionUISite.Catalog do
     {"Form",
      ~w(Autocomplete Choice ColorPicker Combobox DatePicker Dropzone Editor FilterMenu FilterPill InputGroup MoneyInput NumberInput PasswordStrength Pillbox Segmented SignatureField Slider Switch Textarea Timer)},
     {"Navigation", ~w(Breadcrumb PageHeader Pagination Sidebar Stepper Steps)},
-    {"Data", ~w(Calendar Chart DataTable Kanban)},
+    {"Data", ~w(Calendar Chart DataTable Kanban PdfViewer)},
     {"AI", ~w(AiPrompt Aura ChatBubble)}
   ]
 

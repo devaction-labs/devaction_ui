@@ -1,0 +1,11 @@
+<%!-- title: Signers panel | text: The panel works on its own: avatar, name, role, a status, a note and the jump to my signature. --%>
+<div class="flex max-w-xs flex-col rounded-2xl border border-line bg-card p-4">
+  <PdfViewer.signatures
+    title="Signatures"
+    signers={@pdf.signers}
+    jump_event="pdf_jump"
+    jump_label="Go to my signature"
+  >
+    <:note>Your field is on page 4. Click it to draw or type the signature.</:note>
+  </PdfViewer.signatures>
+</div>

@@ -53,6 +53,7 @@ defmodule DevactionUISite.UI do
         PageHeader,
         Pagination,
         PasswordStrength,
+        PdfViewer,
         Pillbox,
         Popover,
         Progress,

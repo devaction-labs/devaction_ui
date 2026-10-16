@@ -24,6 +24,7 @@ import FilterMenu from "./filter_menu.js"
 import {Indeterminate, NumberInput, Range, RangePair, Segmented, Switch} from "./controls.js"
 import Kanban from "./kanban.js"
 import Overlay from "./overlay.js"
+import PdfViewer from "./pdf_viewer.js"
 import Pillbox from "./pillbox.js"
 import Popover from "./popover.js"
 import ProgressToast from "./progress_toast.js"
@@ -51,6 +52,7 @@ export const hooks = {
   "DevactionUI.Indeterminate": Indeterminate,
   "DevactionUI.Kanban": Kanban,
   "DevactionUI.Overlay": Overlay,
+  "DevactionUI.PdfViewer": PdfViewer,
   "DevactionUI.Pillbox": Pillbox,
   "DevactionUI.Popover": Popover,
   "DevactionUI.Range": Range,
