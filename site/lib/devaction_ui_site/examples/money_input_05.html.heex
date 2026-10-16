@@ -1,0 +1,14 @@
+<%!-- title: Sign, Suffix And Help | text: signed lets a minus make the amount negative, suffix puts the symbol after the amount, and the label and the help take markup. --%>
+<MoneyInput.money_input
+  id="money-input-signed"
+  name="amount_signed"
+  prefix={nil}
+  suffix="€"
+  group=" "
+  signed
+  value="-1250000"
+  class="max-w-xs"
+>
+  <:label_content>Balance <span class="text-muted">(a minus is a debt)</span></:label_content>
+  <:help>Type - for a negative amount.</:help>
+</MoneyInput.money_input>

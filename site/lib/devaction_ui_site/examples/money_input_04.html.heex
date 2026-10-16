@@ -1,0 +1,23 @@
+<%!-- title: Another Currency | text: prefix, decimal, group and precision describe the currency; the server renders the same mask (mask/2), so the field is right before the hook runs. --%>
+<div class="flex flex-wrap gap-6">
+  <MoneyInput.money_input
+    id="money-input-usd"
+    name="amount_usd"
+    label="Price (USD)"
+    prefix="$"
+    decimal="."
+    group=","
+    value={123_456}
+    class="w-56"
+  />
+  <MoneyInput.money_input
+    id="money-input-jpy"
+    name="amount_jpy"
+    label="Price (JPY)"
+    prefix="¥"
+    group=","
+    precision={0}
+    value={1_234_567}
+    class="w-56"
+  />
+</div>

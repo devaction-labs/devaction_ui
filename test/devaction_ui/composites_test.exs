@@ -112,6 +112,8 @@ defmodule DevactionUI.CompositesTest do
     end
   end
 
+  doctest DevactionUI.MoneyInput
+
   describe "MoneyInput" do
     test "parse reads the cents from what is shown" do
       assert MoneyInput.parse("R$ 1.234,56") == {:ok, 123_456}
@@ -152,7 +154,117 @@ defmodule DevactionUI.CompositesTest do
       assert html =~ ~s(inputmode="decimal")
       assert html =~ ~s(placeholder="0,00")
       assert html =~ "[&amp;&gt;input]:text-right"
-      assert html =~ ~s(value="123456")
+      assert html =~ ~s(value="1.234,56")
+    end
+
+    defp money(attrs) do
+      assigns = %{attrs: attrs}
+
+      rendered_to_string(~H"""
+      <MoneyInput.money_input id="m" name="amount" label="Value" {@attrs} />
+      """)
+    end
+
+    test "the value is rendered masked, whether it is minor units, raw digits or already masked" do
+      assert money(value: 123_456) =~ ~s(value="1.234,56")
+      assert money(value: "123456") =~ ~s(value="1.234,56")
+      assert money(value: "12.500,00") =~ ~s(value="12.500,00")
+      assert money(value: 5) =~ ~s(value="0,05")
+      refute money(value: nil) =~ ~s(value="0)
+      refute money(value: "") =~ ~r/ value="[^"]/
+    end
+
+    test "the currency comes from the attrs and the hook is told" do
+      html = money(prefix: "$", decimal: ".", group: ",", value: 123_456)
+      assert html =~ ~s(value="1,234.56")
+      assert html =~ ~r/class="input-addon font-mono[^"]*">\$/
+      assert html =~ ~s(placeholder="0.00")
+      assert html =~ ~s(data-decimal=".")
+      assert html =~ ~s(data-group=",")
+      assert html =~ ~s(data-precision="2")
+      assert html =~ ~s(data-signed="false")
+    end
+
+    test "precision 0 has no decimals, and a suffix replaces the prefix" do
+      html = money(prefix: nil, suffix: "€", group: " ", precision: 0, value: 1_234_567)
+      assert html =~ ~s(value="1 234 567")
+      assert html =~ ~s(placeholder="0")
+      assert html =~ ~r/class="input-addon font-mono[^"]*">€/
+      refute html =~ "R$"
+      assert html =~ ~s(data-precision="0")
+    end
+
+    test "a placeholder given wins, and signed lets the sign show" do
+      assert money(placeholder: "Amount") =~ ~s(placeholder="Amount")
+      html = money(signed: true, value: "-1500")
+      assert html =~ ~s(value="-15,00")
+      assert html =~ ~s(data-signed="true")
+      assert money(value: "-1500") =~ ~s(value="15,00")
+    end
+
+    test "the label can be a slot, and without either it raises" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <MoneyInput.money_input id="m" name="a">
+          <:label_content>Price <b>*</b></:label_content>
+        </MoneyInput.money_input>
+        """)
+
+      assert html =~ ~r/<label for="m"[^>]*>\s*Price <b>\*<\/b>/
+
+      assert_raise ArgumentError, fn ->
+        rendered_to_string(~H|<MoneyInput.money_input id="m" name="a" />|)
+      end
+    end
+
+    test "the help sits under the field, is its description and comes before the error" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <MoneyInput.money_input id="m" name="a" label="V" errors={["Too low."]} aria-describedby="x">
+          <:help>Gross of taxes.</:help>
+        </MoneyInput.money_input>
+        """)
+
+      assert html =~ ~s(id="m-help")
+      assert html =~ "Gross of taxes."
+      assert html =~ ~s(aria-describedby="x m-help m-error")
+    end
+
+    test "the error look and the disabled and readonly looks come from the input group" do
+      html = money(errors: ["No."], disabled: true)
+      assert html =~ ~s(aria-invalid="true")
+      assert html =~ ~r/ disabled[ >]/
+      assert money(readonly: true) =~ ~r/ readonly[ >]/
+    end
+
+    test "mask renders what the hook renders" do
+      assert MoneyInput.mask("1") == "0,01"
+      assert MoneyInput.mask("R$ 1.234,56") == "1.234,56"
+      assert MoneyInput.mask("0005") == "0,05"
+      assert MoneyInput.mask("abc") == ""
+      assert MoneyInput.mask(nil) == ""
+      assert MoneyInput.mask("-12", signed: true) == "-0,12"
+      assert MoneyInput.mask("-12") == "0,12"
+      assert MoneyInput.mask("1234567", group: "$") == "12$345,67"
+    end
+
+    test "format groups by three and takes the separators and the precision" do
+      assert MoneyInput.format(0) == "0,00"
+      assert MoneyInput.format(100_000_000) == "1.000.000,00"
+      assert MoneyInput.format(-123_456, decimal: ".", group: "'") == "-1'234.56"
+      assert MoneyInput.format(7, precision: 3) == "0,007"
+      assert MoneyInput.format(99_999, precision: 0, group: "") == "99999"
+    end
+
+    test "parse reads the sign only when signed, and a lone sign has no digits" do
+      assert MoneyInput.parse("-1,50") == {:ok, 150}
+      assert MoneyInput.parse("-1,50", signed: true) == {:ok, -150}
+      assert MoneyInput.parse("-", signed: true) == :error
+      assert MoneyInput.parse("-0,00", signed: true) == {:ok, 0}
     end
 
     test "an error is tied to the field next to the description the caller gives" do
