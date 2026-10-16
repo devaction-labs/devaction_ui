@@ -334,7 +334,7 @@
                         aria-pressed:bg-card aria-pressed:text-ink aria-pressed:shadow-sm; }
   .segmented-full { @apply flex w-full [&>.segment]:flex-1; }
   .app-shell   { @apply flex min-h-dvh flex-wrap gap-4 bg-frame p-4; }
-  .sidebar     { @apply flex w-59 shrink-0 flex-col gap-5 px-1 py-3 transition-[width] data-[collapsed=true]:w-16 max-md:hidden; }
+  .sidebar     { @apply flex w-59 shrink-0 flex-col gap-5 px-1 py-3 transition-[width] data-[collapsed=true]:w-16 data-[responsive=true]:max-md:hidden; }
   .sidebar-link { @apply flex h-11 items-center gap-3 rounded-[10px] border border-transparent px-3 text-ink-2
                          aria-[current=page]:border-line aria-[current=page]:bg-card aria-[current=page]:font-medium aria-[current=page]:text-ink; }
   .app-main    { @apply min-w-0 flex-[999_1_45rem] rounded-panel bg-panel px-9 pt-7 pb-10 shadow-sm max-sm:px-5; }

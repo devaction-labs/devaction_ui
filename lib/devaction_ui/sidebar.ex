@@ -2,10 +2,17 @@ defmodule DevactionUI.Sidebar do
   @moduledoc """
   The side menu of an app: 236 px wide, or 64 px when collapsed, where each item keeps its icon and shows its
   name in a tooltip on hover and on keyboard focus. The current item has `aria-current="page"`. The caller keeps
-  whether it is collapsed (`collapsed`) and gets the press of the toggle in `on_toggle`; it is hidden on small
-  screens, where the app has its own navigation.
+  whether it is collapsed (`collapsed`) and gets the press of the toggle in `on_toggle`, which needs a
+  `toggle_label` (without one it raises). It is hidden below the `md` breakpoint, where the app has its own
+  navigation; `responsive={false}` keeps it on every screen.
+
+  Each `item` slot takes `to` and `label` (required), `current` (marks `aria-current="page"`), `count` (a small
+  badge, hidden when collapsed) and `tone` (`:risk`, `:warn`, `:ok`, `:info` or `:neutral` tints that badge; with
+  none it is the quiet grey one). When collapsed the tooltip is the accessible name of the link.
   """
   use Phoenix.Component
+
+  alias DevactionUI.Tone
 
   attr :id, :string, required: true
 
@@ -23,6 +30,10 @@ defmodule DevactionUI.Sidebar do
     default: nil,
     doc: "what the toggle button does, read by assistive technology"
 
+  attr :responsive, :boolean,
+    default: true,
+    doc: "hides it below the `md` breakpoint; `false` keeps it on every screen"
+
   attr :class, :any, default: nil
   slot :toggle_icon
   slot :header, doc: "the brand or the workspace, above the items"
@@ -33,6 +44,7 @@ defmodule DevactionUI.Sidebar do
     attr :label, :string, required: true
     attr :current, :boolean
     attr :count, :any
+    attr :tone, :atom, values: [:risk, :warn, :ok, :info, :neutral]
   end
 
   slot :icon, doc: "the icon of an item; gets `%{label: item label}`"
@@ -43,35 +55,40 @@ defmodule DevactionUI.Sidebar do
 
   attr :rest, :global
 
+  def sidebar(%{on_toggle: on_toggle, toggle_label: nil}) when is_binary(on_toggle),
+    do: raise(ArgumentError, "sidebar: `on_toggle` needs a `toggle_label`")
+
   def sidebar(assigns) do
     ~H"""
     <nav
       id={@id}
       aria-label={@label}
       data-collapsed={to_string(@collapsed)}
+      data-responsive={to_string(@responsive)}
       class={["sidebar", @class]}
       {@rest}
     >
       <div :if={@header != []} class="flex items-center gap-2.5 px-1">{render_slot(@header)}</div>
       <ul class="m-0 flex list-none flex-col gap-1 p-0">
-        <li :for={item <- @item} class="group/tip relative">
+        <li :for={{item, index} <- Enum.with_index(@item)} class="group/tip relative">
           <.link
             navigate={item.to}
             aria-current={Map.get(item, :current) && "page"}
-            aria-label={@collapsed && item.label}
+            aria-labelledby={@collapsed && "#{@id}-tip-#{index}"}
             class="sidebar-link no-underline outline-none focus-visible:ring-4 focus-visible:ring-ink/10"
           >
             <span class="size-5 shrink-0">{render_slot(@icon, %{label: item.label})}</span>
             <span :if={!@collapsed} class="flex-1 truncate">{item.label}</span>
             <span
               :if={!@collapsed and Map.get(item, :count)}
-              class="rounded-md bg-wrap px-1.5 font-mono text-[11px] text-muted"
+              class={["rounded-md px-1.5 font-mono text-[11px]", count_class(Map.get(item, :tone))]}
             >
               {item.count}
             </span>
           </.link>
           <span
             :if={@collapsed}
+            id={"#{@id}-tip-#{index}"}
             role="tooltip"
             class="pointer-events-none absolute top-1/2 left-full z-50 ml-2 -translate-y-1/2 rounded-lg bg-ink px-2.5 py-1.5 text-xs whitespace-nowrap text-on-primary opacity-0 shadow-lg transition-opacity group-hover/tip:opacity-100 group-focus-within/tip:opacity-100 motion-reduce:transition-none"
           >
@@ -97,4 +114,7 @@ defmodule DevactionUI.Sidebar do
     </nav>
     """
   end
+
+  defp count_class(nil), do: "bg-wrap text-muted"
+  defp count_class(tone), do: ["border", Tone.surface(tone), Tone.text(tone)]
 end

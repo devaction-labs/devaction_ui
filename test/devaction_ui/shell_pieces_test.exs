@@ -125,11 +125,44 @@ defmodule DevactionUI.ShellPiecesTest do
 
       assert html =~ ~s(data-collapsed="true")
       assert length(Regex.scan(~r/role="tooltip"/, html)) == 2
-      assert html =~ ~s(aria-label="Today")
+      assert html =~ ~s(aria-labelledby="nav-tip-0")
+      assert html =~ ~s(id="nav-tip-0")
+      refute html =~ ~s(aria-label="Today")
       assert html =~ "group-hover/tip:opacity-100"
       assert html =~ "group-focus-within/tip:opacity-100"
       assert html =~ ~s(aria-expanded="false")
       refute html =~ ~r/>\s*3\s*</
+    end
+
+    test "the count takes the tone of its item, the quiet one without" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Sidebar.sidebar id="nav" label="Main" responsive={false}>
+          <:icon>I</:icon>
+          <:item to="/a" label="A" count="3" tone={:risk} />
+          <:item to="/b" label="B" count="9" />
+        </Sidebar.sidebar>
+        """)
+
+      assert html =~ "bg-tag-risk-bg"
+      assert html =~ "text-tag-risk-text"
+      assert html =~ "bg-wrap text-muted"
+      assert html =~ ~s(data-responsive="false")
+      assert sidebar(false) =~ ~s(data-responsive="true")
+    end
+
+    test "a toggle without a label is a mistake" do
+      assigns = %{}
+
+      assert_raise ArgumentError, ~r/toggle_label/, fn ->
+        rendered_to_string(~H"""
+        <Sidebar.sidebar id="nav" label="Main" on_toggle="t">
+          <:item to="/a" label="A" />
+        </Sidebar.sidebar>
+        """)
+      end
     end
 
     test "has no toggle when nobody listens" do
