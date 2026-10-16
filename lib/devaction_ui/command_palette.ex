@@ -17,12 +17,21 @@ defmodule DevactionUI.CommandPalette do
   line under the label and `shortcut` is the key cap of the item at the right (the `↵` otherwise appears on the
   active row). The `item_icon` slot draws a 28px tile with the item's icon and gets the item. Each group is a
   `role="group"` named by its label, and the active row has `aria-selected`; the field's `aria-expanded` is
-  false when there is no row at all.
+  false when there is no row at all. `hint_style: :plain` draws the hint as bare mono text in its tone (the
+  number of a pull request).
+
+  The `scopes` are a real `role="tablist"` of `role="tab"` buttons (the chosen one has `aria-selected` and is
+  the only one in the tab order; ← → Home End move to a scope and choose it, and the row scrolls sideways when
+  it does not fit). The first scope is the chosen one while `scope` is nil.
+
+  The palette has the states of a search: with an empty `query` the caller puts what was opened lately in a
+  group (`label: "Recent"`); `loading` shows `loading_label` (with the `loading_icon` slot) while the server
+  searches and marks the list busy; and with nothing to show, `empty` (or the `empty_state` slot, which gets the
+  query) is centered in the list.
   """
   use Phoenix.Component
 
   import DevactionUI.Kbd
-  import DevactionUI.Segmented
 
   alias DevactionUI.Autocomplete
   alias Phoenix.LiveView.JS
@@ -37,9 +46,16 @@ defmodule DevactionUI.CommandPalette do
 
   attr :groups, :list,
     default: [],
-    doc: "`%{label, items: [%{id, label, to | patch | href | event, hint, tone, sub, shortcut}]}`"
+    doc:
+      "`%{label, items: [%{id, label, to | patch | href | event, hint, hint_style, tone, sub, shortcut}]}`"
 
   attr :empty, :string, required: true, doc: "shown, centered, when there is no row"
+
+  attr :loading, :boolean,
+    default: false,
+    doc: "the server is searching: shows `loading_label` and marks the list busy"
+
+  attr :loading_label, :string, default: nil, doc: "what the list says while `loading`"
   attr :ask_label, :string, default: nil, doc: "the text of the AI row; no row when nil"
   attr :ask_event, :string, default: nil, doc: "the event the AI row sends with the text, as `q`"
 
@@ -61,13 +77,18 @@ defmodule DevactionUI.CommandPalette do
 
   attr :keys, :list, default: [], doc: "`{keys, what}` for the footer: `{\"↑↓\", \"move\"}`"
   slot :search_icon
+  slot :loading_icon, doc: "turning icon before `loading_label`"
+  slot :empty_state, doc: "replaces the `empty` text; gets the query"
   slot :item_icon, doc: "the icon in the tile of an item; gets the item"
 
   attr :rest, :global
 
   @spec palette(map()) :: Phoenix.LiveView.Rendered.t()
   def palette(assigns) do
-    assigns = assign(assigns, :expanded, assigns.groups != [] or assigns.ask_label != nil)
+    assigns =
+      assigns
+      |> assign(:expanded, assigns.groups != [] or assigns.ask_label != nil)
+      |> assign(:chosen_scope, chosen_scope(assigns.scope, assigns.scopes))
 
     ~H"""
     <div
@@ -119,24 +140,50 @@ defmodule DevactionUI.CommandPalette do
             <.kbd :if={@close_key} size={:md} aria-hidden="true">{@close_key}</.kbd>
           </label>
         </form>
-        <div :if={@scopes != []} class="border-b border-line-soft px-3 py-2">
-          <.segmented
-            id={"#{@id}-scopes"}
-            label={@scope_label || @label}
-            value={@scope}
-            event={@scope_event}
-            size={:sm}
+        <div
+          :if={@scopes != []}
+          role="tablist"
+          aria-label={@scope_label || @label}
+          class="flex gap-1.5 overflow-x-auto border-b border-line-soft px-3.5 py-2.5"
+        >
+          <button
+            :for={scope <- @scopes}
+            type="button"
+            role="tab"
+            aria-selected={to_string(scope.value == @chosen_scope)}
+            aria-controls={"#{@id}-list"}
+            tabindex={(scope.value == @chosen_scope && "0") || "-1"}
+            phx-click={@scope_event}
+            phx-value-value={scope.value}
+            class="h-[30px] flex-none cursor-pointer rounded-lg border border-line bg-card px-2.5 text-[13px] text-ink-2 outline-none focus-visible:ring-4 focus-visible:ring-ink/10 aria-selected:border-ink aria-selected:bg-ink aria-selected:text-on-primary"
           >
-            <:option :for={scope <- @scopes} value={scope.value} label={scope.label} />
-          </.segmented>
+            {scope.label}
+          </button>
         </div>
         <div
           id={"#{@id}-list"}
           role="listbox"
           aria-label={@label}
+          aria-busy={@loading && "true"}
           class="max-h-[420px] overflow-y-auto p-1.5"
         >
-          <p :if={@groups == []} class="m-0 px-2.5 py-7 text-center text-sm text-muted">{@empty}</p>
+          <p
+            :if={@loading}
+            role="status"
+            class="m-0 flex items-center justify-center gap-2 px-2.5 py-7 text-sm text-muted"
+          >
+            <span :if={@loading_icon != []} class="size-4 shrink-0 animate-spin" aria-hidden="true">
+              {render_slot(@loading_icon)}
+            </span>
+            {@loading_label}
+          </p>
+          <div
+            :if={@groups == [] and not @loading}
+            role="status"
+            class="m-0 px-2.5 py-7 text-center text-sm text-muted"
+          >
+            {(@empty_state == [] && @empty) || render_slot(@empty_state, @query)}
+          </div>
           <div
             :for={{group, index} <- Enum.with_index(@groups)}
             role="group"
@@ -164,15 +211,7 @@ defmodule DevactionUI.CommandPalette do
                 <span class="truncate">{Autocomplete.marked(item.label, @query)}</span>
                 <span :if={Map.get(item, :sub)} class="truncate text-xs text-muted">{item.sub}</span>
               </span>
-              <span
-                :if={Map.get(item, :hint)}
-                class={[
-                  "rounded-[5px] px-1.5 py-0.5 font-mono text-[11px]",
-                  Autocomplete.tone_class(Map.get(item, :tone, :neutral))
-                ]}
-              >
-                {item.hint}
-              </span>
+              <Autocomplete.hint item={item} />
               <.kbd :if={Map.get(item, :shortcut)} aria-hidden="true">{item.shortcut}</.kbd>
               <.kbd
                 :if={not Map.has_key?(item, :shortcut)}
@@ -211,4 +250,7 @@ defmodule DevactionUI.CommandPalette do
     </div>
     """
   end
+
+  defp chosen_scope(nil, [%{value: first} | _]), do: first
+  defp chosen_scope(scope, _scopes), do: scope
 end

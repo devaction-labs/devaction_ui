@@ -1,4 +1,4 @@
-<%!-- title: Basic | text: Press the button to open the palette with scopes, grouped results, an AI action and key hints --%>
+<%!-- title: Basic | text: Press the button to open the palette with scopes as tabs (left and right arrows move between them), a recent group with plain PR numbers, an AI action and key hints --%>
 <Button.button id="command-palette-open" size={:sm} class="self-start" phx-click="palette_open">
   Open the palette
 </Button.button>
@@ -15,7 +15,7 @@
       "" ->
         [
           %{
-            label: "Pull requests",
+            label: "Recent",
             items: [
               %{
                 id: "p142",
@@ -23,6 +23,7 @@
                 to: "/",
                 sub: "Open for 3 days",
                 hint: "#142",
+                hint_style: :plain,
                 tone: :risk
               },
               %{
@@ -30,6 +31,7 @@
                 label: "Fix the N+1 in contributions",
                 to: "/",
                 hint: "#139",
+                hint_style: :plain,
                 tone: :warn
               }
             ]

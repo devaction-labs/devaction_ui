@@ -222,7 +222,9 @@ defmodule DevactionUI.ShellPiecesTest do
             scopes: [%{value: "all", label: "All"}, %{value: "prs", label: "PRs"}],
             ask_kbd: nil,
             close_key: "Esc",
-            debounce: 150
+            debounce: 150,
+            loading: false,
+            scope: "all"
           },
           extra
         )
@@ -239,8 +241,10 @@ defmodule DevactionUI.ShellPiecesTest do
         ask_label={@ask}
         ask_event="ask"
         scopes={@scopes}
-        scope="all"
+        scope={@scope}
         scope_event="scope"
+        loading={@loading}
+        loading_label="Searching"
         keys={[{"↑↓", "move"}, {"↵", "open"}]}
         ask_kbd={@ask_kbd}
         close_key={@close_key}
@@ -282,6 +286,77 @@ defmodule DevactionUI.ShellPiecesTest do
       refute bare =~ ~s(phx-click="scope")
       refute bare =~ "data-ask"
       assert bare =~ "Nothing."
+    end
+
+    test "the scopes are a tablist of tabs: the chosen one is selected and the only one in the tab order" do
+      html = palette()
+
+      assert html =~ ~s(role="tablist")
+      assert html =~ ~s(aria-label="Search")
+      assert length(Regex.scan(~r/role="tab"/, html)) == 2
+
+      assert html =~
+               ~r/role="tab"[^>]*aria-selected="true"[^>]*tabindex="0"[^>]*phx-value-value="all"/
+
+      assert html =~
+               ~r/role="tab"[^>]*aria-selected="false"[^>]*tabindex="-1"[^>]*phx-value-value="prs"/
+
+      assert html =~ ~s(aria-controls="p-list")
+      assert html =~ "h-[30px]"
+      assert html =~ "overflow-x-auto"
+      refute html =~ "radiogroup"
+    end
+
+    test "the first scope is the chosen one while none is set" do
+      html = palette(%{scope: nil})
+      assert html =~ ~r/role="tab"[^>]*aria-selected="true"[^>]*phx-value-value="all"/
+    end
+
+    test "loading says so, marks the list busy and drops the empty text" do
+      html = palette(%{loading: true, groups: [], ask: nil})
+
+      assert html =~ ~s(aria-busy="true")
+      assert html =~ ~r/role="status"[^>]*>\s*Searching/
+      refute html =~ "Nothing."
+      refute palette() =~ "aria-busy"
+    end
+
+    test "the empty state can be a slot that gets the query" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <CommandPalette.palette
+          id="p"
+          label="Search"
+          query="zz"
+          search_event="search"
+          close_event="close"
+          empty="Nothing."
+        >
+          <:empty_state :let={query}>No result for {query}</:empty_state>
+        </CommandPalette.palette>
+        """)
+
+      assert html =~ "No result for zz"
+      refute html =~ "Nothing."
+    end
+
+    test "a plain hint is bare mono text in the tone, a badge has a background" do
+      plain =
+        palette(%{
+          groups: [
+            %{
+              label: "PRs",
+              items: [
+                %{id: "p1", label: "Fix", to: "/1", hint: "#1", tone: :risk, hint_style: :plain}
+              ]
+            }
+          ]
+        })
+
+      assert plain =~ ~r/class="font-mono text-xs text-tag-risk-text"[^>]*>\s*#1/
+      assert palette() =~ "rounded-[5px]"
     end
 
     test "each group is a named role=group and the rows start unselected" do
