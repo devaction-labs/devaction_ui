@@ -20,6 +20,7 @@ Found by the audit of the 0.3.x components against the artboards (issue 74).
 
 ### Improved
 
+- `Shell` `variant="centered"` follows the LayoutTemas artboard: it keeps the panel frame and, with a `sidebar`, draws it as a bar on top like `topbar`.
 - `DataTable` variations that add up: `variant={:minimal}` (no border, a transparent head in sentence case, for tables inside cards), `striped`, an `expanded` slot (a chevron with `aria-expanded` opens a detail row; the browser toggles it and a redraw keeps it), `group_by` with a `group` slot, a `tfoot` slot for totals, `stack` with `primary` columns (each row becomes a card under 640px, the cell captions come from the column label), an `action` slot for the `⋯` cell with no box, `sticky_actions`, and `align` and `mono` on a column. Shift+click on a row checkbox ticks the range. `action_label` and `expand_label` are required with their slots.
 - `Pagination`: `total`, `per_page`, `noun` and `summary_label` (`__FROM__`, `__TO__`, `__TOTAL__`, `__NOUN__`) draw the range of the page before the links.
 - The "App" template (Projects) is the new artboard: owner with avatar, hours with a bar, `updated` as relative time, a light head and the row menu in the `action` slot; the table fits the panel without a sideways scroll.

@@ -10,7 +10,7 @@ defmodule DevactionUI.Shell do
 
   `variant` is the layout: `"classic"` (a sidebar beside the panel), `"topbar"` (the sidebar becomes a bar on top),
   `"split"` (a `list` column between the sidebar and the panel, for list and detail), `"centered"` (the page in a
-  narrow centred column) and `"docs"` (a `toc` column at the end). `content_width="read"` limits the page to the
+  narrow centred column, with the sidebar as a bar on top like `topbar`) and `"docs"` (a `toc` column at the end). `content_width="read"` limits the page to the
   reading width. The shell is as tall as the screen; to put it in a box, set `--shell-h` (`style="--shell-h: 460px"`).
 
   The slots are `sidebar` (built from `sidebar_head/1`, `sidebar_search/1`, `sidebar_nav/1`, `sidebar_group/1`,

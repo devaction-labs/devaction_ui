@@ -1,6 +1,24 @@
-<%!-- title: Centered | text: `variant="centered"` drops the panel frame and keeps the page in a narrow column, for forms and settings. --%>
+<%!-- title: Centered | text: `variant="centered"` keeps the page in a narrow column under a top bar, for forms and settings. --%>
 <div class="overflow-hidden rounded-2xl">
-  <Shell.shell id="shell-centered" variant="centered" style="--shell-h: 300px">
+  <Shell.shell
+    id="shell-centered"
+    variant="centered"
+    style="--shell-h: 360px"
+    sidebar_label="Main"
+    open_label="Open the menu"
+    close_label="Collapse the menu"
+  >
+    <:sidebar>
+      <Shell.sidebar_head name="DevAction IA">
+        <:logo>
+          <span class="grid size-full place-items-center bg-ink text-xs font-semibold text-on-ink">DA</span>
+        </:logo>
+      </Shell.sidebar_head>
+      <Shell.sidebar_nav>
+        <Shell.sidebar_item tip="Account" href="#account" current>Account</Shell.sidebar_item>
+        <Shell.sidebar_item tip="Billing" href="#billing">Billing</Shell.sidebar_item>
+      </Shell.sidebar_nav>
+    </:sidebar>
     <:header>
       <Breadcrumb.breadcrumb
         label="You are here"
