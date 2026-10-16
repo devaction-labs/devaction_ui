@@ -149,6 +149,83 @@ defmodule DevactionUI.InteractiveTest do
       assert html =~ "x"
     end
 
+    defp render_combobox(attrs) do
+      assigns = %{options: options(), attrs: attrs}
+
+      rendered_to_string(~H"""
+      <Combobox.combobox
+        id="cb"
+        name="p"
+        options={@options}
+        label="Project"
+        placeholder="Choose"
+        search_placeholder="Search"
+        empty="None"
+        {@attrs}
+      >
+        <:chevron_icon>V</:chevron_icon>
+        <:search_icon>S</:search_icon>
+        <:clear_icon>X</:clear_icon>
+        <:option_marker :let={option}>M-{option.value}</:option_marker>
+      </Combobox.combobox>
+      """)
+    end
+
+    test "the button is named by the label and the chosen text, so the choice is read" do
+      html = render_combobox(value: "b")
+
+      assert html =~ ~s(aria-labelledby="cb-label cb-current")
+      assert html =~ ~s(id="cb-current")
+      assert html =~ ~r/id="cb-label"[^>]*>Project</
+      refute html =~ ~r/data-trigger[^>]*aria-label=/
+    end
+
+    test "the icons are slots, the open button has its ring and the marker gets the option" do
+      html = render_combobox([])
+
+      assert html =~ ~r/>\s*V\s*</
+      assert html =~ ~r/>\s*S\s*</
+      refute html =~ "⌄"
+      assert html =~ "M-a"
+      assert html =~ "aria-expanded:border-ink"
+      assert html =~ "aria-expanded:ring-4"
+      assert html =~ "hover:bg-wrap"
+      assert html =~ "shadow-pop"
+      assert html =~ "h-11"
+      assert html =~ ~s(data-placeholder="Choose")
+    end
+
+    test "the list is not frozen: the options follow the patch" do
+      refute render_combobox([]) =~ "phx-update"
+    end
+
+    test "disabled, required and error states" do
+      html = render_combobox(disabled: true, required: true, error: "Pick one")
+
+      assert html =~ ~r/data-trigger[^>]*disabled/
+      assert html =~ ~s(aria-required="true")
+      assert html =~ ~s(aria-invalid="true")
+      assert html =~ ~s(aria-describedby="cb-error")
+      assert html =~ ~r/id="cb-error"[^>]*role="alert"[^>]*>\s*Pick one/
+      assert html =~ "border-risk-fg"
+      assert html =~ ~r/<input type="hidden"[^>]*disabled/
+
+      plain = render_combobox([])
+      refute plain =~ "aria-invalid"
+      refute plain =~ "cb-error"
+    end
+
+    test "a clear button only with a name, hidden while nothing is chosen" do
+      refute render_combobox([]) =~ "data-clear"
+
+      empty = render_combobox(clear_label: "Clear")
+      assert empty =~ ~r/data-clear[^>]*aria-label="Clear"[^>]*hidden|hidden[^>]*data-clear/
+
+      chosen = render_combobox(clear_label: "Clear", value: "a")
+      assert chosen =~ "data-clear"
+      refute chosen =~ ~r/<button[^>]*data-clear[^>]*\shidden[\s>]/
+    end
+
     test "with no value it shows the placeholder, muted" do
       assigns = %{options: options()}
 
