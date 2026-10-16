@@ -7,9 +7,13 @@ defmodule DevactionUI.Segmented do
   be `disabled`, take its own `class`, and send `patch` or `navigate` (a path) instead of the `event`, for a
   filter that lives in the URL.
 
-  The segments are toggle buttons, one stop each in the Tab order, not a radio group with arrow keys. They are
-  34px high (`:md`) and 28px (`:sm`), as the canvas draws them: on a touch screen give the control room around
-  it or use `:md` with `full`.
+  The segments stay toggle buttons with `aria-pressed`; the `DevactionUI.Segmented` hook only eases the
+  keyboard: one segment is in the Tab order (the pressed one, or the first that is not disabled) and the arrow
+  keys, Home and End move the focus round the others, skipping disabled ones. Moving the focus does not choose:
+  Enter or Space presses, as for any button.
+
+  The segments are 34px high (`:md`) and 28px (`:sm`), as the canvas draws them: on a touch screen give the
+  control room around it or use `:md` with `full`.
   """
   use Phoenix.Component
 
@@ -48,11 +52,14 @@ defmodule DevactionUI.Segmented do
   attr :rest, :global
 
   def segmented(assigns) do
+    assigns = assign(assigns, :stop, tab_stop(assigns.option, assigns.value))
+
     ~H"""
     <div
       id={@id}
       role="group"
       aria-label={@label}
+      phx-hook="DevactionUI.Segmented"
       class={["segmented", @size == :sm && "segmented-sm", @full && "segmented-full", @class]}
       {@rest}
     >
@@ -60,6 +67,7 @@ defmodule DevactionUI.Segmented do
         :for={option <- @option}
         id={"#{@id}-#{option.value}"}
         type="button"
+        tabindex={tab_index(option, @stop)}
         aria-pressed={to_string(option.value == @value)}
         aria-label={Map.get(option, :icon_only) && option.label}
         disabled={Map.get(option, :disabled)}
@@ -81,6 +89,14 @@ defmodule DevactionUI.Segmented do
     </div>
     """
   end
+
+  defp tab_stop(options, value) do
+    open = Enum.reject(options, &Map.get(&1, :disabled))
+    Enum.find(open, &(&1.value == value)) || List.first(open)
+  end
+
+  defp tab_index(option, option), do: "0"
+  defp tab_index(_option, _stop), do: "-1"
 
   defp click(%{patch: path}, _event), do: JS.patch(path)
   defp click(%{navigate: path}, _event), do: JS.navigate(path)

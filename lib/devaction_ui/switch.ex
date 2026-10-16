@@ -2,9 +2,12 @@ defmodule DevactionUI.Switch do
   @moduledoc """
   A switch for what takes effect at once, with no save button (for a choice that only counts after saving, use a
   checkbox). It is a `<button role="switch">`: `aria-checked` says the state, the keyboard toggles it and the
-  caller does the work in its own `phx-click`. It writes no hidden input, so it does not take part in a form's
-  submit: the state is the LiveView's, kept by the click. While the change is being kept, `saving` puts a
-  spinner in the thumb and the control ignores presses; `saved_note/1` is the "saved now" the caller shows after.
+  caller does the work in its own `phx-click`. By default it writes no hidden input, so it does not take part in
+  a form's submit: the state is the LiveView's, kept by the click. Give it a `name` (the field mode) and it
+  renders a hidden input `<id>-field` with `"true"` or `"false"`, which the `DevactionUI.Switch` hook keeps
+  the same as the button, firing `input` so the form's `phx-change` hears it; a press then works with no
+  `phx-click` at all. While the change is being kept, `saving` puts a spinner in the thumb and the control
+  ignores presses; `saved_note/1` is the "saved now" the caller shows after.
 
   Colors: the default ink, `:ai` (amber) and `:ok` (green). Sizes: `:sm`, `:md`, `:lg`. The track has a hit
   area of 44px high; in `switch_row/1` and `switch_card/1` the text is a `<label>`, so pressing it toggles too.
@@ -13,6 +16,12 @@ defmodule DevactionUI.Switch do
 
   attr :id, :string, required: true
   attr :checked, :boolean, default: false
+
+  attr :name, :string,
+    default: nil,
+    doc:
+      "turns on the field mode: a hidden input of this name carries `\"true\"` or `\"false\"` in the form"
+
   attr :size, :atom, values: [:sm, :md, :lg], default: :md
   attr :tone, :atom, values: [:default, :ai, :ok], default: :default
 
@@ -42,6 +51,7 @@ defmodule DevactionUI.Switch do
       aria-labelledby={@labelledby}
       aria-busy={@saving && "true"}
       aria-disabled={(@disabled or @saving) && "true"}
+      phx-hook={@name && "DevactionUI.Switch"}
       class={["switch", size_class(@size), tone_class(@tone), @class]}
       {disabled_rest(@rest, @disabled or @saving)}
     >
@@ -53,6 +63,14 @@ defmodule DevactionUI.Switch do
         {!@saving && render_slot(@icon, %{checked: @checked})}
       </span>
     </button>
+    <input
+      :if={@name}
+      type="hidden"
+      id={@id <> "-field"}
+      name={@name}
+      value={to_string(@checked)}
+      disabled={@disabled}
+    />
     """
   end
 
@@ -69,6 +87,7 @@ defmodule DevactionUI.Switch do
 
   attr :id, :string, required: true
   attr :checked, :boolean, default: false
+  attr :name, :string, default: nil, doc: "the field mode of `switch/1`"
   attr :label, :string, required: true
   attr :description, :string, default: nil
   attr :tone, :atom, values: [:default, :ai, :ok], default: :default
@@ -95,6 +114,7 @@ defmodule DevactionUI.Switch do
       <.switch
         id={@id}
         checked={@checked}
+        name={@name}
         tone={@tone}
         saving={@saving}
         disabled={@disabled}
@@ -111,6 +131,7 @@ defmodule DevactionUI.Switch do
 
   attr :id, :string, required: true
   attr :checked, :boolean, default: false
+  attr :name, :string, default: nil, doc: "the field mode of `switch/1`"
   attr :label, :string, required: true
   attr :description, :string, default: nil
   attr :tone, :atom, values: [:default, :ai, :ok], default: :default
@@ -144,6 +165,7 @@ defmodule DevactionUI.Switch do
       <.switch
         id={@id}
         checked={@checked}
+        name={@name}
         tone={@tone}
         saving={@saving}
         disabled={@disabled}

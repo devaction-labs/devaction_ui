@@ -1,0 +1,28 @@
+<%!-- title: Error and disabled | text: An error marks the pad and the name field and is read as an alert; a disabled field is inert. --%>
+<div class="flex max-w-lg flex-col gap-8">
+  <SignatureField.signature_field
+    id="signature-error"
+    name="error_signature"
+    mode={:draw}
+    label="Sign the contract"
+    mode_event="sign_mode"
+    draw_label="Draw"
+    type_label="Type"
+    clear_label="Clear"
+    pad_label="Signature area"
+    guide_label="Sign above the line"
+    error="The contract needs a signature."
+  />
+  <SignatureField.signature_field
+    id="signature-disabled"
+    name="locked_signature"
+    mode={:draw}
+    label="Signed on 12 Oct"
+    mode_event="sign_mode"
+    draw_label="Draw"
+    type_label="Type"
+    clear_label="Clear"
+    pad_label="Signature area"
+    disabled
+  />
+</div>

@@ -9,11 +9,18 @@ defmodule DevactionUI.SignatureField do
   typed name; the form reads `name[method]` to know which of `name[path]` and `name[typed]` counts. Drawing has
   no keyboard equivalent: the typed mode is the way for whoever cannot draw. The typed name is set in the
   Caveat font (`.signature-typed`), which the package does not load: add Caveat (weight 500) to the page, for
-  example from Google Fonts, or the name falls back to the browser's cursive.
+  example from Google Fonts, or the name falls back to the browser's cursive. To use another face, give `font`
+  (a CSS `font-family` value such as `"'Dancing Script', cursive"`) and load that one instead.
+
+  `guide_label` writes a line of text under the guide line of the pad ("Sign above the line"); `typed_label` is
+  the visible label of the name field; `required` marks the name field as required (a drawing is checked by the
+  server, with `safe_path?/1`). `error` marks both ways of signing as invalid and `disabled` makes the whole field
+  inert.
   """
   use Phoenix.Component
 
   @color ~r/\A(?:#[0-9A-Fa-f]{6}|currentColor)\z/
+  @font ~r/\A[\w\s,'"-]{1,120}\z/u
 
   @doc "Whether a path is only path commands and numbers, so it can be drawn back without being trusted."
   @spec safe_path?(term()) :: boolean()
@@ -29,6 +36,10 @@ defmodule DevactionUI.SignatureField do
   @spec to_svg(String.t(), String.t()) :: String.t() | nil
   def to_svg(path, color \\ "#18181B"),
     do: svg(safe_path?(path) and Regex.match?(@color, to_string(color)), path, color)
+
+  defp font_style(font), do: font_style(font, Regex.match?(@font, to_string(font)))
+  defp font_style(font, true), do: "--signature-font: #{font}"
+  defp font_style(_font, false), do: nil
 
   defp svg(true, path, color) do
     ~s(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 170"><path d="#{path}" fill="none" stroke="#{color}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>)
@@ -61,8 +72,23 @@ defmodule DevactionUI.SignatureField do
       "the status while nothing is drawn, such as \"Signature empty\"; the status shows when given"
 
   attr :ready_label, :string, default: nil, doc: "the status once there is a stroke"
+
+  attr :guide_label, :string,
+    default: nil,
+    doc: "text under the guide line of the pad, such as \"Sign above the line\""
+
+  attr :typed_label, :string,
+    default: nil,
+    doc: "the visible label of the name field; without it the field is named by `label`"
+
+  attr :font, :string,
+    default: nil,
+    doc:
+      "a CSS `font-family` for the typed name, such as `\"'Dancing Script', cursive\"`; the page loads the font. Letters, digits, spaces, commas, quotes and hyphens only"
+
   attr :hint, :string, default: nil
   attr :error, :string, default: nil
+  attr :required, :boolean, default: false, doc: "marks the name field as required"
   attr :disabled, :boolean, default: false
   attr :class, :any, default: nil
 
@@ -99,6 +125,7 @@ defmodule DevactionUI.SignatureField do
           "flex flex-col gap-1.5 data-[invalid=true]:[&_.signature-pad]:border-missing",
           @disabled && "pointer-events-none opacity-50"
         ]}
+        inert={@disabled}
       >
         <div id={"#{@id}-pad"} phx-hook="DevactionUI.Signature" phx-update="ignore" class="contents">
           <div class="signature-pad relative">
@@ -127,6 +154,9 @@ defmodule DevactionUI.SignatureField do
                 stroke-linejoin="round"
                 class="text-ink"
               />
+              <text :if={@guide_label} x="24" y="148" font-size="11" class="fill-muted-2">
+                {@guide_label}
+              </text>
             </svg>
             <input type="hidden" name={"#{@name}[path]"} value="" />
           </div>
@@ -153,19 +183,26 @@ defmodule DevactionUI.SignatureField do
         </div>
       </div>
       <div :if={@mode == :type} class="flex flex-col gap-2">
+        <label :if={@typed_label} for={"#{@id}-typed"} class="text-sm font-medium text-ink">
+          {@typed_label}
+        </label>
         <input
           id={"#{@id}-typed"}
           type="text"
           name={"#{@name}[typed]"}
           value={@typed}
-          aria-label={@label}
+          aria-label={!@typed_label && @label}
+          required={@required}
           aria-invalid={@error && "true"}
           aria-describedby={@error && "#{@id}-error"}
           disabled={@disabled}
           maxlength="120"
           class="h-11 rounded-xl border border-line-strong bg-card px-3.5 text-[15px] text-ink outline-none focus:border-ink focus:ring-4 focus:ring-ink/10 aria-invalid:border-missing disabled:border-dashed disabled:bg-wrap"
         />
-        <span class="signature-typed flex h-[110px] items-end rounded-xl border border-dashed border-muted/60 bg-wrap/60 px-5 pb-[18px]">
+        <span
+          class="signature-typed flex h-[110px] items-end rounded-xl border border-dashed border-muted/60 bg-wrap/60 px-5 pb-[18px]"
+          style={font_style(@font)}
+        >
           {@typed}
         </span>
       </div>

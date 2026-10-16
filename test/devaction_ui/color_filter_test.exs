@@ -156,6 +156,36 @@ defmodule DevactionUI.ColorFilterTest do
 
       assert html =~ ~s(data-area-text="%{color}, %{saturation} per cent")
     end
+
+    test "the shadows of the panel, the swatch and the thumbs are tokens that follow the theme" do
+      css = File.read!("assets/css/devaction_ui.css")
+
+      for token <- ~w(picker-shadow picker-shadow-sm picker-edge picker-ring) do
+        assert css =~ ~r/--#{token}: light-dark\(rgb\(/
+        assert css =~ "var(--#{token})"
+      end
+
+      assert css =~ ~r/\.color-picker-panel\s+\{[^}]*var\(--picker-shadow\)/
+      refute css =~ ~r/\.color-picker-panel\s+\{[^}]*shadow-pop/
+      assert css =~ ~r/\.color-picker-swatch\s+\{[^}]*var\(--picker-edge\)/
+      refute css =~ "rgb(24 24 27 / 0.25), 0 1px 3px"
+    end
+
+    test "the squares behind the opacity strip follow the theme too" do
+      css = File.read!("assets/css/devaction_ui.css")
+
+      assert css =~ "--picker-checker-a: light-dark(#E4E4E7"
+      assert css =~ "repeating-conic-gradient(var(--picker-checker-a)"
+      refute css =~ "repeating-conic-gradient(#e4e4e7"
+    end
+
+    test "the hue thumb is the colour of the hue and the opacity thumb the chosen colour" do
+      css = File.read!("assets/css/devaction_ui.css")
+
+      assert css =~ ~r/\.color-picker-hue::-webkit-slider-thumb\s+\{[^}]*var\(--cp-hue\)/
+      assert css =~ ~r/\.color-picker-hue::-moz-range-thumb\s+\{[^}]*var\(--cp-hue\)/
+      assert css =~ ~r/\.color-picker-field\s+\{[^}]*\bh-11\b/
+    end
   end
 
   @groups [

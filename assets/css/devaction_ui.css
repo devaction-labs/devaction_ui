@@ -278,7 +278,7 @@
    DevactionUI component or a screen wears one class and both themes follow the tokens. */
 @layer components {
   /* Switch */
-  .switch    { @apply relative inline-flex h-6 w-10 shrink-0 cursor-pointer items-center rounded-full bg-line-strong p-[3px] transition-colors
+  .switch    { @apply relative inline-flex h-6 w-10 shrink-0 touch-manipulation cursor-pointer items-center rounded-full bg-line-strong p-[3px] transition-colors
                      aria-checked:bg-ink aria-disabled:cursor-not-allowed aria-disabled:opacity-40 focus-visible:ring-4 focus-visible:ring-ink/10
                      before:absolute before:-inset-x-1 before:-inset-y-2.5 before:content-['']
                      *:grid *:size-4.5 *:place-items-center *:rounded-full *:bg-(--switch-thumb) *:text-ink-2 *:shadow-sm *:transition-transform
@@ -324,8 +324,14 @@
                      checked:border-[6px] checked:border-ink disabled:border-line disabled:bg-wrap focus-visible:ring-4 focus-visible:ring-ink/10; }
   .choice-label { @apply flex min-h-11 cursor-pointer items-start gap-3 py-2 text-[15px] text-ink has-disabled:cursor-not-allowed has-disabled:text-muted-2; }
   .choice-desc  { @apply text-[13px] text-muted; }
+  .choice-sm    { @apply min-h-10 gap-2 py-1.5; }
+  .choice-sm .checkbox, .choice-sm .radio { @apply size-4.5; }
+  .choice-task  { @apply has-checked:text-muted has-checked:line-through; }
+  .choice-task .checkbox { @apply size-5.5 rounded-full border-2 border-muted-2 checked:border-ink; }
+  .choice-group { @apply m-0 flex min-w-0 flex-col gap-1 border-0 p-0; }
+  .choice-legend { @apply mb-1 p-0 text-sm font-medium text-ink; }
   .choice-card  { @apply flex cursor-pointer flex-col gap-2 rounded-[14px] border-[1.5px] border-line bg-card p-3.5 transition
-                         hover:border-line-strong has-checked:border-ink has-checked:bg-wrap/70 has-focus-visible:ring-4 has-focus-visible:ring-ink/10; }
+                         hover:border-line-strong has-checked:border-ink has-checked:bg-wrap/70 has-focus-visible:ring-4 has-focus-visible:ring-ink/10 data-[invalid=true]:border-missing; }
 
   /* ---------- Editor (prancha 11) ---------- */
   .editor          { @apply rounded-xl border border-line bg-card focus-within:border-ink-2; }
@@ -468,7 +474,7 @@
   .timer         { @apply flex flex-col items-center gap-1.5 rounded-card border border-line bg-wrap/60 p-4.5 data-[running=true]:border-ok-line data-[running=true]:bg-ok-bg/50; }
   .timer-time    { @apply font-mono text-[44px] font-medium tracking-tight tabular-nums; }
   .signature-pad { @apply aspect-[360/170] w-full touch-none rounded-xl border border-dashed border-muted/60 bg-wrap/60; }
-  .signature-typed { @apply font-['Caveat',cursive] text-4xl text-ink; }
+  .signature-typed { @apply text-[40px] font-medium text-ink; font-family: var(--signature-font, 'Caveat', cursive); }
 
   :root {
     --auth-bg: light-dark(var(--frame), #0C0C12);
@@ -493,14 +499,14 @@
   .color-picker        { @apply relative w-full max-w-75; --cp-color: #2563EB; --cp-hue: #2563EB; }
   .color-picker-field  { @apply flex h-11 items-center gap-2.5 rounded-xl border border-line-strong bg-card px-3 focus-within:border-ink focus-within:ring-4 focus-within:ring-ink/10 data-[invalid=true]:border-missing has-disabled:border-dashed has-disabled:bg-wrap has-disabled:text-muted; }
   .color-picker-row    { @apply flex h-9.5 items-center rounded-[10px] bg-wrap px-2.5; }
-  .color-picker-swatch { @apply size-5.5 shrink-0 cursor-pointer disabled:cursor-not-allowed rounded-md bg-(--cp-color) shadow-[inset_0_0_0_1px_rgb(0_0_0/0.12)]; }
+  .color-picker-swatch { @apply size-5.5 shrink-0 cursor-pointer disabled:cursor-not-allowed rounded-md bg-(--cp-color) shadow-[inset_0_0_0_1px_var(--picker-edge)]; }
   .color-picker-input  { @apply h-full min-w-0 flex-1 bg-transparent font-mono text-sm uppercase outline-none; }
-  .color-picker-panel  { @apply absolute top-full left-0 z-50 mt-2 flex w-76 flex-col gap-3 rounded-[14px] border border-line bg-card p-3 shadow-pop; }
+  .color-picker-panel  { @apply absolute top-full left-0 z-50 mt-2 flex w-76 flex-col gap-3 rounded-[14px] border border-line bg-card p-3 shadow-[0_16px_40px_var(--picker-shadow)]; }
   .color-picker-area   { @apply relative h-42 cursor-crosshair touch-none rounded-[10px] outline-none focus-visible:ring-4 focus-visible:ring-ink/15;
                          background: linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, var(--cp-hue)); }
-  .color-picker-handle { @apply pointer-events-none absolute -mt-2 -ml-2 size-4 rounded-full border-2 border-white shadow-[0_0_0_1px_rgb(0_0_0/0.3)]; }
+  .color-picker-handle { @apply pointer-events-none absolute -mt-2 -ml-2 size-4 rounded-full border-2 border-white shadow-[0_0_0_1px_var(--picker-ring)]; }
   .color-picker-presets{ @apply grid grid-cols-8 gap-1.5; }
-  .color-picker-preset { @apply aspect-square cursor-pointer rounded-[7px] shadow-[inset_0_0_0_1px_rgb(0_0_0/0.1)] aria-pressed:shadow-[0_0_0_2px_var(--card),0_0_0_4px_var(--ink)]; }
+  .color-picker-preset { @apply aspect-square cursor-pointer rounded-[7px] shadow-[inset_0_0_0_1px_var(--picker-edge)] aria-pressed:shadow-[0_0_0_2px_var(--card),0_0_0_4px_var(--ink)]; }
   .color-picker-hue, .color-picker-alpha { @apply h-5.5 w-full cursor-pointer appearance-none bg-transparent; }
 
   .filter-menu        { @apply relative inline-block; }
@@ -567,19 +573,19 @@
 }
 
 .range::-webkit-slider-runnable-track {
-  height: 6px;
+  block-size: 6px;
   border-radius: 9999px;
   background: linear-gradient(90deg, var(--ink) var(--p), var(--line) var(--p));
 }
 
 .range::-moz-range-track {
-  height: 6px;
+  block-size: 6px;
   border-radius: 9999px;
   background: var(--line);
 }
 
 .range::-moz-range-progress {
-  height: 6px;
+  block-size: 6px;
   border-radius: 9999px;
   background: var(--ink);
 }
@@ -591,13 +597,13 @@
   height: 20px;
   border-radius: 9999px;
   border: 2px solid var(--ink);
-  background: #fff;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
+  background: var(--card);
+  box-shadow: 0 1px 3px var(--picker-shadow-sm);
   cursor: grab;
 }
 
 .range::-webkit-slider-thumb {
-  margin-top: -7px;
+  margin-block-start: -7px;
 }
 
 .range::-moz-range-thumb,
@@ -606,7 +612,7 @@
   height: 16px;
   border-radius: 9999px;
   border: 2px solid var(--ink);
-  background: #fff;
+  background: var(--card);
   cursor: grab;
 }
 
@@ -629,6 +635,56 @@
   opacity: 0.5;
 }
 
+/* A vertical slider: the track stands up with the minimum at the bottom, and its fill grows upwards. */
+.range-vertical {
+  writing-mode: vertical-lr;
+  direction: rtl;
+  width: 24px;
+  height: 100%;
+}
+
+.range.range-vertical::-webkit-slider-runnable-track {
+  background: linear-gradient(to top, var(--ink) var(--p), var(--line) var(--p));
+}
+
+/* The value over a thumb: dark, mono, and shown while the slider is hovered, focused or dragged. `--f`
+   (0 to 1) is where the thumb sits; the 20px is the width of a thumb, which the bubble's centre follows. */
+.slider-bubble {
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: calc(10px + (100% - 20px) * var(--f, 0));
+  translate: -50% 0;
+  padding: 2px 8px;
+  border-radius: 7px;
+  background: var(--ink);
+  color: var(--on-primary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+.slider-bubble-vertical {
+  bottom: calc(10px + (100% - 20px) * var(--f, 0));
+  left: calc(100% + 6px);
+  translate: 0 50%;
+}
+
+.group\/slider:hover > .slider-bubble,
+.group\/slider:focus-within > .slider-bubble,
+.group\/slider:active > .slider-bubble {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slider-bubble {
+    transition: none;
+  }
+}
+
 /* Two range inputs on one track: only the thumbs take the pointer, so both can be dragged. */
 .range-thumb {
   position: absolute;
@@ -649,10 +705,22 @@
   pointer-events: auto;
 }
 
+/* Colours of the colour picker that are shadows and the squares behind an opacity: they follow the theme. */
+:root {
+  --picker-shadow: light-dark(rgb(24 24 27 / 0.12), rgb(0 0 0 / 0.5));
+  --picker-shadow-sm: light-dark(rgb(0 0 0 / 0.25), rgb(0 0 0 / 0.6));
+  --picker-edge: light-dark(rgb(0 0 0 / 0.12), rgb(255 255 255 / 0.18));
+  --picker-ring: light-dark(rgb(0 0 0 / 0.3), rgb(0 0 0 / 0.55));
+  --picker-checker-a: light-dark(#E4E4E7, #3A3A48);
+  --picker-checker-b: light-dark(#FFFFFF, #26262F);
+  --dropzone-bg: light-dark(#FAFAFB, #15151C);
+}
+
 .color-picker-hue::-webkit-slider-runnable-track,
 .color-picker-hue::-moz-range-track {
   height: 10px;
   border-radius: 9999px;
+  box-shadow: inset 0 0 0 1px var(--picker-edge);
   background: linear-gradient(90deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
 }
 
@@ -660,9 +728,10 @@
 .color-picker-alpha::-moz-range-track {
   height: 10px;
   border-radius: 9999px;
+  box-shadow: inset 0 0 0 1px var(--picker-edge);
   background:
     linear-gradient(90deg, transparent, var(--cp-color)),
-    repeating-conic-gradient(#e4e4e7 0 25%, #fff 0 50%) 0 0 / 10px 10px;
+    repeating-conic-gradient(var(--picker-checker-a) 0 25%, var(--picker-checker-b) 0 50%) 0 0 / 10px 10px;
 }
 
 .color-picker-hue::-webkit-slider-thumb,
@@ -674,7 +743,7 @@
   border-radius: 9999px;
   border: 3px solid #fff;
   background: var(--cp-color);
-  box-shadow: 0 0 0 1px rgb(24 24 27 / 0.25), 0 1px 3px rgb(0 0 0 / 0.25);
+  box-shadow: 0 0 0 1px var(--picker-ring), 0 1px 3px var(--picker-shadow-sm);
 }
 
 .color-picker-hue::-moz-range-thumb,
@@ -684,6 +753,22 @@
   border-radius: 9999px;
   border: 3px solid #fff;
   background: var(--cp-color);
+  box-shadow: 0 0 0 1px var(--picker-ring), 0 1px 3px var(--picker-shadow-sm);
+}
+
+.color-picker-hue:focus-visible,
+.color-picker-alpha:focus-visible {
+  outline: none;
+}
+
+.color-picker-hue:focus-visible::-webkit-slider-thumb,
+.color-picker-alpha:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 1px var(--picker-ring), 0 0 0 5px color-mix(in oklab, var(--ink) 15%, transparent);
+}
+
+.color-picker-hue:focus-visible::-moz-range-thumb,
+.color-picker-alpha:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 1px var(--picker-ring), 0 0 0 5px color-mix(in oklab, var(--ink) 15%, transparent);
 }
 
 .color-picker-hue::-webkit-slider-thumb {

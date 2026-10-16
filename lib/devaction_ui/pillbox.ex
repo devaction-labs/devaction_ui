@@ -8,10 +8,17 @@ defmodule DevactionUI.Pillbox do
 
   Text left in the field when it loses focus is added as a pill (Enter and the comma add it too). With every
   pill removed the form sends nothing for `name[]`: read the field with `Map.get(params, "name", [])` and take
-  the absence as an empty list. `remove_label`, `added_label` and `removed_label` take `%{label}`, which the
+  the absence as an empty list, or turn on `empty_sentinel`: the box then also carries a hidden
+  `name[]=""` marker, so the field is always present, an emptied list arrives as `[""]` and `clean_values/1`
+  drops the marker. It is off by default so the values the hook reads stay only the pills. `remove_label`, `added_label` and `removed_label` take `%{label}`, which the
   server and the hook fill with the text of the pill; the last two are announced in a polite live region.
   """
   use Phoenix.Component
+
+  @doc "The values of a pillbox field as the form sent them, without the blank marker of `empty_sentinel`."
+  @spec clean_values(list() | nil) :: [String.t()]
+  def clean_values(nil), do: []
+  def clean_values(values), do: Enum.reject(values, &(&1 in [nil, ""]))
 
   attr :id, :string, required: true
   attr :name, :string, required: true, doc: "the field name; the values are sent as `name[]`"
@@ -37,6 +44,11 @@ defmodule DevactionUI.Pillbox do
     doc: "announced when a pill is removed, as in `\"%{label} removed\"`"
 
   attr :disabled, :boolean, default: false
+
+  attr :empty_sentinel, :boolean,
+    default: false,
+    doc:
+      "adds a hidden `name[]=\"\"` so an emptied list still reaches the server (as `[\"\"]`); read it with `clean_values/1`"
 
   attr :input_rest, :map,
     default: %{},
@@ -64,6 +76,7 @@ defmodule DevactionUI.Pillbox do
       ]}
       {@rest}
     >
+      <input :if={@empty_sentinel} type="hidden" name={@name <> "[]"} value="" data-sentinel />
       <.pill
         :for={value <- @values}
         name={@name}

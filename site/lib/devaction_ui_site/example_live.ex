@@ -400,6 +400,9 @@ defmodule DevactionUISite.ExampleLive do
     {:noreply, assign(socket, :board, move(socket.assigns.board, id, to, index))}
   end
 
+  def handle_event("cancel_upload", %{"ref" => ref}, socket),
+    do: {:noreply, cancel_upload(socket, :transcript, ref)}
+
   def handle_event(_event, _params, socket), do: {:noreply, socket}
 
   @lessons [

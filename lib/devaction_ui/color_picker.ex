@@ -7,6 +7,11 @@ defmodule DevactionUI.ColorPicker do
   itself), and `rest` goes to that wrapper. `disabled` locks the field, the swatch and the panel, `required`
   goes to the text field.
 
+  The start colour is the `value` attr (default `#2563EB`) and the presets are the `presets` attr: the browser
+  reads both from the markup (`data-value`, the preset buttons), so there is no second copy to keep in step. The
+  shadows of the panel, the swatch and the thumbs are the `--picker-*` tokens of the stylesheet, which change
+  with the theme.
+
   The area is a `role="slider"` moved with the pointer or the arrow keys (Shift for a bigger step); the hue and
   opacity strips are native range inputs. Esc closes the panel and gives the focus back to the field. All words
   are given by the caller, including the template that says the colour aloud (`area_text`), where `%{color}`,

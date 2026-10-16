@@ -20,6 +20,17 @@ export function fillBox(low, high, min, max) {
   return {left: from, width: percent(high, min, max) - from}
 }
 
+/** Where a value sits between `min` and `max` as a fraction, from 0 to 1: the `--f` of a value bubble. */
+export const fraction = (value, min, max) => percent(value, min, max) / 100
+
+const FILL = {horizontal: ["left", "width"], vertical: ["bottom", "height"]}
+
+/** The inline style of the filled part of a pair: it grows from the left, or from the bottom when vertical. */
+export function fillStyle(orientation, box) {
+  const [start, size] = FILL[orientation] ?? FILL.horizontal
+  return {[start]: `${box.left}%`, [size]: `${box.width}%`}
+}
+
 /** A template with its `%{value}` filled; no template means the number as it is. */
 export const valueText = (template, value) => (template ?? "%{value}").replaceAll("%{value}", String(value))
 

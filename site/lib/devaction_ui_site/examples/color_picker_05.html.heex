@@ -1,0 +1,25 @@
+<%!-- title: Disabled and required | text: `disabled` locks the field, the swatch and the panel; `required` goes to the text field. --%>
+<div class="flex flex-wrap gap-6">
+  <ColorPicker.color_picker
+    id="color-disabled"
+    name="brand[locked]"
+    value="#16A34A"
+    label="Brand colour (set by the plan)"
+    disabled
+    toggle_label="Open the colour picker"
+    area_label="Saturation and brightness"
+    hue_label="Hue"
+    presets_label="Ready colours"
+  />
+  <ColorPicker.color_picker
+    id="color-required"
+    name="brand[accent]"
+    value="#7C3AED"
+    label="Accent colour"
+    required
+    toggle_label="Open the colour picker"
+    area_label="Saturation and brightness"
+    hue_label="Hue"
+    presets_label="Ready colours"
+  />
+</div>

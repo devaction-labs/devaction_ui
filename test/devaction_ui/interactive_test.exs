@@ -161,6 +161,46 @@ defmodule DevactionUI.InteractiveTest do
       assert html =~ ~s(aria-invalid="true")
       assert length(Regex.scan(~r/<(input|button)[^>]* disabled/, html)) >= 3
     end
+
+    test "has no empty marker unless asked, so the hook reads only the pills" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(
+          ~H|<Pillbox.pillbox id="pb" name="labels" values={["a"]} label="Labels" remove_label="Remove" />|
+        )
+
+      refute html =~ "data-sentinel"
+      refute html =~ ~s(value="" data-sentinel)
+    end
+
+    test "empty_sentinel adds a blank name[] outside the pills, so an emptied list is still sent" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Pillbox.pillbox
+          id="pb"
+          name="labels"
+          values={["a"]}
+          label="Labels"
+          remove_label="Remove"
+          empty_sentinel
+        />
+        """)
+
+      assert html =~
+               ~r/<input[^>]*type="hidden"[^>]*name="labels\[\]"[^>]*value=""[^>]*data-sentinel/
+
+      assert length(Regex.scan(~r/data-sentinel/, html)) == 1
+      assert length(Regex.scan(~r/name="labels\[\]"/, html)) == 3
+    end
+
+    test "clean_values drops the blank marker and takes a missing field as an empty list" do
+      assert Pillbox.clean_values(["", "a", "b"]) == ["a", "b"]
+      assert Pillbox.clean_values([""]) == []
+      assert Pillbox.clean_values(nil) == []
+    end
   end
 
   describe "Combobox" do

@@ -30,6 +30,8 @@ import ProgressToast from "./progress_toast.js"
 import Range from "./range.js"
 import RangePair from "./range_pair.js"
 import Signature from "./signature.js"
+import Segmented from "./segmented.js"
+import Switch from "./switch.js"
 import Tabs from "./tabs.js"
 import Timer from "./timer.js"
 import ToastGroup from "./toast_group.js"
@@ -58,6 +60,8 @@ export const hooks = {
   "DevactionUI.RangePair": RangePair,
   "DevactionUI.ProgressToast": ProgressToast,
   "DevactionUI.Signature": Signature,
+  "DevactionUI.Segmented": Segmented,
+  "DevactionUI.Switch": Switch,
   "DevactionUI.Tabs": Tabs,
   "DevactionUI.Timer": Timer,
   "DevactionUI.ToastGroup": ToastGroup,

@@ -1,0 +1,20 @@
+<%!-- title: Limits, remove and errors | text: The hint is written from the upload's own accept list and size; each file has a button that removes it; upload errors are written in your words; the drag is announced. --%>
+<Dropzone.dropzone
+  id="dropzone-limits"
+  upload={@uploads.transcript}
+  title="Drop the transcript or the audio of the meeting"
+  limits_label="%{types} · up to %{size}"
+  cancel_event="cancel_upload"
+  cancel_label="Remove %{name}"
+  over_label="Release to upload"
+  error_labels={
+    %{
+      too_large: "This file is too large.",
+      not_accepted: "This type of file is not accepted.",
+      too_many_files: "Only one file at a time."
+    }
+  }
+  class="max-w-lg"
+>
+  <:icon><.icon name="upload-04" class="size-5.5" /></:icon>
+</Dropzone.dropzone>

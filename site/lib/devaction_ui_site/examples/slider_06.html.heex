@@ -1,0 +1,13 @@
+<%!-- title: Value bubble | text: The value over the thumb while it is hovered, focused or dragged; it is hidden from screen readers, which read the input. --%>
+<form id="slider-bubble-form" phx-change="inputs_change" class="m-0 max-w-sm pt-8">
+  <Slider.slider
+    id="slider-bubble"
+    name="hours"
+    label="Hours per week"
+    value={@inputs.hours}
+    min={0}
+    max={40}
+    format_text="%{value} h"
+    bubble
+  />
+</form>

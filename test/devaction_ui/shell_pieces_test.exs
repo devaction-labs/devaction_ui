@@ -7,6 +7,9 @@ defmodule DevactionUI.ShellPiecesTest do
 
   alias DevactionUI.{CommandPalette, PageHeader, Segmented, Sidebar}
 
+  defp tabindexes(html),
+    do: ~r/<button[^>]*tabindex="(-?\d)"/ |> Regex.scan(html) |> Enum.map(&List.last/1)
+
   describe "Segmented" do
     test "is a group of toggle buttons that marks the chosen option and sends the value of a press" do
       assigns = %{}
@@ -71,6 +74,53 @@ defmodule DevactionUI.ShellPiecesTest do
       assert html =~ "extra"
       assert html =~ ~r/<button[^>]* disabled/
       refute html =~ "segmented-sm"
+    end
+
+    test "the group has the hook and only the pressed segment is in the Tab order" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Segmented.segmented id="s" label="L" value="b" event="e">
+          <:option value="a" label="A" />
+          <:option value="b" label="B" />
+          <:option value="c" label="C" />
+        </Segmented.segmented>
+        """)
+
+      assert html =~ ~s(phx-hook="DevactionUI.Segmented")
+      assert tabindexes(html) == ["-1", "0", "-1"]
+      assert html =~ ~s(aria-pressed="true")
+      refute html =~ "role=\"radio"
+    end
+
+    test "with no option chosen the first enabled one is the tab stop" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Segmented.segmented id="s" label="L" value="none" event="e">
+          <:option value="a" label="A" disabled />
+          <:option value="b" label="B" />
+          <:option value="c" label="C" />
+        </Segmented.segmented>
+        """)
+
+      assert tabindexes(html) == ["-1", "0", "-1"]
+    end
+
+    test "a chosen option that is disabled does not hold the tab stop" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Segmented.segmented id="s" label="L" value="a" event="e">
+          <:option value="a" label="A" disabled />
+          <:option value="b" label="B" />
+        </Segmented.segmented>
+        """)
+
+      assert tabindexes(html) == ["-1", "0"]
     end
 
     test "the target goes to every segment" do
@@ -262,7 +312,8 @@ defmodule DevactionUI.ShellPiecesTest do
       assert html =~ ~s(role="dialog")
       assert html =~ ~s(aria-modal="true")
       assert html =~ ~s(phx-hook="DevactionUI.Autocomplete")
-      assert length(Regex.scan(~r/phx-hook=/, html)) == 2
+      assert length(Regex.scan(~r/phx-hook=/, html)) == 3
+      assert html =~ ~s(phx-hook="DevactionUI.Segmented")
       assert html =~ ~s(role="combobox")
       assert html =~ ~s(role="listbox")
       assert html =~ "Lessons"

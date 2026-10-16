@@ -1,6 +1,19 @@
 import test from "node:test"
 import assert from "node:assert/strict"
-import {clampPair, fillBox, pairText, percent, valueText} from "./range_logic.js"
+import {clampPair, fillBox, fillStyle, fraction, pairText, percent, valueText} from "./range_logic.js"
+
+test("the fraction is the percent over 100, for the bubble", () => {
+  assert.equal(fraction(50, 0, 100), 0.5)
+  assert.equal(fraction(1, 0, 4), 0.25)
+  assert.equal(fraction(5, 5, 5), 0)
+})
+
+test("the filled part grows from the left, or from the bottom when vertical", () => {
+  const box = {left: 20, width: 50}
+  assert.deepEqual(fillStyle("horizontal", box), {left: "20%", width: "50%"})
+  assert.deepEqual(fillStyle("vertical", box), {bottom: "20%", height: "50%"})
+  assert.deepEqual(fillStyle(undefined, box), {left: "20%", width: "50%"})
+})
 
 test("the value is placed between the minimum and the maximum", () => {
   assert.equal(percent(50, 0, 100), 50)
