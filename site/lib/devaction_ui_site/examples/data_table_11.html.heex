@@ -1,0 +1,44 @@
+<%!-- title: Expandable rows | text: The `expanded` slot is a detail row under each row. The chevron toggles it in the browser, with `aria-expanded`, and a redraw keeps it open. --%>
+<DataTable.data_table
+  select_all_label="Select all"
+  select_row_label="Select row"
+  selected_label="__COUNT__ selected"
+  clear_label="Clear"
+  id="data-table-expand"
+  label="Pull requests"
+  expand_label="Show details"
+  rows={[
+    %{
+      id: "142",
+      title: "Tithe in transaction",
+      author: "carlos-andre",
+      changes: 187,
+      status: "open"
+    },
+    %{
+      id: "145",
+      title: "Refunds and CSV export",
+      author: "carlos-andre",
+      changes: 120,
+      status: "open"
+    },
+    %{
+      id: "63",
+      title: "Search with filters",
+      author: "alex-nogueira",
+      changes: 33,
+      status: "merged"
+    },
+    %{id: "58", title: "Webhook retries", author: "alex-nogueira", changes: 74, status: "merged"}
+  ]}
+>
+  <:expand_icon><.icon name="arrow-right-01" class="size-3.5" /></:expand_icon>
+  <:col :let={row} label="PR" mono>#{row.id}</:col>
+  <:col :let={row} label="Title">{row.title}</:col>
+  <:col :let={row} label="Author" class="text-ink-2">{row.author}</:col>
+  <:expanded :let={row}>
+    <p class="m-0 text-sm text-ink-2">
+      {row.title} by {row.author}: {row.changes} lines changed, {row.status}.
+    </p>
+  </:expanded>
+</DataTable.data_table>

@@ -1,0 +1,49 @@
+<%!-- title: Commands and mentions | text: With `suggest_event` a `/` at the start or an `@` at the start of a word sends the event with the `trigger` and the `query`, and the server draws the list in the `suggestions` slot. Arrows move, Enter or Tab choose, Esc closes. --%>
+<div class="flex w-full max-w-xl flex-col gap-3 pt-48">
+  <Composer.composer
+    id="composer-menus"
+    event="composer_send"
+    suggest_event="composer_suggest"
+    label="Message"
+    send_label="Send"
+    stop_label="Stop"
+    placeholder="Type / for commands or @ for people..."
+  >
+    <:suggestions :if={@composer.options != []}>
+      <Editor.suggest id="composer-menus-list" label="Suggestions" heading={@composer.heading}>
+        <:option
+          :for={option <- @composer.options}
+          title={option.title}
+          hint={option.hint}
+          insert={option.insert}
+          tone={option.tone}
+        >
+          {option.mark}
+        </:option>
+      </Editor.suggest>
+    </:suggestions>
+    <:leading>
+      <Composer.button
+        label="Commands"
+        phx-click="composer_trigger"
+        phx-value-id="composer-menus"
+        phx-value-sign="/"
+      >
+        <:icon><span class="text-base leading-none">/</span></:icon>
+      </Composer.button>
+      <Composer.button
+        label="Mention"
+        phx-click="composer_trigger"
+        phx-value-id="composer-menus"
+        phx-value-sign="@"
+      >
+        <:icon><span class="text-base leading-none">@</span></:icon>
+      </Composer.button>
+    </:leading>
+    <:icon><.icon name="arrow-up-02" class="size-4" /></:icon>
+    <:stop><.icon name="stop" class="size-4" /></:stop>
+  </Composer.composer>
+  <ul class="m-0 flex list-none flex-col gap-1.5 p-0 text-sm text-ink-2" aria-live="polite">
+    <li :for={message <- @composer.sent} class="whitespace-pre-wrap">{message.text}</li>
+  </ul>
+</div>

@@ -1,4 +1,4 @@
-import {nextDensity, selectionState} from "./data_table_logic.js"
+import {nextDensity, rangeBetween, selectionState, toggledExpanded} from "./data_table_logic.js"
 import {notify} from "./dom.js"
 
 /**
@@ -7,7 +7,8 @@ import {notify} from "./dom.js"
  * count appears while anything is ticked; every row says `aria-selected`. A redraw (a sort, a refresh) puts the
  * ticks back by value. Every change fires `input` on the table so a form around it hears it. The density toggle
  * (`[data-density-toggle]`) switches `data-density` between `comfortable` and `compact` in the browser, and the
- * choice is put back after a redraw.
+ * choice is put back after a redraw. Shift+click on a row checkbox ticks the rows between it and the last one clicked,
+ * and the chevron of a row with a detail (`[data-expand-toggle]`) opens and closes the row under it.
  */
 export default {
   mounted() {
@@ -47,9 +48,28 @@ export default {
         this.changed()
       },
       "[data-density-toggle]": () => this.setDensity(nextDensity(this.el.dataset.density)),
+      "[data-select-row]": () => this.pick(event),
+      "[data-expand-toggle]": () => this.expand(event.target.closest("[data-expand-toggle]")),
     }
     const selector = Object.keys(actions).find((candidate) => event.target.closest(candidate))
     selector && actions[selector]()
+  },
+
+  pick(event) {
+    const rows = this.rows()
+    const anchor = rows.findIndex((row) => row.value === this.last)
+    const range = event.shiftKey && anchor >= 0 ? rangeBetween(anchor, rows.indexOf(event.target)) : []
+    range.forEach((index) => (rows[index].checked = event.target.checked))
+    this.last = event.target.value
+  },
+
+  expand(button) {
+    const open = toggledExpanded(button.getAttribute("aria-expanded"))
+    const row = button.closest("tr")
+    const detail = document.getElementById(button.getAttribute("aria-controls"))
+    button.setAttribute("aria-expanded", open)
+    detail.hidden = open !== "true"
+    row.toggleAttribute("data-open", open === "true")
   },
 
   setDensity(density) {

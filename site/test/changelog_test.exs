@@ -1,7 +1,7 @@
 defmodule DevactionUISite.ChangelogTest do
   use ExUnit.Case, async: true
 
-  alias DevactionUISite.{Catalog, Changelog, Repo}
+  alias DevactionUISite.{Catalog, Changelog, Repo, Templates}
   alias DevactionUISite.Changelog.Entry
 
   setup do
@@ -23,7 +23,9 @@ defmodule DevactionUISite.ChangelogTest do
 
     assert Enum.map(versions, &{&1.version, &1.status}) == [
              {"v0.4", "next"},
-             {"v0.3.0", "current"},
+             {"v0.3.2", "current"},
+             {"v0.3.1", "archived"},
+             {"v0.3.0", "archived"},
              {"v0.2.6", "archived"},
              {"v0.2.5", "archived"},
              {"v0.2.4", "archived"},
@@ -34,8 +36,8 @@ defmodule DevactionUISite.ChangelogTest do
              {"v0.1.0", "archived"}
            ]
 
-    assert Changelog.current().version == "v0.3.0"
-    assert Changelog.current().tag == "v0.3.0"
+    assert Changelog.current().version == "v0.3.2"
+    assert Changelog.current().tag == "v0.3.2"
   end
 
   test "sync writes every component of the catalog as a new entry of the release it came with" do
@@ -77,8 +79,17 @@ defmodule DevactionUISite.ChangelogTest do
     new = for %{kind: "new", name: name} <- next.entries, do: name
     improved = for %{kind: "improved", name: name} <- next.entries, do: name
 
-    assert Enum.sort(new) == ["composer", "row_menu", "scroll_area", "shell"]
-    assert Enum.sort(improved) == ["breadcrumb", "data_table", "page_header"]
+    assert Enum.sort(new) == ["app", "composer", "row_menu", "scroll_area", "shell"]
+
+    assert Enum.sort(improved) == [
+             "avatar",
+             "breadcrumb",
+             "data_table",
+             "page_header",
+             "shell",
+             "tabs"
+           ]
+
     assert Catalog.release(%{module: DevactionUI.Shell}) == "v0.3.0"
     assert Catalog.release(%{module: DevactionUI.Tabs}) == "v0.1.0"
   end
@@ -104,7 +115,7 @@ defmodule DevactionUISite.ChangelogTest do
     Changelog.sync!()
 
     assert Changelog.counts(Changelog.versions()) == before
-    assert before["fixed"] == 4
+    assert before["fixed"] == 6
   end
 
   test "counts sum every kind for the filter pills" do
@@ -114,7 +125,7 @@ defmodule DevactionUISite.ChangelogTest do
              counts["new"] + counts["planned"] + counts["improved"] + counts["breaking"] +
                counts["fixed"]
 
-    assert counts["new"] == length(Catalog.all()) + 1
+    assert counts["new"] == length(Catalog.all()) + length(Templates.groups())
     assert counts["planned"] == 1
     assert counts["improved"] > 0
     assert counts["breaking"] > 0

@@ -12,7 +12,54 @@ defmodule DevactionUISite.ExampleLive do
   alias DevactionUISite.{ReviewDemo, TopicHTML}
 
   @forms_repos ~w(sge-api ayram-web hub-api)
-  @composer_ids ~w(composer-basic composer-stream composer-files)
+  @composer_ids ~w(composer-basic composer-stream composer-files composer-menus composer-modes composer-edit composer-full)
+
+  @composer_menus %{
+    "@" =>
+      {"PEOPLE",
+       [
+         %{title: "Alex", hint: "Dev · online now", insert: "@alex", mark: "AN", tone: :neutral},
+         %{title: "Carlos André", hint: "Dev · SGE", insert: "@carlos", mark: "CA", tone: :info},
+         %{
+           title: "DevAction Reviewer",
+           hint: "AI · answers on the PR",
+           insert: "@reviewer",
+           mark: "AI",
+           tone: :warn
+         }
+       ]},
+    "/" =>
+      {"COMMANDS",
+       [
+         %{
+           title: "/review",
+           hint: "Review the open pull request",
+           insert: "/review",
+           mark: "R",
+           tone: :warn
+         },
+         %{
+           title: "/summarize",
+           hint: "Summarize the thread",
+           insert: "/summarize",
+           mark: "S",
+           tone: :neutral
+         },
+         %{
+           title: "/task",
+           hint: "Turn this into a task",
+           insert: "/task",
+           mark: "T",
+           tone: :info
+         }
+       ]}
+  }
+
+  @composer_modes %{
+    "strict" => "Reviewer · strict",
+    "fast" => "Reviewer · fast",
+    "free" => "Assistant"
+  }
   @overlays ~w(drawer_floating drawer_docked drawer_left drawer_wide modal_confirm modal_form modal_success modal_tall danger drawer_sheet drawer_stack confirm_locked)
 
   @rows [
@@ -247,7 +294,14 @@ defmodule DevactionUISite.ExampleLive do
        secret_revealed: false,
        banners_dismissed: [],
        menus: %{picked: nil},
-       composer: %{sent: [], busy: false},
+       composer: %{
+         sent: [],
+         busy: false,
+         options: [],
+         heading: nil,
+         mode: "strict",
+         modes: @composer_modes
+       },
        suggest: %{mode: "mention", active: 0},
        sortable: %{items: @milestones, order: @milestone_order, last: nil},
        resizable: %{sizes: @panes},
@@ -727,6 +781,21 @@ defmodule DevactionUISite.ExampleLive do
      |> push_clear()}
   end
 
+  def handle_event("composer_suggest", %{"trigger" => trigger, "query" => query}, socket)
+      when trigger in [nil, "/", "@"],
+      do: {:noreply, update(socket, :composer, &Map.merge(&1, composer_menu(trigger, query)))}
+
+  def handle_event("composer_mode", %{"choice" => mode}, socket)
+      when is_map_key(@composer_modes, mode),
+      do: {:noreply, update(socket, :composer, &%{&1 | mode: mode})}
+
+  def handle_event("composer_edit_last", _params, %{assigns: %{composer: composer}} = socket),
+    do: {:noreply, fill_last(socket, List.last(composer.sent))}
+
+  def handle_event("composer_trigger", %{"id" => id, "sign" => sign}, socket)
+      when sign in ["/", "@"],
+      do: {:noreply, push_event(socket, "composer:fill", %{id: id, text: sign})}
+
   def handle_event("composer_stop", _params, socket),
     do: {:noreply, update(socket, :composer, &%{&1 | busy: false})}
 
@@ -879,6 +948,23 @@ defmodule DevactionUISite.ExampleLive do
       &(&1.items == [])
     )
   end
+
+  defp composer_menu(nil, _query), do: %{options: [], heading: nil}
+
+  defp composer_menu(trigger, query) do
+    {heading, options} = Map.fetch!(@composer_menus, trigger)
+    needle = fold(query)
+
+    %{
+      heading: heading,
+      options: Enum.filter(options, &String.contains?(fold(&1.title), needle))
+    }
+  end
+
+  defp fill_last(socket, nil), do: socket
+
+  defp fill_last(socket, %{text: text}),
+    do: push_event(socket, "composer:fill", %{id: "composer-edit", text: text})
 
   defp push_clear(socket) do
     Enum.reduce(@composer_ids, socket, &push_event(&2, "composer:clear", %{id: &1}))

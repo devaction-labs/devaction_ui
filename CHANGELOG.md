@@ -2,6 +2,35 @@
 
 Every release lists new components, improvements, fixes and breaking changes. While the version is 0.x a minor release may break compatibility, and every break is listed with the step to follow.
 
+## 0.3.2
+
+### Improved
+
+- `DataTable` variations that add up: `variant={:minimal}` (no border, a transparent head in sentence case, for tables inside cards), `striped`, an `expanded` slot (a chevron with `aria-expanded` opens a detail row; the browser toggles it and a redraw keeps it), `group_by` with a `group` slot, a `tfoot` slot for totals, `stack` with `primary` columns (each row becomes a card under 640px, the cell captions come from the column label), an `action` slot for the `⋯` cell with no box, `sticky_actions`, and `align` and `mono` on a column. Shift+click on a row checkbox ticks the range. `action_label` and `expand_label` are required with their slots.
+- `Pagination`: `total`, `per_page`, `noun` and `summary_label` (`__FROM__`, `__TO__`, `__TOTAL__`, `__NOUN__`) draw the range of the page before the links.
+- The "App" template (Projects) is the new artboard: owner with avatar, hours with a bar, `updated` as relative time, a light head and the row menu in the `action` slot; the table fits the panel without a sideways scroll.
+- The README states one rule for `@source` and the keyframes, explains `pdfjs-dist` and `worker_src`, lists the requirements and the fonts, and has a row for every component.
+
+## 0.3.1
+
+0.3.0 shipped a stylesheet with a block left open, which stops Tailwind in the host app: use 0.3.1.
+
+### Fixed
+
+- The stylesheet closes every block (a test now counts the braces).
+- On the documentation site, an open drawer, modal or palette in an example card stays over the page rail.
+
+### New
+
+- The "App" template (Projects): a full app page with the shell, the page header with tabs, the toolbar and a table with pinned columns, progress cells and a row menu.
+
+### Improved
+
+- `Composer`: `suggest_event` with a `suggestions` slot for `/` commands and `@` mentions, `edit_last_event` for ↑ with an empty field, the mode picker as `Dropdown variant={:chip}`, file chips with `kind` and `detail`.
+- `Shell`: `sidebar_search/1` and `sidebar_user/1`.
+- `Tabs`: an `icon` slot, `counts={:chip}` and `size={:sm}`.
+- `Breadcrumb`: `underline={false}`. `PageHeader`: `size={:md}`. `Avatar`: `initials` and the `:ink` tone.
+
 ## 0.3.0
 
 ### New components
@@ -14,8 +43,11 @@ Every release lists new components, improvements, fixes and breaking changes. Wh
 ### Improved
 
 - `DataTable`: `sticky={:start}` and `sticky={:end}` on a `:col` pin the first column and the actions.
-- `Breadcrumb`: `home`, `home_label` and a `home_icon` slot.
-- `PageHeader`: `toolbar` and `toolbar_end` slots.
+- `Breadcrumb`: `home`, `home_label` and a `home_icon` slot; `underline={false}` for the quiet trail of a shell header.
+- `PageHeader`: `toolbar` and `toolbar_end` slots; `size={:md}` for the title of a page inside an app shell.
+- `Shell`: `sidebar_search/1` and `sidebar_user/1`.
+- `Tabs`: an `icon` slot, `counts={:chip}`, `size={:sm}`, and a tab without content.
+- `Avatar`: `initials` and the `:ink` tone.
 - `Dropdown` takes `fixed`: the menu opens with `position: fixed` from the rectangle of its button.
 
 ## 0.2.6

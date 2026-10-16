@@ -1,0 +1,69 @@
+<%!-- title: Row menu in the action slot | text: The `action` slot is the last cell of a row, the `⋯` menu with no box of its own. `sticky_actions` pins it while the table scrolls sideways. --%>
+<div class="flex w-full flex-col gap-3">
+  <DataTable.data_table
+    select_all_label="Select all"
+    select_row_label="Select row"
+    selected_label="__COUNT__ selected"
+    clear_label="Clear"
+    id="data-table-action"
+    label="Pull requests"
+    action_label="Actions"
+    sticky_actions
+    variant={:minimal}
+    rows={[
+      %{
+        id: "142",
+        title: "Tithe in transaction",
+        author: "carlos-andre",
+        changes: 187,
+        status: "open"
+      },
+      %{
+        id: "145",
+        title: "Refunds and CSV export",
+        author: "carlos-andre",
+        changes: 120,
+        status: "open"
+      },
+      %{
+        id: "63",
+        title: "Search with filters",
+        author: "alex-nogueira",
+        changes: 33,
+        status: "merged"
+      },
+      %{
+        id: "58",
+        title: "Webhook retries",
+        author: "alex-nogueira",
+        changes: 74,
+        status: "merged"
+      }
+    ]}
+  >
+    <:col :let={row} label="PR" mono>#{row.id}</:col>
+    <:col :let={row} label="Title" class="min-w-72 whitespace-nowrap">{row.title}</:col>
+    <:col :let={row} label="Author" class="min-w-44 whitespace-nowrap text-ink-2">
+      {row.author}
+    </:col>
+    <:col :let={row} label="Changes" align={:end} mono>{row.changes}</:col>
+    <:action :let={row}>
+      <RowMenu.row_menu
+        id={"data-table-action-menu-#{row.id}"}
+        label={"Actions for #{row.title}"}
+        trigger_label={"Actions for #{row.title}"}
+      >
+        <:trigger><.icon name="more-horizontal" class="size-4" /></:trigger>
+        <:item event="context_pick" value={"edit-#{row.id}"}>
+          <.icon name="pencil-edit-02" class="size-4" /> Edit
+        </:item>
+        <:item event="context_pick" value={"close-#{row.id}"} separator danger>
+          <.icon name="delete-02" class="size-4" /> Close
+        </:item>
+      </RowMenu.row_menu>
+    </:action>
+  </DataTable.data_table>
+  <p class="m-0 text-sm text-muted" aria-live="polite">
+    {(@menus.picked && "Chose: #{@menus.picked}") || "Open the menu of a row."}
+  </p>
+</div>

@@ -8,6 +8,13 @@ defmodule DevactionUI.PageHeader do
   use Phoenix.Component
 
   attr :id, :string, required: true
+
+  attr :size, :atom,
+    values: [:lg, :md],
+    default: :lg,
+    doc:
+      "`:md` is the 28px title of a page inside an app shell; `:lg` is the 40px of a page of its own"
+
   attr :class, :any, default: nil
   slot :breadcrumb
   slot :status, doc: "a tag beside the title: `AT RISK`, `DRAFT`"
@@ -27,7 +34,7 @@ defmodule DevactionUI.PageHeader do
       <div class="page-header">
         <div class="flex min-w-0 flex-col gap-2">
           <div class="flex flex-wrap items-center gap-3">
-            <h1 class="page-title m-0 text-ink">{render_slot(@title)}</h1>
+            <h1 class={["m-0 text-ink", title_class(@size)]}>{render_slot(@title)}</h1>
             {render_slot(@status)}
           </div>
           <p :if={@subtitle != []} class="m-0 max-w-[640px] text-[15px] text-ink-2">
@@ -48,4 +55,7 @@ defmodule DevactionUI.PageHeader do
     </header>
     """
   end
+
+  defp title_class(:lg), do: "page-title"
+  defp title_class(:md), do: "text-[1.75rem] leading-[1.15] font-semibold tracking-[-0.03em]"
 end

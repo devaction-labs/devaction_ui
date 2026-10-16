@@ -27,9 +27,24 @@ defmodule DevactionUI.Tabs do
     default: false,
     doc: "the tab list takes the whole width and the tabs share it"
 
+  attr :size, :atom,
+    values: [:md, :sm],
+    default: :md,
+    doc:
+      "`:sm` is the 14px tab of a page inside an app, 40px high; it only changes the `:line` variant"
+
+  attr :counts, :atom,
+    values: [:plain, :chip],
+    default: :plain,
+    doc: "`:chip` draws the count of a tab in a small bordered box instead of plain mono text"
+
   attr :class, :any, default: nil
 
-  slot :tab, required: true, doc: "one tab; its content is the panel" do
+  slot :icon, doc: "the icon of a tab, 16px; gets `%{id: tab id}`"
+
+  slot :tab,
+    required: true,
+    doc: "one tab; its content is the panel, and a tab with none has an empty panel" do
     attr :id, :string, required: true, doc: "names the tab and its panel; unique in the tabs"
     attr :label, :string, required: true
     attr :count, :any, doc: "a number beside the label"
@@ -72,11 +87,14 @@ defmodule DevactionUI.Tabs do
             "inline-flex items-center gap-2 outline-none focus-visible:ring-4 focus-visible:ring-ink/10",
             @full && "flex-1 justify-center",
             @orientation == :vertical && "justify-start",
-            tab_class(@variant, @orientation)
+            tab_class(@variant, @orientation, @size)
           ]}
         >
+          <span :if={@icon != []} class="size-4 shrink-0 [&>*]:size-full" aria-hidden="true">
+            {render_slot(@icon, %{id: tab.id})}
+          </span>
           {tab.label}
-          <span :if={Map.get(tab, :count)} class={["font-mono text-xs", count_class(tab)]}>
+          <span :if={Map.get(tab, :count)} class={["font-mono text-xs", count_class(tab, @counts)]}>
             {tab.count}
           </span>
         </button>
@@ -90,7 +108,7 @@ defmodule DevactionUI.Tabs do
         tabindex="0"
         class={panel_class(@orientation)}
       >
-        {render_slot(tab)}
+        {Map.get(tab, :inner_block) && render_slot(tab)}
       </div>
     </div>
     """
@@ -106,23 +124,34 @@ defmodule DevactionUI.Tabs do
   defp list_class(:line, :horizontal, _full), do: "flex gap-1 border-b border-line"
   defp list_class(:line, :vertical, _full), do: "flex flex-col gap-1 border-s border-line"
 
-  defp tab_class(:boxed, _orientation) do
+  defp tab_class(:boxed, _orientation, _size) do
     "h-[38px] rounded-[9px] text-ink-2 border border-transparent px-3.5 aria-selected:border-line aria-selected:bg-card aria-selected:font-medium aria-selected:text-ink"
   end
 
-  defp tab_class(:line, :horizontal) do
-    "-mb-px h-11 border-b-2 border-transparent px-3.5 text-muted aria-selected:border-ink aria-selected:font-semibold aria-selected:text-ink"
+  defp tab_class(:line, :horizontal, size) do
+    [
+      "-mb-px border-b-2 border-transparent px-3.5 text-muted aria-selected:border-ink aria-selected:font-semibold aria-selected:text-ink",
+      line_size(size)
+    ]
   end
 
-  defp tab_class(:line, :vertical) do
+  defp tab_class(:line, :vertical, _size) do
     "-ms-px h-11 border-s-2 border-transparent px-3.5 text-muted aria-selected:border-ink aria-selected:font-semibold aria-selected:text-ink"
   end
+
+  defp line_size(:md), do: "h-11"
+  defp line_size(:sm), do: "h-10 text-sm"
 
   defp panel_class(:horizontal), do: "pt-4 outline-none"
   defp panel_class(:vertical), do: "min-w-0 flex-1 outline-none"
 
-  defp count_class(%{count_tone: tone}) when not is_nil(tone), do: Tone.text(tone)
-  defp count_class(_tab), do: "text-muted"
+  defp count_class(%{count_tone: tone}, counts) when not is_nil(tone),
+    do: [Tone.text(tone), chip(counts)]
+
+  defp count_class(_tab, counts), do: ["text-muted", chip(counts)]
+
+  defp chip(:chip), do: "rounded-md border border-line bg-wrap px-1.5 py-px leading-[18px]"
+  defp chip(:plain), do: nil
 
   defp tab_index(id, id), do: "0"
   defp tab_index(_id, _selected), do: "-1"

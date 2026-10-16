@@ -47,13 +47,60 @@ defmodule DevactionUI.Pagination do
   attr :next, :string, required: true, doc: "text for the next link, for assistive technology"
   attr :class, :any, default: nil
 
+  attr :total, :integer,
+    default: nil,
+    doc: "how many items there are; with `per_page` and `summary_label` the range is drawn"
+
+  attr :per_page, :integer, default: nil
+  attr :noun, :string, default: nil, doc: "what the items are, for `__NOUN__` in `summary_label`"
+
+  attr :summary_label, :string,
+    default: nil,
+    doc: "the range, e.g. `__FROM__–__TO__ of __TOTAL__ __NOUN__`"
+
   attr :rest, :global
   slot :previous_icon, doc: "replaces the 14px chevron of the previous link"
   slot :next_icon, doc: "replaces the 14px chevron of the next link"
 
-  @doc "The page links, or nothing when there is a single page."
+  @doc "The range of the page (with `total`, `per_page` and `summary_label`) and the page links."
   @spec pagination(map()) :: Phoenix.LiveView.Rendered.t()
-  def pagination(%{pages: pages} = assigns) when pages > 1 do
+  def pagination(assigns) do
+    assigns = assign(assigns, :range, range(assigns))
+
+    ~H"""
+    <span :if={@range} data-pagination-summary>{@range}</span>
+    <.links
+      page={@page}
+      pages={@pages}
+      path={@path}
+      kind={@kind}
+      label={@label}
+      previous={@previous}
+      next={@next}
+      class={@class}
+      rest={@rest}
+      previous_icon={@previous_icon}
+      next_icon={@next_icon}
+    />
+    """
+  end
+
+  @doc "The text of the range, or nil without the data to draw one."
+  @spec range(map()) :: String.t() | nil
+  def range(%{total: total, per_page: per_page, summary_label: label} = assigns)
+      when is_integer(total) and is_integer(per_page) and is_binary(label) do
+    page = clamp(assigns.page, max(ceil(total / per_page), 1))
+
+    label
+    |> String.replace("__FROM__", to_string(min((page - 1) * per_page + 1, total)))
+    |> String.replace("__TO__", to_string(min(page * per_page, total)))
+    |> String.replace("__TOTAL__", to_string(total))
+    |> String.replace("__NOUN__", to_string(assigns.noun))
+  end
+
+  def range(_assigns), do: nil
+
+  defp links(%{pages: pages} = assigns) when pages > 1 do
     page = clamp(assigns.page, pages)
     assigns = assign(assigns, page: page, entries: entries(page, pages))
 
@@ -99,7 +146,7 @@ defmodule DevactionUI.Pagination do
     """
   end
 
-  def pagination(assigns), do: ~H""
+  defp links(assigns), do: ~H""
 
   defp chevron(direction) do
     assigns = %{path: chevron_path(direction)}

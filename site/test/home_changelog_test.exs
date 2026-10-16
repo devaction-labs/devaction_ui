@@ -22,7 +22,13 @@ defmodule DevactionUISite.HomeChangelogTest do
       assert html =~ "#{count} components published"
       assert has_element?(view, "#numbers", "#{count}")
       assert has_element?(view, "#numbers", "UI dependencies")
-      assert has_element?(view, "#catalog h2", "#{count} components in 7 groups")
+
+      assert has_element?(
+               view,
+               "#catalog h2",
+               "#{count} components in #{length(Catalog.groups()) + length(Templates.groups())} groups"
+             )
+
       assert has_element?(view, "#latest a[href='/changelog']", "See full changelog")
       assert has_element?(view, "footer", "made by DevAction Labs")
     end
@@ -106,7 +112,7 @@ defmodule DevactionUISite.HomeChangelogTest do
       {:ok, view, html} = live(build_conn(), "/changelog")
 
       assert html =~ "{:devaction_ui, &quot;~&gt; 0.3.0&quot;}"
-      assert has_element?(view, "#v030 [data-copy-text*='~> 0.3.0']")
+      assert has_element?(view, "#v032 [data-copy-text*='~> 0.3.0']")
 
       for group <- ~w(Base Overlay Form Data) do
         assert has_element?(view, "#v020-#{String.downcase(group)}[data-group]", group)

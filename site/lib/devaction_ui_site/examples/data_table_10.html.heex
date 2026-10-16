@@ -1,0 +1,49 @@
+<%!-- title: Minimal, compact and striped | text: `variant={:minimal}` drops the border and the grey head for a table inside a card; `density={:compact}` and `striped` add up with it. --%>
+<div class="w-full rounded-2xl border border-line bg-card p-3">
+  <DataTable.data_table
+    select_all_label="Select all"
+    select_row_label="Select row"
+    selected_label="__COUNT__ selected"
+    clear_label="Clear"
+    id="data-table-minimal"
+    label="Pull requests"
+    variant={:minimal}
+    density={:compact}
+    striped
+    rows={[
+      %{
+        id: "142",
+        title: "Tithe in transaction",
+        author: "carlos-andre",
+        changes: 187,
+        status: "open"
+      },
+      %{
+        id: "145",
+        title: "Refunds and CSV export",
+        author: "carlos-andre",
+        changes: 120,
+        status: "open"
+      },
+      %{
+        id: "63",
+        title: "Search with filters",
+        author: "alex-nogueira",
+        changes: 33,
+        status: "merged"
+      },
+      %{
+        id: "58",
+        title: "Webhook retries",
+        author: "alex-nogueira",
+        changes: 74,
+        status: "merged"
+      }
+    ]}
+  >
+    <:col :let={row} label="PR" mono>#{row.id}</:col>
+    <:col :let={row} label="Title">{row.title}</:col>
+    <:col :let={row} label="Author" class="text-ink-2">{row.author}</:col>
+    <:col :let={row} label="Changes" align={:end} mono>{row.changes}</:col>
+  </DataTable.data_table>
+</div>

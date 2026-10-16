@@ -1,0 +1,79 @@
+<%!-- title: Progress cells and a row menu | text: The first column and the actions stay pinned while the rest scrolls sideways, a cell can hold a progress bar, and the `⋯` menu of each row opens fixed to the window, so the table never clips it. --%>
+<div class="flex w-full flex-col gap-3">
+  <DataTable.data_table
+    select_all_label="Select all"
+    select_row_label="Select row"
+    selected_label="__COUNT__ selected"
+    clear_label="Clear"
+    id="data-table-progress"
+    label="Pull requests"
+    rows={@rows}
+    sort={@sort}
+    on_sort="sort"
+    max_height="max-h-[320px]"
+  >
+    <:sort_asc_icon><.icon name="arrow-up-02" class="size-3" /></:sort_asc_icon>
+    <:sort_desc_icon><.icon name="arrow-down-01" class="size-3" /></:sort_desc_icon>
+    <:sort_none_icon><.icon name="sorting-01" class="size-3" /></:sort_none_icon>
+    <:col :let={row} label="PR" sticky={:start} class="min-w-56 whitespace-nowrap">
+      <span class="flex items-center gap-2.5 font-medium text-ink">
+        <Avatar.avatar
+          name={row.author}
+          initials={String.first(String.upcase(row.author))}
+          tone={:auto}
+          size={:xs}
+          shape={:square}
+        /> #{row.id}
+      </span>
+    </:col>
+    <:col :let={row} label="Title" class="min-w-72 whitespace-nowrap">{row.title}</:col>
+    <:col :let={row} label="Author" class="min-w-44 whitespace-nowrap text-ink-2">
+      {row.author}
+    </:col>
+    <:col :let={row} label="Status" key="status" sortable class="min-w-36">
+      <.tag size={:sm} variant={(row.status == "merged" && :ok) || :info} class="gap-1">
+        <.icon
+          name={(row.status == "merged" && "checkmark-circle-02") || "git-pull-request"}
+          class="size-3"
+        />
+        {row.status}
+      </.tag>
+    </:col>
+    <:col :let={row} label="Lines changed" class="min-w-56 whitespace-nowrap">
+      <span class="flex items-center gap-3">
+        <Progress.progress
+          variant={:thin}
+          tone={(row.changes > 150 && :risk) || :neutral}
+          value={min(round(row.changes / 2), 100)}
+          label={"Lines changed in #{row.title}"}
+          class="w-24"
+        />
+        <span class="font-mono text-[12px] text-ink-2">{row.changes} / 200</span>
+      </span>
+    </:col>
+    <:col :let={row} label="Actions" hide_label sticky={:end}>
+      <RowMenu.row_menu
+        id={"data-table-progress-menu-#{row.id}"}
+        label={"Actions for #{row.title}"}
+        trigger_label={"Actions for #{row.title}"}
+      >
+        <:trigger><.icon name="more-horizontal" class="size-4" /></:trigger>
+        <:item event="context_pick" value={"edit-#{row.id}"}>
+          <.icon name="pencil-edit-02" class="size-4" /> Edit
+        </:item>
+        <:item event="context_pick" value={"view-#{row.id}"}>
+          <.icon name="view" class="size-4" /> View details
+        </:item>
+        <:item event="context_pick" value={"review-#{row.id}"}>
+          <.icon name="sparkles" class="size-4" /> Review with AI
+        </:item>
+        <:item event="context_pick" value={"close-#{row.id}"} separator danger>
+          <.icon name="delete-02" class="size-4" /> Close
+        </:item>
+      </RowMenu.row_menu>
+    </:col>
+  </DataTable.data_table>
+  <p class="m-0 text-sm text-muted" aria-live="polite">
+    {(@menus.picked && "Chose: #{@menus.picked}") || "Open the menu of a row."}
+  </p>
+</div>
