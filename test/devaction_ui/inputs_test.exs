@@ -7,6 +7,8 @@ defmodule DevactionUI.InputsTest do
 
   alias DevactionUI.{NumberInput, SignatureField, Slider, Timer}
 
+  doctest DevactionUI.NumberInput
+
   describe "NumberInput" do
     test "the arithmetic keeps the value inside its limits" do
       assert NumberInput.step(2, 1, 1, 5) == 3
@@ -144,6 +146,140 @@ defmodule DevactionUI.InputsTest do
       assert html =~ ~s(data-step="2")
       assert html =~ ~s(data-min="1")
       assert html =~ ~s(data-max="5")
+      assert html =~ ~s(data-precision="0")
+      assert html =~ ~s(data-decimal=".")
+    end
+
+    defp decimal_field(extra) do
+      assigns = %{extra: extra}
+
+      rendered_to_string(~H"""
+      <NumberInput.number_input
+        id="n"
+        name="rate"
+        value={@extra[:value] || 0.5}
+        label="Rate"
+        step={@extra[:step] || 0.25}
+        min={@extra[:min]}
+        max={@extra[:max]}
+        precision={@extra[:precision]}
+        decimal={@extra[:decimal] || "."}
+        unit={@extra[:unit]}
+        event="e"
+        decrease_label="a"
+        increase_label="b"
+      >
+        <:minus_icon>-</:minus_icon>
+        <:plus_icon>+</:plus_icon>
+      </NumberInput.number_input>
+      """)
+    end
+
+    test "a fractional step is sent exactly and the field shows the decimals of the step" do
+      html = decimal_field(%{})
+      assert html =~ ~s(phx-value-step="-0.25")
+      assert html =~ ~s(phx-value-step="0.25")
+      assert html =~ ~s(data-step="0.25")
+      assert html =~ ~s(data-precision="2")
+      assert html =~ ~s(value="0.50")
+      assert html =~ ~s(aria-valuenow="0.50")
+      assert html =~ ~s(inputmode="decimal")
+    end
+
+    test "precision overrides the derived one, and the decimal separator is shown but never sent" do
+      html = decimal_field(%{precision: 1, decimal: ",", unit: "%", step: "0.5", value: "2.5"})
+      assert html =~ ~s(value="2,5")
+      assert html =~ ~s(aria-valuenow="2.5")
+      assert html =~ ~s(aria-valuetext="2,5 %")
+      assert html =~ ~s(data-decimal=",")
+      assert html =~ ~s(phx-value-step="0.5")
+    end
+
+    test "the value may be text, and a whole step keeps the numeric keypad" do
+      html = decimal_field(%{value: "3", step: 1})
+      assert html =~ ~s(value="3")
+      assert html =~ ~s(inputmode="numeric")
+      assert html =~ ~s(phx-value-step="-1")
+    end
+
+    test "the buttons give out at fractional limits" do
+      html = decimal_field(%{value: 0.1, min: 0.1, max: "0.35"})
+      assert html =~ ~r/id="n-minus"[^>]* disabled[ >]/s
+      refute html =~ ~r/id="n-plus"[^>]* disabled[ >]/s
+      assert html =~ ~s(aria-valuemin="0.1")
+      assert html =~ ~s(aria-valuemax="0.35")
+      assert decimal_field(%{value: 0.35, max: 0.35}) =~ ~r/id="n-plus"[^>]* disabled[ >]/s
+    end
+
+    test "a unit_mark draws the unit while the unit stays the text read out" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <NumberInput.number_input
+          id="n"
+          name="x"
+          value={2}
+          label="Area"
+          unit="m2"
+          event="e"
+          decrease_label="a"
+          increase_label="b"
+        >
+          <:minus_icon>-</:minus_icon>
+          <:plus_icon>+</:plus_icon>
+          <:unit_mark>m<sup>2</sup></:unit_mark>
+        </NumberInput.number_input>
+        """)
+
+      assert html =~ "<sup>2</sup>"
+      assert html =~ ~s(aria-valuetext="2 m2")
+    end
+
+    test "the arithmetic is exact with decimals, in numbers and in text" do
+      assert NumberInput.step(0.1, 0.2, nil, nil) == 0.3
+      assert NumberInput.step("0.1", "0.2", nil, nil) == 0.3
+      assert NumberInput.step(1.15, 0.05, nil, 1.2) == 1.2
+      assert NumberInput.step(0.3, -0.1, 0, 1) == 0.2
+      assert NumberInput.step(2.5, -2.5, nil, nil) === 0
+      assert NumberInput.step(1, "0,5", nil, nil) == 1.5
+      assert NumberInput.step(0.9, 0.25, 0, "1") == 1
+      assert NumberInput.clamp("12.5", 0, "10.25") == 10.25
+      assert NumberInput.clamp(1.5, "2", nil) == 2
+    end
+
+    test "the sum of whole numbers stays an integer" do
+      assert NumberInput.step(2, 3, 1, 9) === 5
+      assert NumberInput.clamp(7, 1, 5) === 5
+    end
+
+    test "text that is not a number raises" do
+      assert_raise ArgumentError, fn -> NumberInput.step("abc", 1, nil, nil) end
+    end
+
+    test "parse reads a dot or a comma and rejects the rest" do
+      assert NumberInput.parse("3") == {:ok, 3}
+      assert NumberInput.parse("-2,5") == {:ok, -2.5}
+      assert NumberInput.parse(" 0.25 ") == {:ok, 0.25}
+      assert NumberInput.parse("1e2") == {:ok, 100}
+      assert NumberInput.parse("") == :error
+      assert NumberInput.parse("1.2.3") == :error
+      assert NumberInput.parse("abc") == :error
+      assert NumberInput.parse(nil) == :error
+    end
+
+    test "format pads and rounds half away from zero" do
+      assert NumberInput.format(3, 2) == "3.00"
+      assert NumberInput.format(0.05, 2) == "0.05"
+      assert NumberInput.format("1.005", 2) == "1.01"
+      assert NumberInput.format("-1.005", 2, ",") == "-1,01"
+      assert NumberInput.format(2.5, 0) == "3"
+      assert NumberInput.format(-0.004, 2) == "0.00"
+      assert NumberInput.format(1.0e-5, 6) == "0.000010"
+    end
+
+    test "the limits reach the hook as plain text, without the precision" do
+      assert decimal_field(%{min: 0, max: 5}) =~ ~s(data-min="0")
     end
   end
 

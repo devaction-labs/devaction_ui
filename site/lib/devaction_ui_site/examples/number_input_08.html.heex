@@ -1,0 +1,22 @@
+<%!-- title: Comma and a drawn unit | text: precision fixes the decimals, decimal is the separator shown and read, and the unit_mark slot draws the unit while unit is what is read out. --%>
+<div class="max-w-xs">
+  <NumberInput.number_input
+    id="number-input-comma"
+    name="area"
+    value={@inputs.area}
+    label="Area"
+    unit="m2"
+    step="0.5"
+    min={0}
+    max={100}
+    precision={2}
+    decimal=","
+    event="area_step"
+    decrease_label="Smaller area"
+    increase_label="Larger area"
+  >
+    <:minus_icon>−</:minus_icon>
+    <:plus_icon>+</:plus_icon>
+    <:unit_mark>m<sup>2</sup></:unit_mark>
+  </NumberInput.number_input>
+</div>

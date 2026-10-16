@@ -82,7 +82,7 @@ defmodule DevactionUI.Textarea do
       type="button"
       aria-label={@label}
       class={[
-        "inline-flex h-[34px] min-w-[34px] items-center justify-center gap-1.5 px-2 text-[13px]",
+        "inline-flex h-[34px] min-w-[34px] items-center justify-center gap-1.5 text-[13px] outline-none focus-visible:ring-4 focus-visible:ring-ink/10",
         footer_look(@variant),
         @class
       ]}
@@ -93,9 +93,9 @@ defmodule DevactionUI.Textarea do
     """
   end
 
-  defp footer_look(:plain), do: "rounded-lg text-ink-2 hover:bg-wrap"
+  defp footer_look(:plain), do: "rounded-lg px-2 text-ink-2 hover:bg-wrap"
 
   defp footer_look(:ai),
     do:
-      "rounded-[9px] border border-tag-warn-line bg-tag-warn-bg px-2.5 font-medium text-tag-warn-text"
+      "rounded-[9px] border border-tag-warn-line bg-tag-warn-bg px-2.5 font-medium text-tag-warn-text hover:bg-tag-warn-line/40"
 end

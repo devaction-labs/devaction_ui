@@ -1,0 +1,20 @@
+<%!-- title: Decimals | text: A fractional step (0.25) is exact, the field shows the decimals of the step, and ArrowUp, ArrowDown, PageUp, PageDown, Home and End move it. --%>
+<div class="max-w-xs">
+  <NumberInput.number_input
+    id="number-input-decimals"
+    name="rate"
+    value={@inputs.rate}
+    label="Rate"
+    unit="x"
+    step={0.25}
+    min={0}
+    max={2}
+    event="rate_step"
+    decrease_label="Lower the rate"
+    increase_label="Raise the rate"
+  >
+    <:minus_icon>−</:minus_icon>
+    <:plus_icon>+</:plus_icon>
+    <:help>From 0 to 2, in steps of 0.25.</:help>
+  </NumberInput.number_input>
+</div>

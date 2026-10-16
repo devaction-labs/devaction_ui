@@ -90,6 +90,8 @@ defmodule DevactionUISite.ExampleLive do
        },
        inputs: %{
          seats: 2,
+         rate: 0.5,
+         area: 12.5,
          hours: 12,
          hours_format: 24,
          hours_ticks: 20,
@@ -230,12 +232,26 @@ defmodule DevactionUISite.ExampleLive do
   end
 
   def handle_event("seats_step", %{"step" => step}, socket) do
-    delta = String.to_integer(step)
-
     {:noreply,
      update_inputs(
        socket,
-       &Map.update!(&1, :seats, fn seats -> DevactionUI.NumberInput.step(seats, delta, 1, 5) end)
+       &Map.update!(&1, :seats, fn seats -> DevactionUI.NumberInput.step(seats, step, 1, 5) end)
+     )}
+  end
+
+  def handle_event("area_step", %{"step" => step}, socket) do
+    {:noreply,
+     update_inputs(
+       socket,
+       &Map.update!(&1, :area, fn area -> DevactionUI.NumberInput.step(area, step, 0, 100) end)
+     )}
+  end
+
+  def handle_event("rate_step", %{"step" => step}, socket) do
+    {:noreply,
+     update_inputs(
+       socket,
+       &Map.update!(&1, :rate, fn rate -> DevactionUI.NumberInput.step(rate, step, 0, 2) end)
      )}
   end
 

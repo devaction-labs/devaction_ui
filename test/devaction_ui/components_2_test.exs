@@ -286,5 +286,52 @@ defmodule DevactionUI.Components2Test do
       assert html =~ "cursor-not-allowed"
       refute html =~ "bg-ink"
     end
+
+    test "disabled keeps the weight and the padding of the plain button, whatever the variant" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(
+          ~H|<DevactionUI.Button.button variant={:primary} disabled>Publish</DevactionUI.Button.button>|
+        )
+
+      assert html =~ "font-normal"
+      assert html =~ "px-4"
+      refute html =~ "font-medium"
+      refute html =~ "px-[18px]"
+    end
+
+    test "disabled and loading together keep the variant and the spinner, and are busy" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(
+          ~H|<DevactionUI.Button.button variant={:primary} loading disabled>Publishing</DevactionUI.Button.button>|
+        )
+
+      assert html =~ "bg-ink"
+      assert html =~ "font-medium"
+      assert html =~ ~s(aria-busy="true")
+    end
+  end
+
+  describe "Button edge" do
+    test "a round icon button has the soft line, a square one the strong line" do
+      assigns = %{}
+
+      round =
+        rendered_to_string(
+          ~H|<DevactionUI.Button.button shape={:round} icon_only aria-label="x">+</DevactionUI.Button.button>|
+        )
+
+      square =
+        rendered_to_string(
+          ~H|<DevactionUI.Button.button icon_only aria-label="x">+</DevactionUI.Button.button>|
+        )
+
+      assert round =~ "border-line"
+      refute round =~ "border-line-strong"
+      assert square =~ "border-line-strong"
+    end
   end
 end

@@ -1,26 +1,33 @@
 import {runKey} from "./keys.js"
-import {STEP_KEYS, clampText, keyDelta, parseLimit} from "./number_logic.js"
+import {NUMBER_KEYS, clampText, keyDelta, parseLimit, scaled} from "./number_logic.js"
 
 /**
- * The spinbutton keys of a `NumberInput`: ArrowUp/ArrowDown move a step, PageUp/PageDown ten, by the same
- * event the buttons send; leaving the field holds what was typed inside `min` and `max`.
+ * The spinbutton keys of a `NumberInput`: ArrowUp/ArrowDown move a step, PageUp/PageDown ten, Home/End go to the
+ * limits, by the same event the buttons send; leaving the field holds what was typed inside `min` and `max`. The
+ * steps are decimal-exact (`data-step="0.25"`), shown with `data-precision` decimals and `data-decimal` between.
  */
 export default {
   mounted() {
     this.field = this.el.querySelector("input")
-    const table = Object.fromEntries(Object.keys(STEP_KEYS).map((key) => [key, () => this.press(key)]))
+    const table = Object.fromEntries(NUMBER_KEYS.map((key) => [key, () => this.press(key)]))
     this.field.addEventListener("keydown", (event) => runKey(table, event))
     this.field.addEventListener("change", () => this.hold())
   },
 
   limits() {
-    const {step, min, max} = this.el.dataset
-    return {step: Number(step), min: parseLimit(min), max: parseLimit(max)}
+    const {step, min, max, precision, decimal} = this.el.dataset
+    return {
+      step: scaled(step) ?? {int: 1, scale: 0},
+      min: parseLimit(min),
+      max: parseLimit(max),
+      precision: Number(precision ?? 0),
+      decimal: decimal ?? ".",
+    }
   },
 
   press(key) {
     const delta = keyDelta(key, this.field.value, this.limits())
-    delta !== null && this.pushEvent(this.el.dataset.event, {step: String(delta)})
+    delta !== null && this.pushEvent(this.el.dataset.event, {step: delta})
     return delta !== null
   },
 

@@ -299,7 +299,28 @@ defmodule DevactionUI.AuthTest do
     end
 
     test "a rule that is met colours the whole line, not only the mark" do
-      assert meter(1, [%{label: "A", met: true}]) =~ "data-[met=true]:text-ok-fg"
+      met = meter(1, [%{label: "A", met: true}, %{label: "B", met: false}])
+
+      assert met =~ ~r/<li data-met="true" class="[^"]*text-tag-ok-text/
+      assert met =~ ~r/<li data-met="false" class="[^"]*text-muted/
+      refute met =~ ~r/<span class="[^"]*text-tag-ok-text/
+    end
+
+    test "each score takes the fill and the line colour of its tone" do
+      for {score, tone} <- [{1, :risk}, {2, :warn}, {3, :info}, {4, :ok}] do
+        html = meter(score, [])
+        assert html =~ ~r/h-\[5px\] rounded-full #{Regex.escape(DevactionUI.Tone.fill(tone))}/
+
+        assert html =~
+                 ~r/<p aria-live="polite" class="[^"]*#{Regex.escape(DevactionUI.Tone.text(tone))}/
+      end
+    end
+
+    test "a met rule takes the text colour of the ok tone, whatever that is" do
+      html = meter(1, [%{label: "A", met: true}])
+
+      assert html =~
+               ~r/<li data-met="true" class="[^"]*#{Regex.escape(DevactionUI.Tone.text(:ok))}/
     end
 
     test "without icons the rules are still listed" do

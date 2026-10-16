@@ -1,0 +1,19 @@
+<%!-- title: Disabled And Read Only | text: The disabled and read-only looks are the ones of the input group. --%>
+<div class="flex flex-wrap gap-6">
+  <MoneyInput.money_input
+    id="money-input-disabled"
+    name="amount_disabled"
+    label="Locked value"
+    value={450_000}
+    disabled
+    class="w-56"
+  />
+  <MoneyInput.money_input
+    id="money-input-readonly"
+    name="amount_readonly"
+    label="Computed value"
+    value={450_000}
+    readonly
+    class="w-56"
+  />
+</div>
