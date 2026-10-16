@@ -869,6 +869,8 @@
   .pdf-field {
     transition: box-shadow 0.15s;
   }
+}
+
 /* ---------- Banner, copy field (v0.2) ---------- */
 :root {
   --banner-info-fg: light-dark(#1E3A8A, #A9C3FF);
@@ -881,6 +883,8 @@
   --color-banner-info: var(--banner-info-fg);
   --color-banner-warn: var(--banner-warn-fg);
   --color-banner-risk: var(--banner-risk-fg);
+}
+
 /* NotificationCenter, Pricing and CookieConsent: the values the canvas draws that the tokens above lack. */
 :root {
   --unread-wash: light-dark(#FFFDF6, #221D12);
@@ -913,6 +917,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .notif-row, .notif-tab, .cookie-btn, .pricing-cta { transition: none; }
+}
+
 /* File tree and diff view (artboard "Árvore de arquivos, comentário no diff"). */
 :root {
   --tree-folder: light-dark(#A16207, #E3A72F);
