@@ -8,6 +8,7 @@ defmodule DevactionUISite.ExampleLive do
   """
   use Phoenix.LiveView
 
+  alias DevactionUI.ToastGroup
   alias DevactionUISite.{ReviewDemo, TopicHTML}
 
   @forms_repos ~w(sge-api ayram-web hub-api)
@@ -134,6 +135,24 @@ defmodule DevactionUISite.ExampleLive do
     "m5" => {"M5", "Members app", "Dec 18"}
   }
   @milestone_order ~w(m1 m2 m3 m4 m5)
+  @toast_kinds %{
+    "ok" => {:ok, "Changes saved.", :plain},
+    "ai" => {:ai, "The AI finished the review of #214.", :plain},
+    "action" => {:default, "Task deleted.", :action},
+    "warn" => {:warn, "GitHub API is slow, trying again.", :plain},
+    "risk" => {:risk, "Failed to publish the review.", :plain},
+    "loading" => {:loading, "Generating the M3 report...", :loading}
+  }
+  @toast_variants %{
+    "default" => {:default, "Task deleted.", "It stays in the trash for 30 days."},
+    "ok" => {:ok, "Review published.", "PR #214 on GitHub."},
+    "warn" => {:warn, "GitHub API is slow.", "Trying again in a few seconds."},
+    "risk" => {:risk, "Failed to publish the review.", "Check the token and try again."},
+    "info" => {:info, "A new version is available.", "Reload to get it."},
+    "ai" => {:ai, "The AI finished the review.", "3 findings, 1 of them blocking."},
+    "loading" => {:loading, "Generating the M3 report...", "This one stays until you clear it."}
+  }
+  @toast_results %{"ok" => :ok, "risk" => :risk}
   @panes %{"nav" => 20.0, "main" => 55.0, "side" => 25.0}
 
   @impl true
@@ -147,8 +166,8 @@ defmodule DevactionUISite.ExampleLive do
        board: @board,
        q: "",
        groups: [],
-       toasts: [],
        toast_seq: 0,
+       toast_received: nil,
        job: nil,
        order: "deadline",
        pdf: pdf_state(pdf_start(example), 100, false),
@@ -259,9 +278,6 @@ defmodule DevactionUISite.ExampleLive do
   def handle_event("search", %{"q" => q}, socket) do
     {:noreply, assign(socket, q: q, groups: search(q))}
   end
-
-  def handle_event("ask", %{"q" => q}, socket),
-    do: {:noreply, push_toast(socket, :light, "Asked the AI: #{q}")}
 
   def handle_event("forms_toggle_password", _params, socket),
     do:
@@ -489,9 +505,6 @@ defmodule DevactionUISite.ExampleLive do
     {:noreply, assign(socket, :messages, messages)}
   end
 
-  def handle_event("add_toast", _params, socket),
-    do: {:noreply, push_toast(socket, :dark, "Review published")}
-
   def handle_event("run_job", _params, socket) do
     Process.send_after(self(), :job_tick, 300)
     {:noreply, assign(socket, :job, %{state: :running, progress: 0})}
@@ -499,10 +512,66 @@ defmodule DevactionUISite.ExampleLive do
 
   def handle_event("dismiss_job", _params, socket), do: {:noreply, assign(socket, :job, nil)}
 
-  def handle_event("dismiss_toast", %{"id" => id}, socket),
-    do: {:noreply, assign(socket, :toasts, Enum.reject(socket.assigns.toasts, &(&1.id == id)))}
+  def handle_event("toast_push", %{"kind" => kind}, socket) when is_map_key(@toast_kinds, kind),
+    do: {:noreply, push_toast(socket, Map.fetch!(@toast_kinds, kind))}
 
-  def handle_event("clear_toasts", _params, socket), do: {:noreply, assign(socket, :toasts, [])}
+  def handle_event("toast_clear", _params, socket),
+    do: {:noreply, ToastGroup.clear_toasts(socket, group: "toast-try")}
+
+  def handle_event("toast_variant", %{"variant" => variant}, socket)
+      when is_map_key(@toast_variants, variant) do
+    {name, title, description} = Map.fetch!(@toast_variants, variant)
+
+    {:noreply,
+     ToastGroup.put_toast(socket, name, title, description: description, group: "toast-variants")}
+  end
+
+  def handle_event("toast_report", %{"result" => result}, socket)
+      when is_map_key(@toast_results, result) do
+    id = "report-#{socket.assigns.toast_seq + 1}"
+    Process.send_after(self(), {:toast_report, id, Map.fetch!(@toast_results, result)}, 2200)
+
+    {:noreply,
+     socket
+     |> assign(:toast_seq, socket.assigns.toast_seq + 1)
+     |> ToastGroup.put_toast(:loading, "Generating the M3 report...",
+       id: id,
+       group: "toast-report"
+     )}
+  end
+
+  def handle_event("toast_delete", _params, socket) do
+    seq = socket.assigns.toast_seq + 1
+    action = %{label: "Undo", event: "toast_undo", value: %{task: seq}}
+
+    {:noreply,
+     socket
+     |> assign(:toast_seq, seq)
+     |> ToastGroup.put_toast(:default, "Task #{seq} deleted.",
+       action: action,
+       group: "toast-action"
+     )}
+  end
+
+  def handle_event("toast_undo", params, socket),
+    do: {:noreply, assign(socket, :toast_received, "toast_undo " <> inspect(params))}
+
+  def handle_event("toast_flash", %{"kind" => kind}, socket) when kind in ~w(info error) do
+    seq = socket.assigns.toast_seq + 1
+
+    {:noreply,
+     socket
+     |> assign(:toast_seq, seq)
+     |> put_flash(String.to_existing_atom(kind), "Flash #{kind} number #{seq}.")}
+  end
+
+  def handle_event("toast_keys", _params, socket) do
+    {:noreply,
+     socket
+     |> ToastGroup.put_toast(:ok, "Changes saved.", group: "toast-keys")
+     |> ToastGroup.put_toast(:info, "A new version is available.", group: "toast-keys")
+     |> ToastGroup.put_toast(:warn, "GitHub API is slow, trying again.", group: "toast-keys")}
+  end
 
   def handle_event("move_card", %{"card" => id, "to" => to, "index" => index}, socket) do
     {:noreply, assign(socket, :board, move(socket.assigns.board, id, to, index))}
@@ -783,6 +852,24 @@ defmodule DevactionUISite.ExampleLive do
 
   def handle_info(:job_tick, socket), do: {:noreply, socket}
 
+  def handle_info({:toast_report, id, :ok}, socket),
+    do:
+      {:noreply,
+       ToastGroup.update_toast(socket, id,
+         group: "toast-report",
+         variant: :ok,
+         title: "M3 report ready."
+       )}
+
+  def handle_info({:toast_report, id, :risk}, socket) do
+    {:noreply,
+     ToastGroup.update_toast(socket, id,
+       group: "toast-report",
+       variant: :risk,
+       title: "Could not generate the report."
+     )}
+  end
+
   def handle_info({:switch_saved, key}, socket) do
     {:noreply,
      update(socket, :switches, fn switches ->
@@ -884,11 +971,25 @@ defmodule DevactionUISite.ExampleLive do
 
   defp update_forms(socket, fun), do: update(socket, :forms, fun)
 
-  defp push_toast(socket, kind, title) do
+  defp push_toast(socket, {variant, title, :action}) do
     seq = socket.assigns.toast_seq + 1
-    toast = %{id: "toast-#{seq}", kind: kind, title: title}
-    assign(socket, toasts: [toast | socket.assigns.toasts], toast_seq: seq)
+    action = %{label: "Undo", event: "toast_undo", value: %{task: seq}}
+
+    socket
+    |> assign(:toast_seq, seq)
+    |> ToastGroup.put_toast(variant, title, action: action, group: "toast-try")
   end
+
+  defp push_toast(socket, {variant, title, :loading}) do
+    seq = socket.assigns.toast_seq + 1
+
+    socket
+    |> assign(:toast_seq, seq)
+    |> ToastGroup.put_toast(variant, title, id: "loading-#{seq}", group: "toast-try")
+  end
+
+  defp push_toast(socket, {variant, title, :plain}),
+    do: ToastGroup.put_toast(socket, variant, title, group: "toast-try")
 
   defp sort_rows(rows, {key, direction}) do
     field = String.to_existing_atom(key)

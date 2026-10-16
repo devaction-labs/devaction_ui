@@ -1,31 +1,24 @@
-<%!-- title: Live stack | text: Each click adds a notice at the bottom right of the screen --%>
-<Button.button
-  id="toast-group-add"
-  variant={:primary}
-  size={:sm}
-  phx-click="add_toast"
-  class="self-start"
->
-  Add a notice
-</Button.button>
-<ToastGroup.toast_group
-  :if={@toasts != []}
-  id="toast-group-live"
-  label="Notices"
-  on_dismiss="dismiss_toast"
-  on_clear="clear_toasts"
-  expand_label="Show all"
-  collapse_label="Collapse"
-  clear_label="Clear"
-  dismiss_label="Close"
-  count_label="__COUNT__ notices"
-  class="fixed right-4 bottom-4 z-50 w-[380px]"
->
-  <:toast
-    :for={toast <- @toasts}
-    id={toast.id}
-    kind={toast.kind}
-    title={toast.title}
-    duration={0}
-  />
-</ToastGroup.toast_group>
+<%!-- title: Action | text: The button sends its event back to the LiveView, or to the target, with the value you gave it. --%>
+<div class="grid w-full gap-3">
+  <Button.button
+    id="toast-action-delete"
+    variant={:secondary}
+    size={:sm}
+    phx-click="toast_delete"
+    class="self-start"
+  >
+    Delete task
+  </Button.button>
+  <div class="flex h-[100px] items-end">
+    <ToastGroup.toast_group
+      id="toast-action"
+      inline
+      duration={10000}
+      label="Notifications (Alt+T)"
+      dismiss_label="Close"
+    />
+  </div>
+  <p id="toast-action-received" class="m-0 font-mono text-[13px] text-muted">
+    {@toast_received || "The server has not received an event yet."}
+  </p>
+</div>

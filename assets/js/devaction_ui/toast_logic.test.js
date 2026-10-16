@@ -1,26 +1,90 @@
 import assert from "node:assert/strict"
 import test from "node:test"
-import {countText, escapeStep, EXIT_MS, GLIDE_MS, glideSteps, HOVER_CLOSE_MS, hoverStep, leftAfter, LINGER_MS, plan, planLayout} from "./toast_logic.js"
+import {
+  CLOSE_DELAY_MS, durationFor, EXIT_MS, focusAfter, isForGroup, isHotkey, leftAfter, LINGER_MS, listHeight, plan, roleFor,
+  stackPlan, swipeOutcome, timerStep, variantOf,
+} from "./toast_logic.js"
 
-test("one toast is never a stack, and opening it changes nothing", () => {
-  assert.deepEqual(planLayout({count: 1, expanded: true}), {expanded: false, stacked: false, showBar: false, showExpand: false})
-  assert.deepEqual(planLayout({count: 0, expanded: false}), {expanded: false, stacked: false, showBar: false, showExpand: false})
+test("an error is an alert, the rest are status", () => {
+  assert.equal(roleFor("risk"), "alert")
+  ;["default", "ok", "warn", "info", "ai", "loading"].forEach((variant) => assert.equal(roleFor(variant), "status"))
 })
 
-test("several toasts are a stack until opened", () => {
-  assert.deepEqual(planLayout({count: 3, expanded: false}), {expanded: false, stacked: true, showBar: false, showExpand: true})
-  assert.deepEqual(planLayout({count: 3, expanded: true}), {expanded: true, stacked: false, showBar: true, showExpand: false})
+test("an unknown variant is the default one", () => {
+  assert.equal(variantOf("ok"), "ok")
+  assert.equal(variantOf("nope"), "default")
+  assert.equal(variantOf(undefined), "default")
 })
 
-test("the bar reads the heading, then the count", () => {
-  assert.equal(countText({heading: "AI review", label: "__COUNT__ notices", count: 3}), "AI review \u00b7 3 notices")
-  assert.equal(countText({heading: null, label: "__COUNT__ notices", count: 3}), "3 notices")
+test("loading never leaves by itself; the others take their duration or the group's", () => {
+  assert.equal(durationFor({variant: "loading", duration: 10, fallback: 4000}), Infinity)
+  assert.equal(durationFor({variant: "ok", duration: 1500, fallback: 4000}), 1500)
+  assert.equal(durationFor({variant: "ok", duration: undefined, fallback: 4000}), 4000)
+  assert.equal(durationFor({variant: "ok", duration: 0, fallback: 4000}), Infinity)
+  assert.equal(durationFor({variant: "ok", duration: undefined, fallback: 0}), Infinity)
 })
 
-test("Escape closes an open list first, then the focused toast, else it is left alone", () => {
-  assert.equal(escapeStep({expanded: true, focused: true}), "collapse")
-  assert.equal(escapeStep({expanded: false, focused: true}), "dismiss")
-  assert.equal(escapeStep({expanded: false, focused: false}), null)
+test("the pile of 52px toasts: 12px peek closed, 12px gap open", () => {
+  const pile = stackPlan([52, 52, 52, 52, 52], {visible: 3})
+  assert.equal(pile.front, 52)
+  assert.equal(listHeight(pile, false), 52 + 2 * 12)
+  assert.equal(listHeight(pile, true), 5 * 52 + 4 * 12)
+  assert.deepEqual(pile.items.map((item) => item.offset), [0, 64, 128, 192, 256])
+  assert.deepEqual(pile.items.map((item) => item.overflow), [false, false, false, true, true])
+  assert.deepEqual(pile.items.map((item) => item.front), [true, false, false, false, false])
+})
+
+test("toasts of different heights stack by their own height", () => {
+  const pile = stackPlan([80, 52], {visible: 3})
+  assert.deepEqual(pile.items.map((item) => item.offset), [0, 92])
+  assert.equal(listHeight(pile, false), 92)
+  assert.equal(listHeight(pile, true), 80 + 12 + 52)
+})
+
+test("an empty pile has no height, and a single toast is its own height", () => {
+  assert.equal(listHeight(stackPlan([], {visible: 3}), true), 0)
+  assert.equal(listHeight(stackPlan([], {visible: 3}), false), 0)
+  assert.equal(listHeight(stackPlan([60], {visible: 3}), false), 60)
+  assert.equal(listHeight(stackPlan([60], {visible: 3}), true), 60)
+})
+
+test("timers pause when the pile is open or the tab hidden, start when it is not, and infinite ones stay out of it", () => {
+  assert.equal(timerStep({paused: true, running: true, finite: true}), "pause")
+  assert.equal(timerStep({paused: true, running: false, finite: true}), "keep")
+  assert.equal(timerStep({paused: false, running: false, finite: true}), "start")
+  assert.equal(timerStep({paused: false, running: true, finite: true}), "keep")
+  assert.equal(timerStep({paused: false, running: false, finite: false}), "keep")
+})
+
+test("a drag past 80px dismisses, a shorter one comes back", () => {
+  assert.equal(swipeOutcome(81), "dismiss")
+  assert.equal(swipeOutcome(80), "restore")
+  assert.equal(swipeOutcome(0), "restore")
+})
+
+test("Alt+T is the hotkey, with or without the letter the layout gives it", () => {
+  assert.equal(isHotkey({altKey: true, key: "t", code: "KeyT"}), true)
+  assert.equal(isHotkey({altKey: true, key: "†", code: "KeyT"}), true)
+  assert.equal(isHotkey({altKey: true, key: "T", code: ""}), true)
+  assert.equal(isHotkey({altKey: false, key: "t", code: "KeyT"}), false)
+  assert.equal(isHotkey({altKey: true, ctrlKey: true, key: "t", code: "KeyT"}), false)
+  assert.equal(isHotkey({altKey: true, key: "x", code: "KeyX"}), false)
+})
+
+test("when the focused toast leaves, the one that takes its place gets the focus", () => {
+  assert.equal(focusAfter(0, 0), null)
+  assert.equal(focusAfter(3, 1), 1)
+  assert.equal(focusAfter(3, 3), 2)
+})
+
+test("an event with a group is only for that group", () => {
+  assert.equal(isForGroup({title: "x"}, "toasts"), true)
+  assert.equal(isForGroup({group: "toasts"}, "toasts"), true)
+  assert.equal(isForGroup({group: "other"}, "toasts"), false)
+})
+
+test("the open list waits a moment before closing", () => {
+  assert.ok(CLOSE_DELAY_MS > 0 && CLOSE_DELAY_MS < 500)
 })
 
 test("a finished job leaves after the linger time", () => {
@@ -44,22 +108,4 @@ test("what is left of the wait is kept across a pause", () => {
 
 test("the exit lasts 400 ms, as long as the toast-out animation", () => {
   assert.equal(EXIT_MS, 400)
-})
-
-test("pointing at a collapsed stack opens it, and it closes again only if it opened by itself", () => {
-  const stack = {stacked: true, expanded: false, auto: false}
-  assert.equal(hoverStep({...stack, event: "enter"}), "open")
-  assert.equal(hoverStep({...stack, event: "enter", stacked: false}), null)
-  assert.equal(hoverStep({...stack, event: "enter", expanded: true}), null)
-  assert.equal(hoverStep({...stack, event: "leave", expanded: true, auto: true}), "close")
-  assert.equal(hoverStep({...stack, event: "leave", expanded: true, auto: false}), null)
-  assert.equal(HOVER_CLOSE_MS, 250)
-})
-
-test("a toast glides from where it was drawn to where the layout puts it, and one that did not move stays put", () => {
-  const before = new Map([["a", {x: 10, y: 100}], ["b", {x: 10, y: 90}], ["c", {x: 10, y: 80}]])
-  const after = new Map([["a", {x: 10, y: 100}], ["b", {x: 10, y: 40}], ["d", {x: 10, y: 0}]])
-
-  assert.deepEqual(glideSteps(before, after), [{id: "b", dx: 0, dy: 50}])
-  assert.equal(GLIDE_MS, 320)
 })
