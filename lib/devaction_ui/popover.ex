@@ -16,7 +16,10 @@ defmodule DevactionUI.Popover do
   attr :align, :atom, values: [:start, :end], default: :start
   attr :label, :string, required: true, doc: "the name of the panel, for assistive technology"
   attr :class, :any, default: nil
-  attr :panel_class, :any, default: "w-80"
+
+  attr :panel_class, :any,
+    default: nil,
+    doc: "extra classes of the panel; the width is `w-80` unless a width class is set here"
 
   slot :trigger,
     required: true,
@@ -51,10 +54,10 @@ defmodule DevactionUI.Popover do
         phx-mounted={JS.ignore_attributes(["hidden", "data-side"])}
         tabindex="-1"
         class={[
-          "absolute z-40 rounded-2xl border border-line bg-card p-4 shadow-[0_16px_40px_rgba(24,24,27,0.14)] outline-none",
+          "absolute z-40 [:where(&)]:w-80 rounded-2xl border border-line bg-card p-4 shadow-pop outline-none",
           @align == :start && "left-0",
           @align == :end && "right-0",
-          "data-[side=bottom]:top-full data-[side=bottom]:mt-2.5 data-[side=top]:bottom-full data-[side=top]:mb-2.5",
+          "data-[side=bottom]:top-full data-[side=bottom]:mt-1.5 data-[side=top]:bottom-full data-[side=top]:mb-1.5",
           @panel_class
         ]}
       >

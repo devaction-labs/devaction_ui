@@ -30,10 +30,13 @@
   confirm_label="Stop monitoring"
   cancel_label="Cancel"
   close_label="Close"
-  type_label="Type sge-api to confirm"
 >
   <:icon><.icon name="alert-02" class="size-5" /></:icon>
   <:close_icon><.icon name="cancel-01" class="size-4" /></:close_icon>
   <:title>Stop monitoring sge-api?</:title>
+  <:type_label>
+    Type <code class="rounded-[5px] bg-wrap px-1.5 py-px font-mono text-ink">sge-api</code>
+    to confirm
+  </:type_label>
   Automatic review stops and the 2 draft reviews are dropped. The history and the lessons stay.
 </DangerDialog.danger_dialog>

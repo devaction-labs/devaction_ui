@@ -56,7 +56,18 @@ defmodule DevactionUI.OverlaysTest do
       assert drawer(%{side: :left}) =~ "drawer-left"
       assert drawer(%{size: :sm}) =~ "drawer-sm"
       assert drawer(%{size: :lg}) =~ "drawer-lg"
+      assert drawer(%{variant: :sheet}) =~ "drawer-sheet"
       refute drawer() =~ "drawer-docked"
+      refute drawer() =~ "drawer-sheet"
+    end
+
+    test "the subtitle describes the dialog, and the handle shows at any width only on a sheet" do
+      html = drawer()
+
+      assert html =~ ~s(aria-describedby="d-subtitle")
+      assert html =~ ~s(id="d-subtitle")
+      assert html =~ "max-sm:block"
+      refute drawer(%{variant: :sheet}) =~ "max-sm:block"
     end
 
     test "has no footer when it has no actions" do
@@ -72,7 +83,7 @@ defmodule DevactionUI.OverlaysTest do
         """)
 
       refute html =~ "drawer-footer"
-      refute html =~ "<p"
+      refute html =~ "aria-describedby"
     end
 
     test "open/1 remembers the focus before the event" do
@@ -103,7 +114,30 @@ defmodule DevactionUI.OverlaysTest do
       assert html =~ "border-tag-ok-line"
       assert html =~ "modal-footer"
       assert html =~ "All saved"
+      assert html =~ ~s(aria-describedby="m-subtitle")
+      assert html =~ ~r/<div[^>]*id="m-subtitle"/
       refute html =~ ~s(aria-label=")
+    end
+
+    test "has no description when it has no subtitle, and the body scrolls inside the panel" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Modal.modal id="m" on_close="c">
+          <:title>T</:title>
+          BODY
+        </Modal.modal>
+        """)
+
+      refute html =~ "aria-describedby"
+      assert html =~ ~s(class="modal-body")
+    end
+
+    test "open/1 remembers the focus before the event and close/1 gives it back" do
+      assert %JS{ops: [["push_focus", _], ["push", %{event: "go"}]]} = Modal.open("go")
+      assert %JS{ops: [["pop_focus", _], ["push", %{event: "x"}]]} = Modal.close("x")
+      assert %JS{ops: [["push", %{event: "y"}], ["pop_focus", _]]} = Modal.close(JS.push("y"))
     end
 
     test "has a close button only when it has a label, and a centered success" do
@@ -197,11 +231,11 @@ defmodule DevactionUI.OverlaysTest do
         confirm_label="Stop"
         cancel_label="Cancel"
         close_label="Close"
-        type_label="Type it"
       >
         <:icon>I</:icon>
         <:close_icon>X</:close_icon>
         <:title>Stop?</:title>
+        <:type_label>Type <code>sge-api</code> to confirm</:type_label>
         What is lost.
       </DangerDialog.danger_dialog>
       """)
@@ -223,6 +257,25 @@ defmodule DevactionUI.OverlaysTest do
       open = danger("sge-api")
       assert open =~ ~s(aria-disabled="false")
       assert open =~ ~s(phx-click="confirm")
+      assert locked =~ ~s(data-unlocked="false")
+      assert open =~ ~s(data-unlocked="true")
+      assert locked =~ ~s(data-valid="false")
+      assert open =~ ~s(data-valid="true")
+    end
+
+    test "Enter in the field submits the confirm event, and Cancel gives the focus back" do
+      html = danger("")
+
+      assert html =~ ~r/<form[^>]*phx-submit="confirm"/
+      assert html =~ ~r/id="x-cancel"[^>]*phx-click="[^"]*pop_focus/s
+    end
+
+    test "the sentence over the field is a slot and the field is described by the explanation" do
+      html = danger("")
+
+      assert html =~ "<code>sge-api</code>"
+      assert html =~ ~r/id="x-typed"[^>]*aria-describedby="x-subtitle"/s
+      assert html =~ ~s(id="x-subtitle")
     end
 
     test "asks for the name in a field that reports each key and does not close on a click outside" do
@@ -232,7 +285,6 @@ defmodule DevactionUI.OverlaysTest do
       assert html =~ "#x-typed"
       assert html =~ "focus"
       assert html =~ ~s(autocomplete="off")
-      assert html =~ "Type it"
       assert html =~ "What is lost."
       refute html =~ ~r/modal-backdrop[^>]*phx-click/
     end

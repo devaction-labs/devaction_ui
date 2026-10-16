@@ -189,8 +189,8 @@ defmodule DevactionUI.CompositesTest do
 
       html =
         rendered_to_string(~H"""
-        <ConfirmDialog.confirm_dialog id="c" title="Publish?" on_cancel="cancel" close_label="Close">
-          <:close_icon>x</:close_icon>
+        <ConfirmDialog.confirm_dialog id="c" title="Publish?" on_cancel="cancel">
+          <:icon>i</:icon>
           Ten comments.
           <:actions><button id="no">No</button><button id="yes">Yes</button></:actions>
         </ConfirmDialog.confirm_dialog>
@@ -199,9 +199,38 @@ defmodule DevactionUI.CompositesTest do
       assert html =~ ~s(role="dialog")
       assert html =~ ~s(aria-modal="true")
       assert html =~ ~s(aria-labelledby="c-title")
-      assert html =~ ~s(aria-label="Close")
+      assert html =~ ~s(aria-describedby="c-subtitle")
       assert html =~ ~s(phx-key="escape")
+      assert html =~ "modal-md"
+      assert html =~ "modal-icon"
+      assert html =~ "pop_focus"
+      assert html =~ "Ten comments."
       assert html =~ ~s(id="no") and html =~ ~s(id="yes")
+      refute html =~ "aria-label="
+    end
+
+    test "has a close button only when it has a label, and can be made not dismissible" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <ConfirmDialog.confirm_dialog
+          id="c"
+          title="Publish?"
+          on_cancel="cancel"
+          close_label="Close"
+          size={:sm}
+          dismissible={false}
+        >
+          <:close_icon>x</:close_icon>
+          Ten comments.
+          <:actions><button>No</button></:actions>
+        </ConfirmDialog.confirm_dialog>
+        """)
+
+      assert html =~ ~s(aria-label="Close")
+      assert html =~ "modal-sm"
+      refute html =~ ~r/modal-backdrop[^>]*phx-click/
     end
   end
 end
