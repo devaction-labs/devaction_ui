@@ -112,7 +112,7 @@ defmodule DevactionUISite.HomeChangelogTest do
       {:ok, view, html} = live(build_conn(), "/changelog")
 
       assert html =~ "{:devaction_ui, &quot;~&gt; 0.6.0&quot;}"
-      assert has_element?(view, "#v061 [data-copy-text*='~> 0.6.0']")
+      assert has_element?(view, "#v062 [data-copy-text*='~> 0.6.0']")
 
       for group <- ~w(Base Overlay Form Data) do
         assert has_element?(view, "#v020-#{String.downcase(group)}[data-group]", group)
