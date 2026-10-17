@@ -42,7 +42,7 @@ export default {
     document.removeEventListener("mousedown", this.outside)
   },
 
-  get multiple() {
+  isMultiple() {
     return this.el.dataset.multiple === "true"
   },
 
@@ -160,7 +160,7 @@ export default {
     const holder = this.el.querySelector("[data-values]")
     const sentinel = holder.querySelector("[data-sentinel]")
     const template = holder.querySelector("input:not([data-sentinel])") ?? sentinel
-    const inputs = (this.multiple ? values : [values[0] ?? ""]).map((value) => {
+    const inputs = (this.isMultiple() ? values : [values[0] ?? ""]).map((value) => {
       const input = template.cloneNode()
       input.removeAttribute("data-sentinel")
       input.value = value
@@ -176,7 +176,7 @@ export default {
     const chosen = this.options().filter((option) => values.includes(option.dataset.value))
     const view = buttonText({
       labels: chosen.map((option) => option.dataset.label),
-      multiple: this.multiple,
+      multiple: this.isMultiple(),
       placeholder: this.el.dataset.placeholder,
       countText: this.el.dataset.countText,
     })
@@ -194,8 +194,8 @@ export default {
   choose(row) {
     if (row.hasAttribute("data-create")) return this.create()
 
-    this.commit(pick(this.values(), row.dataset.value, this.multiple))
-    if (this.multiple) return this.activate(row)
+    this.commit(pick(this.values(), row.dataset.value, this.isMultiple()))
+    if (this.isMultiple()) return this.activate(row)
 
     this.close()
     this.trigger.focus()
