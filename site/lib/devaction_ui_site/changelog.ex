@@ -83,15 +83,22 @@ defmodule DevactionUISite.Changelog do
 
   @releases [
     %{
-      version: "v0.6",
+      version: "v0.7",
       status: "next",
       tag: nil,
       summary:
-        "The `Listbox`, a select with a panel of its own (search, groups, several choices, create), and the Blade version of the kit for Laravel and Livewire projects, starting with the color picker, the slider and the filter menu."
+        "The Blade version of the kit for Laravel and Livewire projects, starting with the color picker, the slider and the filter menu."
+    },
+    %{
+      version: "v0.6.0",
+      status: "current",
+      tag: "v0.6.0",
+      summary:
+        "The `Listbox`, a select with a panel of its own (search, groups, descriptions, several choices, create), and the `Select` opens a styled panel on a mouse while keeping the native field."
     },
     %{
       version: "v0.5.0",
-      status: "current",
+      status: "archived",
       tag: "v0.5.0",
       summary:
         "The form components take a `field={@form[:name]}` and a plain `Select` joins the Combobox, so a Phoenix form is written without another kit."
@@ -401,7 +408,7 @@ defmodule DevactionUISite.Changelog do
   defp code_entries(ids, now) do
     planned =
       for {{name, summary}, index} <- Enum.with_index(@planned, 1),
-          do: row(ids["v0.6"], "planned", "Planned", name, summary, index, now)
+          do: row(ids["v0.7"], "planned", "Planned", name, summary, index, now)
 
     components =
       for {category, topics} <- Catalog.groups(), topic <- topics do
@@ -437,7 +444,6 @@ defmodule DevactionUISite.Changelog do
   end
 
   defp release_key("0.3"), do: "v0.3.0"
-  defp release_key("0.6"), do: "v0.6"
   defp release_key(since), do: "v#{since}.0"
 
   defp row(version_id, kind, group, name, summary, position, now) do
