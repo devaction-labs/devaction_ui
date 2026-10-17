@@ -17,12 +17,14 @@ defmodule DevactionUI.FormFieldTest do
     Textarea
   }
 
-  defp form(params, errors \\ []), do: to_form(params, as: :post, errors: errors)
+  defp post_form(params, errors \\ []), do: to_form(params, as: :post, errors: errors)
 
   describe "FormField" do
     test "shows errors only once the input was used, with the placeholders filled" do
-      used = form(%{"title" => ""}, title: {"should be at least %{count} characters", [count: 3]})
-      untouched = form(%{}, title: {"can't be blank", []})
+      used =
+        post_form(%{"title" => ""}, title: {"should be at least %{count} characters", [count: 3]})
+
+      untouched = post_form(%{}, title: {"can't be blank", []})
 
       assert FormField.errors(used[:title]) == ["should be at least 3 characters"]
       assert FormField.errors(untouched[:title]) == []
@@ -46,7 +48,7 @@ defmodule DevactionUI.FormFieldTest do
 
   describe "InputGroup and Textarea" do
     test "take the id, the name, the value and the error state from the field" do
-      assigns = %{f: form(%{"title" => "Relatórios"}, title: {"too short", []})}
+      assigns = %{f: post_form(%{"title" => "Relatórios"}, title: {"too short", []})}
 
       html =
         rendered_to_string(~H"""
@@ -61,7 +63,7 @@ defmodule DevactionUI.FormFieldTest do
     end
 
     test "what the caller gives wins over the field, and an untouched field is not invalid" do
-      assigns = %{f: form(%{}, title: {"can't be blank", []})}
+      assigns = %{f: post_form(%{}, title: {"can't be blank", []})}
 
       html =
         rendered_to_string(~H"""
@@ -83,7 +85,7 @@ defmodule DevactionUI.FormFieldTest do
 
   describe "Field" do
     test "labels the field's input and shows the changeset's error after use" do
-      assigns = %{f: form(%{"slug" => "SGE API"}, slug: {"has invalid format", []})}
+      assigns = %{f: post_form(%{"slug" => "SGE API"}, slug: {"has invalid format", []})}
 
       html =
         rendered_to_string(~H"""
@@ -99,7 +101,7 @@ defmodule DevactionUI.FormFieldTest do
     end
 
     test "an error given by hand wins over the field's" do
-      assigns = %{f: form(%{"slug" => "x"}, slug: {"from the changeset", []})}
+      assigns = %{f: post_form(%{"slug" => "x"}, slug: {"from the changeset", []})}
 
       html =
         rendered_to_string(~H"""
@@ -113,7 +115,7 @@ defmodule DevactionUI.FormFieldTest do
 
   describe "Choice and Switch" do
     test "a boolean checkbox sends false when not ticked and is ticked by the field" do
-      assigns = %{f: form(%{"public" => "true"})}
+      assigns = %{f: post_form(%{"public" => "true"})}
 
       html =
         rendered_to_string(~H"""
@@ -127,7 +129,7 @@ defmodule DevactionUI.FormFieldTest do
     end
 
     test "a box of a list field is named with [] and ticked when the list holds its value" do
-      assigns = %{f: form(%{"tags" => ["elixir"]})}
+      assigns = %{f: post_form(%{"tags" => ["elixir"]})}
 
       html =
         rendered_to_string(~H"""
@@ -144,7 +146,7 @@ defmodule DevactionUI.FormFieldTest do
     end
 
     test "radios share the field's name and the one with its value is checked; the group shows the error" do
-      assigns = %{f: form(%{"model" => "hours"}, model: {"pick one", []})}
+      assigns = %{f: post_form(%{"model" => "hours"}, model: {"pick one", []})}
 
       html =
         rendered_to_string(~H"""
@@ -160,7 +162,7 @@ defmodule DevactionUI.FormFieldTest do
     end
 
     test "a switch with a field is in the field mode" do
-      assigns = %{f: form(%{"notify" => "true"})}
+      assigns = %{f: post_form(%{"notify" => "true"})}
 
       html =
         rendered_to_string(~H"""
@@ -177,7 +179,7 @@ defmodule DevactionUI.FormFieldTest do
 
   describe "Combobox and DatePicker" do
     test "the combobox takes the field's name, value and error" do
-      assigns = %{f: form(%{"project_id" => "2"}, project_id: {"is invalid", []})}
+      assigns = %{f: post_form(%{"project_id" => "2"}, project_id: {"is invalid", []})}
 
       html =
         rendered_to_string(~H"""
@@ -198,7 +200,7 @@ defmodule DevactionUI.FormFieldTest do
     end
 
     test "the date input takes a Date from the field" do
-      assigns = %{f: form(%{"due_on" => ~D[2026-10-16]})}
+      assigns = %{f: post_form(%{"due_on" => ~D[2026-10-16]})}
 
       html =
         rendered_to_string(~H"""
@@ -258,7 +260,7 @@ defmodule DevactionUI.FormFieldTest do
     end
 
     test "with a field and multiple, the name ends in [] and the list is chosen" do
-      assigns = %{f: form(%{"roles" => ["dev", "pm"]}, roles: {"too many", []})}
+      assigns = %{f: post_form(%{"roles" => ["dev", "pm"]}, roles: {"too many", []})}
 
       html =
         rendered_to_string(~H"""
