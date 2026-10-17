@@ -4,6 +4,10 @@ Every release lists new components, improvements, fixes and breaking changes. Wh
 
 ## Unreleased
 
+### Changed
+
+- `Select` opens a styled panel on a fine pointer (mouse, trackpad) instead of the browser's popup: a card under the select with the groups as headers, 34px rows, the chosen option tinted with a check, a disabled option muted, and the up arrow and focus ring on the select while it is open. The native `<select>` stays the field (name, value, validation, `phx-change`); the `DevactionUI.Select` hook draws the panel from its options, with ↑ ↓ Home End, type-ahead, Enter or Space to choose, Esc, Tab and a press outside to close, and it opens above when there is no room below and is not clipped by an `overflow` ancestor. On a touch screen the system picker still opens, and `multiple` stays the native list box. The `:sm` and `:lg` sizes shape the panel too.
+
 ### Fixed
 
 - `Select` follows the artboards: the arrow is 15px and sits on the 14px padding, the multiple list box has the 5px frame, 2px between 32px rows and the checked rows in the line tone with medium weight, and a disabled option inside the list no longer draws the dashed, muted frame of a disabled select.

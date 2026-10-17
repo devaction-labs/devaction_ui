@@ -12,12 +12,18 @@ defmodule DevactionUI.Select do
   `DevactionUI.FormField`); what is given by hand wins. The error message is not drawn here: wrap the select in
   `DevactionUI.Field`, as any other input.
 
+  On a mouse or a trackpad the open list is a styled panel under the select (the groups as headers, the chosen
+  option with a check, a disabled option muted) drawn by the `DevactionUI.Select` hook from the options; the
+  `<select>` stays the field, so the name, the value, the validation and `phx-change` are the browser's own, and
+  on a touch screen the system picker opens. `multiple` stays the native list box.
+
   The arrow and the leading icon are slots (the library knows no icon set); without `chevron_icon` the arrow is
   a `⌄`. Sizes follow the input group: `:sm` 36px, `:md` 44px, `:lg` 52px.
   """
   use Phoenix.Component
 
   alias DevactionUI.FormField
+  alias Phoenix.LiveView.JS
 
   attr :id, :string, default: nil, doc: "required unless a `field` gives it"
   attr :name, :string, default: nil
@@ -59,6 +65,8 @@ defmodule DevactionUI.Select do
     ~H"""
     <span
       id={"#{@id}-group"}
+      data-size={@size}
+      phx-mounted={!@multiple && JS.ignore_attributes(["data-open"])}
       class={["input-group select", size_class(@size), @multiple && "select-multiple", @class]}
     >
       <span :if={@icon != []} class="input-icon [&>*]:size-full">{render_slot(@icon)}</span>
@@ -67,6 +75,16 @@ defmodule DevactionUI.Select do
         name={@name}
         multiple={@multiple}
         aria-invalid={@invalid && "true"}
+        phx-hook={!@multiple && "DevactionUI.Select"}
+        phx-mounted={
+          !@multiple &&
+            JS.ignore_attributes([
+              "aria-expanded",
+              "aria-haspopup",
+              "aria-controls",
+              "aria-activedescendant"
+            ])
+        }
         {@rest}
       >
         <option :if={@prompt && !@multiple} value="">{@prompt}</option>

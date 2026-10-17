@@ -28,6 +28,10 @@
   50% { box-shadow: 0 0 0 1px var(--aura-g), 0 0 26px 2px var(--aura-g); }
 }
 
+@keyframes select-pop {
+  from { opacity: 0; transform: translateY(-3px); }
+}
+
 @keyframes toast-out {
   to { opacity: 0; transform: translateY(8px); }
 }
@@ -235,6 +239,7 @@
   --shadow-toast-progress: 0 12px 30px rgb(24 24 27 / 0.1);
   --shadow-modal: 0 30px 80px rgb(9 9 11 / 0.28);
   --shadow-menu: 0 16px 40px rgb(24 24 27 / 0.14);
+  --shadow-select: 0 16px 40px -12px rgb(24 24 27 / 0.3);
   --shadow-cmdk: 0 24px 60px rgb(24 24 27 / 0.16);
   --shadow-tip: 0 6px 16px rgb(24 24 27 / 0.2);
   --shadow-tip-rich: 0 10px 30px rgb(24 24 27 / 0.2);
@@ -313,6 +318,19 @@
   .select > select:has(> option[value=""]:checked) { @apply text-muted-2; }
   .select > select option { @apply text-ink; }
   .select-chevron { @apply pointer-events-none -ml-6.25 grid size-[15px] shrink-0 place-items-center text-sm leading-none text-muted [&>*]:size-full; }
+  .select[data-open] { @apply border-ink ring-4 ring-(color:--ring-field); }
+  .select[data-open] .select-chevron { @apply rotate-180; }
+  .select-chevron { @apply transition-transform; }
+  .select-panel { @apply overflow-y-auto text-ink overscroll-contain rounded-xl border border-line bg-card p-[5px] shadow-select [animation:select-pop_.12s_ease-out]; }
+  .select-panel[data-size="sm"] { @apply rounded-[10px]; }
+  .select-panel[data-size="sm"] .select-option { @apply h-8 rounded-[7px] text-[13px]; }
+  .select-panel[data-size="lg"] { @apply rounded-[14px]; }
+  .select-panel[data-size="lg"] .select-option { @apply h-10 rounded-[10px] text-base; }
+  .select-group { @apply px-[9px] pt-2 pb-1 text-xs font-semibold text-muted; }
+  .select-option { @apply flex h-[34px] cursor-pointer items-center gap-2 rounded-lg pr-[9px] pl-[18px] text-sm text-ink aria-selected:bg-wrap data-active:bg-wrap aria-disabled:cursor-not-allowed aria-disabled:text-muted-2 data-empty:text-muted-2; }
+  .select-option-label { @apply min-w-0 flex-1 truncate; }
+  .select-check { @apply ml-auto grid size-[15px] shrink-0 place-items-center text-ink [&>svg]:size-full; }
+  @media (prefers-reduced-motion: reduce) { .select-panel { animation: none; } .select-chevron { transition: none; } }
   .select-multiple { @apply h-auto items-stretch gap-0 rounded-xl p-[5px]; }
   .select-multiple > select { @apply min-h-36 cursor-default pr-0 text-sm; }
   .select-multiple > select option { @apply rounded-[7px] border-y border-transparent bg-clip-padding px-[9px] py-1.5 checked:bg-line checked:font-medium; }

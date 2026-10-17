@@ -38,6 +38,7 @@ import Popover from "./popover.js"
 import ProgressToast from "./progress_toast.js"
 import Resizable from "./resizable.js"
 import ScrollArea from "./scroll_area.js"
+import Select from "./select.js"
 import Shell from "./shell.js"
 import Signature from "./signature.js"
 import Sortable from "./sortable.js"
@@ -83,6 +84,7 @@ export const hooks = {
   "DevactionUI.Resizable": Resizable,
   "DevactionUI.ProgressToast": ProgressToast,
   "DevactionUI.ScrollArea": ScrollArea,
+  "DevactionUI.Select": Select,
   "DevactionUI.Shell": Shell,
   "DevactionUI.Signature": Signature,
   "DevactionUI.Segmented": Segmented,
