@@ -2,6 +2,13 @@
 
 Every release lists new components, improvements, fixes and breaking changes. While the version is 0.x a minor release may break compatibility, and every break is listed with the step to follow.
 
+## 0.7.1
+
+### Fixed
+
+- `DatePicker.date_input` with a blank value (`""`, what a changeset holds after a submit with the date left empty) draws no date and an empty hidden input; it raised a `MatchError`.
+- `DataTable`: `select_all_label`, `select_row_label`, `selected_label` and `clear_label` are required only with `selectable` (each raises an `ArgumentError` that names it); a table that is not selectable passes none of them.
+
 ## 0.7.0
 
 ### Fixed

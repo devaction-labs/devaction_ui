@@ -92,6 +92,8 @@ defmodule DevactionUI.DateFieldsTest do
       assert input(%{order: :mdy}) =~ ~s(value="10/16/2026")
       assert input(%{order: :ymd, separator: "-"}) =~ ~s(value="2026-10-16")
       assert input(%{value: nil}) =~ ~s(name="task[due]" data-date-value="from")
+      assert input(%{value: ""}) =~ ~s(name="task[due]" data-date-value="from")
+      refute input(%{value: ""}) =~ ~s(value="2026)
       assert input(%{value: ~D[2026-10-16]}) =~ ~s(value="16/10/2026")
     end
 

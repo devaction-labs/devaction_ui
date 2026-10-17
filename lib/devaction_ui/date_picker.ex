@@ -485,6 +485,7 @@ defmodule DevactionUI.DatePicker do
   defp join_ids(ids), do: Enum.join(ids, " ")
 
   defp iso(nil), do: nil
+  defp iso(""), do: nil
   defp iso(%Date{} = date), do: Date.to_iso8601(date)
   defp iso(iso) when is_binary(iso), do: iso
 
