@@ -14,6 +14,7 @@ defmodule DevactionUISite.ChangelogTest do
   defp release_of(topic), do: release_name(Catalog.since(topic))
 
   defp release_name("0.3"), do: "v0.3.0"
+  defp release_name("0.6"), do: "v0.6"
   defp release_name(since), do: "v#{since}.0"
 
   defp by_version, do: Map.new(Changelog.versions(), &{&1.version, &1})
