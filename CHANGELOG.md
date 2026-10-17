@@ -2,6 +2,12 @@
 
 Every release lists new components, improvements, fixes and breaking changes. While the version is 0.x a minor release may break compatibility, and every break is listed with the step to follow.
 
+## Unreleased
+
+### New
+
+- `DevactionUI.Listbox`: a select with a panel of the kit's own, for what the native select cannot do. Options are `%{value, label}` maps with an optional `description`, `keywords` (found by the search, not shown) and `disabled`, or `{label, options}` groups; `option_marker` draws an icon or an avatar before each. `searchable` adds a search at the top of the panel with an `empty` text; `create` and `on_create` add a row that sends the text typed to the LiveView; `multiple` keeps the panel open and sends a list (`name[]`), with `count_text` on the button and `indicator` `:check` or `:checkbox`; `prefix`, `clear_label`, `size`, `position`, `align` and `panel_class`. Keyboard as the ARIA pattern, with letters jumping to an option when there is no search. Hook `DevactionUI.Listbox`.
+
 ## 0.5.0
 
 ### New

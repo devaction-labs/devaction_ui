@@ -87,7 +87,7 @@ defmodule DevactionUISite.Changelog do
       status: "next",
       tag: nil,
       summary:
-        "The Blade version of the kit for Laravel and Livewire projects, starting with the color picker, the slider and the filter menu."
+        "The `Listbox`, a select with a panel of its own (search, groups, several choices, create), and the Blade version of the kit for Laravel and Livewire projects, starting with the color picker, the slider and the filter menu."
     },
     %{
       version: "v0.5.0",
