@@ -90,8 +90,15 @@ defmodule DevactionUISite.Changelog do
         "The Blade version of the kit for Laravel and Livewire projects, starting with the color picker, the slider and the filter menu."
     },
     %{
-      version: "v0.6.1",
+      version: "v0.6.2",
       status: "current",
+      tag: "v0.6.2",
+      summary:
+        "The Select page shows the select with a search, through the `Listbox`. The package is unchanged since 0.6.0."
+    },
+    %{
+      version: "v0.6.1",
+      status: "archived",
       tag: "v0.6.1",
       summary:
         "The changelog of the site lists only the real versions: the old `next` rows of earlier releases are gone. The package is unchanged since 0.6.0."
@@ -196,6 +203,10 @@ defmodule DevactionUISite.Changelog do
   ]
 
   @patches %{
+    "v0.6.2" => [
+      {"improved", "Improvements", "select_search_example",
+       "The Select page has a \"With search\" example: the `Listbox` with `searchable`, since the native select has no search."}
+    ],
     "v0.6.1" => [
       {"fixed", "Fixes", "changelog_versions",
        "The changelog no longer shows the `next` rows of earlier releases beside the real versions."}

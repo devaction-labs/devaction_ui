@@ -2,6 +2,12 @@
 
 Every release lists new components, improvements, fixes and breaking changes. While the version is 0.x a minor release may break compatibility, and every break is listed with the step to follow.
 
+## 0.6.2
+
+### Improved
+
+- The Select page of the docs site has a "With search" example: the native select has no search, so it shows the `Listbox` with `searchable`, the field at the top of the panel. The package is unchanged since 0.6.0.
+
 ## 0.6.1
 
 ### Fixed
@@ -68,6 +74,7 @@ Found by the audit of the 0.3.x components against the artboards (issues 74 to 8
 - `Composer`: a file button drawn as a `label` opens the chooser with Enter and Space, and the field says `aria-invalid` over its limit and points at the counter with `aria-describedby`.
 - `DataTable`: the scrolling box is a named, focusable region (a keyboard can scroll a wide table), and the buttons of the bulk bar keep their light text on the dark bar whatever their own variant.
 - `RowMenu`: the menu is the compact one of the artboard (190px, 5px of padding, 34px items; `Dropdown compact`), and a `danger` item hovers in the risk tone.
+- Dark theme: `--muted-2` is lighter (#8A8AA0) so placeholders, diff line numbers and muted labels reach 4.5:1; the `:risk` count of `Badge` and the play button of `Timer` use the dark text of the finding tones; `CodeBlock` comments and punctuation are lighter; the action button of a `ProgressToast` `:bar` is drawn in the inverted colours of its card; the field marks of `PdfViewer` read at 4.5:1.
 
 ## 0.3.2
 

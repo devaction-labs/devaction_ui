@@ -1,0 +1,20 @@
+<%!-- title: With search | text: The native select has no search; for a list long enough to search, use the Listbox with `searchable`: the field sits at the top of the panel and filters while you type --%>
+<Listbox.listbox
+  id="select-search"
+  name="category"
+  label="Category"
+  placeholder="Choose category..."
+  searchable
+  search_placeholder="Search..."
+  empty="Nothing for “%{term}”"
+  class="max-w-sm"
+  options={[
+    %{value: "fruit", label: "Fruit", keywords: "apple banana orange"},
+    %{value: "vegetables", label: "Vegetables", keywords: "carrot lettuce"},
+    %{value: "drinks", label: "Drinks", keywords: "juice water soda"}
+  ]}
+>
+  <:chevron_icon><.icon name="arrow-down-01" class="size-4" /></:chevron_icon>
+  <:search_icon><.icon name="search-01" class="size-4" /></:search_icon>
+  <:check_icon><.icon name="tick-02" class="size-4" /></:check_icon>
+</Listbox.listbox>
