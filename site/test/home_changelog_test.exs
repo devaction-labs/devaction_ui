@@ -48,7 +48,7 @@ defmodule DevactionUISite.HomeChangelogTest do
         assert has_element?(view, "#install-panel-#{tab}[role=tabpanel]")
       end
 
-      assert html =~ ~s|{:devaction_ui, &quot;~&gt; 0.4.0&quot;}|
+      assert html =~ ~s|{:devaction_ui, &quot;~&gt; 0.5.0&quot;}|
       assert html =~ "@import &quot;../../deps/devaction_ui/assets/css/devaction_ui.css&quot;;"
       assert html =~ "hooks as devactionUI"
     end
@@ -96,7 +96,7 @@ defmodule DevactionUISite.HomeChangelogTest do
       assert has_element?(view, "[data-filter=all]", "#{counts["all"]}")
       assert has_element?(view, "[data-filter=planned]", "1")
       assert has_element?(view, "[data-filter=breaking]", "#{counts["breaking"]}")
-      assert has_element?(view, "#v05[data-release]", "no date")
+      assert has_element?(view, "#v06[data-release]", "no date")
       assert has_element?(view, "#v030[data-release]", "tag v0.3.0")
       assert has_element?(view, "#v026[data-release]", "tag v0.2.6")
       assert has_element?(view, "#v025[data-release]", "tag v0.2.5")
@@ -111,8 +111,8 @@ defmodule DevactionUISite.HomeChangelogTest do
     test "the current version has the install line, and v0.2.0 a table per group listing what is new" do
       {:ok, view, html} = live(build_conn(), "/changelog")
 
-      assert html =~ "{:devaction_ui, &quot;~&gt; 0.4.0&quot;}"
-      assert has_element?(view, "#v040 [data-copy-text*='~> 0.4.0']")
+      assert html =~ "{:devaction_ui, &quot;~&gt; 0.5.0&quot;}"
+      assert has_element?(view, "#v050 [data-copy-text*='~> 0.5.0']")
 
       for group <- ~w(Base Overlay Form Data) do
         assert has_element?(view, "#v020-#{String.downcase(group)}[data-group]", group)
@@ -139,10 +139,10 @@ defmodule DevactionUISite.HomeChangelogTest do
     test "only what is truly missing is planned for v0.3" do
       {:ok, view, _html} = live(build_conn(), "/changelog")
 
-      assert has_element?(view, "#v05 li[data-kind=planned]", "x-ui.*")
+      assert has_element?(view, "#v06 li[data-kind=planned]", "x-ui.*")
 
       for name <- ~w(file_tree pdf_viewer otp_input date_range dropzone) do
-        refute has_element?(view, "#v05 li", name)
+        refute has_element?(view, "#v06 li", name)
       end
     end
 

@@ -74,7 +74,6 @@ defmodule DevactionUISite.Catalog do
   @doc "The version entry of the changelog a component was created in: `v0.4.0` for the e-mail set, `v0.3.0` for the layout theme, else `v0.2.0`."
   def release(topic), do: release_of(since(topic))
 
-  defp release_of("0.5"), do: "v0.5"
   defp release_of("0.3"), do: "v0.3.0"
   defp release_of(since), do: "v#{since}.0"
 

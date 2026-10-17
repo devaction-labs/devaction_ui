@@ -2,7 +2,7 @@
 
 Every release lists new components, improvements, fixes and breaking changes. While the version is 0.x a minor release may break compatibility, and every break is listed with the step to follow.
 
-## Unreleased
+## 0.5.0
 
 ### New
 

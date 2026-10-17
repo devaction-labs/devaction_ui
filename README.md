@@ -49,7 +49,7 @@ runs in a LiveView of its own, so what you type or click in one never reaches an
 
 Requirements: Elixir 1.20 or newer, Phoenix 1.8, Phoenix LiveView 1.2, Tailwind CSS v4 (the stylesheet uses `@source`, `@theme` and `light-dark()`), and Node with npm only for the optional packages below.
 
-    {:devaction_ui, "~> 0.4.0"}
+    {:devaction_ui, "~> 0.5.0"}
 
 1. CSS: `@import "../../deps/devaction_ui/assets/css/devaction_ui.css";` in the app's Tailwind entry. The
    stylesheet itself tells Tailwind to read the components and the hooks (some classes live in the JS),
