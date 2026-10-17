@@ -306,6 +306,15 @@ defmodule DevactionUISite.ExampleLive do
        sortable: %{items: @milestones, order: @milestone_order, last: nil},
        resizable: %{sizes: @panes},
        switches: %{on: ["auto_review", "card_ai", "repo-sge-api"], saving: nil, saved: false},
+       ticket_form: to_form(%{"team" => "api", "labels" => ["bug"]}, as: :ticket),
+       tag_demo: %{
+         options: [
+           %{value: "bug", label: "Bug"},
+           %{value: "feature", label: "Feature"},
+           %{value: "chore", label: "Chore"}
+         ],
+         chosen: nil
+       },
        confirming: false,
        published: false,
        messages: [{:ai, "I made the task from the review of #142. Open a branch?"}]
@@ -371,6 +380,18 @@ defmodule DevactionUISite.ExampleLive do
 
   def handle_event("forms_publish", %{"choice" => publish}, socket),
     do: {:noreply, update_forms(socket, &Map.put(&1, :publish, publish))}
+
+  def handle_event("ticket_change", %{"ticket" => params}, socket),
+    do: {:noreply, assign(socket, :ticket_form, to_form(params, as: :ticket))}
+
+  def handle_event("create_tag", %{"term" => term}, socket) when byte_size(term) in 1..40 do
+    tag = %{value: String.downcase(term), label: term}
+
+    {:noreply,
+     update(socket, :tag_demo, fn demo ->
+       %{options: demo.options ++ [tag], chosen: tag.value}
+     end)}
+  end
 
   def handle_event("overlay_open", %{"kind" => kind}, socket) when kind in @overlays,
     do:
