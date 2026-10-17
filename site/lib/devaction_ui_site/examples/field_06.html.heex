@@ -1,0 +1,17 @@
+<%!-- title: From a form field | text: `field={@form[:slug]}` gives the id and, once the input was used, the changeset's error --%>
+<.form
+  :let={form}
+  for={
+    to_form(%{"slug" => "SGE API"},
+      as: :project,
+      errors: [slug: {"use only lowercase letters, numbers and hyphens", []}]
+    )
+  }
+  class="max-w-sm"
+>
+  <Field.field :let={f} field={form[:slug]} label="Repository slug" required>
+    <InputGroup.input_group field={form[:slug]} aria-describedby={f.aria[:"aria-describedby"]}>
+      <:prefix>devaction-labs/</:prefix>
+    </InputGroup.input_group>
+  </Field.field>
+</.form>

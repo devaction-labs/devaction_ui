@@ -7,12 +7,21 @@ defmodule DevactionUI.Textarea do
   `rows` is the least it shows, and `aria-invalid` sits on the `<textarea>` only: the frame reads it for the error
   ring. With a `maxlength` the counter is part of the field's description (`aria-describedby`, joined to one the
   caller gives) and is announced politely once it is near the limit.
+
+  `field={@form[:notes]}` fills the id, the name, the value and the error state (see `DevactionUI.FormField`).
   """
   use Phoenix.Component
 
+  alias DevactionUI.FormField
+
   @near 0.9
 
-  attr :id, :string, required: true
+  attr :id, :string, default: nil, doc: "required unless a `field` gives it"
+
+  attr :field, Phoenix.HTML.FormField,
+    default: nil,
+    doc: "a form field (`@form[:title]`): gives the `id`, the `name`, the value and the errors"
+
   attr :name, :string, default: nil
   attr :value, :string, default: nil
   attr :rows, :integer, default: 3
@@ -29,6 +38,12 @@ defmodule DevactionUI.Textarea do
   def textarea(assigns) do
     assigns =
       assigns
+      |> FormField.put(value: :text)
+      |> FormField.require!([:id], "textarea/1")
+
+    assigns =
+      assigns
+      |> assign(:invalid, assigns.invalid or assigns.field_errors != [])
       |> assign(:count, String.length(assigns.value || ""))
       |> assign(:describedby, describedby(assigns.rest[:"aria-describedby"], assigns))
       |> assign(:rest, Map.delete(assigns.rest, :"aria-describedby"))

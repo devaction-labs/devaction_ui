@@ -87,7 +87,7 @@ defmodule DevactionUISite.Changelog do
       status: "next",
       tag: nil,
       summary:
-        "The Blade version of the kit for Laravel and Livewire projects, starting with the color picker, the slider and the filter menu."
+        "The form components take a `field={@form[:name]}` and a plain `Select` joins the Combobox, so a Phoenix form is written without another kit; then the Blade version of the kit for Laravel and Livewire."
     },
     %{
       version: "v0.4.0",
@@ -375,8 +375,7 @@ defmodule DevactionUISite.Changelog do
       conflict_target: [:version]
     )
 
-    ids =
-      Map.new(Repo.all(from(version in Version, select: {version.version, version.id})))
+    ids = Map.new(Repo.all(from(version in Version, select: {version.version, version.id})))
 
     Repo.insert_all(Entry, code_entries(ids, now),
       on_conflict: {:replace, [:kind, :summary, :position, :updated_at]},
@@ -430,6 +429,7 @@ defmodule DevactionUISite.Changelog do
     planned ++ released ++ improved_next ++ improved ++ breaking ++ patches
   end
 
+  defp release_key("0.5"), do: "v0.5"
   defp release_key("0.3"), do: "v0.3.0"
   defp release_key(since), do: "v#{since}.0"
 

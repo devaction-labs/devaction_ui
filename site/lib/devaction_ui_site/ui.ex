@@ -81,6 +81,7 @@ defmodule DevactionUISite.UI do
         RowMenu,
         ScrollArea,
         Segmented,
+        Select,
         Separator,
         Shell,
         Sidebar,

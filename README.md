@@ -71,7 +71,11 @@ Requirements: Elixir 1.20 or newer, Phoenix 1.8, Phoenix LiveView 1.2, Tailwind 
    and drop the link.
 5. Theme: the stylesheet sets `:root { color-scheme: light dark }`, so the page follows the system theme.
    To pin one, set `data-theme="light"` or `data-theme="dark"` (or the `.light` / `.dark` class) on `<html>`.
-6. Use it: each component is a module with its own function component, so `alias DevactionUI.Tabs` (or add the
+6. Forms: the fields take `field={@form[:name]}`, as the core components do, and fill the id, the name, the value
+   and the error from it (what you pass by hand wins). Errors are shown once the input was used; to translate
+   them, point the library at the app's function:
+   `config :devaction_ui, :translate_error, {MyAppWeb.CoreComponents, :translate_error}`.
+7. Use it: each component is a module with its own function component, so `alias DevactionUI.Tabs` (or add the
    alias to `html_helpers` of the web module) and write `<Tabs.tabs id="sections" label="Sections">`. A new Phoenix
    app already carries daisyUI and Heroicons; the library does not use them, and daisyUI defines classes with some of
    the same names (`checkbox`, `switch`, `modal`), so if a component looks off, take the daisyUI plugin out of `app.css`.
@@ -135,6 +139,8 @@ Requirements: Elixir 1.20 or newer, Phoenix 1.8, Phoenix LiveView 1.2, Tailwind 
 | `DevactionUI.Slider` | a native range input and a two-thumb range slider whose thumbs never cross, with the fill and the value following the drag; a value `bubble` over the thumb and a `:vertical` orientation |
 | `DevactionUI.SignatureField` | draw or type a signature; the pad stays mounted when the mode changes, and the SVG of the stroke is safe to keep. The typed name is set in the Caveat font (weight 500), which you load yourself |
 | `DevactionUI.Combobox` | a select with a search field, accent-insensitive filtering and the ARIA combobox keys |
+| `DevactionUI.Select` | the browser's own `<select>` in the frame of the input group: `{label, value}`, maps with `disabled`, `optgroup` groups, a prompt, `multiple` and the three sizes |
+| `DevactionUI.FormField` | not a component: what `field={@form[:name]}` gives the form components (`InputGroup`, `Textarea`, `Field`, `Choice`, `Switch`, `DatePicker`, `Combobox`, `Select`): the id, the name, the value and the errors once the input was used, translated by the app's `:translate_error` |
 | `DevactionUI.DataTable` | sticky header, sortable columns (`aria-sort`, the server sorts), row selection with a tri-state header checkbox and a bulk bar that shows while something is ticked, two densities; `toolbar` and `footer` slots, a density toggle, `loading` (skeleton rows) and `error` states, and a default empty text through an attr; variations that add up: `variant={:minimal}`, `striped`, `expanded` rows, `group_by`, a `tfoot` for totals, `stack` (cards on the phone), an `action` slot for the row menu, `sticky_actions`, `align` and `mono` columns, and Shift+click range selection |
 | `DevactionUI.Kanban` | columns with WIP limits and cards that move by drag or Alt + arrows, announced to screen readers; the LiveView gets one `move_card` event; dragging works with mouse, pen and touch (pointer events); the keyboard keeps Alt + arrows |
 | `DevactionUI.FileTree` | the tree of changed files of a review: status letters, findings badges, search, filter pills and a legend; arrows, ← → and Home End move and open it; sends `select_file` and a folder toggle |

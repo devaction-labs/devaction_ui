@@ -38,9 +38,15 @@ defmodule DevactionUI.DatePicker do
 
   import DevactionUI.InputGroup
 
+  alias DevactionUI.FormField
+
   alias DevactionUI.Popover
 
-  attr :id, :string, required: true
+  attr :id, :string, default: nil, doc: "required unless a `field` gives it"
+
+  attr :field, Phoenix.HTML.FormField,
+    default: nil,
+    doc: "a form field (`@form[:due_on]`): gives the `id`, the `name`, the date and the error"
 
   attr :name, :string,
     default: nil,
@@ -72,6 +78,11 @@ defmodule DevactionUI.DatePicker do
   attr :rest, :global
 
   def date_picker(assigns) do
+    assigns =
+      assigns
+      |> FormField.put(value: (assigns.mode == :single && :text) || nil)
+      |> FormField.require!([:id], "date_picker/1")
+
     {from, to} = bounds(assigns.value)
     assigns = assign(assigns, from: from, to: to)
 
@@ -135,11 +146,16 @@ defmodule DevactionUI.DatePicker do
 
   @orders [:dmy, :mdy, :ymd]
 
-  attr :id, :string, required: true
+  attr :id, :string, default: nil, doc: "required unless a `field` gives it"
+
+  attr :field, Phoenix.HTML.FormField,
+    default: nil,
+    doc: "a form field (`@form[:due_on]`): gives the `id`, the `name`, the date and the error"
 
   attr :name, :string,
-    required: true,
-    doc: "the name of the hidden input that carries the ISO date"
+    default: nil,
+    doc:
+      "the name of the hidden input that carries the ISO date; required unless a `field` gives it"
 
   attr :label, :string, required: true, doc: "the visible label of the field"
   attr :value, :any, default: nil, doc: "an ISO date, a `Date` or nil"
@@ -190,6 +206,12 @@ defmodule DevactionUI.DatePicker do
   attr :rest, :global, doc: "goes to the box around the label and the field"
 
   def date_input(assigns) do
+    assigns =
+      assigns
+      |> FormField.put(value: :text)
+      |> FormField.require!([:id, :name], "date_input/1")
+
+    assigns = assign(assigns, :error, FormField.error(assigns))
     iso = iso(assigns.value)
 
     assigns =
