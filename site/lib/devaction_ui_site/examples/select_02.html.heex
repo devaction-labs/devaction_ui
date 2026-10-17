@@ -1,30 +1,45 @@
-<%!-- title: Groups, icon and sizes | text: Options grouped with optgroup, a disabled option and the three heights --%>
-<div class="flex max-w-xs flex-col gap-3">
+<%!-- title: Groups | text: Groups become optgroup and a disabled option stays visible. The browser draws the open list, so the panel here is an illustration of it --%>
+<div class="max-w-sm">
+  <h3 class="m-0 text-base font-semibold text-ink">Open, with groups</h3>
+  <p class="m-0 mt-1 mb-3.5 text-sm text-ink-2">
+    The list is the system's own: on a phone it becomes the iOS and Android picker. Groups become <code class="font-mono text-xs">optgroup</code>.
+  </p>
+  <div aria-hidden="true">
+    <div class="input-group w-full border-ink ring-4 ring-(color:--ring-field)">
+      <.icon name="user-group" class="input-icon" />
+      <span class="flex-1">Developer</span>
+      <.icon name="arrow-down-01" class="size-[15px] rotate-180 text-muted" />
+    </div>
+    <div class="mt-1.5 rounded-xl border border-line bg-card p-[5px] shadow-[0_16px_40px_-12px_rgba(24,24,27,0.3)]">
+      <div class="px-[9px] pt-2 pb-1 text-xs font-semibold text-muted">Team</div>
+      <div class="flex h-[34px] items-center rounded-lg bg-wrap pr-[9px] pl-[18px] text-sm text-ink">
+        Developer<.icon name="tick-02" class="ml-auto size-[15px]" />
+      </div>
+      <div class="flex h-[34px] items-center rounded-lg pr-[9px] pl-[18px] text-sm text-ink">
+        Product manager
+      </div>
+      <div class="px-[9px] pt-2 pb-1 text-xs font-semibold text-muted">Client</div>
+      <div class="flex h-[34px] items-center rounded-lg pr-[9px] pl-[18px] text-sm text-ink">
+        Owner
+      </div>
+      <div class="flex h-[34px] items-center rounded-lg pr-[9px] pl-[18px] text-sm text-muted-2">
+        Read only
+      </div>
+    </div>
+  </div>
+  <label for="select-role" class="mt-5 block text-sm font-medium text-ink">Role</label>
   <Select.select
     id="select-role"
     name="role"
     value="dev"
+    class="mt-1.5"
     options={[
       {"Team", [%{value: "dev", label: "Developer"}, %{value: "pm", label: "Product manager"}]},
       {"Client",
-       [%{value: "owner", label: "Owner"}, %{value: "viewer", label: "Viewer", disabled: true}]}
+       [%{value: "owner", label: "Owner"}, %{value: "viewer", label: "Read only", disabled: true}]}
     ]}
   >
     <:icon><.icon name="user-group" /></:icon>
-    <:chevron_icon><.icon name="arrow-down-01" class="size-3.5" /></:chevron_icon>
+    <:chevron_icon><.icon name="arrow-down-01" /></:chevron_icon>
   </Select.select>
-  <Select.select
-    id="select-sm"
-    name="sm"
-    size={:sm}
-    value="brl"
-    options={[{"BRL", "brl"}, {"USD", "usd"}]}
-  />
-  <Select.select
-    id="select-lg"
-    name="lg"
-    size={:lg}
-    value="brl"
-    options={[{"BRL", "brl"}, {"USD", "usd"}]}
-  />
 </div>

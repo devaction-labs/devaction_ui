@@ -1,0 +1,31 @@
+<%!-- title: With a form field | text: `field` gives the id, the name and the value; Field draws the label and the changeset error; the model is empty, so the prompt shows under the error --%>
+<.form
+  :let={form}
+  for={
+    to_form(%{"model" => "", "roles" => ["dev"]},
+      as: :contract,
+      errors: [model: {"can't be blank", []}]
+    )
+  }
+  class="flex max-w-sm flex-col gap-4"
+>
+  <Field.field :let={f} field={form[:model]} label="Billing model" required>
+    <Select.select
+      field={form[:model]}
+      prompt="Choose a model"
+      aria-describedby={f.aria[:"aria-describedby"]}
+      options={[
+        {"Fixed scope", "fixed"},
+        {"Hours bank", "hours"},
+        {"Monthly retainer", "retainer"}
+      ]}
+    />
+  </Field.field>
+  <Field.field field={form[:roles]} label="Who signs" hint="Ctrl or ⌘ picks more than one">
+    <Select.select
+      field={form[:roles]}
+      multiple
+      options={[{"Developer", "dev"}, {"Owner", "owner"}, {"Finance", "finance"}]}
+    />
+  </Field.field>
+</.form>
