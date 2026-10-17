@@ -22,8 +22,9 @@ defmodule DevactionUISite.ChangelogTest do
     versions = Changelog.versions()
 
     assert Enum.map(versions, &{&1.version, &1.status}) == [
-             {"v0.7", "next"},
-             {"v0.6.3", "current"},
+             {"v0.8", "next"},
+             {"v0.7.0", "current"},
+             {"v0.6.3", "archived"},
              {"v0.6.2", "archived"},
              {"v0.6.1", "archived"},
              {"v0.6.0", "archived"},
@@ -43,8 +44,8 @@ defmodule DevactionUISite.ChangelogTest do
              {"v0.1.0", "archived"}
            ]
 
-    assert Changelog.current().version == "v0.6.3"
-    assert Changelog.current().tag == "v0.6.3"
+    assert Changelog.current().version == "v0.7.0"
+    assert Changelog.current().tag == "v0.7.0"
   end
 
   test "sync writes every component of the catalog as a new entry of the release it came with" do
@@ -76,7 +77,7 @@ defmodule DevactionUISite.ChangelogTest do
   end
 
   test "the next version plans only what is truly missing" do
-    next = by_version()["v0.7"]
+    next = by_version()["v0.8"]
 
     assert Enum.map(Enum.filter(next.entries, &(&1.kind == "planned")), & &1.name) == ["x-ui.*"]
   end
@@ -122,7 +123,7 @@ defmodule DevactionUISite.ChangelogTest do
     Changelog.sync!()
 
     assert Changelog.counts(Changelog.versions()) == before
-    assert before["fixed"] == 13
+    assert before["fixed"] == 15
   end
 
   test "counts sum every kind for the filter pills" do
