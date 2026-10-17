@@ -74,6 +74,9 @@ defmodule DevactionUISite.Catalog do
   def since(name) when name in @since_v02, do: "0.2"
   def since(_name), do: "0.1"
 
+  @doc "Whether a component came with the version the site shows now, so its page and its sidebar row say New."
+  def new?(topic), do: since(topic) == DevactionUISite.Project.short_version()
+
   @doc "The version entry of the changelog a component was created in: `v0.4.0` for the e-mail set, `v0.3.0` for the layout theme, else `v0.2.0`."
   def release(topic), do: release_of(since(topic))
 

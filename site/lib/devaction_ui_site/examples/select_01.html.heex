@@ -1,10 +1,91 @@
-<%!-- title: Basic | text: A short list with a prompt; the browser's own select in the frame of the fields --%>
-<Select.select
-  id="select-basic"
-  name="status"
-  prompt="Choose a status"
-  class="max-w-xs"
-  options={[{"Open", "open"}, {"In review", "review"}, {"Done", "done"}]}
->
-  <:chevron_icon><.icon name="arrow-down-01" class="size-3.5" /></:chevron_icon>
-</Select.select>
+<%!-- title: States | text: The prompt, a chosen option, a leading icon, the error and the disabled field; the mono word at the end of each label only names the state --%>
+<div class="flex max-w-sm flex-col gap-4.5">
+  <div>
+    <div class="flex items-baseline text-sm font-medium text-ink">
+      <label for="select-state-prompt">Status</label>
+      <span class="ml-auto font-mono text-[11px] font-normal text-muted">prompt</span>
+    </div>
+    <Select.select
+      id="select-state-prompt"
+      name="status"
+      prompt="Choose a status"
+      class="mt-1.5"
+      options={[{"Open", "open"}, {"In review", "review"}, {"Done", "done"}]}
+    >
+      <:chevron_icon><.icon name="arrow-down-01" /></:chevron_icon>
+    </Select.select>
+  </div>
+  <div>
+    <div class="flex items-baseline text-sm font-medium text-ink">
+      <label for="select-state-chosen">Status</label>
+      <span class="ml-auto font-mono text-[11px] font-normal text-muted">chosen</span>
+    </div>
+    <Select.select
+      id="select-state-chosen"
+      name="status"
+      value="review"
+      class="mt-1.5"
+      options={[{"Open", "open"}, {"In review", "review"}, {"Done", "done"}]}
+    >
+      <:chevron_icon><.icon name="arrow-down-01" /></:chevron_icon>
+    </Select.select>
+  </div>
+  <div>
+    <div class="flex items-baseline text-sm font-medium text-ink">
+      <label for="select-state-icon">Currency</label>
+      <span class="ml-auto font-mono text-[11px] font-normal text-muted">with icon</span>
+    </div>
+    <Select.select
+      id="select-state-icon"
+      name="currency"
+      value="brl"
+      class="mt-1.5"
+      options={[{"Real (BRL)", "brl"}, {"Dollar (USD)", "usd"}]}
+    >
+      <:icon><.icon name="money-03" /></:icon>
+      <:chevron_icon><.icon name="arrow-down-01" /></:chevron_icon>
+    </Select.select>
+  </div>
+  <div>
+    <div class="flex items-baseline text-sm font-medium text-ink">
+      <label for="select-state-error">Billing model</label>
+      <span aria-hidden="true" class="ml-0.5 text-tag-risk-text">*</span>
+      <span class="ml-auto font-mono text-[11px] font-normal text-muted">error</span>
+    </div>
+    <Select.select
+      id="select-state-error"
+      name="model"
+      prompt="Choose a model"
+      invalid
+      required
+      aria-describedby="select-state-error-message"
+      class="mt-1.5"
+      options={[{"Fixed scope", "fixed"}, {"Hours bank", "hours"}]}
+    >
+      <:chevron_icon><.icon name="arrow-down-01" /></:chevron_icon>
+    </Select.select>
+    <p
+      id="select-state-error-message"
+      role="alert"
+      class="m-0 mt-1.5 flex items-center gap-1.5 text-[13px] text-tag-risk-text"
+    >
+      <.icon name="alert-02" class="size-3.5" />Choose how the contract is billed.
+    </p>
+  </div>
+  <div>
+    <div class="flex items-baseline text-sm font-medium text-ink">
+      <label for="select-state-off">Client</label>
+      <span class="ml-auto font-mono text-[11px] font-normal text-muted">disabled</span>
+    </div>
+    <Select.select
+      id="select-state-off"
+      name="client"
+      value="church"
+      disabled
+      class="mt-1.5"
+      options={[{"Campo Limpo Baptist Church", "church"}]}
+    >
+      <:chevron_icon><.icon name="arrow-down-01" /></:chevron_icon>
+    </Select.select>
+  </div>
+</div>
