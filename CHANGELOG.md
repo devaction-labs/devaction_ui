@@ -2,6 +2,12 @@
 
 Every release lists new components, improvements, fixes and breaking changes. While the version is 0.x a minor release may break compatibility, and every break is listed with the step to follow.
 
+## 0.6.2
+
+### Improved
+
+- The Select page of the docs site has a "With search" example: the native select has no search, so it shows the `Listbox` with `searchable`, the field at the top of the panel. The package is unchanged since 0.6.0.
+
 ## 0.6.1
 
 ### Fixed
