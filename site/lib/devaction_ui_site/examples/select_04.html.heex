@@ -1,0 +1,28 @@
+<%!-- title: Multiple | text: The native list box: Ctrl or ⌘ picks more than one, and the name ends in `[]` --%>
+<div class="max-w-sm">
+  <p class="m-0 mb-3.5 text-sm text-ink-2">
+    The native list box: Ctrl or ⌘ picks more than one. The name ends in <code class="font-mono text-xs">[]</code>. To pick many with a search, use the Pillbox.
+  </p>
+  <label for="select-signers" class="block text-sm font-medium text-ink">Who signs</label>
+  <Select.select
+    id="select-signers"
+    name="signers"
+    multiple
+    class="mt-1.5"
+    value={["dev", "owner"]}
+    options={[
+      {"Developer", "dev"},
+      {"Owner", "owner"},
+      {"Finance", "finance"},
+      {"Product manager", "pm"}
+    ]}
+  />
+  <p class="m-0 mt-1.5 text-[13px] text-muted">2 chosen · Ctrl or ⌘ to pick more than one</p>
+  <.code_block
+    class="mt-5"
+    lang={:heex}
+    code={
+      ~s|<Field.field :let={f} field={@form[:model]} label="Billing model" required>\n  <Select.select\n    field={@form[:model]}\n    prompt="Choose a model"\n    aria-describedby={f.aria[:"aria-describedby"]}\n    options={[{"Fixed scope", "fixed"}, {"Hours bank", "hours"}]}\n  />\n</Field.field>|
+    }
+  />
+</div>

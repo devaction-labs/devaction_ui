@@ -9,4 +9,13 @@ defmodule DevactionUI.CssTest do
 
     assert count.("{") == count.("}")
   end
+
+  test "a disabled option does not dash the frame of the select" do
+    css = File.read!(@css)
+
+    assert css =~ "has-[:disabled:not(option,optgroup)]:border-dashed"
+
+    refute css =~
+             "has-disabled:border-dashed has-disabled:bg-(--fill-field-off) has-disabled:text-muted; }\n  .input-group"
+  end
 end

@@ -79,7 +79,6 @@ defmodule DevactionUI.Select do
     """
   end
 
-  # maps of the library (`%{value, label, disabled}`) become the keyword options of Phoenix.HTML
   defp normalize(options), do: Enum.map(options, &option/1)
 
   defp option({group, options}) when is_list(options), do: {group, normalize(options)}
