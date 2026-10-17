@@ -90,8 +90,15 @@ defmodule DevactionUISite.Changelog do
         "The Blade version of the kit for Laravel and Livewire projects, starting with the color picker, the slider and the filter menu."
     },
     %{
-      version: "v0.6.2",
+      version: "v0.6.3",
       status: "current",
+      tag: "v0.6.3",
+      summary:
+        "Fixes the `Listbox`, which did not open: its hook read the element too early and LiveView could not start it."
+    },
+    %{
+      version: "v0.6.2",
+      status: "archived",
       tag: "v0.6.2",
       summary:
         "The Select page shows the select with a search, through the `Listbox`. The package is unchanged since 0.6.0."
@@ -203,6 +210,10 @@ defmodule DevactionUISite.Changelog do
   ]
 
   @patches %{
+    "v0.6.3" => [
+      {"fixed", "Fixes", "listbox_hook",
+       "The `Listbox` opens again: the hook declared a getter, which LiveView calls while copying the hook, before it has an element, so the hook never started. A test now fails when any hook has a getter."}
+    ],
     "v0.6.2" => [
       {"improved", "Improvements", "select_search_example",
        "The Select page has a \"With search\" example: the `Listbox` with `searchable`, since the native select has no search."}
