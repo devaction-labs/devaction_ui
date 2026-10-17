@@ -14,7 +14,6 @@ defmodule DevactionUISite.ChangelogTest do
   defp release_of(topic), do: release_name(Catalog.since(topic))
 
   defp release_name("0.3"), do: "v0.3.0"
-  defp release_name("0.6"), do: "v0.6"
   defp release_name(since), do: "v#{since}.0"
 
   defp by_version, do: Map.new(Changelog.versions(), &{&1.version, &1})
@@ -23,8 +22,9 @@ defmodule DevactionUISite.ChangelogTest do
     versions = Changelog.versions()
 
     assert Enum.map(versions, &{&1.version, &1.status}) == [
-             {"v0.6", "next"},
-             {"v0.5.0", "current"},
+             {"v0.7", "next"},
+             {"v0.6.0", "current"},
+             {"v0.5.0", "archived"},
              {"v0.4.0", "archived"},
              {"v0.3.3", "archived"},
              {"v0.3.2", "archived"},
@@ -40,8 +40,8 @@ defmodule DevactionUISite.ChangelogTest do
              {"v0.1.0", "archived"}
            ]
 
-    assert Changelog.current().version == "v0.5.0"
-    assert Changelog.current().tag == "v0.5.0"
+    assert Changelog.current().version == "v0.6.0"
+    assert Changelog.current().tag == "v0.6.0"
   end
 
   test "sync writes every component of the catalog as a new entry of the release it came with" do
@@ -73,7 +73,7 @@ defmodule DevactionUISite.ChangelogTest do
   end
 
   test "the next version plans only what is truly missing" do
-    next = by_version()["v0.6"]
+    next = by_version()["v0.7"]
 
     assert Enum.map(Enum.filter(next.entries, &(&1.kind == "planned")), & &1.name) == ["x-ui.*"]
   end
@@ -119,7 +119,7 @@ defmodule DevactionUISite.ChangelogTest do
     Changelog.sync!()
 
     assert Changelog.counts(Changelog.versions()) == before
-    assert before["fixed"] == 10
+    assert before["fixed"] == 11
   end
 
   test "counts sum every kind for the filter pills" do
@@ -137,7 +137,7 @@ defmodule DevactionUISite.ChangelogTest do
   end
 
   test "highlights read the latest release with new components" do
-    assert Changelog.latest_release(Changelog.versions()).version == "v0.5.0"
+    assert Changelog.latest_release(Changelog.versions()).version == "v0.6.0"
 
     assert [_ | _] =
              highlights = Changelog.highlights(Changelog.latest_release(Changelog.versions()))

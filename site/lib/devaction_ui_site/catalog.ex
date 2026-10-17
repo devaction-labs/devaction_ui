@@ -81,7 +81,6 @@ defmodule DevactionUISite.Catalog do
   def release(topic), do: release_of(since(topic))
 
   defp release_of("0.3"), do: "v0.3.0"
-  defp release_of("0.6"), do: "v0.6"
   defp release_of(since), do: "v#{since}.0"
 
   @doc "The category a component belongs to."

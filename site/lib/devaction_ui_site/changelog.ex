@@ -83,15 +83,22 @@ defmodule DevactionUISite.Changelog do
 
   @releases [
     %{
-      version: "v0.6",
+      version: "v0.7",
       status: "next",
       tag: nil,
       summary:
-        "The `Listbox`, a select with a panel of its own (search, groups, several choices, create), and the Blade version of the kit for Laravel and Livewire projects, starting with the color picker, the slider and the filter menu."
+        "The Blade version of the kit for Laravel and Livewire projects, starting with the color picker, the slider and the filter menu."
+    },
+    %{
+      version: "v0.6.0",
+      status: "current",
+      tag: "v0.6.0",
+      summary:
+        "The `Listbox`, a select with a panel of its own (search, groups, several choices, create), and the plain `Select` opening that same styled panel on a mouse, true to the artboards."
     },
     %{
       version: "v0.5.0",
-      status: "current",
+      status: "archived",
       tag: "v0.5.0",
       summary:
         "The form components take a `field={@form[:name]}` and a plain `Select` joins the Combobox, so a Phoenix form is written without another kit."
@@ -182,6 +189,12 @@ defmodule DevactionUISite.Changelog do
   ]
 
   @patches %{
+    "v0.6.0" => [
+      {"improved", "Improvements", "select_panel",
+       "On a mouse or a trackpad `Select` opens a styled panel (groups as headers, a check on the chosen row, disabled rows muted) instead of the browser popup; the phone keeps the native picker and `multiple` stays a native list box."},
+      {"fixed", "Fixes", "select_artboard",
+       "`Select` follows the artboards: a 15px chevron, the framed multiple list box with checked rows, and a disabled option no longer dims the whole field."}
+    ],
     "v0.3.3" => [
       {"fixed", "Fixes", "editor_build",
        "A host app builds without the `@tiptap/*` packages unless an editor is rendered."},
@@ -401,7 +414,7 @@ defmodule DevactionUISite.Changelog do
   defp code_entries(ids, now) do
     planned =
       for {{name, summary}, index} <- Enum.with_index(@planned, 1),
-          do: row(ids["v0.6"], "planned", "Planned", name, summary, index, now)
+          do: row(ids["v0.7"], "planned", "Planned", name, summary, index, now)
 
     components =
       for {category, topics} <- Catalog.groups(), topic <- topics do
@@ -437,7 +450,6 @@ defmodule DevactionUISite.Changelog do
   end
 
   defp release_key("0.3"), do: "v0.3.0"
-  defp release_key("0.6"), do: "v0.6"
   defp release_key(since), do: "v#{since}.0"
 
   defp row(version_id, kind, group, name, summary, position, now) do
