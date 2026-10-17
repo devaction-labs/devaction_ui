@@ -87,7 +87,7 @@ defmodule DevactionUISite.Changelog do
       status: "next",
       tag: nil,
       summary:
-        "The form components take a `field={@form[:name]}` and a plain `Select` joins the Combobox, so a Phoenix form is written without another kit; then the Blade version of the kit for Laravel and Livewire."
+        "The form components take a `field={@form[:name]}` a plain `Select` joins the Combobox and the `Listbox` draws its own panel (search, groups, several choices, create), so a Phoenix form is written without another kit; then the Blade version of the kit for Laravel and Livewire."
     },
     %{
       version: "v0.4.0",

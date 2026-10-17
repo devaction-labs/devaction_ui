@@ -13,7 +13,7 @@ defmodule DevactionUISite.Catalog do
     {"Overlay",
      ~w(CommandPalette ConfirmDialog ContextMenu CookieConsent DangerDialog Drawer Dropdown HoverCard Modal NotificationCenter Popover ProgressToast RowMenu ToastGroup Tooltip)},
     {"Form",
-     ~w(Autocomplete Choice ColorPicker Combobox CopyField DatePicker DateRange Dropzone Editor Field FilterMenu FilterPill InputGroup MoneyInput NumberInput OtpInput PasswordStrength Pillbox Segmented Select SignatureField Slider Switch Textarea TimeField Timer)},
+     ~w(Autocomplete Choice ColorPicker Combobox CopyField DatePicker DateRange Dropzone Editor Field FilterMenu FilterPill InputGroup Listbox MoneyInput NumberInput OtpInput PasswordStrength Pillbox Segmented Select SignatureField Slider Switch Textarea TimeField Timer)},
     {"Navigation", ~w(Breadcrumb PageHeader Pagination Shell Sidebar Stepper Steps)},
     {"Data",
      ~w(Calendar Chart DataTable DiffView FileTree Kanban PdfViewer Pricing Resizable SortableList)},
@@ -55,7 +55,7 @@ defmodule DevactionUISite.Catalog do
 
   @since_v04 ~w(Email EmailCallout EmailTable EmailTag)
 
-  @since_v05 ~w(Select)
+  @since_v05 ~w(Listbox Select)
 
   @doc "The components, grouped by category, in the order of the sidebar."
   def groups, do: @groups

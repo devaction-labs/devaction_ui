@@ -29,6 +29,7 @@ import FilterMenu from "./filter_menu.js"
 import HoverCard from "./hover_card.js"
 import {Indeterminate, NumberInput, Range, RangePair, Segmented, Switch} from "./controls.js"
 import Kanban from "./kanban.js"
+import Listbox from "./listbox.js"
 import Overlay from "./overlay.js"
 import PdfViewer from "./pdf_viewer.js"
 import {CookieConsent, NotificationCenter} from "./panels.js"
@@ -73,6 +74,7 @@ export const hooks = {
   "DevactionUI.HoverCard": HoverCard,
   "DevactionUI.Indeterminate": Indeterminate,
   "DevactionUI.Kanban": Kanban,
+  "DevactionUI.Listbox": Listbox,
   "DevactionUI.Overlay": Overlay,
   "DevactionUI.PdfViewer": PdfViewer,
   "DevactionUI.OtpInput": OtpInput,

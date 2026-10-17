@@ -1,0 +1,50 @@
+<%!-- title: The button | text: A `prefix` before the choice, a clear button, an error, a disabled field and the three sizes --%>
+<div class="flex max-w-sm flex-col gap-4">
+  <Listbox.listbox
+    id="listbox-prefix"
+    name="period"
+    label="Period"
+    placeholder="Choose a period"
+    prefix="Compare to"
+    value="month"
+    options={[
+      %{value: "week", label: "Last week"},
+      %{value: "month", label: "Last month"},
+      %{value: "year", label: "Last year"}
+    ]}
+  >
+    <:chevron_icon><.icon name="arrow-down-01" class="size-4" /></:chevron_icon>
+  </Listbox.listbox>
+  <Listbox.listbox
+    id="listbox-error"
+    name="owner"
+    label="Owner"
+    show_label
+    placeholder="Choose someone"
+    error="Every contract needs an owner."
+    clear_label="Clear"
+    options={[%{value: "ana", label: "Ana Souza"}, %{value: "caio", label: "Caio Lima"}]}
+  >
+    <:chevron_icon><.icon name="arrow-down-01" class="size-4" /></:chevron_icon>
+  </Listbox.listbox>
+  <Listbox.listbox
+    id="listbox-disabled"
+    name="client"
+    label="Client"
+    placeholder="Choose a client"
+    disabled
+    value="sge"
+    options={[%{value: "sge", label: "Igreja Batista de Campo Limpo"}]}
+  />
+  <Listbox.listbox
+    :for={size <- [:sm, :md, :lg]}
+    id={"listbox-size-#{size}"}
+    name={"size_#{size}"}
+    label="Size"
+    placeholder={"Size #{size}"}
+    size={size}
+    options={[%{value: "a", label: "Option"}]}
+  >
+    <:chevron_icon><.icon name="arrow-down-01" class="size-4" /></:chevron_icon>
+  </Listbox.listbox>
+</div>
