@@ -12,16 +12,32 @@ defmodule DevactionUI.Choice do
   """
   use Phoenix.Component
 
+  alias DevactionUI.FormField
+
   @doc "The state of a \"select all\" box: `:none`, `:some` (partial) or `:all`, from how many of `total` are ticked."
   @spec select_all_state(non_neg_integer(), non_neg_integer()) :: :none | :some | :all
   def select_all_state(_total, 0), do: :none
   def select_all_state(total, total), do: :all
   def select_all_state(_total, _checked), do: :some
 
-  attr :id, :string, required: true
+  attr :id, :string, default: nil, doc: "required unless a `field` gives it"
+
+  attr :field, Phoenix.HTML.FormField,
+    default: nil,
+    doc:
+      "a boolean form field, or with `multiple` a list field whose items tick the box whose `value` they hold"
+
+  attr :multiple, :boolean,
+    default: false,
+    doc: "one box of a list field: the name ends in `[]` and the id in `-<value>`"
+
   attr :name, :string, default: nil
   attr :value, :string, default: "true"
   attr :checked, :boolean, default: false
+
+  attr :unchecked_value, :string,
+    default: "false",
+    doc: "what a boolean `field` sends when the box is not ticked (a hidden input before the box)"
 
   attr :partial, :boolean,
     default: false,
@@ -41,7 +57,23 @@ defmodule DevactionUI.Choice do
   attr :rest, :global, include: ~w(disabled required form autofocus)
 
   def checkbox(assigns) do
+    assigns =
+      assigns
+      |> FormField.put(
+        value: (assigns.multiple && :member) || :checkbox,
+        multiple: assigns.multiple,
+        id_suffix: assigns.multiple && "-#{assigns.value}"
+      )
+      |> FormField.require!([:id], "checkbox/1")
+
     ~H"""
+    <input
+      :if={@field && !@multiple}
+      type="hidden"
+      name={@name}
+      value={@unchecked_value}
+      disabled={@rest[:disabled]}
+    />
     <label class={["choice-label", size_class(@size), variant_class(@variant), @class]}>
       <input
         type="checkbox"
@@ -62,8 +94,16 @@ defmodule DevactionUI.Choice do
     """
   end
 
-  attr :id, :string, required: true
-  attr :name, :string, required: true
+  attr :id, :string,
+    default: nil,
+    doc: "required unless a `field` gives it (`<field id>-<value>`)"
+
+  attr :name, :string, default: nil, doc: "required unless a `field` gives it"
+
+  attr :field, Phoenix.HTML.FormField,
+    default: nil,
+    doc: "the form field the options share: the radio is checked when its `value` is the field's"
+
   attr :value, :string, required: true
   attr :checked, :boolean, default: false
   attr :label, :string, required: true
@@ -73,6 +113,11 @@ defmodule DevactionUI.Choice do
   attr :rest, :global, include: ~w(disabled required form autofocus)
 
   def radio(assigns) do
+    assigns =
+      assigns
+      |> FormField.put(value: :radio, id_suffix: "-#{assigns.value}")
+      |> FormField.require!([:id, :name], "radio/1")
+
     ~H"""
     <label class={["choice-label", size_class(@size), @class]}>
       <input
@@ -92,8 +137,17 @@ defmodule DevactionUI.Choice do
     """
   end
 
-  attr :id, :string, required: true
-  attr :name, :string, required: true
+  attr :id, :string,
+    default: nil,
+    doc: "required unless a `field` gives it (`<field id>-<value>`)"
+
+  attr :name, :string, default: nil, doc: "required unless a `field` gives it"
+
+  attr :field, Phoenix.HTML.FormField,
+    default: nil,
+    doc:
+      "the form field of the options: a radio card is checked when its `value` is the field's, a checkbox card when the field's list holds it"
+
   attr :value, :string, required: true
   attr :type, :string, values: ["radio", "checkbox"], default: "radio"
   attr :checked, :boolean, default: false
@@ -113,6 +167,17 @@ defmodule DevactionUI.Choice do
 
   @doc "A whole card that is the option: it gains the border and the wash of the choice when ticked."
   def choice_card(assigns) do
+    assigns =
+      assigns
+      |> FormField.put(
+        value: (assigns.type == "checkbox" && :member) || :radio,
+        multiple: assigns.type == "checkbox",
+        id_suffix: "-#{assigns.value}"
+      )
+      |> FormField.require!([:id, :name], "choice_card/1")
+
+    assigns = assign(assigns, :invalid, assigns.invalid or assigns.field_errors != [])
+
     ~H"""
     <label class={["choice-card", @class]} data-invalid={@invalid && "true"}>
       <span class={["flex gap-3", layout_class(@layout)]}>
@@ -138,7 +203,13 @@ defmodule DevactionUI.Choice do
     """
   end
 
-  attr :id, :string, required: true
+  attr :id, :string, default: nil, doc: "required unless a `field` gives it"
+
+  attr :field, Phoenix.HTML.FormField,
+    default: nil,
+    doc:
+      "the form field the options belong to: gives the `id` and, once used, the error of the group"
+
   attr :legend, :string, required: true, doc: "what the boxes choose, as the group's name"
   attr :help, :string, default: nil, doc: "a hint under the boxes, tied to the group"
   attr :error, :string, default: nil, doc: "what is wrong with the group, as an alert"
@@ -154,7 +225,12 @@ defmodule DevactionUI.Choice do
 
   @doc "A `<fieldset>` with a `<legend>` around a set of checkboxes, with the help and the error of the group."
   def checkbox_group(assigns) do
+    assigns = assigns |> FormField.put() |> FormField.require!([:id], "checkbox_group/1")
+    assigns = assign(assigns, :error, FormField.error(assigns))
+
     ~H"""
+    <input :if={@field} type="hidden" name={@field.name <> "[]"} value="" />
+
     <.group
       id={@id}
       legend={@legend}
@@ -170,7 +246,13 @@ defmodule DevactionUI.Choice do
     """
   end
 
-  attr :id, :string, required: true
+  attr :id, :string, default: nil, doc: "required unless a `field` gives it"
+
+  attr :field, Phoenix.HTML.FormField,
+    default: nil,
+    doc:
+      "the form field the options belong to: gives the `id` and, once used, the error of the group"
+
   attr :legend, :string, required: true, doc: "what the options choose, as the group's name"
   attr :help, :string, default: nil, doc: "a hint under the options, tied to the group"
   attr :error, :string, default: nil, doc: "what is wrong with the group, as an alert"
@@ -186,6 +268,9 @@ defmodule DevactionUI.Choice do
 
   @doc "A `radiogroup` `<fieldset>` with a `<legend>` around radios that share a `name`; the arrow keys are the browser's."
   def radio_group(assigns) do
+    assigns = assigns |> FormField.put() |> FormField.require!([:id], "radio_group/1")
+    assigns = assign(assigns, :error, FormField.error(assigns))
+
     ~H"""
     <.group
       id={@id}

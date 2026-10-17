@@ -2,6 +2,19 @@
 
 Every release lists new components, improvements, fixes and breaking changes. While the version is 0.x a minor release may break compatibility, and every break is listed with the step to follow.
 
+## Unreleased
+
+### New
+
+- `DevactionUI.Select`: the browser's own `<select>` in the frame of the input group, for a short list that needs no search. Options are `{label, value}` tuples, strings, `%{value, label, disabled}` maps or `{group, options}` groups (`<optgroup>`), with a `prompt`, `multiple` (a name ending in `[]`), the sizes `:sm`, `:md` and `:lg`, and `icon` and `chevron_icon` slots.
+- `field={@form[:name]}` on the form components, as the core components take it: `InputGroup`, `Textarea`, `Field`, `Choice` (`checkbox`, `radio`, `choice_card`, `checkbox_group`, `radio_group`), `Switch` (`switch`, `switch_row`, `switch_card`), `DatePicker` (`date_picker` in the single mode, `date_input`), `Combobox` and `Select`. The field gives the id, the name, the value and the errors; what is passed by hand wins. Errors show once the input was used (`used_input?`), and `config :devaction_ui, :translate_error` points at the app's translator (`DevactionUI.FormField`).
+  - A boolean `checkbox` with a `field` sends `unchecked_value` (`"false"`) when it is not ticked, through a hidden input; `multiple` makes it one box of a list field (`name[]`, id `<field>-<value>`), and `checkbox_group` with a `field` sends an empty list when none is ticked.
+  - A radio or a choice card with a `field` takes the id `<field>-<value>` and is checked when its value is the field's.
+
+### Changed
+
+- `id` (and `name` where it was required: `radio`, `choice_card`, `date_input`, `combobox`) is no longer a required attribute of these components: one of `id` or `field` must be given, and a missing one raises an `ArgumentError` that says so when the component renders.
+
 ## 0.4.0
 
 ### New

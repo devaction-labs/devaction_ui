@@ -1,0 +1,10 @@
+<%!-- title: Basic | text: A short list with a prompt; the browser's own select in the frame of the fields --%>
+<Select.select
+  id="select-basic"
+  name="status"
+  prompt="Choose a status"
+  class="max-w-xs"
+  options={[{"Open", "open"}, {"In review", "review"}, {"Done", "done"}]}
+>
+  <:chevron_icon><.icon name="arrow-down-01" class="size-3.5" /></:chevron_icon>
+</Select.select>

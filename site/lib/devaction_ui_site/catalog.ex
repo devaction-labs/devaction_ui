@@ -13,7 +13,7 @@ defmodule DevactionUISite.Catalog do
     {"Overlay",
      ~w(CommandPalette ConfirmDialog ContextMenu CookieConsent DangerDialog Drawer Dropdown HoverCard Modal NotificationCenter Popover ProgressToast RowMenu ToastGroup Tooltip)},
     {"Form",
-     ~w(Autocomplete Choice ColorPicker Combobox CopyField DatePicker DateRange Dropzone Editor Field FilterMenu FilterPill InputGroup MoneyInput NumberInput OtpInput PasswordStrength Pillbox Segmented SignatureField Slider Switch Textarea TimeField Timer)},
+     ~w(Autocomplete Choice ColorPicker Combobox CopyField DatePicker DateRange Dropzone Editor Field FilterMenu FilterPill InputGroup MoneyInput NumberInput OtpInput PasswordStrength Pillbox Segmented Select SignatureField Slider Switch Textarea TimeField Timer)},
     {"Navigation", ~w(Breadcrumb PageHeader Pagination Shell Sidebar Stepper Steps)},
     {"Data",
      ~w(Calendar Chart DataTable DiffView FileTree Kanban PdfViewer Pricing Resizable SortableList)},
@@ -55,6 +55,8 @@ defmodule DevactionUISite.Catalog do
 
   @since_v04 ~w(Email EmailCallout EmailTable EmailTag)
 
+  @since_v05 ~w(Select)
+
   @doc "The components, grouped by category, in the order of the sidebar."
   def groups, do: @groups
 
@@ -63,6 +65,7 @@ defmodule DevactionUISite.Catalog do
 
   @doc "The version a component came with: the ones added in v0.4 say 0.4, in v0.3 say 0.3, in v0.2 say 0.2, the rest say 0.1."
   def since(%{module: module}), do: since(Reference.short(module))
+  def since(name) when name in @since_v05, do: "0.5"
   def since(name) when name in @since_v04, do: "0.4"
   def since(name) when name in @since_v03, do: "0.3"
   def since(name) when name in @since_v02, do: "0.2"
@@ -71,6 +74,7 @@ defmodule DevactionUISite.Catalog do
   @doc "The version entry of the changelog a component was created in: `v0.4.0` for the e-mail set, `v0.3.0` for the layout theme, else `v0.2.0`."
   def release(topic), do: release_of(since(topic))
 
+  defp release_of("0.5"), do: "v0.5"
   defp release_of("0.3"), do: "v0.3.0"
   defp release_of(since), do: "v#{since}.0"
 
