@@ -24,12 +24,18 @@ defmodule DevactionUI.Listbox do
   by the label and the keywords; `empty` is what shows when nothing is left, with `%{term}` for the text
   typed. With `create` (`"Create “%{term}”"`) the last row offers to create the text typed when no option is
   called exactly that; choosing it sends `on_create` to the LiveView (`phx-target` points it at a component)
-  with `%{"id" => id, "term" => text}`, and the LiveView adds the option and sets the value.
+  with `%{"id" => id, "term" => text}`, and the LiveView adds the option and sets the value; `create_hint`
+  is a small text at the end of that row (the key that chooses it). `search_clear_label` names a button in the
+  search field that empties what was typed.
 
   `multiple` keeps the panel open while choosing and sends a list (`name[]`, an empty list when nothing is
   chosen). The button says `count_text` (`"%{count} chosen"`) or, without it, the labels joined by commas,
   so it never changes height. `indicator` is `:check` (a mark at the end of the row, the default) or
   `:checkbox` (a box at the start). `prefix` is a fixed text before the choice on the button (`Compare to`).
+
+  The panel is `position: fixed`, put by the hook under the button (`position={:top}` for above, `align` for
+  the side), so an ancestor with `overflow: hidden` does not cut it; it opens on the other side when the wanted
+  one has no room and shortens its list when neither has.
 
   The keyboard is the ARIA pattern: ↓ ↑ on the button open it, ↑ ↓ Home End move, Enter (and Space without a
   search) chooses, Esc closes and returns to the button, Tab leaves; without a search, typing letters jumps to
@@ -94,9 +100,18 @@ defmodule DevactionUI.Listbox do
     default: nil,
     doc: "the event sent with `%{\"id\" => id, \"term\" => text}` when the create row is chosen"
 
+  attr :create_hint, :string,
+    default: nil,
+    doc: "a small text at the end of the create row, such as the key that chooses it (`Enter`)"
+
   attr :clear_label, :string,
     default: nil,
     doc: "the name of the button that empties the choice; none when nil"
+
+  attr :search_clear_label, :string,
+    default: nil,
+    doc:
+      "the name of the button in the search field that empties what was typed; none when nil, drawn with `clear_icon`"
 
   attr :size, :atom, values: [:sm, :md, :lg], default: :md
   attr :position, :atom, values: [:bottom, :top], default: :bottom, doc: "where the panel opens"
@@ -158,6 +173,8 @@ defmodule DevactionUI.Listbox do
       data-multiple={@multiple && "true"}
       data-create-event={@on_create}
       data-create-target={@rest[:"phx-target"]}
+      data-position={@position}
+      data-align={@align}
       class={["listbox relative", @class]}
       {Map.drop(@rest, [:"phx-target"])}
     >
@@ -245,7 +262,7 @@ defmodule DevactionUI.Listbox do
       <div
         data-panel
         hidden
-        phx-mounted={JS.ignore_attributes(["hidden"])}
+        phx-mounted={JS.ignore_attributes(["hidden", "style"])}
         class={["listbox-panel", position_class(@position), align_class(@align), @panel_class]}
       >
         <label :if={@searchable} class="listbox-search">
@@ -268,6 +285,17 @@ defmodule DevactionUI.Listbox do
             autocomplete="off"
             phx-mounted={JS.ignore_attributes(["aria-activedescendant"])}
           />
+          <button
+            :if={@search_clear_label}
+            type="button"
+            data-search-clear
+            aria-label={@search_clear_label}
+            hidden
+            phx-mounted={JS.ignore_attributes(["hidden"])}
+            class="listbox-search-clear"
+          >
+            {render_slot(@clear_icon)}<span :if={@clear_icon == []} aria-hidden="true">×</span>
+          </button>
         </label>
         <div
           id={"#{@id}-list"}
@@ -342,7 +370,8 @@ defmodule DevactionUI.Listbox do
             <span :if={@create_icon != []} class="listbox-marker" aria-hidden="true">
               {render_slot(@create_icon)}
             </span>
-            <span data-create-text class="flex-1"></span>
+            <span data-create-text class="min-w-0 flex-1 truncate"></span>
+            <span :if={@create_hint} class="listbox-hint">{@create_hint}</span>
           </div>
         </div>
       </div>

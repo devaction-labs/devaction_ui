@@ -1,4 +1,4 @@
-<%!-- title: Create what is missing | text: With `create` and `on_create`, the last row offers the text typed when no option is called that; the LiveView gets `%{"id", "term"}` and adds it --%>
+<%!-- title: Create what is missing | text: With `create` and `on_create`, the last row offers the text typed when no option is called that; the LiveView gets `%{"id", "term"}`, adds the option and sets the value --%>
 <Listbox.listbox
   id="listbox-create"
   name="tag"
@@ -8,13 +8,11 @@
   search_placeholder="Search or create"
   empty="No tag for “%{term}”"
   create="Create “%{term}”"
+  create_hint="Enter"
   on_create="create_tag"
+  value={@tag_demo.chosen}
   class="max-w-sm"
-  options={[
-    %{value: "bug", label: "Bug"},
-    %{value: "feature", label: "Feature"},
-    %{value: "chore", label: "Chore"}
-  ]}
+  options={@tag_demo.options}
 >
   <:chevron_icon><.icon name="arrow-down-01" class="size-4" /></:chevron_icon>
   <:search_icon><.icon name="search-01" class="size-4" /></:search_icon>

@@ -2,6 +2,18 @@
 
 Every release lists new components, improvements, fixes and breaking changes. While the version is 0.x a minor release may break compatibility, and every break is listed with the step to follow.
 
+## Unreleased
+
+### Fixed
+
+- `Listbox` panel is `position: fixed`, placed by the hook: an ancestor with `overflow: hidden` no longer cuts it, it opens on the other side of the button when the wanted side has no room (and holds the button by its bottom edge when above, so a search that shortens it keeps it touching), the list shortens when neither side has room, and it follows the button while the page scrolls. Before, a `Listbox` near the bottom of the screen or inside a clipped card opened out of sight.
+- `Listbox` now follows the Select-list artboards (light and dark): the search is 42px, the list padding 5px, rows 34px with an 8px radius, the group heading, the check and the chevron 15px, the clear button 37px from the edge, the unchecked box border, the artboard's panel shadow (`--shadow-listbox`), and the create row has the dashed rule above it, the amber marker box and the amber hover.
+
+### Improved
+
+- `Listbox` has `search_clear_label`, a button in the search field that empties what was typed (drawn with `clear_icon`), and `create_hint`, a small text at the end of the create row (`Enter`). Both are optional and nothing changes without them.
+- The docs examples of the `Listbox` are now real: the create example adds the option and chooses it, a new "In a form" example shows `phx-change` hearing every choice, the search example has a disabled row and the clear button, and its marker is a bare icon on the button as in the artboard.
+
 ## 0.6.3
 
 ### Fixed

@@ -1,0 +1,43 @@
+<%!-- title: In a form | text: The hook fires `input` on the hidden fields, so the form's `phx-change` hears every choice; `field` gives the id, the name, the value and the error --%>
+<.form
+  :let={form}
+  id="ticket-form"
+  for={@ticket_form}
+  as={:ticket}
+  phx-change="ticket_change"
+  class="flex max-w-sm flex-col gap-4"
+>
+  <Listbox.listbox
+    field={form[:team]}
+    label="Team"
+    show_label
+    placeholder="Choose a team"
+    options={[
+      %{value: "api", label: "API"},
+      %{value: "web", label: "Web"},
+      %{value: "ops", label: "Operations", disabled: true}
+    ]}
+  >
+    <:chevron_icon><.icon name="arrow-down-01" class="size-4" /></:chevron_icon>
+    <:check_icon><.icon name="tick-02" class="size-4" /></:check_icon>
+  </Listbox.listbox>
+  <Listbox.listbox
+    field={form[:labels]}
+    label="Labels"
+    show_label
+    placeholder="No labels"
+    multiple
+    count_text="%{count} labels"
+    options={[
+      %{value: "bug", label: "Bug"},
+      %{value: "feature", label: "Feature"},
+      %{value: "chore", label: "Chore"}
+    ]}
+  >
+    <:chevron_icon><.icon name="arrow-down-01" class="size-4" /></:chevron_icon>
+    <:check_icon><.icon name="tick-02" class="size-4" /></:check_icon>
+  </Listbox.listbox>
+  <p id="ticket-params" class="m-0 font-mono text-xs text-muted">
+    {inspect(@ticket_form.params)}
+  </p>
+</.form>
