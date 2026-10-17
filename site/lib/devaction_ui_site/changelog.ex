@@ -94,7 +94,7 @@ defmodule DevactionUISite.Changelog do
       status: "current",
       tag: "v0.6.0",
       summary:
-        "The `Listbox`, a select with a panel of its own (search, groups, descriptions, several choices, create), and the `Select` opens a styled panel on a mouse while keeping the native field."
+        "The `Listbox`, a select with a panel of its own (search, groups, several choices, create), and the plain `Select` opening that same styled panel on a mouse, true to the artboards."
     },
     %{
       version: "v0.5.0",
@@ -189,6 +189,12 @@ defmodule DevactionUISite.Changelog do
   ]
 
   @patches %{
+    "v0.6.0" => [
+      {"improved", "Improvements", "select_panel",
+       "On a mouse or a trackpad `Select` opens a styled panel (groups as headers, a check on the chosen row, disabled rows muted) instead of the browser popup; the phone keeps the native picker and `multiple` stays a native list box."},
+      {"fixed", "Fixes", "select_artboard",
+       "`Select` follows the artboards: a 15px chevron, the framed multiple list box with checked rows, and a disabled option no longer dims the whole field."}
+    ],
     "v0.3.3" => [
       {"fixed", "Fixes", "editor_build",
        "A host app builds without the `@tiptap/*` packages unless an editor is rendered."},

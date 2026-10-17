@@ -119,7 +119,7 @@ defmodule DevactionUISite.ChangelogTest do
     Changelog.sync!()
 
     assert Changelog.counts(Changelog.versions()) == before
-    assert before["fixed"] == 10
+    assert before["fixed"] == 11
   end
 
   test "counts sum every kind for the filter pills" do
