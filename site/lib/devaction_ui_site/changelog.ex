@@ -90,8 +90,15 @@ defmodule DevactionUISite.Changelog do
         "The Blade version of the kit for Laravel and Livewire projects, starting with the color picker, the slider and the filter menu."
     },
     %{
-      version: "v0.7.0",
+      version: "v0.7.1",
       status: "current",
+      tag: "v0.7.1",
+      summary:
+        "Two fixes the app found: `date_input` takes a blank value as no date instead of raising, and a `DataTable` that is not selectable no longer needs its four selection labels."
+    },
+    %{
+      version: "v0.7.0",
+      status: "archived",
       tag: "v0.7.0",
       summary:
         "The `Listbox` follows its artboards: a panel that no `overflow` can cut and that opens on the other side when there is no room, a clear button in the search, a hint on the create row, and real docs examples (create, in a form, several with search)."
@@ -217,6 +224,12 @@ defmodule DevactionUISite.Changelog do
   ]
 
   @patches %{
+    "v0.7.1" => [
+      {"fixed", "Fixes", "date_input_blank",
+       "`date_input` with a blank value (what a changeset holds after a submit with the date left empty) shows no date instead of raising a `MatchError`."},
+      {"fixed", "Fixes", "data_table_labels",
+       "`select_all_label`, `select_row_label`, `selected_label` and `clear_label` are required only with `selectable`; a plain table passes none of them."}
+    ],
     "v0.7.0" => [
       {"fixed", "Fixes", "listbox_position",
        "The `Listbox` panel is `position: fixed`, so an ancestor with `overflow: hidden` no longer cuts it; it opens on the other side when there is no room, and `position` and `align` are honoured."},
