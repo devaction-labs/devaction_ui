@@ -9,6 +9,9 @@ defmodule DevactionUI.InputGroup do
   An add-on is boxed (a tinted block with a line) unless it says `loose` (plain muted text, as `.devaction.app`),
   and `mono` sets it in the monospace of an amount or a code.
 
+  With `field={@form[:title]}` the id, the name, the value and the error state come from the form (see
+  `DevactionUI.FormField`); what is given by hand wins.
+
   The field carries no error message of its own: render it under the group with an `id` and point the field at
   it with `aria-describedby`, which goes to the `<input>` through `rest`:
 
@@ -24,7 +27,14 @@ defmodule DevactionUI.InputGroup do
 
   import DevactionUI.Spinner
 
-  attr :id, :string, required: true
+  alias DevactionUI.FormField
+
+  attr :id, :string, default: nil, doc: "required unless a `field` gives it"
+
+  attr :field, Phoenix.HTML.FormField,
+    default: nil,
+    doc: "a form field (`@form[:title]`): gives the `id`, the `name`, the value and the errors"
+
   attr :name, :string, default: nil
   attr :value, :any, default: nil
   attr :type, :string, default: "text"
@@ -61,6 +71,13 @@ defmodule DevactionUI.InputGroup do
     do: raise(ArgumentError, "input_group/1 needs a loading_label while it is loading")
 
   def input_group(assigns) do
+    assigns =
+      assigns
+      |> FormField.put(value: :text)
+      |> FormField.require!([:id], "input_group/1")
+
+    assigns = assign(assigns, :invalid, assigns.invalid or assigns.field_errors != [])
+
     ~H"""
     <span id={"#{@id}-group"} class={["input-group", size_class(@size), @class]}>
       <span :for={prefix <- @prefix} class={addon_class(prefix)}>{render_slot(prefix)}</span>

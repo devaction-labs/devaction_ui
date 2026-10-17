@@ -22,15 +22,22 @@ defmodule DevactionUI.Combobox do
   `disabled` locks it (and keeps the value out of the form), `required` marks it for assistive technology
   (a hidden input cannot be validated by the browser, so check it on the server) and `error` is the message
   that goes under it and marks it invalid. With `clear_label` there is a button that empties the choice.
+  `field={@form[:project_id]}` fills the id, the name, the value and the error (see `DevactionUI.FormField`).
   Icons are slots: `chevron_icon` (a `⌄` when there is none), `search_icon`, `clear_icon`, and
   `option_marker`, drawn before the label of each option (a color swatch, an avatar) and given the option.
   """
   use Phoenix.Component
 
+  alias DevactionUI.FormField
   alias Phoenix.LiveView.JS
 
-  attr :id, :string, required: true
-  attr :name, :string, required: true
+  attr :id, :string, default: nil, doc: "required unless a `field` gives it"
+  attr :name, :string, default: nil, doc: "required unless a `field` gives it"
+
+  attr :field, Phoenix.HTML.FormField,
+    default: nil,
+    doc:
+      "a form field (`@form[:project_id]`): gives the `id`, the `name`, the value and the error"
 
   attr :options, :list,
     required: true,
@@ -66,7 +73,17 @@ defmodule DevactionUI.Combobox do
   @spec combobox(map()) :: Phoenix.LiveView.Rendered.t()
   def combobox(assigns) do
     assigns =
-      assign(assigns, :current, Enum.find(assigns.options, &(&1.value == assigns.value)))
+      assigns
+      |> FormField.put(value: :text)
+      |> FormField.require!([:id, :name], "combobox/1")
+
+    assigns =
+      assigns
+      |> assign(:error, FormField.error(assigns))
+      |> assign(
+        :current,
+        Enum.find(assigns.options, &(FormField.text(&1.value) == assigns.value))
+      )
 
     ~H"""
     <div
