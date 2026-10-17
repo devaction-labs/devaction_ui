@@ -83,15 +83,22 @@ defmodule DevactionUISite.Changelog do
 
   @releases [
     %{
-      version: "v0.7",
+      version: "v0.8",
       status: "next",
       tag: nil,
       summary:
         "The Blade version of the kit for Laravel and Livewire projects, starting with the color picker, the slider and the filter menu."
     },
     %{
-      version: "v0.6.3",
+      version: "v0.7.0",
       status: "current",
+      tag: "v0.7.0",
+      summary:
+        "The `Listbox` follows its artboards: a panel that no `overflow` can cut and that opens on the other side when there is no room, a clear button in the search, a hint on the create row, and real docs examples (create, in a form, several with search)."
+    },
+    %{
+      version: "v0.6.3",
+      status: "archived",
       tag: "v0.6.3",
       summary:
         "Fixes the `Listbox`, which did not open: its hook read the element too early and LiveView could not start it."
@@ -210,6 +217,16 @@ defmodule DevactionUISite.Changelog do
   ]
 
   @patches %{
+    "v0.7.0" => [
+      {"fixed", "Fixes", "listbox_position",
+       "The `Listbox` panel is `position: fixed`, so an ancestor with `overflow: hidden` no longer cuts it; it opens on the other side when there is no room, and `position` and `align` are honoured."},
+      {"fixed", "Fixes", "listbox_artboard",
+       "The `Listbox` follows the Select-list artboards in light and dark: 42px search, 34px rows, 15px check and chevron, the artboard shadow and a dashed create row."},
+      {"improved", "Improvements", "listbox_props",
+       "`search_clear_label` adds a clear button inside the search field and `create_hint` a small hint (for example `Enter`) on the create row."},
+      {"improved", "Improvements", "listbox_examples",
+       "The create example adds the option and chooses it, and there are examples of the `Listbox` in a form and of several choices with search."}
+    ],
     "v0.6.3" => [
       {"fixed", "Fixes", "listbox_hook",
        "The `Listbox` opens again: the hook declared a getter, which LiveView calls while copying the hook, before it has an element, so the hook never started. A test now fails when any hook has a getter."}
@@ -446,7 +463,7 @@ defmodule DevactionUISite.Changelog do
   defp code_entries(ids, now) do
     planned =
       for {{name, summary}, index} <- Enum.with_index(@planned, 1),
-          do: row(ids["v0.7"], "planned", "Planned", name, summary, index, now)
+          do: row(ids["v0.8"], "planned", "Planned", name, summary, index, now)
 
     components =
       for {category, topics} <- Catalog.groups(), topic <- topics do

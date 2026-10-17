@@ -30,7 +30,10 @@ defmodule DevactionUISite.SelectExampleTest do
              "#select-signers-search[phx-hook='DevactionUI.Listbox'][data-multiple='true']"
            )
 
-    assert has_element?(view, "#select-signers-search input[data-search][placeholder='Search people']")
+    assert has_element?(
+             view,
+             "#select-signers-search input[data-search][placeholder='Search people']"
+           )
 
     assert has_element?(
              view,
