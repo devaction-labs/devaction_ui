@@ -1,0 +1,51 @@
+<%!-- title: With search | text: The search sits at the top of the panel and also finds the options by their keywords; each option may carry a marker and a description --%>
+<Listbox.listbox
+  id="listbox-search"
+  name="category"
+  label="Category"
+  placeholder="Choose a category"
+  searchable
+  search_placeholder="Search categories"
+  empty="No category for “%{term}”"
+  value="dev"
+  class="max-w-sm"
+  options={[
+    {"Work",
+     [
+       %{
+         value: "dev",
+         label: "Development",
+         description: "Code, review and deploy",
+         icon: "source-code",
+         keywords: "code"
+       },
+       %{value: "ux", label: "Product", description: "Research, flows and scope", icon: "bulb"},
+       %{
+         value: "ops",
+         label: "Infrastructure",
+         description: "Servers, database and queues",
+         icon: "computer",
+         keywords: "devops server"
+       }
+     ]},
+    {"Management",
+     [
+       %{value: "fin", label: "Finance", description: "Billing and invoices", icon: "invoice-03"},
+       %{
+         value: "law",
+         label: "Contracts",
+         description: "Proposals and addenda",
+         icon: "contracts"
+       }
+     ]}
+  ]}
+>
+  <:option_marker :let={option}>
+    <span class="grid size-7 place-items-center rounded-lg bg-wrap text-ink-2">
+      <.icon name={option.icon} class="size-4" />
+    </span>
+  </:option_marker>
+  <:chevron_icon><.icon name="arrow-down-01" class="size-4" /></:chevron_icon>
+  <:search_icon><.icon name="search-01" class="size-4" /></:search_icon>
+  <:check_icon><.icon name="tick-02" class="size-4" /></:check_icon>
+</Listbox.listbox>

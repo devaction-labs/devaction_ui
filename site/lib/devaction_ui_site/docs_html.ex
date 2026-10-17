@@ -228,7 +228,10 @@ new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
               patch={"/c/#{topic.slug}"}
               class="flex flex-col gap-2 rounded-2xl border border-line bg-card p-4 no-underline transition-colors hover:border-line-strong hover:bg-wrap/50"
             >
-              <span class="font-semibold text-ink">{topic.title}</span>
+              <span class="flex items-center gap-2 font-semibold text-ink">
+                {topic.title}
+                <Shell.new_tag :if={Catalog.new?(topic)} />
+              </span>
               <span class="text-sm text-ink-2">{Catalog.summary(topic)}</span>
             </.link>
           </div>
@@ -367,6 +370,7 @@ new LiveSocket("/live", Socket, {hooks: {...devactionUI}})|
         <Tag.tag variant={:ok} class="h-[26px]! rounded-[7px]! px-2! py-0! tracking-normal!">
           Stable
         </Tag.tag>
+        <Shell.new_tag :if={Catalog.new?(@topic)} class="h-[26px]! rounded-[7px]! px-2! text-xs!" />
         <Tag.tag
           variant={:neutral}
           surface={:plain}

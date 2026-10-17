@@ -13,7 +13,7 @@ defmodule DevactionUISite.Shell do
 
   import DevactionUISite.Icon
 
-  alias DevactionUI.Kbd
+  alias DevactionUI.{Kbd, Tag}
   alias DevactionUISite.{Catalog, Dedication, Project, Templates}
   alias Phoenix.LiveView.JS
 
@@ -259,6 +259,7 @@ defmodule DevactionUISite.Shell do
           class="flex h-8 items-center rounded-lg px-2.5 text-sm text-soft no-underline hover:bg-wrap hover:text-ink"
         >
           {topic.title}
+          <.new_tag :if={Catalog.new?(topic)} class="ml-auto" />
         </.link>
       </div>
     </form>
@@ -369,6 +370,7 @@ defmodule DevactionUISite.Shell do
           class="box-content h-[30px]"
         >
           {topic.title}
+          <.new_tag :if={Catalog.new?(topic)} class="ml-auto" />
         </.side_link>
       </div>
 
@@ -386,6 +388,19 @@ defmodule DevactionUISite.Shell do
         </.side_link>
       </div>
     </nav>
+    """
+  end
+
+  attr :class, :any, default: nil
+
+  def new_tag(assigns) do
+    ~H"""
+    <Tag.tag
+      variant={:ok}
+      class={["h-[18px]! rounded-[5px]! px-1.5! py-0! text-[10px]! tracking-normal!", @class]}
+    >
+      New
+    </Tag.tag>
     """
   end
 

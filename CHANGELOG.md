@@ -2,6 +2,20 @@
 
 Every release lists new components, improvements, fixes and breaking changes. While the version is 0.x a minor release may break compatibility, and every break is listed with the step to follow.
 
+## 0.6.0
+
+### New
+
+- `DevactionUI.Listbox`: a select with a panel of the kit's own, for what the native select cannot do. Options are `%{value, label}` maps with an optional `description`, `keywords` (found by the search, not shown) and `disabled`, or `{label, options}` groups; `option_marker` draws an icon or an avatar before each. `searchable` adds a search at the top of the panel with an `empty` text; `create` and `on_create` add a row that sends the text typed to the LiveView; `multiple` keeps the panel open and sends a list (`name[]`), with `count_text` on the button and `indicator` `:check` or `:checkbox`; `prefix`, `clear_label`, `size`, `position`, `align` and `panel_class`. Keyboard as the ARIA pattern, with letters jumping to an option when there is no search. Hook `DevactionUI.Listbox`.
+
+### Changed
+
+- `Select` opens a styled panel on a fine pointer (mouse, trackpad) instead of the browser's popup: a card under the select with the groups as headers, 34px rows, the chosen option tinted with a check, a disabled option muted, and the up arrow and focus ring on the select while it is open. The native `<select>` stays the field (name, value, validation, `phx-change`); the `DevactionUI.Select` hook draws the panel from its options, with ↑ ↓ Home End, type-ahead, Enter or Space to choose, Esc, Tab and a press outside to close, and it opens above when there is no room below and is not clipped by an `overflow` ancestor. On a touch screen the system picker still opens, and `multiple` stays the native list box. The `:sm` and `:lg` sizes shape the panel too.
+
+### Fixed
+
+- `Select` follows the artboards: the arrow is 15px and sits on the 14px padding, the multiple list box has the 5px frame, 2px between 32px rows and the checked rows in the line tone with medium weight, and a disabled option inside the list no longer draws the dashed, muted frame of a disabled select.
+
 ## 0.5.0
 
 ### New
