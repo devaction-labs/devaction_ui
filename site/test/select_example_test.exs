@@ -14,4 +14,11 @@ defmodule DevactionUISite.SelectExampleTest do
     assert has_element?(view, "select#select-role option[value=viewer][disabled]")
     refute html =~ "Open, with groups"
   end
+
+  test "the select page shows the searchable list, through the Listbox" do
+    {:ok, view, _html} = live(build_conn(), "/c/select")
+
+    assert has_element?(view, "#select-search[phx-hook='DevactionUI.Listbox']")
+    assert has_element?(view, "#select-search input[data-search][placeholder='Search...']")
+  end
 end
