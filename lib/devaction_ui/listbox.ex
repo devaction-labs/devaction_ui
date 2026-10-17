@@ -329,7 +329,7 @@ defmodule DevactionUI.Listbox do
           >
           </div>
           <div
-            :if={@searchable and @create && @on_create}
+            :if={(@searchable and @create) && @on_create}
             id={"#{@id}-create"}
             role="option"
             aria-selected="false"
