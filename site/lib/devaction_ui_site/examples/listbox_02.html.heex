@@ -1,0 +1,27 @@
+<%!-- title: Several at once | text: `multiple` keeps the panel open and sends a list; the button counts with `count_text`, and `indicator={:checkbox}` marks with a box --%>
+<div class="grid max-w-2xl gap-4 sm:grid-cols-2">
+  <Listbox.listbox
+    :for={indicator <- [:check, :checkbox]}
+    id={"listbox-multiple-#{indicator}"}
+    name={"signers_#{indicator}"}
+    label="Who signs"
+    show_label
+    placeholder="Nobody yet"
+    multiple
+    indicator={indicator}
+    count_text="%{count} chosen"
+    clear_label="Clear"
+    value={["ana", "caio", "fer"]}
+    options={[
+      %{value: "ana", label: "Ana Souza", description: "Developer"},
+      %{value: "caio", label: "Caio Lima", description: "Product manager"},
+      %{value: "fer", label: "Fernanda Reis", description: "Client"},
+      %{value: "joao", label: "João Melo", description: "Finance"}
+    ]}
+  >
+    <:icon><.icon name="user-group" /></:icon>
+    <:chevron_icon><.icon name="arrow-down-01" class="size-4" /></:chevron_icon>
+    <:clear_icon><.icon name="cancel-01" /></:clear_icon>
+    <:check_icon><.icon name="tick-02" /></:check_icon>
+  </Listbox.listbox>
+</div>

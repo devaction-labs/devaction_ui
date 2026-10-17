@@ -63,6 +63,7 @@ defmodule DevactionUISite.UI do
         HoverCard,
         InputGroup,
         Kanban,
+        Listbox,
         Modal,
         MoneyInput,
         NotificationCenter,
