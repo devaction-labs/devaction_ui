@@ -2,6 +2,12 @@
 
 Every release lists new components, improvements, fixes and breaking changes. While the version is 0.x a minor release may break compatibility, and every break is listed with the step to follow.
 
+## 0.6.3
+
+### Fixed
+
+- `Listbox` opens again. Its hook declared a getter (`get multiple()`); LiveView copies a hook by calling every getter before the hook has an element, so it failed with "Cannot read properties of undefined" and the field never opened (0.6.0 to 0.6.2). The hook uses a method now, and a test fails when any hook declares a getter or a setter.
+
 ## 0.6.2
 
 ### Improved
