@@ -18,7 +18,8 @@ defmodule DevactionUI.DataTable do
   `sort_none_icon` slots (a typographic arrow when empty).
 
   Texts (`select_all_label`, `select_row_label`, `selected_label` with `__COUNT__`, `clear_label`) come
-  from the caller, so the library carries no language of its own.
+  from the caller, so the library carries no language of its own; the four are required only with
+  `selectable`, and a table that is not selectable passes none of them.
 
   Around the rows: the `toolbar` slot sits above the table (a search, filter chips, the columns menu) and the
   `footer` slot below it, for the range of the page ("1-6 of 33") and a `DevactionUI.Pagination`. With
@@ -129,10 +130,22 @@ defmodule DevactionUI.DataTable do
     default: nil,
     doc: "names the chevron that opens a detail row; required with the `expanded` slot"
 
-  attr :select_all_label, :string, required: true
-  attr :select_row_label, :string, required: true
-  attr :selected_label, :string, required: true, doc: "with `__COUNT__`"
-  attr :clear_label, :string, required: true
+  attr :select_all_label, :string,
+    default: nil,
+    doc: "names the checkbox of the header; required with `selectable`"
+
+  attr :select_row_label, :string,
+    default: nil,
+    doc: "names the checkbox of a row; required with `selectable`"
+
+  attr :selected_label, :string,
+    default: nil,
+    doc: "tells how many rows are ticked, with `__COUNT__`; required with `selectable`"
+
+  attr :clear_label, :string,
+    default: nil,
+    doc: "names the button that unticks every row; required with `selectable`"
+
   attr :class, :any, default: nil
 
   slot :col, required: true do
@@ -178,6 +191,18 @@ defmodule DevactionUI.DataTable do
 
   def data_table(%{loading: true, loading_label: nil}),
     do: raise(ArgumentError, "data_table/1 needs a loading_label while it is loading")
+
+  def data_table(%{selectable: true, select_all_label: nil}),
+    do: raise(ArgumentError, "data_table/1 needs a select_all_label when it is selectable")
+
+  def data_table(%{selectable: true, select_row_label: nil}),
+    do: raise(ArgumentError, "data_table/1 needs a select_row_label when it is selectable")
+
+  def data_table(%{selectable: true, selected_label: nil}),
+    do: raise(ArgumentError, "data_table/1 needs a selected_label when it is selectable")
+
+  def data_table(%{selectable: true, clear_label: nil}),
+    do: raise(ArgumentError, "data_table/1 needs a clear_label when it is selectable")
 
   def data_table(%{action: [_ | _], action_label: nil}),
     do: raise(ArgumentError, "data_table/1 needs an action_label with the action slot")
@@ -418,7 +443,7 @@ defmodule DevactionUI.DataTable do
   attr :pin_select, :boolean, required: true
   attr :end_sticky, :any, default: nil
   attr :name, :string, required: true
-  attr :select_row_label, :string, required: true
+  attr :select_row_label, :string, default: nil
   attr :row_id, :any, required: true
   attr :ticked, :any, required: true
   attr :ncols, :integer, required: true
