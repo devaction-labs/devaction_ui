@@ -308,6 +308,15 @@
   .input-sm { @apply h-9 rounded-[10px] px-3 text-[13px]; }
   .input-lg { @apply h-13 rounded-[14px] px-4 text-base; }
 
+  /* Select: the native <select> in the input group frame; the arrow is drawn over the right edge */
+  .select > select { @apply h-full min-w-0 flex-1 cursor-pointer appearance-none bg-transparent pr-7 outline-none disabled:cursor-default; }
+  .select > select:has(> option[value=""]:checked) { @apply text-muted-2; }
+  .select > select option { @apply text-ink; }
+  .select-chevron { @apply pointer-events-none -ml-7 grid size-[18px] shrink-0 place-items-center text-sm leading-none text-muted [&>*]:size-full; }
+  .select-multiple { @apply h-auto items-stretch py-1.5; }
+  .select-multiple > select { @apply min-h-24 cursor-default pr-0; }
+  .select-multiple > select option { @apply rounded-md border-y border-transparent bg-clip-padding px-2 py-1 checked:bg-wrap; }
+
   .textarea        { @apply overflow-hidden rounded-xl border border-line-strong bg-panel has-[.textarea-footer]:rounded-[14px] focus-within:border-ink focus-within:ring-4 focus-within:ring-(color:--ring-field)
                          has-[[aria-invalid=true]]:border-missing has-[[aria-invalid=true]]:bg-(--fill-field-error) has-[[aria-invalid=true]]:ring-(color:--ring-field-error)
                          has-disabled:border-dashed has-disabled:bg-(--fill-field-off) has-disabled:text-muted; }

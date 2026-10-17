@@ -19,12 +19,26 @@ defmodule DevactionUI.Field do
   input; the error replaces nothing and is announced (`role="alert"`) with the icon of the `error_icon` slot in
   front. `count` and `max` draw the counter (`182 / 200`), amber from nine tenths of `max` and red past it.
   The library knows no language: every word is an attribute.
+
+  With `field={@form[:title]}` the id comes from the form and the errors of the changeset show once the person
+  has used the input (see `DevactionUI.FormField`); give the same `field` to the input inside:
+
+      <Field.field :let={f} field={@form[:slug]} label="Slug" required>
+        <InputGroup.input_group field={@form[:slug]} aria-describedby={f.aria[:"aria-describedby"]} />
+      </Field.field>
   """
   use Phoenix.Component
 
+  alias DevactionUI.FormField
+
   attr :id, :string,
-    required: true,
-    doc: "the id of the input; the label, hint and error derive theirs"
+    default: nil,
+    doc:
+      "the id of the input; the label, hint and error derive theirs. Required unless a `field` gives it"
+
+  attr :field, Phoenix.HTML.FormField,
+    default: nil,
+    doc: "a form field (`@form[:title]`): gives the `id` and, once the input was used, the errors"
 
   attr :label, :string, required: true, doc: "the text of the label"
   attr :required, :boolean, default: false, doc: "a red `*` after the label and `aria-required`"
@@ -49,7 +63,8 @@ defmodule DevactionUI.Field do
   @doc "A labelled input with its hint, its error and its counter."
   @spec field(map()) :: Phoenix.LiveView.Rendered.t()
   def field(assigns) do
-    errors = errors(assigns.error)
+    assigns = assigns |> FormField.put() |> FormField.require!([:id], "field/1")
+    errors = with [] <- errors(assigns.error), do: assigns.field_errors
     describedby = describedby(assigns.id, assigns.hint, errors)
 
     assigns =

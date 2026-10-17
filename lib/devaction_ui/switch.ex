@@ -11,10 +11,20 @@ defmodule DevactionUI.Switch do
 
   Colors: the default ink, `:ai` (amber) and `:ok` (green). Sizes: `:sm`, `:md`, `:lg`. The track has a hit
   area of 44px high; in `switch_row/1` and `switch_card/1` the text is a `<label>`, so pressing it toggles too.
+
+  `field={@form[:notify]}` turns on the field mode with the form's id, name and value (see
+  `DevactionUI.FormField`).
   """
   use Phoenix.Component
 
-  attr :id, :string, required: true
+  alias DevactionUI.FormField
+
+  attr :id, :string, default: nil, doc: "required unless a `field` gives it"
+
+  attr :field, Phoenix.HTML.FormField,
+    default: nil,
+    doc: "a boolean form field: gives the `id`, the `name` (the field mode) and `checked`"
+
   attr :checked, :boolean, default: false
 
   attr :name, :string,
@@ -41,6 +51,11 @@ defmodule DevactionUI.Switch do
 
   @doc "The switch itself, a button that takes the press and says its state."
   def switch(assigns) do
+    assigns =
+      assigns
+      |> FormField.put(value: :checkbox)
+      |> FormField.require!([:id], "switch/1")
+
     ~H"""
     <button
       type="button"
@@ -85,7 +100,12 @@ defmodule DevactionUI.Switch do
   defp tone_class(:ai), do: "switch-ai"
   defp tone_class(:ok), do: "switch-ok"
 
-  attr :id, :string, required: true
+  attr :id, :string, default: nil, doc: "required unless a `field` gives it"
+
+  attr :field, Phoenix.HTML.FormField,
+    default: nil,
+    doc: "a boolean form field: gives the `id`, the `name` (the field mode) and `checked`"
+
   attr :checked, :boolean, default: false
   attr :name, :string, default: nil, doc: "the field mode of `switch/1`"
   attr :label, :string, required: true
@@ -99,6 +119,11 @@ defmodule DevactionUI.Switch do
 
   @doc "A row of settings: the label and its description on the left, the switch on the right. A disabled row is dimmed whole."
   def switch_row(assigns) do
+    assigns =
+      assigns
+      |> FormField.put(value: :checkbox)
+      |> FormField.require!([:id], "switch_row/1")
+
     ~H"""
     <div class={["switch-row", @class]} data-disabled={@disabled && "true"}>
       <label for={@id} class="flex min-w-0 flex-1 cursor-pointer flex-col gap-[3px]">
@@ -129,7 +154,12 @@ defmodule DevactionUI.Switch do
     """
   end
 
-  attr :id, :string, required: true
+  attr :id, :string, default: nil, doc: "required unless a `field` gives it"
+
+  attr :field, Phoenix.HTML.FormField,
+    default: nil,
+    doc: "a boolean form field: gives the `id`, the `name` (the field mode) and `checked`"
+
   attr :checked, :boolean, default: false
   attr :name, :string, default: nil, doc: "the field mode of `switch/1`"
   attr :label, :string, required: true
@@ -147,6 +177,11 @@ defmodule DevactionUI.Switch do
 
   @doc "A card that is the switch: it gets the border and the wash of \"on\" when the switch is on."
   def switch_card(assigns) do
+    assigns =
+      assigns
+      |> FormField.put(value: :checkbox)
+      |> FormField.require!([:id], "switch_card/1")
+
     ~H"""
     <div class={["switch-card", @class]} data-disabled={@disabled && "true"}>
       <span :if={@icon != []} class="switch-card-mark" aria-hidden="true">

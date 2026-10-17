@@ -1,0 +1,30 @@
+<%!-- title: Groups, icon and sizes | text: Options grouped with optgroup, a disabled option and the three heights --%>
+<div class="flex max-w-xs flex-col gap-3">
+  <Select.select
+    id="select-role"
+    name="role"
+    value="dev"
+    options={[
+      {"Team", [%{value: "dev", label: "Developer"}, %{value: "pm", label: "Product manager"}]},
+      {"Client",
+       [%{value: "owner", label: "Owner"}, %{value: "viewer", label: "Viewer", disabled: true}]}
+    ]}
+  >
+    <:icon><.icon name="user-group" /></:icon>
+    <:chevron_icon><.icon name="arrow-down-01" class="size-3.5" /></:chevron_icon>
+  </Select.select>
+  <Select.select
+    id="select-sm"
+    name="sm"
+    size={:sm}
+    value="brl"
+    options={[{"BRL", "brl"}, {"USD", "usd"}]}
+  />
+  <Select.select
+    id="select-lg"
+    name="lg"
+    size={:lg}
+    value="brl"
+    options={[{"BRL", "brl"}, {"USD", "usd"}]}
+  />
+</div>
