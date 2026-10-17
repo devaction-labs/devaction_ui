@@ -21,4 +21,20 @@ defmodule DevactionUISite.SelectExampleTest do
     assert has_element?(view, "#select-search[phx-hook='DevactionUI.Listbox']")
     assert has_element?(view, "#select-search input[data-search][placeholder='Search...']")
   end
+
+  test "the select page shows the multiple choice with search and a count" do
+    {:ok, view, _html} = live(build_conn(), "/c/select")
+
+    assert has_element?(
+             view,
+             "#select-signers-search[phx-hook='DevactionUI.Listbox'][data-multiple='true']"
+           )
+
+    assert has_element?(view, "#select-signers-search input[data-search][placeholder='Search people']")
+
+    assert has_element?(
+             view,
+             "#select-signers-search input[type=hidden][name='signer_ids[]'][value=ana]"
+           )
+  end
 end
