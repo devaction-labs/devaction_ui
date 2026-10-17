@@ -2,6 +2,12 @@
 
 Every release lists new components, improvements, fixes and breaking changes. While the version is 0.x a minor release may break compatibility, and every break is listed with the step to follow.
 
+## 0.6.1
+
+### Fixed
+
+- The changelog of the docs site no longer shows the `next` rows of earlier releases beside the real versions. The package is unchanged since 0.6.0.
+
 ## 0.6.0
 
 ### New

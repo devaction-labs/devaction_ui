@@ -90,8 +90,15 @@ defmodule DevactionUISite.Changelog do
         "The Blade version of the kit for Laravel and Livewire projects, starting with the color picker, the slider and the filter menu."
     },
     %{
-      version: "v0.6.0",
+      version: "v0.6.1",
       status: "current",
+      tag: "v0.6.1",
+      summary:
+        "The changelog of the site lists only the real versions: the old `next` rows of earlier releases are gone. The package is unchanged since 0.6.0."
+    },
+    %{
+      version: "v0.6.0",
+      status: "archived",
       tag: "v0.6.0",
       summary:
         "The `Listbox`, a select with a panel of its own (search, groups, several choices, create), and the plain `Select` opening that same styled panel on a mouse, true to the artboards."
@@ -189,6 +196,10 @@ defmodule DevactionUISite.Changelog do
   ]
 
   @patches %{
+    "v0.6.1" => [
+      {"fixed", "Fixes", "changelog_versions",
+       "The changelog no longer shows the `next` rows of earlier releases beside the real versions."}
+    ],
     "v0.6.0" => [
       {"improved", "Improvements", "select_panel",
        "On a mouse or a trackpad `Select` opens a styled panel (groups as headers, a check on the chosen row, disabled rows muted) instead of the browser popup; the phone keeps the native picker and `multiple` stays a native list box."},
@@ -372,9 +383,8 @@ defmodule DevactionUISite.Changelog do
     total = length(Catalog.all())
     added = Enum.count(Catalog.all(), &(Catalog.since(&1) == "0.2"))
 
-    Repo.delete_all(
-      from(version in Version, where: version.version in ["v0.1", "v0.2", "v0.3", "v0.4"])
-    )
+    kept = Enum.map(@releases, & &1.version)
+    Repo.delete_all(from(version in Version, where: version.version not in ^kept))
 
     versions =
       for {release, index} <- Enum.with_index(@releases, 1) do
