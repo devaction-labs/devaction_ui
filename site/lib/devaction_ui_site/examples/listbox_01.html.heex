@@ -6,6 +6,7 @@
   placeholder="Choose a category"
   searchable
   search_placeholder="Search categories"
+  search_clear_label="Clear search"
   empty="No category for “%{term}”"
   value="dev"
   class="max-w-sm"
@@ -36,16 +37,24 @@
          label: "Contracts",
          description: "Proposals and addenda",
          icon: "contracts"
+       },
+       %{
+         value: "hr",
+         label: "People",
+         description: "Closed this year",
+         icon: "user-group",
+         disabled: true
        }
      ]}
   ]}
 >
   <:option_marker :let={option}>
-    <span class="grid size-7 place-items-center rounded-lg bg-wrap text-ink-2">
-      <.icon name={option.icon} class="size-4" />
+    <span class="grid size-7 place-items-center rounded-lg bg-wrap text-ink-2 in-[[data-current-marker]]:size-[18px] in-[[data-current-marker]]:bg-transparent in-[[data-current-marker]]:text-muted">
+      <.icon name={option.icon} class="size-4 in-[[data-current-marker]]:size-full" />
     </span>
   </:option_marker>
   <:chevron_icon><.icon name="arrow-down-01" class="size-4" /></:chevron_icon>
   <:search_icon><.icon name="search-01" class="size-4" /></:search_icon>
+  <:clear_icon><.icon name="cancel-01" /></:clear_icon>
   <:check_icon><.icon name="tick-02" class="size-4" /></:check_icon>
 </Listbox.listbox>

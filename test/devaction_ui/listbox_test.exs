@@ -142,6 +142,59 @@ defmodule DevactionUI.ListboxTest do
     assert html =~ "Compare to"
   end
 
+  test "the create row has the hint, the search has its clear button and the panel knows where to open" do
+    assigns = %{options: @options}
+
+    html =
+      rendered_to_string(~H"""
+      <Listbox.listbox
+        id="cat"
+        name="category"
+        label="Category"
+        placeholder="Choose"
+        searchable
+        create="Create %{term}"
+        create_hint="Enter"
+        on_create="create_category"
+        search_clear_label="Clear search"
+        position={:top}
+        align={:end}
+        options={@options}
+      >
+        <:clear_icon><i class="x" /></:clear_icon>
+      </Listbox.listbox>
+      """)
+
+    assert html =~ ~r/class="listbox-hint">\s*Enter\s*</
+    assert html =~ ~r/data-search-clear\s+aria-label="Clear search"\s+hidden/
+    assert html =~ ~r/data-search-clear.*<i class="x"/s
+    assert html =~ ~s(data-position="top")
+    assert html =~ ~s(data-align="end")
+  end
+
+  test "without the optional attributes there is no hint and no search clear button" do
+    assigns = %{options: @options}
+
+    html =
+      rendered_to_string(~H"""
+      <Listbox.listbox
+        id="cat"
+        name="category"
+        label="Category"
+        placeholder="Choose"
+        searchable
+        create="Create %{term}"
+        on_create="create_category"
+        options={@options}
+      />
+      """)
+
+    refute html =~ "listbox-hint"
+    refute html =~ "data-search-clear"
+    assert html =~ ~s(data-position="bottom")
+    assert html =~ ~s(data-align="start")
+  end
+
   test "takes the id, the name, the value and the error from a form field" do
     form = to_form(%{"category" => "dev"}, as: :post, errors: [category: {"is invalid", []}])
     assigns = %{form: form, options: @options}

@@ -1,0 +1,29 @@
+<%!-- title: Several, with search | text: A native select marks several with Ctrl or ⌘; for a long list use the Listbox with `multiple` and `searchable`: the panel stays open, the button counts the choices, and `clear_label` empties them --%>
+<Listbox.listbox
+  id="select-signers-search"
+  name="signer_ids"
+  label="Who signs"
+  show_label
+  placeholder="Nobody chosen"
+  multiple
+  searchable
+  search_placeholder="Search people"
+  empty="Nobody matches “%{term}”"
+  count_text="%{count} chosen"
+  indicator={:checkbox}
+  clear_label="Clear"
+  class="max-w-sm"
+  value={["ana", "fer"]}
+  options={[
+    %{value: "ana", label: "Ana Souza", description: "Developer", keywords: "dev"},
+    %{value: "caio", label: "Caio Lima", description: "Product manager", keywords: "pm"},
+    %{value: "fer", label: "Fernanda Reis", description: "Client"},
+    %{value: "joao", label: "João Melo", description: "Finance"}
+  ]}
+>
+  <:icon><.icon name="user-group" /></:icon>
+  <:chevron_icon><.icon name="arrow-down-01" class="size-4" /></:chevron_icon>
+  <:search_icon><.icon name="search-01" class="size-4" /></:search_icon>
+  <:clear_icon><.icon name="cancel-01" /></:clear_icon>
+  <:check_icon><.icon name="tick-02" /></:check_icon>
+</Listbox.listbox>

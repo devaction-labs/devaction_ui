@@ -1,7 +1,8 @@
 import {notify} from "./dom.js"
-import {buttonText, canCreate, fill, keeps, pick} from "./listbox_logic.js"
+import {buttonText, canCreate, fill, keeps, pick, placePanel} from "./listbox_logic.js"
 import {extendBuffer, isTypeahead, matchIndex} from "./menu_logic.js"
 import {runKey, wrap} from "./keys.js"
+import {screenSize} from "./placement.js"
 
 /**
  * The listbox: a button that shows the choice and a panel the library draws. With a search, the field keeps
@@ -20,6 +21,7 @@ export default {
     this.panel = this.el.querySelector("[data-panel]")
     this.list = this.el.querySelector("[data-list]")
     this.search = this.el.querySelector("[data-search]")
+    this.searchClear = this.el.querySelector("[data-search-clear]")
     this.focusTarget = this.search ?? this.list
     this.typed = {buffer: "", at: 0}
 
@@ -27,10 +29,11 @@ export default {
     this.trigger.addEventListener("keydown", (event) => runKey({ArrowDown: () => this.open(), ArrowUp: () => this.open()}, event))
     this.focusTarget.addEventListener("keydown", (event) => this.onKey(event))
     this.search?.addEventListener("input", () => this.filter())
-    this.list.addEventListener("mousedown", (event) => event.preventDefault())
+    this.panel.addEventListener("mousedown", (event) => event.target.closest("[data-list], [data-search-clear]") && event.preventDefault())
     this.el.addEventListener("click", (event) => this.onClick(event))
 
     this.outside = (event) => !this.el.contains(event.target) && this.close()
+    this.reflow = (event) => !this.panel.contains(event.target) && this.place()
     document.addEventListener("mousedown", this.outside)
   },
 
@@ -40,6 +43,8 @@ export default {
 
   destroyed() {
     document.removeEventListener("mousedown", this.outside)
+    window.removeEventListener("resize", this.reflow)
+    window.removeEventListener("scroll", this.reflow, true)
   },
 
   isMultiple() {
@@ -64,6 +69,7 @@ export default {
     const row = event.target.closest('[role="option"]')
     row && row.getAttribute("aria-disabled") !== "true" && this.choose(row)
     event.target.closest("[data-clear]") && this.clear()
+    event.target.closest("[data-search-clear]") && this.clearSearch()
   },
 
   onKey(event) {
@@ -108,11 +114,16 @@ export default {
     this.search && (this.search.value = "")
     this.filter(false)
     this.activate(this.rows().find((row) => row.getAttribute("aria-selected") === "true") ?? this.rows()[0])
-    this.focusTarget.focus()
+    this.focusTarget.focus({preventScroll: true})
+    window.addEventListener("resize", this.reflow)
+    window.addEventListener("scroll", this.reflow, true)
   },
 
   close() {
     if (this.panel.hidden) return
+    window.removeEventListener("resize", this.reflow)
+    window.removeEventListener("scroll", this.reflow, true)
+    this.panel.removeAttribute("style")
     this.panel.hidden = true
     this.trigger.setAttribute("aria-expanded", "false")
     this.focusTarget.removeAttribute("aria-activedescendant")
@@ -136,7 +147,41 @@ export default {
       create.querySelector("[data-create-text]").textContent = fill(create.dataset.pattern, {term: term.trim()})
     }
 
+    this.searchClear && (this.searchClear.hidden = term === "")
     resetActive && this.activate(this.rows()[0])
+    this.place()
+  },
+
+  /** Puts the panel by the button, on the side that has room, and shortens the list when neither side has enough. */
+  place() {
+    if (this.panel.hidden) return
+    const {panel, list, trigger} = this
+    panel.removeAttribute("style")
+    const size = {width: panel.offsetWidth, height: panel.offsetHeight}
+    const anchor = trigger.getBoundingClientRect()
+    const spot = placePanel({
+      anchor,
+      panel: size,
+      chrome: size.height - list.offsetHeight,
+      screen: screenSize(),
+      wanted: this.el.dataset.position,
+      align: this.el.dataset.align,
+    })
+    const px = (value) => (value === null ? "auto" : `${value}px`)
+    Object.assign(panel.style, {position: "fixed", margin: "0", right: "auto", minWidth: `${anchor.width}px`, width: `${size.width}px`, left: px(spot.left), top: px(spot.top), bottom: px(spot.bottom)})
+    panel.style.setProperty("--listbox-room", `${spot.list}px`)
+
+    const box = panel.getBoundingClientRect()
+    const drift = {x: box.left - spot.left, y: (spot.side === "bottom" ? box.top : box.bottom) - spot.edge}
+    panel.style.left = px(spot.left - drift.x)
+    panel.style.top = px(spot.top === null ? null : spot.top - drift.y)
+    panel.style.bottom = px(spot.bottom === null ? null : spot.bottom + drift.y)
+  },
+
+  clearSearch() {
+    this.search.value = ""
+    this.filter()
+    this.search.focus({preventScroll: true})
   },
 
   activate(row) {
