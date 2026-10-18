@@ -36,9 +36,29 @@ const unlock = () => {
  * - overlays stack: Esc closes only the one on top, running the command in `data-close`;
  * - a bottom sheet (a `[data-handle]` inside) is closed by dragging the handle down, which respects
  *   `prefers-reduced-motion`.
+ *
+ * A `lazy` overlay is rendered hidden and is held only from the `devaction:overlay-open` event (what
+ * `Drawer.show/1` dispatches) to `devaction:overlay-close`; any other overlay is held from mount to destroy.
  */
 export default {
   mounted() {
+    this.active = false
+    this.onOpen = () => this.activate()
+    this.onShut = () => this.deactivate()
+    this.el.addEventListener("devaction:overlay-open", this.onOpen)
+    this.el.addEventListener("devaction:overlay-close", this.onShut)
+    this.el.hidden || this.activate()
+  },
+
+  destroyed() {
+    this.el.removeEventListener("devaction:overlay-open", this.onOpen)
+    this.el.removeEventListener("devaction:overlay-close", this.onShut)
+    this.deactivate()
+  },
+
+  activate() {
+    if (this.active) return
+    this.active = true
     stack.length === 0 && lock()
     stack = stackWith(stack, this.el.id)
     this.held = around(this.el)
@@ -50,13 +70,23 @@ export default {
     this.onKey = (event) => runKey({Escape: () => isTop(stack, this.el.id) && this.close()}, event)
     document.addEventListener("keydown", this.onKey)
     this.dragging = null
-    this.el.addEventListener("pointerdown", (event) => this.grab(event))
-    this.el.addEventListener("pointermove", (event) => this.drag(event))
-    this.el.addEventListener("pointerup", () => this.drop())
-    this.el.addEventListener("pointercancel", () => this.settle())
+    this.onDown = (event) => this.grab(event)
+    this.onMove = (event) => this.drag(event)
+    this.onUp = () => this.drop()
+    this.onCancel = () => this.settle()
+    this.el.addEventListener("pointerdown", this.onDown)
+    this.el.addEventListener("pointermove", this.onMove)
+    this.el.addEventListener("pointerup", this.onUp)
+    this.el.addEventListener("pointercancel", this.onCancel)
   },
 
-  destroyed() {
+  deactivate() {
+    if (!this.active) return
+    this.active = false
+    this.el.removeEventListener("pointerdown", this.onDown)
+    this.el.removeEventListener("pointermove", this.onMove)
+    this.el.removeEventListener("pointerup", this.onUp)
+    this.el.removeEventListener("pointercancel", this.onCancel)
     document.removeEventListener("keydown", this.onKey)
     stack = stackWithout(stack, this.el.id)
     this.held.forEach((node) => {

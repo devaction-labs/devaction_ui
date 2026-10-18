@@ -108,6 +108,88 @@ defmodule DevactionUI.OverlaysTest do
     end
   end
 
+  describe "lazy overlays (opened in the browser)" do
+    defp lazy_drawer do
+      assigns = %{}
+
+      rendered_to_string(~H"""
+      <Drawer.drawer id="d" lazy on_close="clear" close_label="Close">
+        <:close_icon>X</:close_icon>
+        <:title>Edit</:title>
+        BODY
+      </Drawer.drawer>
+      """)
+    end
+
+    test "a drawer without lazy is not hidden and is unchanged" do
+      refute drawer() =~ ~r/<div[^>]*id="d"[^>]*\shidden/
+    end
+
+    test "a lazy drawer is rendered hidden, and the server may not show it again" do
+      html = lazy_drawer()
+
+      assert html =~ ~r/<div[^>]*id="d"[^>]*\shidden/
+      assert html =~ "ignore_attrs"
+      refute html =~ "focus_first"
+    end
+
+    test "a lazy drawer hides itself in the browser and still runs on_close" do
+      html = lazy_drawer()
+
+      assert html =~ ~r/data-close="[^"]*pop_focus[^"]*clear[^"]*overlay-close[^"]*hidden/
+    end
+
+    test "show/1 remembers the focus, unhides, opens the overlay and focuses the panel in that order" do
+      assert %JS{
+               ops: [
+                 ["push_focus", _],
+                 ["remove_attr", %{attr: "hidden", to: "#d"}],
+                 ["dispatch", %{event: "devaction:overlay-open", to: "#d"}],
+                 ["focus_first", %{to: "#d-panel"}]
+               ]
+             } = Drawer.show("d")
+    end
+
+    test "hide/1 gives the focus back, closes the overlay and hides it" do
+      assert %JS{
+               ops: [
+                 ["pop_focus", _],
+                 ["dispatch", %{event: "devaction:overlay-close", to: "#d"}],
+                 ["set_attr", %{to: "#d", attr: ["hidden", "hidden"]}]
+               ]
+             } = Drawer.hide("d")
+    end
+
+    test "the modal has the same lazy mode and the same commands" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Modal.modal id="m" lazy on_close="clear">
+          <:title>T</:title>
+        </Modal.modal>
+        """)
+
+      assert html =~ ~r/<div[^>]*id="m"[^>]*\shidden/
+      assert html =~ ~r/data-close="[^"]*clear[^"]*overlay-close/
+      assert Modal.show("m") == Drawer.show("m")
+      assert Modal.hide("m") == Drawer.hide("m")
+    end
+
+    test "a modal that is not dismissible still ignores a click outside when lazy" do
+      assigns = %{}
+
+      html =
+        rendered_to_string(~H"""
+        <Modal.modal id="m" lazy dismissible={false} on_close="clear">
+          <:title>T</:title>
+        </Modal.modal>
+        """)
+
+      refute html =~ ~r/class="modal-backdrop"[^>]*phx-click/
+    end
+  end
+
   describe "Modal" do
     test "is a labelled dialog of the size asked, with the icon tile and the footer" do
       assigns = %{}

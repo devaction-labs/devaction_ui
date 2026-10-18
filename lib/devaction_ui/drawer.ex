@@ -19,10 +19,65 @@ defmodule DevactionUI.Drawer do
   closes it when dragged down (a short drag springs back; with `prefers-reduced-motion` it does not animate).
   The width is 384 (`:sm`), 480 (`:md`, the default, `min(30rem, 100vw - 1.5rem)`) or 640 (`:lg`). The actions
   of the footer are the caller's: the canvas draws Cancel as a 44 px quiet button with no border.
+
+  ## Opening on the client
+
+  By default the drawer exists only while the LiveView renders it, so opening costs a round trip and the
+  body is built only when needed. With `lazy` it is always rendered, hidden, and `show/1` opens it in the
+  browser at once, with no round trip, while `hide/1` and every way the drawer closes itself (Esc, the
+  backdrop, the close button) hide it and still run `on_close`, so the server can clear what it loaded:
+
+      <button phx-click={Drawer.show("edit") |> JS.push("load", value: %{id: id})}>Edit</button>
+
+      <Drawer.drawer id="edit" lazy on_close="clear" close_label="Close">
+        <:close_icon>X</:close_icon>
+        <:title>Edit</:title>
+        <div :if={@item}>{@item.name}</div>
+      </Drawer.drawer>
+
+  Keep the body behind an `:if` on what the server loads: a closed lazy drawer then costs the shell only,
+  not the whole form. The page is locked and held `inert` only from `show/1` to `hide/1`.
   """
   use Phoenix.Component
 
   alias Phoenix.LiveView.JS
+
+  @doc """
+  The command that opens a `lazy` drawer or modal in the browser: it remembers the focus, shows it, locks the
+  page and moves the focus in. Chain a `JS.push/2` to load what it shows. It does not run `on_close`.
+  """
+  @spec show(String.t()) :: JS.t()
+  def show(id) when is_binary(id) do
+    JS.push_focus()
+    |> JS.remove_attribute("hidden", to: "##{id}")
+    |> JS.dispatch("devaction:overlay-open", to: "##{id}")
+    |> JS.focus_first(to: "##{id}-panel")
+  end
+
+  @doc """
+  The command that closes a `lazy` drawer or modal in the browser and gives the focus back. For your own
+  Cancel button; it does not run `on_close`, so push an event too when the server has something to clear.
+  """
+  @spec hide(String.t()) :: JS.t()
+  def hide(id) when is_binary(id), do: JS.pop_focus() |> conceal(id)
+
+  @doc false
+  @spec conceal(JS.t(), String.t()) :: JS.t()
+  def conceal(%JS{} = js, id) do
+    js
+    |> JS.dispatch("devaction:overlay-close", to: "##{id}")
+    |> JS.set_attribute({"hidden", "hidden"}, to: "##{id}")
+  end
+
+  @doc false
+  @spec dismiss(String.t() | JS.t(), String.t(), boolean()) :: JS.t()
+  def dismiss(on_close, _id, false), do: close(on_close)
+  def dismiss(on_close, id, true), do: on_close |> close() |> conceal(id)
+
+  @doc false
+  @spec mounted(boolean(), String.t()) :: JS.t()
+  def mounted(false, id), do: JS.focus_first(to: "##{id}-panel")
+  def mounted(true, _id), do: JS.ignore_attributes(["hidden"])
 
   @doc """
   The command for the button that opens a drawer or a modal: it remembers the focus, then pushes `event`.
@@ -41,6 +96,11 @@ defmodule DevactionUI.Drawer do
     required: true,
     doc: "an event name or a `JS` command, run on Esc, the close button and a click outside"
 
+  attr :lazy, :boolean,
+    default: false,
+    doc:
+      "always rendered, hidden, and opened in the browser by `show/1`; see the section on opening on the client"
+
   attr :close_label, :string, required: true
   attr :class, :any, default: nil
   slot :close_icon, required: true
@@ -57,11 +117,12 @@ defmodule DevactionUI.Drawer do
       id={@id}
       class="drawer-root"
       phx-hook="DevactionUI.Overlay"
-      data-close={close(@on_close)}
-      phx-mounted={JS.focus_first(to: "##{@id}-panel")}
+      hidden={@lazy}
+      data-close={dismiss(@on_close, @id, @lazy)}
+      phx-mounted={mounted(@lazy, @id)}
       {@rest}
     >
-      <div class="drawer-backdrop" phx-click={close(@on_close)} aria-hidden="true" />
+      <div class="drawer-backdrop" phx-click={dismiss(@on_close, @id, @lazy)} aria-hidden="true" />
       <.focus_wrap
         id={"#{@id}-panel"}
         role="dialog"
@@ -99,7 +160,7 @@ defmodule DevactionUI.Drawer do
           <button
             type="button"
             aria-label={@close_label}
-            phx-click={close(@on_close)}
+            phx-click={dismiss(@on_close, @id, @lazy)}
             class="-mt-2 -mr-2 flex size-10 flex-none items-center justify-center rounded-[10px] bg-transparent text-muted outline-none hover:bg-wrap focus-visible:ring-4 focus-visible:ring-ink/10"
           >
             {render_slot(@close_icon)}
