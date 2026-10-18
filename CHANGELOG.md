@@ -2,6 +2,13 @@
 
 Every release lists new components, improvements, fixes and breaking changes. While the version is 0.x a minor release may break compatibility, and every break is listed with the step to follow.
 
+## Unreleased
+
+### Added
+
+- `Drawer` and `Modal` take `lazy`: the overlay is always rendered, hidden, and `Drawer.show/1` (also `Modal.show/1`) opens it in the browser with no round trip, chained with a `JS.push/2` that loads what it shows. `Drawer.hide/1` (also `Modal.hide/1`) closes it; Esc, the backdrop and the close button hide it and still run `on_close`, so the server can clear what it loaded. The default is unchanged: without `lazy` the overlay exists only while the LiveView renders it (`:if`).
+- The `DevactionUI.Overlay` hook locks the page and holds the rest `inert` only from `show/1` to `hide/1` on a lazy overlay (the events `devaction:overlay-open` and `devaction:overlay-close`); on any other overlay it still does so from mount to destroy.
+
 ## 0.7.1
 
 ### Fixed

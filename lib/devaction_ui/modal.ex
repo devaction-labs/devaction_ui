@@ -38,6 +38,12 @@ defmodule DevactionUI.Modal do
   """
   defdelegate open(event_or_js), to: DevactionUI.Drawer
 
+  @doc "Opens a `lazy` modal in the browser, with no round trip. The same as `DevactionUI.Drawer.show/1`."
+  defdelegate show(id), to: DevactionUI.Drawer
+
+  @doc "Closes a `lazy` modal in the browser. The same as `DevactionUI.Drawer.hide/1`."
+  defdelegate hide(id), to: DevactionUI.Drawer
+
   @doc "The command that closes: gives the focus back, then runs `on_close` (an event name or a `JS` command)."
   @spec close(String.t() | JS.t()) :: JS.t()
   def close(%JS{} = js), do: JS.pop_focus(js)
@@ -61,6 +67,11 @@ defmodule DevactionUI.Modal do
   attr :on_close, :any,
     required: true,
     doc: "an event name or a `JS` command, run on Esc, the close button and a click outside"
+
+  attr :lazy, :boolean,
+    default: false,
+    doc:
+      "always rendered, hidden, and opened in the browser by `show/1`; see `DevactionUI.Drawer` on opening on the client"
 
   attr :close_label, :string,
     default: nil,
@@ -86,13 +97,14 @@ defmodule DevactionUI.Modal do
       id={@id}
       class="fixed inset-0 z-[70] flex items-center justify-center p-4"
       phx-hook="DevactionUI.Overlay"
-      data-close={close(@on_close)}
-      phx-mounted={focus(@focus, @id)}
+      hidden={@lazy}
+      data-close={DevactionUI.Drawer.dismiss(@on_close, @id, @lazy)}
+      phx-mounted={mounted(@lazy, @focus, @id)}
       {@rest}
     >
       <div
         class="modal-backdrop"
-        phx-click={@dismissible && close(@on_close)}
+        phx-click={@dismissible && DevactionUI.Drawer.dismiss(@on_close, @id, @lazy)}
         aria-hidden="true"
       />
       <.focus_wrap
@@ -130,7 +142,7 @@ defmodule DevactionUI.Modal do
             :if={@close_label}
             type="button"
             aria-label={@close_label}
-            phx-click={close(@on_close)}
+            phx-click={DevactionUI.Drawer.dismiss(@on_close, @id, @lazy)}
             class="-mt-1.5 -mr-2 flex size-9.5 flex-none items-center justify-center rounded-[10px] bg-transparent text-muted outline-none hover:bg-wrap focus-visible:ring-4 focus-visible:ring-ink/10"
           >
             {render_slot(@close_icon)}
@@ -144,6 +156,9 @@ defmodule DevactionUI.Modal do
     </div>
     """
   end
+
+  defp mounted(true, _focus, _id), do: JS.ignore_attributes(["hidden"])
+  defp mounted(false, focus, id), do: focus(focus, id)
 
   defp focus(nil, id), do: JS.focus_first(to: "##{id}-panel")
   defp focus(selector, _id), do: JS.focus(to: selector)
