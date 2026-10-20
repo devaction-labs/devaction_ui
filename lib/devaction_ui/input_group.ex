@@ -22,6 +22,16 @@ defmodule DevactionUI.InputGroup do
   error rings (8% of the ink in light, 10% in dark), the error fill and the disabled fill are the custom
   properties `--ring-field`, `--ring-field-error`, `--fill-field-error` and `--fill-field-off`, which an app can
   override on the group. A `readonly` field is drawn as the canvas draws a secret to copy: plain fill, monospace.
+
+  `floating_label` puts the label inside the frame, where the placeholder would be, and lifts it when the field
+  has the focus or a value: onto the border (`floating={:border}`, the default) or to the top of a 56px field
+  (`floating={:inside}`). It is a real `<label for>`, so it names the field; any `placeholder` is dropped, since
+  the label stands in its place.
+
+  `busy_label` is for a field that asks the server as you type (a search with `phx-change` or `phx-keyup`): a
+  spinner takes the place of the action while LiveView is waiting for the answer, by the `phx-change-loading`
+  and `phx-keyup-loading` classes it sets, with no assign to keep. `loading` is the same spinner held by the
+  caller. `valid` draws the frame of a value that was checked and passed (an address that is free).
   """
   use Phoenix.Component
 
@@ -40,6 +50,22 @@ defmodule DevactionUI.InputGroup do
   attr :type, :string, default: "text"
   attr :size, :atom, values: [:sm, :md, :lg], default: :md, doc: "36, 44 or 52 px high"
   attr :invalid, :boolean, default: false
+  attr :valid, :boolean, default: false, doc: "the frame of a value that was checked and passed"
+
+  attr :floating_label, :string,
+    default: nil,
+    doc: "a label in the place of the placeholder that lifts on focus or with a value"
+
+  attr :floating, :atom,
+    values: [:border, :inside],
+    default: :border,
+    doc: "where the floating label goes: onto the border, or to the top of a 56px field"
+
+  attr :busy_label, :string,
+    default: nil,
+    doc:
+      "shows a spinner while LiveView waits for this field's `phx-change` or `phx-keyup`, read by screen readers"
+
   attr :loading, :boolean, default: false, doc: "swaps the action for a spinner"
 
   attr :loading_label, :string,
@@ -76,23 +102,43 @@ defmodule DevactionUI.InputGroup do
       |> FormField.put(value: :text)
       |> FormField.require!([:id], "input_group/1")
 
-    assigns = assign(assigns, :invalid, assigns.invalid or assigns.field_errors != [])
+    assigns =
+      assigns
+      |> assign(:invalid, assigns.invalid or assigns.field_errors != [])
+      |> assign(:rest, floating_rest(assigns.rest, assigns.floating_label))
 
     ~H"""
-    <span id={"#{@id}-group"} class={["input-group", size_class(@size), @class]}>
+    <span
+      id={"#{@id}-group"}
+      class={[
+        "input-group",
+        size_class(@size),
+        @floating_label && floating_class(@floating),
+        @valid && "input-valid",
+        @class
+      ]}
+    >
       <span :for={prefix <- @prefix} class={addon_class(prefix)}>{render_slot(prefix)}</span>
       <span :if={@icon != []} class="input-icon [&>*]:size-full">{render_slot(@icon)}</span>
-      <input
+      <span :if={@floating_label} class="input-float">
+        <.control id={@id} name={@name} type={@type} value={@value} invalid={@invalid} rest={@rest} />
+        <label for={@id} class="input-float-label">{@floating_label}</label>
+      </span>
+      <.control
+        :if={!@floating_label}
         id={@id}
         name={@name}
         type={@type}
         value={@value}
-        aria-invalid={@invalid && "true"}
-        {@rest}
+        invalid={@invalid}
+        rest={@rest}
       />
       <span :if={@hint != []} class="shrink-0">{render_slot(@hint)}</span>
       <.spinner :if={@loading} label={@loading_label} class="size-[18px] shrink-0 border-2" />
-      <span :if={!@loading and @action != []} class="contents">{render_slot(@action)}</span>
+      <span :if={@busy_label && !@loading} class="input-busy">
+        <.spinner label={@busy_label} class="size-[18px] border-2" />
+      </span>
+      <span :if={!@loading and @action != []} class="input-actions">{render_slot(@action)}</span>
       <span :for={suffix <- @suffix} class={addon_class(suffix)}>{render_slot(suffix)}</span>
     </span>
     """
@@ -118,6 +164,25 @@ defmodule DevactionUI.InputGroup do
       slot[:mono] && "font-mono text-[13px]"
     ]
   end
+
+  defp control(assigns) do
+    ~H"""
+    <input
+      id={@id}
+      name={@name}
+      type={@type}
+      value={@value}
+      aria-invalid={@invalid && "true"}
+      {@rest}
+    />
+    """
+  end
+
+  defp floating_rest(rest, nil), do: rest
+  defp floating_rest(rest, _label), do: Map.put(rest, :placeholder, " ")
+
+  defp floating_class(:border), do: "input-floating"
+  defp floating_class(:inside), do: "input-floating input-floating-inside"
 
   defp size_class(:sm), do: "input-sm"
   defp size_class(:md), do: nil

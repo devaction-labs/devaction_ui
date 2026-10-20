@@ -314,6 +314,28 @@
   .input-sm { @apply h-9 rounded-[10px] px-3 text-[13px]; }
   .input-lg { @apply h-13 rounded-[14px] px-4 text-base; }
 
+  /* Floating label: the label sits where the placeholder would and lifts on focus or with a value */
+  .input-floating { @apply relative; }
+  .input-float { @apply relative flex h-full min-w-0 flex-1 items-center; }
+  .input-float > input { @apply h-full w-full min-w-0 bg-transparent outline-none placeholder:text-transparent; }
+  .input-float-label { @apply pointer-events-none absolute top-1/2 left-0 max-w-full -translate-y-1/2 truncate text-muted-2 transition-[top,font-size,color,transform] duration-150 motion-reduce:transition-none; }
+  .input-floating:not(.input-floating-inside) .input-float-label { @apply -ml-1 px-1; }
+  .input-floating:not(.input-floating-inside) .input-float > input:is(:focus, :not(:placeholder-shown)) + .input-float-label { @apply -top-px rounded-[4px] bg-panel text-xs font-medium text-ink-2; }
+  .input-floating-inside { @apply h-14 rounded-[14px]; }
+  .input-floating-inside.input-lg { @apply h-16; }
+  .input-floating-inside .input-float > input { @apply pt-[18px]; }
+  .input-floating-inside .input-float > input:is(:focus, :not(:placeholder-shown)) + .input-float-label { @apply top-2.5 translate-y-0 text-xs font-medium text-muted; }
+  .input-float > input:focus + .input-float-label { @apply text-ink!; }
+  .input-float > input[aria-invalid=true] + .input-float-label { @apply text-risk-fg!; }
+  .input-float > input:disabled + .input-float-label { @apply bg-transparent text-muted; }
+
+  /* Busy: the spinner of a field waiting for its phx-change or phx-keyup, by the classes LiveView sets */
+  .input-busy { @apply hidden shrink-0; }
+  .input-actions { @apply contents; }
+  .input-group:has(input:is(.phx-change-loading, .phx-keyup-loading)) .input-busy { @apply grid; }
+  .input-group:has(input:is(.phx-change-loading, .phx-keyup-loading)) .input-actions { @apply hidden; }
+  .input-valid { @apply border-ok-fg; }
+
   /* Select: the native <select> in the input group frame; the arrow is drawn over the right edge */
   .select > select { @apply h-full min-w-0 flex-1 cursor-pointer appearance-none bg-transparent pr-6 outline-none disabled:cursor-default; }
   .select > select:has(> option[value=""]:checked) { @apply text-muted-2; }

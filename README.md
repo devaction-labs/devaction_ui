@@ -123,7 +123,7 @@ Requirements: Elixir 1.20 or newer, Phoenix 1.8, Phoenix LiveView 1.2, Tailwind 
 | `DevactionUI.Divider` | a thin line, or a line with a short word in the middle |
 | `DevactionUI.Drawer` | a panel at the side of the screen to edit without leaving it: floating, docked, from the left, wide, stacked or a bottom sheet |
 | `DevactionUI.FilterMenu` | a button that opens filter groups with submenus of ticks; sends on Apply or on every tick |
-| `DevactionUI.InputGroup` | a text field with an icon, an action at the end and add-ons on either side, with one focus ring on the frame |
+| `DevactionUI.InputGroup` | a text field with an icon, an action at the end and add-ons on either side, with one focus ring on the frame; a floating label (on the border or inside), a spinner while its `phx-change` is on its way (`busy_label`) and a checked frame (`valid`) |
 | `DevactionUI.Modal` | a dialog for a decision that interrupts: confirm, tell that something worked, fill a short form |
 | `DevactionUI.NumberInput` | a number field with a minus and a plus; a `spinbutton` that says its value and its limits |
 | `DevactionUI.PageHeader` | the head of a screen: the breadcrumb, the title with its status tag and actions, a line of text and the tabs |
