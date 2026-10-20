@@ -2,6 +2,14 @@
 
 Every release lists new components, improvements, fixes and breaking changes. While the version is 0.x a minor release may break compatibility, and every break is listed with the step to follow.
 
+## Unreleased
+
+### New
+
+- `InputGroup`: `floating_label` puts the label where the placeholder would be and lifts it on focus or with a value, onto the border (`floating={:border}`, the default) or to the top of a 56px field (`floating={:inside}`); it is a real `<label for>`, and a `placeholder` given with it is dropped.
+- `InputGroup`: `busy_label` shows a spinner in the place of the action while LiveView waits for the field's `phx-change` or `phx-keyup` (by the `phx-change-loading` and `phx-keyup-loading` classes), for a search on the server with no assign to keep.
+- `InputGroup`: `valid` draws the frame of a value that was checked and passed.
+
 ## 0.7.1
 
 ### Fixed

@@ -1,0 +1,45 @@
+<%!-- title: Search On The Server | text: With `busy_label` a spinner takes the place of the action while the `phx-change` of the field is on its way; `loading` holds it, and `valid` marks a value that was checked --%>
+<div class="grid gap-5 md:grid-cols-2">
+  <label class="flex flex-col gap-1.5 text-sm font-medium">
+    Search contracts
+    <InputGroup.input_group
+      id="input-group-server-search"
+      name="q"
+      type="search"
+      placeholder="Client, number or amount"
+      busy_label="Searching"
+      phx-debounce="300"
+    >
+      <:icon><.icon name="search-01" /></:icon>
+    </InputGroup.input_group>
+  </label>
+  <label class="flex flex-col gap-1.5 text-sm font-medium">
+    Searching
+    <InputGroup.input_group
+      id="input-group-server-searching"
+      type="search"
+      value="church"
+      loading
+      loading_label="Searching"
+    >
+      <:icon><.icon name="search-01" /></:icon>
+    </InputGroup.input_group>
+  </label>
+  <label class="flex flex-col gap-1.5 text-sm font-medium">
+    Checking the address
+    <InputGroup.input_group
+      id="input-group-checking"
+      value="sge-campo-limpo"
+      loading
+      loading_label="Checking if the address is free"
+    >
+      <:suffix loose>.devaction.app</:suffix>
+    </InputGroup.input_group>
+  </label>
+  <label class="flex flex-col gap-1.5 text-sm font-medium">
+    Address is free
+    <InputGroup.input_group id="input-group-free" value="sge-campo-limpo" valid>
+      <:suffix loose>.devaction.app</:suffix>
+    </InputGroup.input_group>
+  </label>
+</div>

@@ -1,0 +1,33 @@
+<%!-- title: Floating Label | text: The label sits where the placeholder would and lifts on focus or with a value: onto the border, or to the top of a 56px field --%>
+<div class="grid gap-5 md:grid-cols-2">
+  <InputGroup.input_group id="input-group-float" name="project" floating_label="Project name" />
+  <InputGroup.input_group
+    id="input-group-float-filled"
+    name="email"
+    type="email"
+    value="alex@devaction.com.br"
+    floating_label="E-mail"
+  />
+  <InputGroup.input_group
+    id="input-group-float-inside"
+    name="client"
+    floating_label="Client"
+    floating={:inside}
+  />
+  <InputGroup.input_group
+    id="input-group-float-inside-icon"
+    name="amount"
+    value="12,500.00"
+    floating_label="Contract amount"
+    floating={:inside}
+  >
+    <:icon><.icon name="invoice-03" /></:icon>
+  </InputGroup.input_group>
+  <InputGroup.input_group
+    id="input-group-float-invalid"
+    name="slug"
+    value="sge church"
+    floating_label="Slug"
+    invalid
+  />
+</div>
